@@ -9,8 +9,9 @@ TurboCore: Numba 기반 고속 연산 코어
 - 평가 지표 (MAPE, RMSE, MAE)
 """
 
+from typing import Tuple
+
 import numpy as np
-from typing import Tuple, Optional
 
 try:
     from numba import jit, prange

@@ -10,8 +10,9 @@ Robust Regression Models
 Pure numpy/scipy implementation (no sklearn dependency).
 """
 
+from typing import Optional
+
 import numpy as np
-from typing import Optional, Tuple
 from scipy.optimize import linprog
 
 

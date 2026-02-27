@@ -6,10 +6,10 @@ Entropic Confidence Scoring
 단순 신뢰구간 너비가 아닌, 분포 구조(다봉성, 편향, 집중도)를 분석.
 """
 
-import numpy as np
-from typing import Optional, List, Dict, Tuple
-from scipy.cluster.vq import kmeans2
+from typing import Dict, List, Optional
 
+import numpy as np
+from scipy.cluster.vq import kmeans2
 
 DEFAULT_N_BOOTSTRAP = 200
 DEFAULT_N_BINS = 30

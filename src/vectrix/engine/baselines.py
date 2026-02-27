@@ -9,8 +9,9 @@ Simple reference models for benchmarking:
 - WindowAverage: Moving window average
 """
 
-import numpy as np
 from typing import Tuple
+
+import numpy as np
 
 
 class NaiveModel:

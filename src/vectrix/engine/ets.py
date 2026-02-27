@@ -15,8 +15,9 @@ Hyndman-Khandakar 스타일 자동 모델 선택:
 Numba로 최적화된 순수 구현
 """
 
+from typing import List, Optional, Tuple
+
 import numpy as np
-from typing import Tuple, Optional, Dict, Any, List
 from scipy.optimize import minimize
 
 try:

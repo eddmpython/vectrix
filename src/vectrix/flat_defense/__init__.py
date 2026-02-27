@@ -8,9 +8,9 @@
 4. FlatPredictionCorrector - 지능형 보정
 """
 
-from .diagnostic import FlatRiskDiagnostic
-from .detector import FlatPredictionDetector
 from .corrector import FlatPredictionCorrector
+from .detector import FlatPredictionDetector
+from .diagnostic import FlatRiskDiagnostic
 
 __all__ = [
     "FlatRiskDiagnostic",

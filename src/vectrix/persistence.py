@@ -1,6 +1,6 @@
 """모델 저장/불러오기"""
-import pickle
 import json
+import pickle
 import struct
 from datetime import datetime
 from typing import Optional
@@ -19,7 +19,6 @@ class ModelPersistence:
 
         포맷: MAGIC(4) + metaLen(4) + metaJSON(N) + pickle(M)
         """
-        import numpy as np
 
         meta = {
             'formatVersion': FORMAT_VERSION,

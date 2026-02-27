@@ -6,53 +6,53 @@ Diagnostics, robust models, model selection, time series regression.
 Pure numpy/scipy implementation (no sklearn dependency).
 """
 
+from .diagnostics import (
+    DiagnosticResult,
+    RegressionDiagnostics,
+)
 from .features import (
-    LagFeatures,
-    RollingFeatures,
     CalendarFeatures,
     FourierFeatures,
+    LagFeatures,
+    RollingFeatures,
     autoFeatureEngineering,
-)
-from .linear import (
-    LinearRegressor,
-    RidgeRegressor,
-    LassoRegressor,
-    ElasticNetRegressor,
-)
-from .reduction import (
-    DirectReduction,
-    RecursiveReduction,
 )
 from .inference import (
     OLSInference,
     RegressionResult,
 )
-from .diagnostics import (
-    DiagnosticResult,
-    RegressionDiagnostics,
+from .linear import (
+    ElasticNetRegressor,
+    LassoRegressor,
+    LinearRegressor,
+    RidgeRegressor,
+)
+from .reduction import (
+    DirectReduction,
+    RecursiveReduction,
 )
 from .robust import (
-    WLSRegressor,
     HuberRegressor,
-    RANSACRegressor,
     QuantileRegressor,
+    RANSACRegressor,
+    WLSRegressor,
 )
 from .selection import (
-    StepwiseResult,
-    RegularizationCVResult,
     BestSubsetResult,
-    StepwiseSelector,
-    RegularizationCV,
     BestSubsetSelector,
+    RegularizationCV,
+    RegularizationCVResult,
+    StepwiseResult,
+    StepwiseSelector,
 )
 from .timeseries_regression import (
-    TSRegressionResult,
+    CochraneOrcutt,
+    DistributedLagModel,
+    GrangerCausality,
     GrangerResult,
     NeweyWestOLS,
-    CochraneOrcutt,
     PraisWinsten,
-    GrangerCausality,
-    DistributedLagModel,
+    TSRegressionResult,
 )
 
 __all__ = [

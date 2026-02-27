@@ -5,9 +5,11 @@ Level 4: 변동성 보존 앙상블
 이 앙상블은 변동성을 보존하면서 정확도도 유지합니다.
 """
 
+from typing import Dict, List, Tuple
+
 import numpy as np
-from typing import Dict, List, Tuple, Optional
-from ...types import ModelResult, FlatPredictionInfo, FlatPredictionType
+
+from ...types import ModelResult
 
 
 class VariabilityPreservingEnsemble:

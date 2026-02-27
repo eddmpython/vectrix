@@ -8,10 +8,10 @@ Prophet의 핵심 기능인 포화 성장 모델을 순수 numpy/scipy로 구현
 참조: Taylor & Letham (2018) "Forecasting at Scale"
 """
 
+from typing import Optional, Tuple
+
 import numpy as np
-from typing import Tuple, Optional
 from scipy.optimize import curve_fit
-from scipy.stats import t as t_dist
 
 
 def _logisticCurve(x, cap, floor, k, m):

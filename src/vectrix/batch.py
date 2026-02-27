@@ -1,8 +1,8 @@
 """배치 예측 API"""
-import numpy as np
-import pandas as pd
-from typing import Optional, List, Dict, Callable
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import Callable, Optional
+
+import pandas as pd
 
 
 class BatchForecastResult:

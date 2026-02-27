@@ -4,8 +4,10 @@ Level 3: 일직선 예측 감지
 예측 수행 후 결과가 일직선인지 감지합니다.
 """
 
-import numpy as np
 from typing import Optional
+
+import numpy as np
+
 from ..types import FlatPredictionInfo, FlatPredictionType
 
 

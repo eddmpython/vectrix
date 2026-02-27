@@ -17,9 +17,10 @@ Regression Diagnostics
 Pure numpy/scipy implementation (no sklearn dependency).
 """
 
-import numpy as np
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List
+
+import numpy as np
 from scipy import stats
 
 

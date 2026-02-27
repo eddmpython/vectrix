@@ -8,8 +8,9 @@ Time Series Feature Engineering
 - Fourier features: sin/cos terms for seasonality
 """
 
+from typing import Dict, List, Optional, Tuple
+
 import numpy as np
-from typing import Tuple, Optional, List, Dict
 
 
 class LagFeatures:

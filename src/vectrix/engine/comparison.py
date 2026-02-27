@@ -13,8 +13,9 @@
 - Harvey, Leybourne & Newbold (1997)
 """
 
+from typing import Any, Dict, List, Optional
+
 import numpy as np
-from typing import Dict, List, Optional, Tuple, Any
 from scipy.stats import t as t_dist
 
 

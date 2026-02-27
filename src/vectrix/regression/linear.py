@@ -8,8 +8,8 @@ No sklearn dependency. Implements:
 - ElasticNet Regression (L1 + L2)
 """
 
+
 import numpy as np
-from typing import Optional
 
 
 class LinearRegressor:

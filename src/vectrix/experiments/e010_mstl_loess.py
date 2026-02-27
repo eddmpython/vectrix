@@ -48,13 +48,12 @@
 ==============================================================================
 """
 
+import io
+import sys
+from typing import Dict, List, Optional, Tuple
+
 import numpy as np
 import pandas as pd
-import sys
-import io
-import os
-from typing import List, Tuple, Optional, Dict
-from scipy.interpolate import UnivariateSpline
 from scipy.ndimage import uniform_filter1d
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')

@@ -13,9 +13,9 @@ where N_i = weight of model i, r_i = fitness-based growth rate,
 alpha_ij = competition coefficient, K = carrying capacity.
 """
 
-import numpy as np
-from typing import Tuple, List, Optional, Dict, Any, Callable
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
+import numpy as np
 
 DEFAULT_EULER_STEPS = 150
 EXTINCTION_THRESHOLD = 1e-6
@@ -23,10 +23,10 @@ INITIAL_WEIGHT_FLOOR = 0.01
 
 
 def _buildDefaultModels() -> List[Tuple[str, Callable]]:
-    from .ets import ETSModel
     from .arima import ARIMAModel
-    from .theta import ThetaModel
     from .baselines import NaiveModel, SeasonalNaiveModel
+    from .ets import ETSModel
+    from .theta import ThetaModel
 
     return [
         ("ETS", lambda: ETSModel()),

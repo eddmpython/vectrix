@@ -8,8 +8,9 @@ Methods:
 - Jackknife+: leave-one-out style, more data-efficient
 """
 
+from typing import Callable, Tuple
+
 import numpy as np
-from typing import Tuple, Callable, Optional
 
 
 class ConformalInterval:

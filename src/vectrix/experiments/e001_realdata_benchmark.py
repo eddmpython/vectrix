@@ -38,14 +38,14 @@
 ==============================================================================
 """
 
+import io
+import sys
+import time
+import warnings
+from typing import Any, Dict, List
+
 import numpy as np
 import pandas as pd
-import time
-import sys
-import io
-import os
-from typing import Dict, List, Tuple, Any
-import warnings
 
 warnings.filterwarnings('ignore')
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
@@ -308,7 +308,7 @@ def runSingleBenchmark(
     # statsforecast
     try:
         from statsforecast import StatsForecast
-        from statsforecast.models import AutoARIMA, AutoETS, AutoTheta
+        from statsforecast.models import AutoARIMA, AutoETS
 
         sfDf = trainDf.copy()
         sfDf['unique_id'] = 'series1'

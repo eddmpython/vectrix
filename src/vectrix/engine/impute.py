@@ -6,8 +6,9 @@ linear interpolation, seasonal interpolation, LOCF, NOCB, and
 automatic method selection.
 """
 
+from typing import Any, Dict
+
 import numpy as np
-from typing import Dict, Any
 
 
 class TimeSeriesImputer:

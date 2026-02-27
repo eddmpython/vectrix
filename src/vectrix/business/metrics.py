@@ -9,8 +9,9 @@ Business Metrics
 - Fill Rate Impact: 재고 충족률 영향
 """
 
+from typing import Any, Dict, Optional
+
 import numpy as np
-from typing import Dict, Any, Optional
 
 
 class BusinessMetrics:

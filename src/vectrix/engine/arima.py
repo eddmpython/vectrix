@@ -9,8 +9,9 @@ ARIMA(p, d, q) × (P, D, Q)[m]
 Yule-Walker, CSS, MLE 등 다양한 추정 방법 구현
 """
 
+from typing import Optional, Tuple
+
 import numpy as np
-from typing import Tuple, Optional, List
 from scipy.optimize import minimize
 
 try:

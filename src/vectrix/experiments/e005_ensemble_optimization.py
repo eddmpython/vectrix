@@ -61,14 +61,12 @@
 ==============================================================================
 """
 
+import io
+import sys
+import warnings
+
 import numpy as np
 import pandas as pd
-import time
-import sys
-import io
-import os
-from typing import Dict, List, Tuple, Any
-import warnings
 
 warnings.filterwarnings('ignore')
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
@@ -213,10 +211,10 @@ def experiment2_seasonalityWeights():
     print("실험 2: 계절성 기반 가중치")
     print("=" * 70)
 
-    from vectrix.engine.ets import AutoETS
-    from vectrix.engine.arima import AutoARIMA
-    from vectrix.engine.theta import OptimizedTheta
     from vectrix.analyzer import AutoAnalyzer
+    from vectrix.engine.arima import AutoARIMA
+    from vectrix.engine.ets import AutoETS
+    from vectrix.engine.theta import OptimizedTheta
 
     datasets = [
         ('retail_sales', generateRetailSales()),
@@ -292,10 +290,10 @@ def experiment3_validationWeights():
     print("실험 3: 검증 기반 동적 가중치")
     print("=" * 70)
 
-    from vectrix.engine.ets import AutoETS
-    from vectrix.engine.arima import AutoARIMA
-    from vectrix.engine.theta import OptimizedTheta
     from vectrix.analyzer import AutoAnalyzer
+    from vectrix.engine.arima import AutoARIMA
+    from vectrix.engine.ets import AutoETS
+    from vectrix.engine.theta import OptimizedTheta
 
     datasets = [
         ('retail_sales', generateRetailSales()),
@@ -391,10 +389,10 @@ def experiment4_weightComparison():
     print("실험 4: 가중치 전략 비교")
     print("=" * 70)
 
-    from vectrix.engine.ets import AutoETS
-    from vectrix.engine.arima import AutoARIMA
-    from vectrix.engine.theta import OptimizedTheta
     from vectrix.analyzer import AutoAnalyzer
+    from vectrix.engine.arima import AutoARIMA
+    from vectrix.engine.ets import AutoETS
+    from vectrix.engine.theta import OptimizedTheta
 
     datasets = [
         ('retail_sales', generateRetailSales()),
@@ -445,7 +443,7 @@ def experiment4_weightComparison():
                 mape = np.mean(np.abs((testValues - ensemble) / testValues)) * 100
                 allResults[strategyName][name] = mape
 
-        except Exception as e:
+        except Exception:
             for strategyName in strategies:
                 allResults[strategyName][name] = float('inf')
 
@@ -510,7 +508,7 @@ def runAllExperiments():
     seasonalAvg = np.mean([r['mape'] for r in allResults['seasonal'].values() if r.get('mape', float('inf')) < float('inf')])
     validationAvg = np.mean([r['mape'] for r in allResults['validation'].values() if r.get('mape', float('inf')) < float('inf')])
 
-    print(f"\n방법별 평균 MAPE:")
+    print("\n방법별 평균 MAPE:")
     print(f"  1. 현재 (기준선):     {baselineAvg:.2f}%")
     print(f"  2. 계절성 기반:       {seasonalAvg:.2f}%")
     print(f"  3. 검증 기반:         {validationAvg:.2f}%")

@@ -6,11 +6,10 @@ Hawkes Process for Intermittent Demand Forecasting
 기존 Croston/SBA 대비 군집적 수요 패턴에 강점.
 """
 
-import numpy as np
-from typing import Tuple, Optional, Dict
-from scipy.optimize import minimize
-from scipy.stats import nbinom, poisson, geom
+from typing import Dict, Optional, Tuple
 
+import numpy as np
+from scipy.optimize import minimize
 
 SUPPORTED_DISTRIBUTIONS = ('negbin', 'poisson', 'geometric')
 

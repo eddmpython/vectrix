@@ -10,10 +10,11 @@ Strategy:
 3. 각 시계열에 대해 개별 예측
 """
 
-import numpy as np
-from typing import Dict, List, Tuple, Optional, Callable
+from typing import Callable, Dict, Optional, Tuple
 
-from ..regression.features import autoFeatureEngineering, LagFeatures, RollingFeatures, FourierFeatures
+import numpy as np
+
+from ..regression.features import FourierFeatures, autoFeatureEngineering
 from ..regression.linear import RidgeRegressor
 
 

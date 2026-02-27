@@ -25,14 +25,15 @@ Usage:
 """
 
 import hashlib
-import numpy as np
 from dataclasses import dataclass, field
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple
+
+import numpy as np
 
 try:
-    from scipy import stats as scipyStats
+    from scipy import stats as scipyStats  # noqa: F401
+    from scipy.fft import fft as scipyFft  # noqa: F401
     from scipy.signal import periodogram
-    from scipy.fft import fft as scipyFft
     SCIPY_AVAILABLE = True
 except ImportError:
     SCIPY_AVAILABLE = False

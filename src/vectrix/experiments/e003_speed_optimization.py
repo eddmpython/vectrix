@@ -40,17 +40,16 @@
 ==============================================================================
 """
 
+import cProfile
+import io
+import pstats
+import sys
+import time
+import warnings
+from io import StringIO
+
 import numpy as np
 import pandas as pd
-import time
-import sys
-import io
-import os
-from typing import Dict, List, Any
-import warnings
-import cProfile
-import pstats
-from io import StringIO
 
 warnings.filterwarnings('ignore')
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
@@ -192,7 +191,7 @@ def experiment3_vsStatsforecast():
             sf.fit(sfDf)
             _ = sf.predict(h=30)
             sfTime = time.time() - start
-        except Exception as e:
+        except Exception:
             sfTime = float('nan')
 
         ratio = ccTime / sfTime if not np.isnan(sfTime) else float('nan')
@@ -213,10 +212,10 @@ def experiment4_componentTiming():
     print("=" * 70)
 
     from vectrix.analyzer import AutoAnalyzer
-    from vectrix.flat_defense import FlatRiskDiagnostic
-    from vectrix.engine.ets import AutoETS
     from vectrix.engine.arima import AutoARIMA
+    from vectrix.engine.ets import AutoETS
     from vectrix.engine.theta import OptimizedTheta
+    from vectrix.flat_defense import FlatRiskDiagnostic
 
     np.random.seed(42)
     n = 200

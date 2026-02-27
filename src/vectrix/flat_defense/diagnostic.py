@@ -4,14 +4,11 @@ Level 1: 일직선 예측 사전 진단
 예측 수행 전에 일직선 예측이 발생할 위험도를 진단합니다.
 """
 
-import numpy as np
 from typing import Dict, List, Optional
-from ..types import (
-    FlatRiskAssessment,
-    RiskLevel,
-    DataCharacteristics,
-    MODEL_INFO
-)
+
+import numpy as np
+
+from ..types import MODEL_INFO, DataCharacteristics, FlatRiskAssessment, RiskLevel
 
 
 class FlatRiskDiagnostic:

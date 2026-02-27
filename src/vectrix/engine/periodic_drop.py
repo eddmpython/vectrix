@@ -9,8 +9,9 @@ E009 실험 결과: 61.3% 개선 (5.87% → 2.27%)
 - 정기적으로 반복되는 저하 패턴
 """
 
+from typing import List, Optional, Tuple
+
 import numpy as np
-from typing import List, Tuple, Optional
 
 
 class PeriodicDropDetector:

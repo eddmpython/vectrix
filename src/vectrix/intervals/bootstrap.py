@@ -4,8 +4,9 @@ Bootstrap Prediction Intervals
 Residual bootstrap for prediction interval estimation.
 """
 
+from typing import Callable, Tuple
+
 import numpy as np
-from typing import Tuple, Callable
 
 
 class BootstrapInterval:

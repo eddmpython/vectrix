@@ -8,9 +8,10 @@ What-If Scenario Analysis
 - 수준 이동: "전체 수준이 5% 상승하면?"
 """
 
-import numpy as np
-from typing import Dict, Any, List, Tuple, Optional
 from dataclasses import dataclass, field
+from typing import Any, Dict, List, Optional
+
+import numpy as np
 
 
 @dataclass

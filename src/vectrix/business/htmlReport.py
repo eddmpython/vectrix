@@ -1,7 +1,7 @@
 """자체 포함 HTML 예측 보고서"""
-import numpy as np
 from datetime import datetime
-from typing import Optional
+
+import numpy as np
 
 
 class HTMLReportGenerator:
@@ -71,8 +71,9 @@ class HTMLReportGenerator:
         try:
             import matplotlib
             matplotlib.use('Agg')
-            import matplotlib.pyplot as plt
             import io
+
+            import matplotlib.pyplot as plt
 
             fig, ax = plt.subplots(figsize=(14, 5))
 

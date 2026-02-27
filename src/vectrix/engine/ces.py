@@ -12,8 +12,9 @@ Forms:
 - F (Full): 전체 계절 CES
 """
 
+from typing import Tuple
+
 import numpy as np
-from typing import Tuple, Optional
 from scipy.optimize import minimize
 
 

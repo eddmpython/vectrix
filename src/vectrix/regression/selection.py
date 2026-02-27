@@ -9,10 +9,11 @@ Model Selection Tools
 Pure numpy/scipy implementation (no sklearn dependency).
 """
 
-import numpy as np
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
 from itertools import combinations
+from typing import Dict, List, Optional, Tuple
+
+import numpy as np
 
 
 @dataclass

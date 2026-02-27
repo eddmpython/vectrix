@@ -7,7 +7,7 @@ Hierarchical Forecast Reconciliation
 - MinTrace: 최소 분산 조정 (OLS/WLS)
 """
 
-from .reconciliation import BottomUp, TopDown, MinTrace
+from .reconciliation import BottomUp, MinTrace, TopDown
 
 __all__ = [
     "BottomUp",

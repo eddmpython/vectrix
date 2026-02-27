@@ -14,10 +14,11 @@ statsmodels 수준의 완전한 회귀분석 통계 추론:
 순수 numpy/scipy만 사용. sklearn 의존성 없음.
 """
 
+from dataclasses import dataclass
+from typing import List, Optional, Tuple
+
 import numpy as np
 from scipy import stats
-from dataclasses import dataclass, field
-from typing import Optional, List, Dict, Tuple
 
 
 @dataclass

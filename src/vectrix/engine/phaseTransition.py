@@ -16,10 +16,10 @@ References:
   - Dakos et al. (2012), "Methods for detecting early warnings"
 """
 
-import numpy as np
-from typing import Tuple, Optional, Dict, Any, List
-from scipy.stats import kendalltau
+from typing import Any, Dict, Optional, Tuple
 
+import numpy as np
+from scipy.stats import kendalltau
 
 COMPOSITE_THRESHOLD = 0.5
 CRITICAL_UNCERTAINTY_MULTIPLIER = 2.0

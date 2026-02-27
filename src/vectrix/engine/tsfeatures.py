@@ -17,9 +17,10 @@
 순수 numpy/scipy만 사용 (pandas는 extractBatch에서만)
 """
 
-import numpy as np
 import hashlib
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Optional, Tuple
+
+import numpy as np
 
 
 class TSFeatureExtractor:
@@ -223,7 +224,7 @@ class TSFeatureExtractor:
         std = float(np.std(y, ddof=1)) if n > 1 else 0.0
 
         try:
-            from scipy.stats import skew, kurtosis
+            from scipy.stats import kurtosis, skew
             skewness = float(skew(y, bias=False))
             kurt = float(kurtosis(y, bias=False, fisher=True))
         except ImportError:

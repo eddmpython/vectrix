@@ -9,8 +9,9 @@ GARCH Family Models
 MLE 기반 파라미터 추정 (scipy.optimize)
 """
 
+from typing import Tuple
+
 import numpy as np
-from typing import Tuple, Optional
 from scipy.optimize import minimize
 
 

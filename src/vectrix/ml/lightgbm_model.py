@@ -5,8 +5,9 @@ Optional dependency: lightgbm
 Uses recursive reduction with auto feature engineering.
 """
 
+from typing import Any, Dict, Optional, Tuple
+
 import numpy as np
-from typing import Tuple, Optional, Dict, Any
 
 try:
     import lightgbm as lgb
@@ -14,7 +15,7 @@ try:
 except ImportError:
     LIGHTGBM_AVAILABLE = False
 
-from ..regression.features import autoFeatureEngineering, LagFeatures, RollingFeatures, FourierFeatures
+from ..regression.features import FourierFeatures, autoFeatureEngineering
 
 
 class LightGBMForecaster:

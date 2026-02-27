@@ -15,9 +15,9 @@ Fragility score aggregates sensitivity across all operators.
 Resilience = 1 - fragility.
 """
 
-import numpy as np
-from typing import Optional, Dict, Any, List, Tuple
+from typing import Any, Dict, List
 
+import numpy as np
 
 OPERATOR_WEIGHTS = {
     "levelShift": 0.25,

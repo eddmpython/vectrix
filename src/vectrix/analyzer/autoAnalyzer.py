@@ -4,9 +4,11 @@ AutoAnalyzer: 시계열 데이터 자동 분석기
 데이터의 특성(추세, 계절성, 정상성, 변동성 등)을 자동으로 분석합니다.
 """
 
+from typing import List, Tuple
+
 import numpy as np
 import pandas as pd
-from typing import Tuple, List, Optional
+
 from ..types import DataCharacteristics, Frequency
 
 

@@ -15,10 +15,11 @@ Ljung-Box, Jarque-Bera, ARCH 검정 등
 - Durbin & Watson (1950, 1951)
 """
 
-import numpy as np
 from dataclasses import dataclass, field
-from typing import Optional, List, Dict, Any
-from scipy.stats import chi2, norm
+from typing import List, Optional
+
+import numpy as np
+from scipy.stats import chi2
 
 
 @dataclass

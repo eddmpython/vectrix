@@ -11,9 +11,10 @@ Time Series Regression
 Pure numpy/scipy implementation (no sklearn dependency).
 """
 
-import numpy as np
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Optional, Tuple
+
+import numpy as np
 from scipy import stats
 
 

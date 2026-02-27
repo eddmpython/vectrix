@@ -5,16 +5,17 @@ Optional dependency: scikit-learn
 Wraps any sklearn regressor for time series forecasting.
 """
 
+from typing import Any, Optional, Tuple
+
 import numpy as np
-from typing import Tuple, Optional, Any
 
 try:
-    import sklearn
+    import sklearn  # noqa: F401
     SKLEARN_AVAILABLE = True
 except ImportError:
     SKLEARN_AVAILABLE = False
 
-from ..regression.features import autoFeatureEngineering, FourierFeatures
+from ..regression.features import FourierFeatures, autoFeatureEngineering
 
 
 class SklearnForecaster:

@@ -19,10 +19,10 @@ Usage:
     >>> report = healer.getReport()
 """
 
-import numpy as np
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple
 
+import numpy as np
 
 # ---------------------------------------------------------------------------
 # 데이터 클래스

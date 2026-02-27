@@ -7,8 +7,9 @@ S matrix: summing matrix (계층 구조 정의)
 y_tilde = S @ P @ y_hat  (조정된 예측)
 """
 
+from typing import Dict, List, Optional
+
 import numpy as np
-from typing import Dict, List, Tuple, Optional
 
 
 class BottomUp:

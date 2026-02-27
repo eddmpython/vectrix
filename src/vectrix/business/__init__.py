@@ -11,12 +11,12 @@ Business Intelligence Module (Vectrix Differentiator)
 """
 
 from .anomaly import AnomalyDetector
-from .explain import ForecastExplainer
-from .whatif import WhatIfAnalyzer
 from .backtest import Backtester
+from .explain import ForecastExplainer
+from .htmlReport import HTMLReportGenerator
 from .metrics import BusinessMetrics
 from .report import ReportGenerator
-from .htmlReport import HTMLReportGenerator
+from .whatif import WhatIfAnalyzer
 
 __all__ = [
     "AnomalyDetector",

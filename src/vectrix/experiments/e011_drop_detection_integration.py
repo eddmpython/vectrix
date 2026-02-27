@@ -45,11 +45,11 @@
 ==============================================================================
 """
 
+import io
+import sys
+
 import numpy as np
 import pandas as pd
-import sys
-import io
-import os
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 

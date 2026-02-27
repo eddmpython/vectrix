@@ -5,8 +5,9 @@ Quantile forecasting, bootstrap prediction intervals, and
 probabilistic scoring rules (CRPS, Pinball Loss, Winkler Score).
 """
 
+from typing import Callable, Dict, List, Optional
+
 import numpy as np
-from typing import Dict, Optional, List, Callable
 from scipy.stats import norm
 
 

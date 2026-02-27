@@ -10,40 +10,40 @@ Usage:
     >>> print(result.predictions)
 """
 
-from .vectrix import Vectrix
-from .types import (
-    ForecastResult,
-    DataCharacteristics,
-    FlatRiskAssessment,
-    ModelResult,
-    FlatPredictionInfo,
-    RiskLevel,
+from .adaptive import (
+    Constraint,
+    ConstraintAwareForecaster,
+    ForecastDNA,
+    RegimeAwareForecaster,
+    RegimeDetector,
+    SelfHealingForecast,
 )
-from .engine.baselines import NaiveModel, SeasonalNaiveModel, MeanModel, RandomWalkDrift, WindowAverage
-from .engine.crossval import TimeSeriesCrossValidator
+from .batch import BatchForecastResult, batchForecast
+from .easy import (
+    EasyAnalysisResult,
+    EasyForecastResult,
+    EasyRegressionResult,
+    analyze,
+    forecast,
+    quick_report,
+    regress,
+)
+from .engine.baselines import MeanModel, NaiveModel, RandomWalkDrift, SeasonalNaiveModel, WindowAverage
 from .engine.changepoint import ChangePointDetector
+from .engine.crossval import TimeSeriesCrossValidator
 from .engine.events import EventEffect
 from .engine.tsfeatures import TSFeatureExtractor
-from .tsframe import TSFrame
-from .adaptive import (
-    RegimeDetector,
-    RegimeAwareForecaster,
-    SelfHealingForecast,
-    ConstraintAwareForecaster,
-    Constraint,
-    ForecastDNA,
-)
-from .easy import (
-    forecast,
-    analyze,
-    regress,
-    quick_report,
-    EasyForecastResult,
-    EasyAnalysisResult,
-    EasyRegressionResult,
-)
-from .batch import batchForecast, BatchForecastResult
 from .persistence import ModelPersistence
+from .tsframe import TSFrame
+from .types import (
+    DataCharacteristics,
+    FlatPredictionInfo,
+    FlatRiskAssessment,
+    ForecastResult,
+    ModelResult,
+    RiskLevel,
+)
+from .vectrix import Vectrix
 
 __version__ = "3.0.0"
 __all__ = [

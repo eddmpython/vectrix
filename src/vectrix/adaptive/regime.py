@@ -19,10 +19,10 @@ HMM(Hidden Markov Model) 기반 시계열 레짐 감지 및 레짐별 적응 예
 순수 numpy/scipy만 사용. 외부 HMM 라이브러리 없음.
 """
 
-import numpy as np
 from dataclasses import dataclass, field
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Optional, Tuple
 
+import numpy as np
 
 # ---------------------------------------------------------------------------
 # 데이터 클래스

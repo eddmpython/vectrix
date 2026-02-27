@@ -9,8 +9,9 @@ Variants:
 - TSB: Teunter-Syntetos-Babai — 수요 확률 직접 추정
 """
 
-import numpy as np
 from typing import Tuple
+
+import numpy as np
 
 
 class CrostonClassic:

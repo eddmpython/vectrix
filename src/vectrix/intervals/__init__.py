@@ -5,8 +5,8 @@ Advanced Prediction Intervals
 - Bootstrap: residual bootstrap intervals
 """
 
-from .conformal import ConformalInterval
 from .bootstrap import BootstrapInterval
+from .conformal import ConformalInterval
 
 __all__ = [
     "ConformalInterval",

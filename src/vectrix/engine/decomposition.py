@@ -8,8 +8,9 @@
 모두 numpy + numba로 직접 구현
 """
 
+from typing import List, NamedTuple
+
 import numpy as np
-from typing import Tuple, List, Optional, NamedTuple
 
 try:
     from numba import jit

@@ -7,8 +7,9 @@ M3 Competition 우승 모델
 참조: Assimakopoulos & Nikolopoulos (2000)
 """
 
+from typing import Tuple
+
 import numpy as np
-from typing import Tuple, Optional
 
 try:
     from numba import jit
@@ -21,7 +22,6 @@ except ImportError:
         return decorator
 
 from .turbo import TurboCore
-from .ets import ETSModel
 
 
 class ThetaModel:

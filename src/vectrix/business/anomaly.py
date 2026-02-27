@@ -8,9 +8,10 @@ Multiple methods:
 - Rolling: 이동 윈도우 기반
 """
 
-import numpy as np
-from typing import Dict, List, Any, Optional
 from dataclasses import dataclass, field
+from typing import Any, Dict, List
+
+import numpy as np
 
 
 @dataclass

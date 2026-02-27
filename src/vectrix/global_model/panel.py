@@ -7,9 +7,10 @@ Panel Data Handler
 - 시계열별 접근
 """
 
+from typing import Dict, List, Optional
+
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Optional, Tuple
 
 
 class PanelData:

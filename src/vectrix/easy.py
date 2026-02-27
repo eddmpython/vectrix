@@ -10,10 +10,10 @@ Vectrix Easy API
     >>> report = quick_report(df, date="date", value="sales")
 """
 
+from typing import Any, Dict, List, Optional, Tuple, Union
+
 import numpy as np
 import pandas as pd
-from typing import Optional, Union, List, Dict, Any, Tuple
-
 
 
 def _autoDetectColumns(df: pd.DataFrame) -> Tuple[Optional[str], Optional[str]]:
@@ -928,9 +928,9 @@ def analyze(
     >>> print(report.changepoints)      # [45, 120, 200]
     >>> print(report.summary())
     """
-    from .vectrix import Vectrix
     from .adaptive.dna import ForecastDNA
     from .engine.changepoint import ChangePointDetector
+    from .vectrix import Vectrix
 
     df, dateCol, valueCol = _prepareData(data, date, value)
 
@@ -1034,8 +1034,13 @@ def regress(
     >>> result = regress(data=df, formula="sales ~ ads + price + season")
     >>> result.diagnose()   # VIF, 등분산성, 정규성 모두 한 번에
     """
-    from .regression import OLSInference, RegressionDiagnostics
-    from .regression import RidgeRegressor, LassoRegressor, HuberRegressor, QuantileRegressor
+    from .regression import (
+        HuberRegressor,
+        LassoRegressor,
+        OLSInference,
+        QuantileRegressor,
+        RidgeRegressor,
+    )
 
     featureNames = None
     olsEngine = None

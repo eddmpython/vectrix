@@ -10,10 +10,10 @@
 순수 numpy/scipy만 사용 (extractBatch 제외)
 """
 
-import numpy as np
-from typing import List, Dict, Optional, Tuple, Union
-from datetime import datetime, timedelta, date
+from datetime import date, datetime, timedelta
+from typing import Dict, List, Optional
 
+import numpy as np
 
 # ─── 한국 공휴일 정의 ─────────────────────────────────────────────────────
 
@@ -172,7 +172,7 @@ class EventEffect:
                     try:
                         d = date(year, month, day) + timedelta(days=offset)
                         holidays.append({
-                            'name': f'{name} ({"당일" if offset == 0 else f"{"전날" if offset < 0 else "다음날"}"})',
+                            'name': f'{name} ({"당일" if offset == 0 else ("전날" if offset < 0 else "다음날")})',
                             'date': d.isoformat(),
                             'type': 'lunar',
                         })

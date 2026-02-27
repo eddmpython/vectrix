@@ -46,12 +46,12 @@
 ==============================================================================
 """
 
+import io
+import sys
+from typing import List, Optional, Tuple
+
 import numpy as np
 import pandas as pd
-import sys
-import io
-import os
-from typing import Tuple, List, Optional
 
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 
@@ -345,7 +345,7 @@ def experiment4_statsforecast():
 
     try:
         from statsforecast import StatsForecast
-        from statsforecast.models import AutoARIMA, AutoETS, AutoTheta
+        from statsforecast.models import AutoARIMA, AutoETS
 
         sfDf = trainDf.copy()
         sfDf['unique_id'] = 'series1'

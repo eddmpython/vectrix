@@ -5,8 +5,10 @@ MSTL (Multiple Seasonal-Trend decomposition using LOESS)
 E006 실험 결과: 57.8% 정확도 개선 달성
 """
 
+from typing import Dict, List, Optional, Tuple
+
 import numpy as np
-from typing import List, Tuple, Dict, Optional
+
 from .arima import ARIMAModel
 from .turbo import TurboCore
 
@@ -39,7 +41,7 @@ class MSTL:
         self.seasonals: Dict[int, np.ndarray] = {}
         self.trend: Optional[np.ndarray] = None
         self.residual: Optional[np.ndarray] = None
-        self.arimaModel: Optional[AutoARIMA] = None
+        self.arimaModel: Optional['AutoARIMA'] = None
         self.fitted = False
         self.originalData: Optional[np.ndarray] = None
 

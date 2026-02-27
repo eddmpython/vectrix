@@ -11,8 +11,9 @@ Fiorucci et al. (2016) 기반.
 - 더 넓은 탐색 공간
 """
 
-import numpy as np
 from typing import Tuple
+
+import numpy as np
 from scipy.optimize import minimize
 
 from .turbo import TurboCore

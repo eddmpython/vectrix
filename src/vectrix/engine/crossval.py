@@ -5,8 +5,10 @@ Provides expanding window and sliding window cross-validation
 for time series models. Respects temporal ordering.
 """
 
+from typing import Any, Callable, Dict, List, Optional, Tuple
+
 import numpy as np
-from typing import List, Tuple, Dict, Any, Optional, Callable
+
 from ..engine.turbo import TurboCore
 
 

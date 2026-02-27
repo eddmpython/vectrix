@@ -29,9 +29,10 @@ Usage:
     >>> print(result.violationsBefore, '->', result.violationsAfter)
 """
 
-import numpy as np
 from dataclasses import dataclass, field
-from typing import Dict, List, Tuple, Callable, Optional, Any
+from typing import Callable, Dict, List, Tuple
+
+import numpy as np
 
 
 @dataclass

@@ -4,9 +4,10 @@ TSFrame: Time-Series-Aware DataFrame
 pandas DataFrame 래퍼로, 시계열 분석에 특화된 메서드 제공.
 """
 
+from typing import Any, Dict, Optional, Tuple
+
 import numpy as np
 import pandas as pd
-from typing import Optional, Tuple, Dict, Any, List
 
 
 class TSFrame:

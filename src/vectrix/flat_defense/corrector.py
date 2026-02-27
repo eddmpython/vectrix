@@ -4,8 +4,10 @@ Level 3-4: 일직선 예측 보정
 일직선 예측 감지시 지능적으로 보정합니다.
 """
 
+from typing import Optional, Tuple
+
 import numpy as np
-from typing import Tuple, Optional
+
 from ..types import FlatPredictionInfo, FlatPredictionType
 
 

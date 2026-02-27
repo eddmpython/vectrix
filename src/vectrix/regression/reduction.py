@@ -6,11 +6,12 @@ Convert any regressor into a forecaster:
 - RecursiveReduction: single model, iterate forward
 """
 
-import numpy as np
-from typing import Tuple, Optional, Callable, Dict, Any, List
+from typing import Callable, Optional, Tuple
 
-from .features import LagFeatures, RollingFeatures, FourierFeatures, autoFeatureEngineering
-from .linear import LinearRegressor, RidgeRegressor
+import numpy as np
+
+from .features import FourierFeatures, autoFeatureEngineering
+from .linear import RidgeRegressor
 
 
 class DirectReduction:

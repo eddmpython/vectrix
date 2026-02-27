@@ -4,13 +4,9 @@ Level 2: 적응형 모델 선택기
 일직선 예측 위험도와 데이터 특성에 따라 최적의 모델을 선택합니다.
 """
 
-from typing import List, Dict, Any, Optional
-from ..types import (
-    FlatRiskAssessment,
-    DataCharacteristics,
-    RiskLevel,
-    MODEL_INFO
-)
+from typing import Any, Dict, List, Optional
+
+from ..types import MODEL_INFO, DataCharacteristics, FlatRiskAssessment, RiskLevel
 
 
 class AdaptiveModelSelector:

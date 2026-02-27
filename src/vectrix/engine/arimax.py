@@ -10,11 +10,11 @@ y_t = β'X_t + ARIMA(p,d,q) noise
 3. 예측 시 X_future + ARIMA 예측 결합
 """
 
+from typing import Optional, Tuple
+
 import numpy as np
-from typing import Tuple, Optional
 
 from .arima import ARIMAModel
-from .turbo import TurboCore
 
 
 class ARIMAXModel:
