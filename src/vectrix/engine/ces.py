@@ -17,6 +17,59 @@ from typing import Tuple
 import numpy as np
 from scipy.optimize import minimize
 
+try:
+    from numba import jit
+    NUMBA_AVAILABLE = True
+except ImportError:
+    NUMBA_AVAILABLE = False
+    def jit(*args, **kwargs):
+        def decorator(func):
+            return func
+        return decorator
+
+
+@jit(nopython=True, cache=True)
+def _cesNonSeasonalSSE(y: np.ndarray, a0Real: float, a0Imag: float) -> float:
+    n = len(y)
+    levelReal = y[0]
+    levelImag = 0.0
+    sse = 0.0
+
+    for t in range(1, n):
+        forecast = levelReal
+        error = y[t] - forecast
+        sse += error * error
+        newReal = a0Real * y[t] + (1.0 - a0Real) * levelReal + a0Imag * levelImag
+        newImag = a0Imag * (y[t] - levelReal) + (1.0 - a0Real) * levelImag
+        levelReal = newReal
+        levelImag = newImag
+
+    return sse
+
+
+@jit(nopython=True, cache=True)
+def _cesSeasonalSSE(y: np.ndarray, a0Real: float, a0Imag: float, gamma: float,
+                    seasonalInit: np.ndarray, m: int) -> float:
+    n = len(y)
+    levelReal = y[0] - seasonalInit[0]
+    levelImag = 0.0
+    seasonal = seasonalInit.copy()
+    sse = 0.0
+
+    for t in range(1, n):
+        sidx = t % m
+        forecast = levelReal + seasonal[sidx]
+        error = y[t] - forecast
+        sse += error * error
+        yAdj = y[t] - seasonal[sidx]
+        newReal = a0Real * yAdj + (1.0 - a0Real) * levelReal + a0Imag * levelImag
+        newImag = a0Imag * (yAdj - levelReal) + (1.0 - a0Real) * levelImag
+        levelReal = newReal
+        levelImag = newImag
+        seasonal[sidx] += gamma * error
+
+    return sse
+
 
 class CESModel:
     """
@@ -62,15 +115,7 @@ class CESModel:
         n = len(y)
 
         def objective(params):
-            a0 = complex(params[0], params[1])
-            level = complex(y[0], 0.0)
-            sse = 0.0
-            for t in range(1, n):
-                forecast = level.real
-                error = y[t] - forecast
-                sse += error ** 2
-                level = a0 * complex(y[t], 0.0) + (1 - a0) * level
-            return sse
+            return _cesNonSeasonalSSE(y, params[0], params[1])
 
         x0 = [0.3, 0.1]
         bounds = [(0.01, 0.99), (-0.5, 0.5)]
@@ -99,21 +144,7 @@ class CESModel:
             seasonalInit[i] = np.mean(vals) - np.mean(y)
 
         def objective(params):
-            a0 = complex(params[0], params[1])
-            gamma = params[2]
-            level = complex(y[0] - seasonalInit[0], 0.0)
-            seasonal = seasonalInit.copy()
-            sse = 0.0
-
-            for t in range(1, n):
-                sidx = t % m
-                forecast = level.real + seasonal[sidx]
-                error = y[t] - forecast
-                sse += error ** 2
-                level = a0 * complex(y[t] - seasonal[sidx], 0.0) + (1 - a0) * level
-                seasonal[sidx] += gamma * error
-
-            return sse
+            return _cesSeasonalSSE(y, params[0], params[1], params[2], seasonalInit, m)
 
         x0 = [0.3, 0.1, 0.1]
         bounds = [(0.01, 0.99), (-0.5, 0.5), (0.001, 0.5)]

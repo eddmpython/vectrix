@@ -12,6 +12,66 @@ from typing import List, Optional, Tuple
 import numpy as np
 from scipy.optimize import minimize
 
+try:
+    from numba import jit
+    NUMBA_AVAILABLE = True
+except ImportError:
+    NUMBA_AVAILABLE = False
+    def jit(*args, **kwargs):
+        def decorator(func):
+            return func
+        return decorator
+
+
+@jit(nopython=True, cache=True)
+def _tbatsObjectiveJIT(
+    y: np.ndarray,
+    alpha: float,
+    beta: float,
+    phi: float,
+    useTrend: bool,
+    useDamping: bool,
+    frequencies: np.ndarray,
+    harmonicOffsets: np.ndarray,
+    totalHarmonics: int
+) -> float:
+    n = len(y)
+    level = y[0]
+    trend = 0.0
+    gamma = alpha * 0.5
+
+    sj = np.zeros(totalHarmonics)
+    sjStar = np.zeros(totalHarmonics)
+
+    sse = 0.0
+    for t in range(1, n):
+        pred = level
+        if useTrend:
+            pred += trend
+
+        for h in range(totalHarmonics):
+            pred += sj[h]
+
+        error = y[t] - pred
+        sse += error * error
+
+        level = level + alpha * error
+        if useTrend:
+            if useDamping:
+                trend = phi * trend + beta * error
+            else:
+                trend = trend + beta * error
+
+        for h in range(totalHarmonics):
+            cosF = np.cos(frequencies[h])
+            sinF = np.sin(frequencies[h])
+            newSj = sj[h] * cosF + sjStar[h] * sinF + gamma * error
+            newSjStar = -sj[h] * sinF + sjStar[h] * cosF
+            sj[h] = newSj
+            sjStar[h] = newSjStar
+
+    return sse
+
 
 class TBATS:
     """
@@ -133,61 +193,28 @@ class TBATS:
     def _optimizeParams(self, y: np.ndarray):
         n = len(y)
 
-        nParams = 2
-        if self.useTrend:
-            nParams += 1
-        if self.useDamping:
-            nParams += 1
+        freqList = []
+        offsets = [0]
+        for period in self.periods:
+            k = self.harmonicCounts.get(period, 1)
+            for j in range(k):
+                freqList.append(2 * np.pi * (j + 1) / period)
+            offsets.append(len(freqList))
+
+        frequencies = np.array(freqList, dtype=np.float64)
+        harmonicOffsets = np.array(offsets, dtype=np.int64)
+        totalHarmonics = len(freqList)
+        useTrend = self.useTrend
+        useDamping = self.useDamping
 
         def objective(params):
             alpha = params[0]
-            beta = params[1] if self.useTrend else 0.0
-            phi = params[2] if self.useDamping and self.useTrend else 0.98
-
-            level = y[0]
-            trend = 0.0 if self.useTrend else 0.0
-
-            states = {}
-            for period in self.periods:
-                k = self.harmonicCounts.get(period, 1)
-                states[period] = []
-                for j in range(k):
-                    freq = 2 * np.pi * (j + 1) / period
-                    sj = np.array([0.0])
-                    sj_star = np.array([0.0])
-                    states[period].append((sj, sj_star, freq))
-
-            sse = 0.0
-            for t in range(1, n):
-                pred = level
-                if self.useTrend:
-                    pred += trend
-
-                for period in self.periods:
-                    for sj, sj_star, freq in states[period]:
-                        pred += sj[0]
-
-                error = y[t] - pred
-                sse += error ** 2
-
-                level = level + alpha * error
-                if self.useTrend:
-                    if self.useDamping:
-                        trend = phi * trend + beta * error
-                    else:
-                        trend = trend + beta * error
-
-                gamma = alpha * 0.5
-                for period in self.periods:
-                    for sj, sj_star, freq in states[period]:
-                        cosF = np.cos(freq)
-                        sinF = np.sin(freq)
-                        newSj = sj[0] * cosF + sj_star[0] * sinF + gamma * error
-                        newSjStar = -sj[0] * sinF + sj_star[0] * cosF
-                        sj[0] = newSj
-                        sj_star[0] = newSjStar
-
-            return sse
+            beta = params[1] if useTrend else 0.0
+            phi = params[2] if useDamping and useTrend else 0.98
+            return _tbatsObjectiveJIT(
+                y, alpha, beta, phi, useTrend, useDamping,
+                frequencies, harmonicOffsets, totalHarmonics
+            )
 
         bounds = [(0.001, 0.99)]
         x0 = [0.3]

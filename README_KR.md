@@ -299,20 +299,20 @@ M3, M4 대회 데이터셋으로 평가 (카테고리별 100개 시계열). OWA 
 | 카테고리 | OWA |
 |:---------|:---:|
 | Yearly | **0.848** |
-| Quarterly | **0.824** |
-| Monthly | **0.756** |
-| Other | **0.820** |
+| Quarterly | **0.825** |
+| Monthly | **0.758** |
+| Other | **0.819** |
 
 **M4 Competition** — 4/6 빈도에서 Naive2 능가:
 
 | 빈도 | OWA |
 |:-----|:---:|
 | Yearly | **0.974** |
-| Quarterly | **0.800** |
-| Monthly | **0.989** |
+| Quarterly | **0.797** |
+| Monthly | **0.987** |
 | Weekly | **0.737** |
-| Daily | 1.210 |
-| Hourly | 1.007 |
+| Daily | 1.207 |
+| Hourly | 1.006 |
 
 sMAPE/MASE 상세 결과: [벤치마크 상세](docs/benchmarks.ko.md)
 

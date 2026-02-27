@@ -24,6 +24,32 @@ except ImportError:
 from .turbo import TurboCore
 
 
+@jit(nopython=True, cache=True)
+def _sesSSEJIT(y: np.ndarray, alpha: float) -> float:
+    n = len(y)
+    level = y[0]
+    sse = 0.0
+
+    for t in range(1, n):
+        error = y[t] - level
+        sse += error * error
+        level = alpha * y[t] + (1.0 - alpha) * level
+
+    return sse
+
+
+@jit(nopython=True, cache=True)
+def _sesFilterJIT(y: np.ndarray, alpha: float) -> np.ndarray:
+    n = len(y)
+    result = np.zeros(n)
+    result[0] = y[0]
+
+    for t in range(1, n):
+        result[t] = alpha * y[t] + (1.0 - alpha) * result[t - 1]
+
+    return result
+
+
 class ThetaModel:
     """
     자체 구현 Theta 모델
@@ -197,8 +223,8 @@ class ThetaModel:
         bestAlpha = 0.3
         bestSSE = np.inf
 
-        for alpha in [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]:
-            sse = self._sesSSE(y, alpha)
+        for alpha in [0.1, 0.3, 0.5, 0.7, 0.9]:
+            sse = _sesSSEJIT(y, alpha)
             if sse < bestSSE:
                 bestSSE = sse
                 bestAlpha = alpha
@@ -207,27 +233,11 @@ class ThetaModel:
 
     def _sesSSE(self, y: np.ndarray, alpha: float) -> float:
         """SES SSE 계산"""
-        n = len(y)
-        level = y[0]
-        sse = 0.0
-
-        for t in range(1, n):
-            error = y[t] - level
-            sse += error ** 2
-            level = alpha * y[t] + (1 - alpha) * level
-
-        return sse
+        return _sesSSEJIT(y, alpha)
 
     def _sesFilter(self, y: np.ndarray, alpha: float) -> np.ndarray:
         """SES 필터링"""
-        n = len(y)
-        result = np.zeros(n)
-        result[0] = y[0]
-
-        for t in range(1, n):
-            result[t] = alpha * y[t] + (1 - alpha) * result[t - 1]
-
-        return result
+        return _sesFilterJIT(y, alpha)
 
     def _computeFitted(self, y: np.ndarray, n: int) -> np.ndarray:
         """적합값 계산"""

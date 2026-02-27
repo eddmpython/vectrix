@@ -16,7 +16,78 @@ from typing import Tuple
 import numpy as np
 from scipy.optimize import minimize
 
+try:
+    from numba import jit
+    NUMBA_AVAILABLE = True
+except ImportError:
+    NUMBA_AVAILABLE = False
+    def jit(*args, **kwargs):
+        def decorator(func):
+            return func
+        return decorator
+
 from .turbo import TurboCore
+
+
+@jit(nopython=True, cache=True)
+def _dotObjectiveJIT(
+    workData: np.ndarray,
+    intercept: float,
+    slope: float,
+    theta: float,
+    alpha: float,
+    drift: float
+) -> float:
+    n = len(workData)
+    x = np.arange(n, dtype=np.float64)
+    linearTrend = np.empty(n)
+    for i in range(n):
+        linearTrend[i] = intercept + slope * x[i]
+
+    thetaLine = np.empty(n)
+    for i in range(n):
+        thetaLine[i] = theta * workData[i] + (1.0 - theta) * linearTrend[i]
+
+    level = thetaLine[0]
+    sse = 0.0
+    for t in range(1, n):
+        trendPred = intercept + slope * t
+        pred = (trendPred + level + drift * t) / 2.0
+        error = workData[t] - pred
+        sse += error * error
+        level = alpha * thetaLine[t] + (1.0 - alpha) * level
+
+    return sse
+
+
+@jit(nopython=True, cache=True)
+def _dotComputeResiduals(
+    workData: np.ndarray,
+    intercept: float,
+    slope: float,
+    theta: float,
+    alpha: float,
+    drift: float
+) -> Tuple[np.ndarray, float]:
+    n = len(workData)
+    x = np.arange(n, dtype=np.float64)
+    linearTrend = np.empty(n)
+    for i in range(n):
+        linearTrend[i] = intercept + slope * x[i]
+
+    thetaLine = np.empty(n)
+    for i in range(n):
+        thetaLine[i] = theta * workData[i] + (1.0 - theta) * linearTrend[i]
+
+    level = thetaLine[0]
+    residuals = np.empty(n - 1)
+    for t in range(1, n):
+        trendPred = intercept + slope * t
+        pred = (trendPred + level + drift * t) / 2.0
+        residuals[t - 1] = workData[t] - pred
+        level = alpha * thetaLine[t] + (1.0 - alpha) * level
+
+    return residuals, level
 
 
 class DynamicOptimizedTheta:
@@ -61,21 +132,11 @@ class DynamicOptimizedTheta:
         x = np.arange(n, dtype=np.float64)
         self.slope, self.intercept = TurboCore.linearRegression(x, workData)
 
+        intercept = self.intercept
+        slope = self.slope
+
         def objective(params):
-            theta, alpha, drift = params[0], params[1], params[2]
-            linearTrend = self.intercept + self.slope * x
-            thetaLine = theta * workData + (1 - theta) * linearTrend
-
-            level = thetaLine[0]
-            sse = 0.0
-            for t in range(1, n):
-                trendPred = self.intercept + self.slope * t
-                pred = (trendPred + level + drift * t) / 2
-                error = workData[t] - pred
-                sse += error ** 2
-                level = alpha * thetaLine[t] + (1 - alpha) * level
-
-            return sse
+            return _dotObjectiveJIT(workData, intercept, slope, params[0], params[1], params[2])
 
         x0 = [2.0, 0.3, 0.0]
         bounds = [(0.5, 5.0), (0.01, 0.99), (-1.0, 1.0)]
@@ -86,18 +147,9 @@ class DynamicOptimizedTheta:
         self.alpha = result.x[1]
         self.drift = result.x[2]
 
-        linearTrend = self.intercept + self.slope * x
-        thetaLine = self.theta * workData + (1 - self.theta) * linearTrend
-
-        self.lastLevel = thetaLine[0]
-        residuals = []
-        for t in range(1, n):
-            trendPred = self.intercept + self.slope * t
-            pred = (trendPred + self.lastLevel + self.drift * t) / 2
-            residuals.append(workData[t] - pred)
-            self.lastLevel = self.alpha * thetaLine[t] + (1 - self.alpha) * self.lastLevel
-
-        self.residuals = np.array(residuals)
+        self.residuals, self.lastLevel = _dotComputeResiduals(
+            workData, self.intercept, self.slope, self.theta, self.alpha, self.drift
+        )
         self.fitted = True
         return self
 

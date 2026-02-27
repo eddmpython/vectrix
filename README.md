@@ -299,20 +299,20 @@ Evaluated on M3 and M4 competition datasets (first 100 series per category). OWA
 | Category | OWA |
 |:---------|:---:|
 | Yearly | **0.848** |
-| Quarterly | **0.824** |
-| Monthly | **0.756** |
-| Other | **0.820** |
+| Quarterly | **0.825** |
+| Monthly | **0.758** |
+| Other | **0.819** |
 
 **M4 Competition** — 4/6 frequencies beat Naive2:
 
 | Frequency | OWA |
 |:----------|:---:|
 | Yearly | **0.974** |
-| Quarterly | **0.800** |
-| Monthly | **0.989** |
+| Quarterly | **0.797** |
+| Monthly | **0.987** |
 | Weekly | **0.737** |
-| Daily | 1.210 |
-| Hourly | 1.007 |
+| Daily | 1.207 |
+| Hourly | 1.006 |
 
 Full results with sMAPE/MASE breakdown: [benchmarks](docs/benchmarks.md)
 

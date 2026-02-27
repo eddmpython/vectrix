@@ -593,7 +593,7 @@ class ARIMAModel:
         try:
             result = minimize(
                 objective, x0, method='L-BFGS-B',
-                bounds=bounds, options={'maxiter': 200, 'ftol': 1e-6}
+                bounds=bounds, options={'maxiter': 50, 'ftol': 1e-4}
             )
             idx = 0
             if p > 0:
@@ -781,16 +781,15 @@ class AutoARIMA:
 
         baseOrders = [
             (1, d, 1),
-            (1, d, 0),
             (0, d, 1),
         ]
 
         seasonalOrders = [
-            (1, 1, 1, m),
             (0, 1, 1, m),
             (1, 1, 0, m),
         ]
 
+        noImprovement = 0
         for p, dd, q in baseOrders:
             for bigP, bigD, bigQ, period in seasonalOrders:
                 minRequired = p + q + dd + bigP * m + bigD * m + bigQ * m + 10
@@ -825,6 +824,12 @@ class AutoARIMA:
                         self.bestModel = model
                         self.bestOrder = (p, dd, q)
                         self.bestSeasonalOrder = (bigP, bigD, bigQ, period)
+                        noImprovement = 0
+                    else:
+                        noImprovement += 1
+
+                    if noImprovement >= 2:
+                        return
 
                 except Exception:
                     continue

@@ -1,9 +1,9 @@
 method,category,nSeries,sMAPE,MASE,totalTime_s,OWA
 naive2,M3Year,100,22.675,3.861,0.0,1.0
-vectrix,M3Year,100,19.404,3.246,1.41,0.848
+vectrix,M3Year,100,19.404,3.246,1.53,0.848
 naive2,M3Quart,100,12.546,1.568,0.0,1.0
-vectrix,M3Quart,100,10.429,1.281,15.11,0.824
+vectrix,M3Quart,100,10.445,1.283,14.86,0.825
 naive2,M3Month,100,37.872,1.214,0.01,1.0
-vectrix,M3Month,100,30.639,0.854,8.8,0.756
+vectrix,M3Month,100,30.731,0.856,11.22,0.758
 naive2,M3Other,100,6.62,2.741,0.0,1.0
-vectrix,M3Other,100,5.912,2.047,22.57,0.82
+vectrix,M3Other,100,5.903,2.044,17.62,0.819
