@@ -204,7 +204,6 @@ class BoxCoxTransformer(BaseTransformer):
         return self
 
     def transform(self, y: np.ndarray) -> np.ndarray:
-        from scipy import special
         y = np.asarray(y, dtype=np.float64).ravel()
         shifted = y + self._shift
         shifted = np.maximum(shifted, 1e-10)
