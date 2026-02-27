@@ -55,12 +55,20 @@ dev = [
     "pytest-cov>=4.0",
     "ruff>=0.1.0",
 ]
-all = ["vectrix[numba,ml,dev]"]
+tutorials = ["marimo>=0.1.0", "matplotlib>=3.5.0"]
+docs = [
+    "mkdocs>=1.6",
+    "mkdocs-material>=9.5",
+    "mkdocstrings[python]>=0.24",
+    "mkdocs-static-i18n>=1.2",
+]
+all = ["vectrix[numba,ml,dev,tutorials,docs]"]
 
 [project.urls]
 Homepage = "https://github.com/eddmpython/vectrix"
 Repository = "https://github.com/eddmpython/vectrix"
 Issues = "https://github.com/eddmpython/vectrix/issues"
+Documentation = "https://eddmpython.github.io/vectrix/"
 "Buy Me a Coffee" = "https://buymeacoffee.com/eddmpython"
 
 [build-system]

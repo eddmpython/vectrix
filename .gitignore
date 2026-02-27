@@ -34,6 +34,7 @@ Thumbs.db
 *.xlsx
 *.xls
 *.csv
+!benchmarks/*Results.csv
 *.tsv
 *.pkl
 *.pickle
@@ -54,6 +55,9 @@ Thumbs.db
 htmlcov/
 coverage.xml
 .coverage
+
+# MkDocs
+site/
 
 # Jupyter
 .ipynb_checkpoints/

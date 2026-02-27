@@ -3,9 +3,9 @@
 <br>
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/logo.svg">
-  <source media="(prefers-color-scheme: light)" srcset=".github/assets/logo.svg">
-  <img alt="Vectrix" src=".github/assets/logo.svg" width="100%">
+  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/hero.svg">
+  <source media="(prefers-color-scheme: light)" srcset=".github/assets/hero.svg">
+  <img alt="Vectrix — Navigate the Vector Space of Time" src=".github/assets/hero.svg" width="100%">
 </picture>
 
 <br>
@@ -36,14 +36,6 @@
 <a href="README.md">English</a>
 </p>
 
-</div>
-
-<br>
-
-<div align="center">
-<picture>
-  <img alt="시계열 예측" src=".github/assets/banner.svg" width="100%">
-</picture>
 </div>
 
 <br>
