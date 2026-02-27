@@ -2,51 +2,48 @@
 
 <br>
 
-<img src="https://img.shields.io/badge/%E2%88%BF-Vectrix-6366f1?style=for-the-badge&labelColor=0f172a" alt="Vectrix" height="40">
-
-<br><br>
-
-```
-        ╭─────────────────────────────────────────────╮
-        │                                             │
-        │    Navigate the vector space of time.       │
-        │    Predict trajectories in orbital data.    │
-        │    Map the unknown dimensions ahead.        │
-        │                                             │
-        ╰─────────────────────────────────────────────╯
-```
-
-**Pure Python time series forecasting engine**
-
-30+ models · 3 dependencies · 1 line of code
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset=".github/assets/logo.svg">
+  <source media="(prefers-color-scheme: light)" srcset=".github/assets/logo.svg">
+  <img alt="Vectrix" src=".github/assets/logo.svg" width="100%">
+</picture>
 
 <br>
 
-[![PyPI](https://img.shields.io/pypi/v/vectrix?style=for-the-badge&color=6366f1&labelColor=0f172a)](https://pypi.org/project/vectrix/)
-[![Python](https://img.shields.io/pypi/pyversions/vectrix?style=for-the-badge&labelColor=0f172a)](https://pypi.org/project/vectrix/)
-[![License](https://img.shields.io/badge/License-MIT-22d3ee?style=for-the-badge&labelColor=0f172a)](LICENSE)
-[![Tests](https://img.shields.io/badge/Tests-275%20passed-10b981?style=for-the-badge&labelColor=0f172a)]()
+<h3>Pure Python Time Series Forecasting Engine</h3>
+
+<p>
+<img src="https://img.shields.io/badge/30+-Models-6366f1?style=for-the-badge&labelColor=0f172a" alt="Models">
+<img src="https://img.shields.io/badge/3-Dependencies-818cf8?style=for-the-badge&labelColor=0f172a" alt="Dependencies">
+<img src="https://img.shields.io/badge/1-Line%20of%20Code-a78bfa?style=for-the-badge&labelColor=0f172a" alt="One Line">
+</p>
+
+<p>
+<a href="https://pypi.org/project/vectrix/"><img src="https://img.shields.io/pypi/v/vectrix?style=for-the-badge&color=6366f1&labelColor=0f172a&logo=pypi&logoColor=white" alt="PyPI"></a>
+<a href="https://pypi.org/project/vectrix/"><img src="https://img.shields.io/pypi/pyversions/vectrix?style=for-the-badge&labelColor=0f172a&logo=python&logoColor=white" alt="Python"></a>
+<a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-22d3ee?style=for-the-badge&labelColor=0f172a" alt="License"></a>
+<img src="https://img.shields.io/badge/Tests-275%20passed-10b981?style=for-the-badge&labelColor=0f172a&logo=pytest&logoColor=white" alt="Tests">
+</p>
 
 <br>
 
-[Installation](#-installation) · [Quick Start](#-quick-start) · [Models](#-models) · [Features](#-features) · [API](#-api-reference) · [한국어](README_KR.md)
+<p>
+<a href="#-quick-start">Quick Start</a> ·
+<a href="#-models">Models</a> ·
+<a href="#-installation">Installation</a> ·
+<a href="#-usage">Usage</a> ·
+<a href="#-api-reference">API Reference</a> ·
+<a href="README_KR.md">한국어</a>
+</p>
 
 </div>
 
 <br>
 
 <div align="center">
-
-```
-                    ┌─── past ──────────── now ─── future ───┐
-                    │                       ╱                │
-        signal ─────│───╲    ╱╲    ╱╲   ╱╲╱  ╲  ·  ·  ·    │──── prediction
-                    │    ╲╱╲╱  ╲╱╲╱  ╲╱╱      ╲·  ·  ·  ·  │──── confidence
-                    │                       ╲   ·  ·  ·     │
-                    └────────────────────────────────────────┘
-                              ↑ Vectrix maps the trajectory
-```
-
+<picture>
+  <img alt="Time Series Forecasting" src=".github/assets/banner.svg" width="100%">
+</picture>
 </div>
 
 <br>
@@ -65,26 +62,30 @@ print(result)
 result.plot()
 ```
 
-One function call. Auto model selection, flat-line defense, confidence intervals, and a plot.
+> One function call. Auto model selection, flat-line defense, confidence intervals, and a plot.
 
 <br>
 
 ## ◈ Why Vectrix?
 
-```
-  ╔══════════════════════════════════════════════════════════════════╗
-  ║  Dimension        Vectrix    statsforecast  Prophet    Darts    ║
-  ╠══════════════════════════════════════════════════════════════════╣
-  ║  Zero-config        ●             ●           ○         ○      ║
-  ║  Pure Python         ●             ○           ○         ○      ║
-  ║  30+ models          ●             ●           ○         ●      ║
-  ║  Flat defense        ●             ○           ○         ○      ║
-  ║  Stress testing      ●             ○           ○         ○      ║
-  ║  Forecast DNA        ●             ○           ○         ○      ║
-  ║  Constraints(8)      ●             ○           ○         ○      ║
-  ║  R-style regress     ●             ○           ○         ○      ║
-  ╚══════════════════════════════════════════════════════════════════╝
-```
+<table>
+<tr>
+<td>
+
+| Dimension | Vectrix | statsforecast | Prophet | Darts |
+|:--|:--:|:--:|:--:|:--:|
+| **Zero-config** | ✅ | ✅ | ❌ | ❌ |
+| **Pure Python** | ✅ | ❌ | ❌ | ❌ |
+| **30+ models** | ✅ | ✅ | ❌ | ✅ |
+| **Flat defense** | ✅ | ❌ | ❌ | ❌ |
+| **Stress testing** | ✅ | ❌ | ❌ | ❌ |
+| **Forecast DNA** | ✅ | ❌ | ❌ | ❌ |
+| **Constraints (8)** | ✅ | ❌ | ❌ | ❌ |
+| **R-style regress** | ✅ | ❌ | ❌ | ❌ |
+
+</td>
+</tr>
+</table>
 
 > **Three vectors.** `numpy` · `scipy` · `pandas` — that's the entire orbit.
 
@@ -93,102 +94,82 @@ One function call. Auto model selection, flat-line defense, confidence intervals
 ## ◈ Models
 
 <details open>
-<summary><b>「 Core Forecasting Models 」</b></summary>
+<summary><b>Core Forecasting Models</b></summary>
 
 <br>
 
-```
-  ┌──────────────────┬────────────────────────────────────────────────┐
-  │ Model            │ Description                                    │
-  ├──────────────────┼────────────────────────────────────────────────┤
-  │ AutoETS          │ 30 ExT×S combinations, AICc selection          │
-  │ AutoARIMA        │ Seasonal ARIMA, stepwise order selection       │
-  │ Theta / DOT      │ Original + Dynamic Optimized Theta             │
-  │ AutoCES          │ Complex Exponential Smoothing                  │
-  │ AutoTBATS        │ Trigonometric multi-seasonal decomposition     │
-  │ GARCH            │ GARCH, EGARCH, GJR-GARCH volatility           │
-  │ Croston          │ Classic, SBA, TSB intermittent demand          │
-  │ Logistic Growth  │ Saturating trends with capacity constraints    │
-  │ AutoMSTL         │ Multi-seasonal STL + ARIMA residuals           │
-  │ Baselines        │ Naive, Seasonal, Mean, Drift, Window Average   │
-  └──────────────────┴────────────────────────────────────────────────┘
-```
+| Model | Description |
+|:------|:------------|
+| **AutoETS** | 30 ExT×S combinations, AICc selection |
+| **AutoARIMA** | Seasonal ARIMA, stepwise order selection |
+| **Theta / DOT** | Original + Dynamic Optimized Theta |
+| **AutoCES** | Complex Exponential Smoothing |
+| **AutoTBATS** | Trigonometric multi-seasonal decomposition |
+| **GARCH** | GARCH, EGARCH, GJR-GARCH volatility |
+| **Croston** | Classic, SBA, TSB intermittent demand |
+| **Logistic Growth** | Saturating trends with capacity constraints |
+| **AutoMSTL** | Multi-seasonal STL + ARIMA residuals |
+| **Baselines** | Naive, Seasonal, Mean, Drift, Window Average |
 
 </details>
 
 <details>
-<summary><b>「 Novel Methods — uncharted territory 」</b></summary>
+<summary><b>Novel Methods — Uncharted Territory</b></summary>
 
 <br>
 
-```
-  ┌───────────────────────────┬──────────────────────────────────────────┐
-  │ Method                    │ Description                              │
-  ├───────────────────────────┼──────────────────────────────────────────┤
-  │ Lotka-Volterra Ensemble   │ Ecological dynamics for model weighting  │
-  │ Phase Transition          │ Critical slowing → regime shift          │
-  │ Adversarial Stress        │ 5 perturbation operators                 │
-  │ Hawkes Demand             │ Self-exciting point process              │
-  │ Entropic Confidence       │ Shannon entropy quantification          │
-  └───────────────────────────┴──────────────────────────────────────────┘
-```
+| Method | Description |
+|:-------|:------------|
+| **Lotka-Volterra Ensemble** | Ecological dynamics for model weighting |
+| **Phase Transition** | Critical slowing → regime shift |
+| **Adversarial Stress** | 5 perturbation operators |
+| **Hawkes Demand** | Self-exciting point process |
+| **Entropic Confidence** | Shannon entropy quantification |
 
 </details>
 
 <details>
-<summary><b>「 Adaptive Intelligence 」</b></summary>
+<summary><b>Adaptive Intelligence</b></summary>
 
 <br>
 
-```
-  ┌─────────────────┬────────────────────────────────────────────────────┐
-  │ System          │ Description                                        │
-  ├─────────────────┼────────────────────────────────────────────────────┤
-  │ Regime Detection│ Pure numpy HMM (Baum-Welch + Viterbi)              │
-  │ Self-Healing    │ CUSUM + EWMA drift → conformal correction          │
-  │ Constraints     │ 8 types: ≥0, range, cap, YoY, Σ, ↑↓, ratio, fn   │
-  │ Forecast DNA    │ 65+ features → meta-learning recommendation       │
-  │ Flat Defense    │ 4-level prevention system                          │
-  └─────────────────┴────────────────────────────────────────────────────┘
-```
+| System | Description |
+|:-------|:------------|
+| **Regime Detection** | Pure numpy HMM (Baum-Welch + Viterbi) |
+| **Self-Healing** | CUSUM + EWMA drift → conformal correction |
+| **Constraints** | 8 types: ≥0, range, cap, YoY, Σ, ↑↓, ratio, fn |
+| **Forecast DNA** | 65+ features → meta-learning recommendation |
+| **Flat Defense** | 4-level prevention system |
 
 </details>
 
 <details>
-<summary><b>「 Regression & Diagnostics 」</b></summary>
+<summary><b>Regression & Diagnostics</b></summary>
 
 <br>
 
-```
-  ┌───────────────────┬────────────────────────────────────────────────┐
-  │ Capability        │ Description                                    │
-  ├───────────────────┼────────────────────────────────────────────────┤
-  │ Methods           │ OLS, Ridge, Lasso, Huber, Quantile             │
-  │ Formula           │ R-style: regress(data=df, formula="y ~ x")     │
-  │ Diagnostics       │ Durbin-Watson, Breusch-Pagan, VIF, normality   │
-  │ Selection         │ Stepwise, regularization CV, best subset       │
-  │ Time Series       │ Newey-West, Cochrane-Orcutt, Granger           │
-  └───────────────────┴────────────────────────────────────────────────┘
-```
+| Capability | Description |
+|:-----------|:------------|
+| **Methods** | OLS, Ridge, Lasso, Huber, Quantile |
+| **Formula** | R-style: `regress(data=df, formula="y ~ x")` |
+| **Diagnostics** | Durbin-Watson, Breusch-Pagan, VIF, normality |
+| **Selection** | Stepwise, regularization CV, best subset |
+| **Time Series** | Newey-West, Cochrane-Orcutt, Granger |
 
 </details>
 
 <details>
-<summary><b>「 Business Intelligence 」</b></summary>
+<summary><b>Business Intelligence</b></summary>
 
 <br>
 
-```
-  ┌──────────────────┬────────────────────────────────────────────────┐
-  │ Module           │ Description                                    │
-  ├──────────────────┼────────────────────────────────────────────────┤
-  │ Anomaly          │ Automated outlier detection & explanation      │
-  │ What-if          │ Scenario-based forecast simulation             │
-  │ Backtesting      │ Rolling origin cross-validation                │
-  │ Hierarchy        │ Bottom-up, top-down, MinTrace                  │
-  │ Intervals        │ Conformal + bootstrap prediction               │
-  └──────────────────┴────────────────────────────────────────────────┘
-```
+| Module | Description |
+|:-------|:------------|
+| **Anomaly** | Automated outlier detection & explanation |
+| **What-if** | Scenario-based forecast simulation |
+| **Backtesting** | Rolling origin cross-validation |
+| **Hierarchy** | Bottom-up, top-down, MinTrace |
+| **Intervals** | Conformal + bootstrap prediction |
 
 </details>
 
@@ -212,14 +193,11 @@ pip install "vectrix[all]"         # Everything
 ```python
 from vectrix import forecast, analyze, regress
 
-# Forecast — any data format
 result = forecast([100, 120, 115, 130, 125, 140], steps=5)
 
-# Analyze — DNA profiling
 report = analyze(df, date="date", value="sales")
 print(f"Difficulty: {report.dna.difficulty}")
 
-# Regress — R-style formula
 model = regress(data=df, formula="sales ~ temperature + promotion")
 print(model.summary())
 ```
@@ -277,7 +255,7 @@ result = caf.apply(predictions, lower95, upper95, constraints=[
 ### Easy API (Recommended)
 
 | Function | Description |
-|----------|-------------|
+|:---------|:------------|
 | `forecast(data, steps=30)` | Auto model selection forecasting |
 | `analyze(data)` | DNA profiling, changepoints, anomalies |
 | `regress(y, X)` / `regress(data=df, formula="y ~ x")` | Regression with diagnostics |
@@ -286,14 +264,14 @@ result = caf.apply(predictions, lower95, upper95, constraints=[
 ### Classic API
 
 | Method | Description |
-|--------|-------------|
+|:-------|:------------|
 | `Vectrix().forecast(df, dateCol, valueCol, steps)` | Full pipeline |
 | `Vectrix().analyze(df, dateCol, valueCol)` | Data analysis |
 
 ### Return Objects
 
 | Object | Key Attributes |
-|--------|---------------|
+|:-------|:--------------|
 | `EasyForecastResult` | `.predictions` `.dates` `.lower` `.upper` `.model` `.plot()` `.to_csv()` `.to_json()` |
 | `EasyAnalysisResult` | `.dna` `.changepoints` `.anomalies` `.features` `.summary()` |
 | `EasyRegressionResult` | `.coefficients` `.pvalues` `.r_squared` `.f_stat` `.summary()` `.diagnose()` |
