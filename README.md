@@ -2,7 +2,7 @@
 
 <br>
 
-# ⟨V⟩ Vectrix
+# Vectrix
 
 **Feed data. Get forecasts. Zero config.**
 
