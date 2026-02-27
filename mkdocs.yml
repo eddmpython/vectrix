@@ -27,8 +27,11 @@ theme:
     - navigation.tabs
     - navigation.sections
     - navigation.top
+    - navigation.indexes
     - search.suggest
+    - search.highlight
     - content.code.copy
+    - content.code.annotate
     - content.tabs.link
   icon:
     repo: fontawesome/brands/github
@@ -66,12 +69,18 @@ nav:
     - Regression: guide/regression.md
     - Adaptive Intelligence: guide/adaptive.md
     - Business Intelligence: guide/business.md
+    - Pipeline: guide/pipeline.md
+    - Foundation Models: guide/foundation.md
+    - Multivariate: guide/multivariate.md
   - API Reference:
     - Easy API: api/easy.md
     - Vectrix Class: api/vectrix.md
     - Adaptive: api/adaptive.md
     - Business: api/business.md
     - Regression: api/regression.md
+    - Pipeline: api/pipeline.md
+    - Foundation & Neural: api/foundation.md
+    - Multivariate & Distributions: api/multivariate.md
     - Types: api/types.md
   - Benchmarks: benchmarks.md
   - Tutorials: tutorials/index.md
