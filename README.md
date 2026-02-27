@@ -28,6 +28,11 @@
 <br>
 
 <p>
+<a href="https://eddmpython.github.io/vectrix/"><img src="https://img.shields.io/badge/Docs-eddmpython.github.io/vectrix-818cf8?style=for-the-badge&labelColor=0f172a&logo=readthedocs&logoColor=white" alt="Documentation"></a>
+</p>
+
+<p>
+<a href="https://eddmpython.github.io/vectrix/">Documentation</a> ·
 <a href="#-quick-start">Quick Start</a> ·
 <a href="#-models">Models</a> ·
 <a href="#-installation">Installation</a> ·
