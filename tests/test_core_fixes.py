@@ -28,8 +28,6 @@ largeValueData = (np.sin(2 * np.pi * np.arange(100) / 7) * 5 + 50) * 1e8
 
 
 def test_version_consistency():
-    assert Vectrix.VERSION == "3.0.0"
-    assert vectrix.__version__ == "3.0.0"
     assert Vectrix.VERSION == vectrix.__version__
 
 
