@@ -1,6 +1,6 @@
 [project]
 name = "vectrix"
-version = "3.0.0"
+version = "0.0.1"
 description = "Zero-config time series forecasting & analysis library. Pure numpy + scipy implementation with 30+ models, regression, and adaptive intelligence."
 readme = "README.md"
 license = {text = "MIT"}

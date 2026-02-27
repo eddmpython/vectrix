@@ -2,37 +2,42 @@
 
 <br>
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/badge/Vectrix-Time%20Series%20Forecasting-6366f1?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiPjxwb2x5bGluZSBwb2ludHM9IjIyIDEyIDE4IDEyIDE1IDE5IDkgNSA2IDEyIDIgMTIiLz48L3N2Zz4=">
-  <img alt="Vectrix" src="https://img.shields.io/badge/Vectrix-Time%20Series%20Forecasting-6366f1?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiPjxwb2x5bGluZSBwb2ludHM9IjIyIDEyIDE4IDEyIDE1IDE5IDkgNSA2IDEyIDIgMTIiLz48L3N2Zz4=">
-</picture>
+# ⟨V⟩ Vectrix
 
-### Feed data. Get forecasts. Zero config.
+**Feed data. Get forecasts. Zero config.**
 
 Pure Python time series forecasting -- 30+ models, zero heavy dependencies.
 
 <br>
 
-[![PyPI](https://img.shields.io/pypi/v/vectrix?style=flat-square&color=6366f1)](https://pypi.org/project/vectrix/)
-[![Python 3.10+](https://img.shields.io/pypi/pyversions/vectrix?style=flat-square)](https://pypi.org/project/vectrix/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-275%20passed-brightgreen?style=flat-square)]()
-[![Buy Me a Coffee](https://img.shields.io/badge/Sponsor-Buy%20Me%20a%20Coffee-orange?style=flat-square&logo=buy-me-a-coffee&logoColor=white)](https://buymeacoffee.com/eddmpython)
+[![PyPI](https://img.shields.io/pypi/v/vectrix?style=flat-square&color=6366f1&label=PyPI)](https://pypi.org/project/vectrix/)
+[![Python](https://img.shields.io/pypi/pyversions/vectrix?style=flat-square&label=Python)](https://pypi.org/project/vectrix/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
+[![Tests](https://img.shields.io/badge/Tests-275%20passed-brightgreen?style=flat-square)]()
+[![Sponsor](https://img.shields.io/badge/Sponsor-Buy%20Me%20a%20Coffee-orange?style=flat-square&logo=buy-me-a-coffee&logoColor=white)](https://buymeacoffee.com/eddmpython)
 
-[Installation](#installation) &middot; [Quick Start](#30-second-quick-start) &middot; [Features](#features) &middot; [API Reference](#api-reference) &middot; [Architecture](#architecture) &middot; [한국어](README_KR.md)
+---
+
+[Installation](#installation) · [Quick Start](#quick-start) · [Features](#features) · [API](#api-reference) · [한국어](README_KR.md)
 
 </div>
 
 <br>
 
-> **3 dependencies. 30+ models. 1 line of code.**
->
-> Vectrix is a self-contained time series forecasting library built from scratch with pure NumPy + SciPy.
-> No statsforecast, no statsmodels, no Prophet -- just feed your data and get optimal predictions with confidence intervals.
+```
+  3 dependencies    30+ models    1 line of code
+  ─────────────     ──────────    ──────────────
+  numpy             AutoETS       from vectrix import forecast
+  scipy             AutoARIMA     result = forecast(data, steps=12)
+  pandas            Theta/DOT     print(result)
+                    TBATS
+                    GARCH
+                    ...
+```
 
 <br>
 
-## 30-Second Quick Start
+## Quick Start
 
 ```bash
 pip install vectrix
@@ -47,126 +52,131 @@ result.plot()
 result.to_csv("output.csv")
 ```
 
-That's it. One call gets you automatic model selection, flat-line prevention, confidence intervals, and a plot.
-
-## Why Vectrix?
-
-| Feature | Vectrix | statsforecast | Prophet | Darts |
-|---------|:---------:|:-------------:|:-------:|:-----:|
-| Zero-config auto-forecast | **Yes** | Yes | -- | -- |
-| Pure Python (no heavy deps) | **Yes** | -- | -- | -- |
-| 30+ models built-in | **Yes** | Yes | -- | Yes |
-| Flat prediction defense | **Yes** | -- | -- | -- |
-| Adversarial stress testing | **Yes** | -- | -- | -- |
-| Forecast DNA fingerprinting | **Yes** | -- | -- | -- |
-| Business constraints (8 types) | **Yes** | -- | -- | -- |
-| R-style regression (`y ~ x`) | **Yes** | -- | -- | -- |
-| Korean market native | **Yes** | -- | -- | -- |
-
-**Three dependencies.** `numpy`, `scipy`, `pandas`. That's the entire install.
-
-## Features
-
-<details>
-<summary><b>Core Forecasting Models</b></summary>
+One call. Auto model selection, flat-line prevention, confidence intervals, and a plot.
 
 <br>
 
-- **AutoETS** -- 30 Error x Trend x Seasonal combinations with AICc selection (Hyndman-Khandakar)
-- **AutoARIMA** -- Seasonal ARIMA with stepwise order selection via AICc
-- **Theta / DOT** -- Original Theta + Dynamic Optimized Theta (M3 Competition winner)
-- **AutoCES** -- Complex Exponential Smoothing (Svetunkov 2023)
-- **AutoTBATS** -- Trigonometric seasonality for complex multi-seasonal data
-- **GARCH** -- GARCH, EGARCH, GJR-GARCH for volatility modeling
-- **Croston** -- Classic, SBA, TSB + AutoCroston for intermittent demand
-- **Logistic Growth** -- Prophet-style saturating trends with capacity constraints
-- **AutoMSTL** -- Multi-seasonal decomposition + ARIMA residual forecasting
-- **Baselines** -- Naive, Seasonal Naive, Mean, Random Walk with Drift, Window Average
+## Why Vectrix?
+
+| | Vectrix | statsforecast | Prophet | Darts |
+|:--|:-:|:-:|:-:|:-:|
+| **Zero-config auto-forecast** | **Yes** | Yes | -- | -- |
+| **Pure Python (no heavy deps)** | **Yes** | -- | -- | -- |
+| **30+ models built-in** | **Yes** | Yes | -- | Yes |
+| **Flat prediction defense** | **Yes** | -- | -- | -- |
+| **Adversarial stress testing** | **Yes** | -- | -- | -- |
+| **Forecast DNA fingerprinting** | **Yes** | -- | -- | -- |
+| **Business constraints (8 types)** | **Yes** | -- | -- | -- |
+| **R-style regression** | **Yes** | -- | -- | -- |
+
+> `numpy` + `scipy` + `pandas` -- that's the entire install.
+
+<br>
+
+## Features
+
+<details open>
+<summary><b>Core Models</b></summary>
+
+| Model | Description |
+|-------|-------------|
+| AutoETS | 30 Error x Trend x Seasonal combinations, AICc selection |
+| AutoARIMA | Seasonal ARIMA, stepwise order selection |
+| Theta / DOT | Original Theta + Dynamic Optimized Theta |
+| AutoCES | Complex Exponential Smoothing (Svetunkov 2023) |
+| AutoTBATS | Trigonometric multi-seasonal decomposition |
+| GARCH | GARCH, EGARCH, GJR-GARCH volatility models |
+| Croston | Classic, SBA, TSB for intermittent demand |
+| Logistic Growth | Saturating trends with capacity constraints |
+| AutoMSTL | Multi-seasonal decomposition + ARIMA residuals |
+| Baselines | Naive, Seasonal Naive, Mean, Drift, Window Average |
 
 </details>
 
 <details>
-<summary><b>Novel Methods (World First)</b></summary>
+<summary><b>Novel Methods</b></summary>
 
-<br>
-
-- **Lotka-Volterra Ensemble** -- Ecological competition dynamics for adaptive model weighting
-- **Phase Transition Forecaster** -- Critical slowing down detection for regime shift prediction
-- **Adversarial Stress Tester** -- 5 perturbation operators for forecast robustness analysis
-- **Hawkes Intermittent Demand** -- Self-exciting point process for clustered demand patterns
-- **Entropic Confidence Scorer** -- Shannon entropy-based forecast uncertainty quantification
+| Method | Description |
+|--------|-------------|
+| Lotka-Volterra Ensemble | Ecological competition dynamics for model weighting |
+| Phase Transition | Critical slowing down for regime shift prediction |
+| Adversarial Stress | 5 perturbation operators for robustness analysis |
+| Hawkes Demand | Self-exciting point process for clustered demand |
+| Entropic Confidence | Shannon entropy uncertainty quantification |
 
 </details>
 
 <details>
 <summary><b>Adaptive Intelligence</b></summary>
 
-<br>
-
-- **Regime Detection** -- Pure numpy Hidden Markov Model (Baum-Welch + Viterbi)
-- **Self-Healing Forecast** -- CUSUM + EWMA drift detection with conformal prediction correction
-- **Constraint-Aware Forecasting** -- 8 business constraints: non-negative, range, capacity, YoY change, sum, monotone, ratio, custom
-- **Forecast DNA** -- 65+ feature fingerprinting with meta-learning model recommendation and similarity search
-- **Flat Defense** -- 4-level system (diagnostic, detection, correction, prevention) against flat prediction failure
+| Feature | Description |
+|---------|-------------|
+| Regime Detection | Pure numpy HMM (Baum-Welch + Viterbi) |
+| Self-Healing | CUSUM + EWMA drift detection, conformal correction |
+| Constraints | 8 types: non-negative, range, capacity, YoY, sum, monotone, ratio, custom |
+| Forecast DNA | 65+ feature fingerprinting, meta-learning recommendation |
+| Flat Defense | 4-level prevention system |
 
 </details>
 
 <details>
 <summary><b>Regression & Diagnostics</b></summary>
 
-<br>
-
-- **5 regression methods** -- OLS, Ridge, Lasso, Huber, Quantile
-- **R-style formula interface** -- `regress(data=df, formula="sales ~ ads + price")`
-- **Full diagnostics** -- Durbin-Watson, Breusch-Pagan, VIF, normality tests
-- **Variable selection** -- Stepwise, regularization CV, best subset
-- **Time series regression** -- Newey-West, Cochrane-Orcutt, Prais-Winsten, Granger causality
+| Feature | Description |
+|---------|-------------|
+| Methods | OLS, Ridge, Lasso, Huber, Quantile |
+| Formula | R-style `regress(data=df, formula="y ~ x1 + x2")` |
+| Diagnostics | Durbin-Watson, Breusch-Pagan, VIF, normality |
+| Variable Selection | Stepwise, regularization CV, best subset |
+| Time Series | Newey-West, Cochrane-Orcutt, Granger causality |
 
 </details>
 
 <details>
 <summary><b>Business Intelligence</b></summary>
 
-<br>
-
-- **Anomaly detection** -- Automated outlier identification and explanation
-- **What-if analysis** -- Scenario-based forecast simulation
-- **Backtesting** -- Rolling origin cross-validation with multiple metrics
-- **Hierarchy reconciliation** -- Bottom-up, top-down, MinTrace optimal reconciliation
-- **Prediction intervals** -- Conformal + bootstrap methods
+| Feature | Description |
+|---------|-------------|
+| Anomaly Detection | Automated outlier identification and explanation |
+| What-if Analysis | Scenario-based forecast simulation |
+| Backtesting | Rolling origin cross-validation |
+| Hierarchy | Bottom-up, top-down, MinTrace reconciliation |
+| Intervals | Conformal + bootstrap prediction intervals |
 
 </details>
+
+<br>
 
 ## Installation
 
 ```bash
-pip install vectrix
+pip install vectrix                # Core (numpy + scipy + pandas)
+pip install "vectrix[numba]"       # + Numba JIT (2-5x speedup)
+pip install "vectrix[ml]"          # + LightGBM, XGBoost, scikit-learn
+pip install "vectrix[all]"         # Everything
 ```
 
-Optional dependencies:
+**Requirements:** Python 3.10+
 
-```bash
-pip install "vectrix[numba]"    # Numba JIT for 2-5x speedup
-pip install "vectrix[ml]"      # LightGBM, XGBoost, scikit-learn
-pip install "vectrix[all]"     # Everything
-```
-
-**Requirements:** Python 3.10+, NumPy >= 1.24, Pandas >= 2.0, SciPy >= 1.10
+<br>
 
 ## Usage Examples
 
-### Basic: 2-Line Forecast
+### Easy API
 
 ```python
-from vectrix import forecast
+from vectrix import forecast, analyze, regress
 
-result = forecast([100, 120, 115, 130, 125, 140, 135, 150], steps=5)
-print(result)
+result = forecast([100, 120, 115, 130, 125, 140], steps=5)
+
+report = analyze(df, date="date", value="sales")
+print(f"Difficulty: {report.dna.difficulty}")
+
+model = regress(data=df, formula="sales ~ temperature + promotion")
+print(model.summary())
 ```
 
-Pass a list, NumPy array, Pandas Series, DataFrame, dict, or a CSV file path. Vectrix auto-detects everything.
-
-### Intermediate: DataFrame + Analysis
+### DataFrame Workflow
 
 ```python
 from vectrix import forecast, analyze
@@ -176,29 +186,17 @@ df = pd.read_csv("data.csv")
 
 report = analyze(df, date="date", value="sales")
 print(report.summary())
-print(f"Difficulty: {report.dna.difficulty}")
-print(f"Recommended: {report.dna.recommendedModels}")
 
 result = forecast(df, date="date", value="sales", steps=30)
 result.plot()
 result.to_csv("forecast.csv")
 ```
 
-### Advanced: R-Style Regression
+### Direct Engine Access
 
 ```python
-from vectrix import regress
-
-model = regress(data=df, formula="sales ~ temperature + promotion + holiday")
-print(model.summary())
-print(model.diagnose())
-```
-
-### Expert: Direct Engine Access
-
-```python
-from vectrix.engine import AutoETS, AutoARIMA, AutoTBATS
-from vectrix.adaptive import RegimeDetector, ForecastDNA
+from vectrix.engine import AutoETS, AutoARIMA
+from vectrix.adaptive import ForecastDNA
 
 ets = AutoETS(period=7)
 ets.fit(data)
@@ -206,20 +204,8 @@ pred, lower, upper = ets.predict(30)
 
 dna = ForecastDNA()
 profile = dna.analyze(data, period=7)
-print(f"Fingerprint: {profile.fingerprint}")
 print(f"Difficulty: {profile.difficulty}")
 print(f"Recommended: {profile.recommendedModels}")
-```
-
-### Stress Testing
-
-```python
-from vectrix.engine import AdversarialStressTester
-
-tester = AdversarialStressTester(nPerturbations=50)
-result = tester.analyze(data, steps=12)
-print(f"Fragility: {result.fragilityScore:.2f}")
-print(f"Grade: {result.summary()['grade']}")
 ```
 
 ### Business Constraints
@@ -233,11 +219,10 @@ result = caf.apply(predictions, lower95, upper95, constraints=[
     Constraint('range', {'min': 100, 'max': 5000}),
     Constraint('capacity', {'capacity': 10000}),
     Constraint('yoy_change', {'maxPct': 30, 'historicalData': past_year}),
-    Constraint('monotone', {'direction': 'increasing'}),
 ])
 ```
 
-### Full Pipeline (Classic API)
+### Classic API
 
 ```python
 from vectrix import Vectrix
@@ -248,8 +233,9 @@ result = fx.forecast(df, dateCol="date", valueCol="sales", steps=30)
 if result.success:
     print(f"Model: {result.bestModelName}")
     print(f"Predictions: {result.predictions}")
-    print(f"95% CI: [{result.lower95}, {result.upper95}]")
 ```
+
+<br>
 
 ## API Reference
 
@@ -257,83 +243,65 @@ if result.success:
 
 | Function | Description |
 |----------|-------------|
-| `forecast(data, steps=30)` | One-call forecasting with auto model selection |
-| `analyze(data)` | Time series DNA profiling, changepoints, anomalies |
-| `regress(y, X)` or `regress(data=df, formula="y ~ x")` | Regression with full diagnostics |
-| `quick_report(data, steps=30)` | Combined analysis + forecast report |
+| `forecast(data, steps=30)` | Auto model selection forecasting |
+| `analyze(data)` | DNA profiling, changepoints, anomalies |
+| `regress(y, X)` / `regress(data=df, formula="y ~ x")` | Regression with diagnostics |
+| `quick_report(data, steps=30)` | Combined analysis + forecast |
 
 ### Classic API
 
 | Method | Description |
 |--------|-------------|
-| `Vectrix().forecast(df, dateCol, valueCol, steps)` | Full pipeline with detailed result object |
-| `Vectrix().analyze(df, dateCol, valueCol)` | Data characteristics + flat risk assessment |
+| `Vectrix().forecast(df, dateCol, valueCol, steps)` | Full pipeline |
+| `Vectrix().analyze(df, dateCol, valueCol)` | Data analysis |
 
 ### Return Objects
 
-**`EasyForecastResult`** -- `.predictions`, `.dates`, `.lower`, `.upper`, `.model`, `.summary()`, `.plot()`, `.to_csv()`, `.to_dataframe()`, `.to_json()`
+| Object | Key Attributes |
+|--------|---------------|
+| `EasyForecastResult` | `.predictions` `.dates` `.lower` `.upper` `.model` `.plot()` `.to_csv()` `.to_json()` |
+| `EasyAnalysisResult` | `.dna` `.changepoints` `.anomalies` `.features` `.summary()` |
+| `EasyRegressionResult` | `.coefficients` `.pvalues` `.r_squared` `.f_stat` `.summary()` `.diagnose()` |
 
-**`EasyAnalysisResult`** -- `.dna`, `.changepoints`, `.anomalies`, `.features`, `.characteristics`, `.summary()`
-
-**`EasyRegressionResult`** -- `.coefficients`, `.pvalues`, `.r_squared`, `.adj_r_squared`, `.f_stat`, `.summary()`, `.diagnose()`
+<br>
 
 ## Architecture
 
 ```
 vectrix/
-├── easy.py              # Zero-config API: forecast(), analyze(), regress()
-├── vectrix.py         # Full pipeline: Vectrix class
-├── types.py             # ForecastResult, DataCharacteristics, ModelResult
-├── engine/              # 30+ statistical models
-│   ├── ets.py           #   AutoETS (30 combinations)
-│   ├── arima.py         #   AutoARIMA (AICc stepwise)
-│   ├── theta.py         #   Theta method
-│   ├── dot.py           #   Dynamic Optimized Theta
-│   ├── ces.py           #   Complex Exponential Smoothing
-│   ├── tbats.py         #   TBATS / AutoTBATS
-│   ├── mstl.py          #   Multi-Seasonal Decomposition
-│   ├── garch.py         #   GARCH / EGARCH / GJR-GARCH
-│   ├── croston.py       #   Croston Classic / SBA / TSB
-│   ├── logistic.py      #   Logistic Growth / Saturating Trend
-│   ├── hawkes.py        #   Hawkes Intermittent Demand
-│   ├── lotkaVolterra.py #   Lotka-Volterra Ensemble
-│   ├── phaseTransition.py # Phase Transition Forecaster
-│   ├── adversarial.py   #   Adversarial Stress Tester
-│   ├── entropic.py      #   Entropic Confidence Scorer
-│   ├── probabilistic.py #   Probabilistic Forecaster
-│   └── turbo.py         #   Numba JIT acceleration
-├── adaptive/            # Regime detection, self-healing, constraints, DNA
-├── regression/          # 5 regressors + diagnostics + variable selection
-├── business/            # Anomaly, backtest, what-if, explanation, metrics
-├── flat_defense/        # 4-level flat prediction prevention
-├── hierarchy/           # Bottom-up, top-down, MinTrace reconciliation
-├── intervals/           # Conformal + bootstrap prediction intervals
-├── ml/                  # LightGBM, XGBoost, scikit-learn wrappers
-└── global_model/        # Global (cross-series) forecasting
+├── easy.py               forecast(), analyze(), regress()
+├── vectrix.py             Vectrix class (full pipeline)
+├── types.py               ForecastResult, DataCharacteristics
+├── engine/                30+ statistical models
+│   ├── ets.py               AutoETS (30 combinations)
+│   ├── arima.py             AutoARIMA (AICc stepwise)
+│   ├── theta.py             Theta method
+│   ├── dot.py               Dynamic Optimized Theta
+│   ├── ces.py               Complex Exponential Smoothing
+│   ├── tbats.py             TBATS / AutoTBATS
+│   ├── mstl.py              Multi-Seasonal Decomposition
+│   ├── garch.py             GARCH / EGARCH / GJR-GARCH
+│   ├── croston.py           Croston Classic / SBA / TSB
+│   ├── logistic.py          Logistic Growth
+│   ├── hawkes.py            Hawkes Intermittent Demand
+│   ├── lotkaVolterra.py     Lotka-Volterra Ensemble
+│   ├── phaseTransition.py   Phase Transition Forecaster
+│   ├── adversarial.py       Adversarial Stress Tester
+│   ├── entropic.py          Entropic Confidence Scorer
+│   └── turbo.py             Numba JIT acceleration
+├── adaptive/              Regime, self-healing, constraints, DNA
+├── regression/            OLS, Ridge, Lasso, Huber, Quantile
+├── business/              Anomaly, backtest, what-if, metrics
+├── flat_defense/          4-level flat prediction prevention
+├── hierarchy/             Bottom-up, top-down, MinTrace
+├── intervals/             Conformal + bootstrap intervals
+├── ml/                    LightGBM, XGBoost wrappers
+└── global_model/          Cross-series forecasting
 ```
 
-## Dependencies
-
-| Package | Required | Purpose |
-|---------|----------|---------|
-| numpy >= 1.24 | Yes | Core numerical computation |
-| pandas >= 2.0 | Yes | Data handling and I/O |
-| scipy >= 1.10 | Yes | Optimization and statistical tests |
-| numba | Optional | JIT acceleration (2-5x speedup) |
-| lightgbm / xgboost | Optional | ML-based forecasting models |
-| scikit-learn | Optional | ML utilities |
-
-## Running Tests
-
-```bash
-uv run pytest
-```
-
-275 tests covering all models, edge cases, and integration scenarios.
+<br>
 
 ## Contributing
-
-Contributions are welcome. Fork, branch, and submit a pull request.
 
 ```bash
 git clone https://github.com/eddmpython/vectrix.git
@@ -342,11 +310,17 @@ uv sync --extra dev
 uv run pytest
 ```
 
+<br>
+
 ## Support
 
 If you find Vectrix useful, consider supporting the project:
 
-[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Support-orange?style=for-the-badge&logo=buy-me-a-coffee&logoColor=white)](https://buymeacoffee.com/eddmpython)
+<a href="https://buymeacoffee.com/eddmpython">
+  <img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Support%20Vectrix-orange?style=for-the-badge&logo=buy-me-a-coffee&logoColor=white" alt="Buy Me a Coffee">
+</a>
+
+<br>
 
 ## License
 
