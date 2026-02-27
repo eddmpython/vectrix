@@ -1,10 +1,10 @@
 import pytest
 import numpy as np
 
-from forecastx import ForecastX
-import forecastx
-from forecastx.engine.ets import ETSModel, AutoETS
-from forecastx.engine.arima import ARIMAModel, AutoARIMA, _checkStationarity
+from vectrix import Vectrix
+import vectrix
+from vectrix.engine.ets import ETSModel, AutoETS
+from vectrix.engine.arima import ARIMAModel, AutoARIMA, _checkStationarity
 
 
 np.random.seed(42)
@@ -28,9 +28,9 @@ largeValueData = (np.sin(2 * np.pi * np.arange(100) / 7) * 5 + 50) * 1e8
 
 
 def test_version_consistency():
-    assert ForecastX.VERSION == "3.0.0"
-    assert forecastx.__version__ == "3.0.0"
-    assert ForecastX.VERSION == forecastx.__version__
+    assert Vectrix.VERSION == "3.0.0"
+    assert vectrix.__version__ == "3.0.0"
+    assert Vectrix.VERSION == vectrix.__version__
 
 
 def test_autoEts_evaluates_multiplicative_error():

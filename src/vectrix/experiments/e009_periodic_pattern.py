@@ -192,7 +192,7 @@ def experiment1_current():
     print("실험 1: 현재 방식")
     print("=" * 60)
 
-    from forecastx import ChaniCast
+    from vectrix import ChaniCast
 
     df = generateManufacturing(365)
     trainDf = df.iloc[:-60]
@@ -222,7 +222,7 @@ def experiment2_dropAware():
     print("실험 2: 드롭 감지 + 패턴 반영")
     print("=" * 60)
 
-    from forecastx.engine.theta import OptimizedTheta
+    from vectrix.engine.theta import OptimizedTheta
 
     df = generateManufacturing(365)
     trainDf = df.iloc[:-60]
@@ -269,7 +269,7 @@ def experiment3_fourier():
     print("실험 3: Fourier 분석")
     print("=" * 60)
 
-    from forecastx.engine.theta import OptimizedTheta
+    from vectrix.engine.theta import OptimizedTheta
 
     df = generateManufacturing(365)
     trainDf = df.iloc[:-60]

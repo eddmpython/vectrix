@@ -2,22 +2,22 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from forecastx.engine.baselines import (
+from vectrix.engine.baselines import (
     NaiveModel,
     SeasonalNaiveModel,
     MeanModel,
     RandomWalkDrift,
     WindowAverage,
 )
-from forecastx.engine.ets import ETSModel
-from forecastx.engine.arima import ARIMAModel
-from forecastx.engine.theta import ThetaModel, OptimizedTheta
-from forecastx.engine.ces import CESModel
-from forecastx.engine.dot import DynamicOptimizedTheta
-from forecastx.engine.tbats import TBATS
-from forecastx.engine.logistic import LogisticGrowthModel
-from forecastx.engine.croston import CrostonClassic, CrostonSBA, CrostonTSB
-from forecastx.engine.garch import GARCHModel, EGARCHModel, GJRGARCHModel
+from vectrix.engine.ets import ETSModel
+from vectrix.engine.arima import ARIMAModel
+from vectrix.engine.theta import ThetaModel, OptimizedTheta
+from vectrix.engine.ces import CESModel
+from vectrix.engine.dot import DynamicOptimizedTheta
+from vectrix.engine.tbats import TBATS
+from vectrix.engine.logistic import LogisticGrowthModel
+from vectrix.engine.croston import CrostonClassic, CrostonSBA, CrostonTSB
+from vectrix.engine.garch import GARCHModel, EGARCHModel, GJRGARCHModel
 
 
 @pytest.fixture

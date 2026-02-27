@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to ForecastX will be documented in this file.
+All notable changes to Vectrix will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -61,4 +61,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 275 tests with parametrized model coverage
 - Numba JIT acceleration for core computations
 
-[3.0.0]: https://github.com/eddmpython/forecastx/releases/tag/v3.0.0
+[3.0.0]: https://github.com/eddmpython/vectrix/releases/tag/v3.0.0

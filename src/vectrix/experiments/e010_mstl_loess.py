@@ -179,7 +179,7 @@ class ImprovedMSTL:
 
     def predict(self, steps: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """예측"""
-        from forecastx.engine.arima import AutoARIMA
+        from vectrix.engine.arima import AutoARIMA
 
         # 잔차에 ARIMA
         arima = AutoARIMA()
@@ -258,7 +258,7 @@ class STLStyleMSTL:
 
     def predict(self, steps: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """예측"""
-        from forecastx.engine.arima import AutoARIMA
+        from vectrix.engine.arima import AutoARIMA
 
         # 잔차 ARIMA
         arima = AutoARIMA()
@@ -292,7 +292,7 @@ def experiment1_current():
     print("실험 1: 현재 AutoMSTL")
     print("=" * 60)
 
-    from forecastx import ChaniCast
+    from vectrix import ChaniCast
 
     df = generateRetail2yr()
     trainDf = df.iloc[:-60]

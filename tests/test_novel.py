@@ -1,12 +1,12 @@
 import pytest
 import numpy as np
 
-from forecastx.engine.baselines import NaiveModel
-from forecastx.engine.lotkaVolterra import LotkaVolterraEnsemble
-from forecastx.engine.phaseTransition import PhaseTransitionForecaster
-from forecastx.engine.adversarial import AdversarialStressTester, StressTestResult
-from forecastx.engine.hawkes import HawkesIntermittentDemand
-from forecastx.engine.entropic import EntropicConfidenceScorer, EntropyResult
+from vectrix.engine.baselines import NaiveModel
+from vectrix.engine.lotkaVolterra import LotkaVolterraEnsemble
+from vectrix.engine.phaseTransition import PhaseTransitionForecaster
+from vectrix.engine.adversarial import AdversarialStressTester, StressTestResult
+from vectrix.engine.hawkes import HawkesIntermittentDemand
+from vectrix.engine.entropic import EntropicConfidenceScorer, EntropyResult
 
 np.random.seed(42)
 STABLE_DATA = 100 + np.cumsum(np.random.randn(200) * 0.5)

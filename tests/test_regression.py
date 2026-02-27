@@ -2,7 +2,7 @@
 import pytest
 import numpy as np
 
-from forecastx.regression import (
+from vectrix.regression import (
     OLSInference,
     RegressionResult,
     RegressionDiagnostics,

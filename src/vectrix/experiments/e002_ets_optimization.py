@@ -63,7 +63,7 @@ def experiment1_initializationMethods():
     print("실험 1: ETS 초기값 계산 방식 비교")
     print("=" * 70)
 
-    from forecastx.engine.ets import ETSModel
+    from vectrix.engine.ets import ETSModel
 
     # 테스트 데이터 생성
     np.random.seed(42)
@@ -107,7 +107,7 @@ def experiment1_initializationMethods():
     print(f"회귀 기반: MAPE = {mape2:.2f}%")
 
     # 방법 3: STL 분해 기반 초기값
-    from forecastx.engine.decomposition import SeasonalDecomposition
+    from vectrix.engine.decomposition import SeasonalDecomposition
     decomp = SeasonalDecomposition(period=7, model='additive', method='stl')
     decomResult = decomp.decompose(trainData)
 
@@ -137,7 +137,7 @@ def experiment2_optimizers():
     print("실험 2: 최적화 알고리즘 비교")
     print("=" * 70)
 
-    from forecastx.engine.ets import ETSModel
+    from vectrix.engine.ets import ETSModel
 
     # 테스트 데이터
     np.random.seed(42)
@@ -204,7 +204,7 @@ def experiment3_maxiter():
     print("실험 3: 최적화 반복 횟수 (maxiter)")
     print("=" * 70)
 
-    from forecastx.engine.ets import ETSModel
+    from vectrix.engine.ets import ETSModel
 
     np.random.seed(42)
     n = 200
@@ -259,7 +259,7 @@ def experiment4_seasonalSelection():
     print("실험 4: 계절성 모델 선택 기준")
     print("=" * 70)
 
-    from forecastx.engine.ets import AutoETS
+    from vectrix.engine.ets import AutoETS
 
     # 다양한 계절성 강도의 데이터
     np.random.seed(42)

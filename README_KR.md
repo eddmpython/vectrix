@@ -1,5 +1,5 @@
 <p align="center">
-  <h1 align="center">ForecastX</h1>
+  <h1 align="center">Vectrix</h1>
   <p align="center">
     <strong>설정 없이 바로 사용하는 시계열 예측 라이브러리</strong>
   </p>
@@ -14,19 +14,19 @@
 
 ---
 
-ForecastX는 순수 NumPy + SciPy로 처음부터 구현한 시계열 예측 라이브러리입니다. statsforecast, statsmodels, prophet 없이 — 데이터만 넣으면 최적 예측과 신뢰구간을 제공합니다.
+Vectrix는 순수 NumPy + SciPy로 처음부터 구현한 시계열 예측 라이브러리입니다. statsforecast, statsmodels, prophet 없이 — 데이터만 넣으면 최적 예측과 신뢰구간을 제공합니다.
 
 ```python
-from forecastx import ForecastX
+from vectrix import Vectrix
 
-fx = ForecastX()
+fx = Vectrix()
 result = fx.forecast(df, dateCol="date", valueCol="sales", steps=30)
 print(result.predictions)
 ```
 
 한 줄이면 모델 선택, 일직선 예측 방지, 신뢰구간까지 포함된 예측이 완성됩니다.
 
-## 왜 ForecastX?
+## 왜 Vectrix?
 
 | 라이브러리 | 문제점 |
 |-----------|-------|
@@ -36,7 +36,7 @@ print(result.predictions)
 | **NeuralProphet** | PyTorch 필요, GPU 지향 |
 | **darts** | 과도한 기능, 느린 시작 |
 
-ForecastX는 **순수 Python, 의존성 3개, MIT 라이선스**로 프로덕션 수준의 예측을 제공합니다.
+Vectrix는 **순수 Python, 의존성 3개, MIT 라이선스**로 프로덕션 수준의 예측을 제공합니다.
 
 ## 주요 기능
 
@@ -55,19 +55,19 @@ ForecastX는 **순수 Python, 의존성 3개, MIT 라이선스**로 프로덕션
 
 ```bash
 uv init my-forecast && cd my-forecast
-uv add forecastx
+uv add vectrix
 
 # Numba 가속 포함
-uv add "forecastx[numba]"
+uv add "vectrix[numba]"
 ```
 
 ### pip 사용
 
 ```bash
-pip install forecastx
+pip install vectrix
 
 # Numba 포함
-pip install "forecastx[numba]"
+pip install "vectrix[numba]"
 ```
 
 ## 빠른 시작
@@ -76,11 +76,11 @@ pip install "forecastx[numba]"
 
 ```python
 import pandas as pd
-from forecastx import ForecastX
+from vectrix import Vectrix
 
 df = pd.read_csv("sales.csv")
 
-fx = ForecastX()
+fx = Vectrix()
 result = fx.forecast(df, dateCol="date", valueCol="sales", steps=30)
 
 if result.success:
@@ -94,7 +94,7 @@ if result.success:
 예측 없이 데이터 특성만 분석:
 
 ```python
-fx = ForecastX()
+fx = Vectrix()
 analysis = fx.analyze(df, dateCol="date", valueCol="sales")
 
 chars = analysis["characteristics"]
@@ -107,7 +107,7 @@ print(f"예측 가능성: {chars.predictabilityScore:.0f}/100")
 ### 3. 상세 로그 모드
 
 ```python
-fx = ForecastX(verbose=True)
+fx = Vectrix(verbose=True)
 result = fx.forecast(df, dateCol="date", valueCol="value", steps=30)
 ```
 
@@ -122,7 +122,7 @@ result = fx.forecast(df, dateCol="date", valueCol="value", steps=30)
 
 ## API 레퍼런스
 
-### `ForecastX(verbose=False)`
+### `Vectrix(verbose=False)`
 
 | 매개변수 | 타입 | 기본값 | 설명 |
 |---------|------|-------|------|

@@ -1,10 +1,10 @@
-"""ForecastX core tests"""
+"""Vectrix core tests"""
 
 import numpy as np
 import pandas as pd
 import pytest
 
-from forecastx import ForecastX, ForecastResult
+from vectrix import Vectrix, ForecastResult
 
 
 def _make_ts(n: int = 200, seed: int = 42) -> pd.DataFrame:
@@ -19,7 +19,7 @@ def _make_ts(n: int = 200, seed: int = 42) -> pd.DataFrame:
 class TestBasicForecast:
     def test_forecast_returns_success(self):
         df = _make_ts(200)
-        fx = ForecastX()
+        fx = Vectrix()
         result = fx.forecast(df, dateCol="date", valueCol="value", steps=30)
         assert result.success is True
         assert len(result.predictions) == 30
@@ -27,20 +27,20 @@ class TestBasicForecast:
 
     def test_forecast_with_short_data(self):
         df = _make_ts(30)
-        fx = ForecastX()
+        fx = Vectrix()
         result = fx.forecast(df, dateCol="date", valueCol="value", steps=14)
         assert result.success is True
         assert len(result.predictions) == 14
 
     def test_forecast_too_short_data(self):
         df = _make_ts(5)
-        fx = ForecastX()
+        fx = Vectrix()
         result = fx.forecast(df, dateCol="date", valueCol="value", steps=7)
         assert result.success is False
 
     def test_forecast_result_type(self):
         df = _make_ts(200)
-        fx = ForecastX()
+        fx = Vectrix()
         result = fx.forecast(df, dateCol="date", valueCol="value", steps=30)
         assert isinstance(result, ForecastResult)
         assert result.bestModelName is not None
@@ -50,7 +50,7 @@ class TestBasicForecast:
 class TestAnalyze:
     def test_analyze_only(self):
         df = _make_ts(150)
-        fx = ForecastX()
+        fx = Vectrix()
         analysis = fx.analyze(df, dateCol="date", valueCol="value")
         assert "characteristics" in analysis
         assert "flatRisk" in analysis
@@ -61,7 +61,7 @@ class TestAnalyze:
 class TestVariability:
     def test_prediction_preserves_variability(self):
         df = _make_ts(200)
-        fx = ForecastX()
+        fx = Vectrix()
         result = fx.forecast(df, dateCol="date", valueCol="value", steps=30)
         if result.success:
             origStd = np.std(df["value"].values[-30:])
@@ -78,7 +78,7 @@ class TestRandomWalk:
         values = 100 + np.cumsum(rng.normal(0, 1, n))
         df = pd.DataFrame({"date": dates, "value": values})
 
-        fx = ForecastX()
+        fx = Vectrix()
         result = fx.forecast(df, dateCol="date", valueCol="value", steps=30)
         assert result.success is True
         if result.flatRisk:
@@ -88,7 +88,7 @@ class TestRandomWalk:
 class TestConfidenceInterval:
     def test_confidence_intervals_exist(self):
         df = _make_ts(200)
-        fx = ForecastX()
+        fx = Vectrix()
         result = fx.forecast(df, dateCol="date", valueCol="value", steps=30)
         assert result.success is True
         assert len(result.lower95) == 30
@@ -97,7 +97,7 @@ class TestConfidenceInterval:
 
     def test_confidence_intervals_widen(self):
         df = _make_ts(200)
-        fx = ForecastX()
+        fx = Vectrix()
         result = fx.forecast(df, dateCol="date", valueCol="value", steps=30)
         if result.success:
             widths = result.upper95 - result.lower95

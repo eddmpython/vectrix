@@ -2,9 +2,9 @@
 import pytest
 import numpy as np
 
-from forecastx.engine.changepoint import ChangePointDetector
-from forecastx.engine.events import EventEffect
-from forecastx.engine.tsfeatures import TSFeatureExtractor
+from vectrix.engine.changepoint import ChangePointDetector
+from vectrix.engine.events import EventEffect
+from vectrix.engine.tsfeatures import TSFeatureExtractor
 
 
 @pytest.fixture

@@ -221,7 +221,7 @@ def experiment1_currentMethod():
     print("실험 1: 현재 방식 (단일 계절성)")
     print("=" * 70)
 
-    from forecastx import ChaniCast
+    from vectrix import ChaniCast
 
     datasets = [
         ('retail_2yr', generateMultiSeasonalRetail()),
@@ -268,7 +268,7 @@ def experiment2_mstlArima():
     print("실험 2: MSTL + ARIMA")
     print("=" * 70)
 
-    from forecastx.engine.arima import AutoARIMA
+    from vectrix.engine.arima import AutoARIMA
 
     datasets = [
         ('retail_2yr', generateMultiSeasonalRetail(), [7, 365]),
@@ -331,8 +331,8 @@ def experiment3_adaptivePeriod():
     print("실험 3: 적응적 period 선택")
     print("=" * 70)
 
-    from forecastx.engine.arima import AutoARIMA
-    from forecastx.engine.turbo import TurboCore
+    from vectrix.engine.arima import AutoARIMA
+    from vectrix.engine.turbo import TurboCore
 
     datasets = [
         ('retail_2yr', generateMultiSeasonalRetail()),

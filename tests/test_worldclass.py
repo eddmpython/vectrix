@@ -2,10 +2,10 @@
 import pytest
 import numpy as np
 
-from forecastx.engine.probabilistic import ProbabilisticForecaster
-from forecastx.engine.impute import TimeSeriesImputer
-from forecastx.engine.logistic import LogisticGrowthModel, SaturatingTrendModel
-from forecastx.engine.comparison import ModelComparison
+from vectrix.engine.probabilistic import ProbabilisticForecaster
+from vectrix.engine.impute import TimeSeriesImputer
+from vectrix.engine.logistic import LogisticGrowthModel, SaturatingTrendModel
+from vectrix.engine.comparison import ModelComparison
 
 
 @pytest.fixture

@@ -164,7 +164,7 @@ def experiment1_baseline():
     print("실험 1: 현재 앙상블 성능 (기준선)")
     print("=" * 70)
 
-    from forecastx import ChaniCast
+    from vectrix import ChaniCast
 
     datasets = [
         ('retail_sales', generateRetailSales()),
@@ -213,10 +213,10 @@ def experiment2_seasonalityWeights():
     print("실험 2: 계절성 기반 가중치")
     print("=" * 70)
 
-    from forecastx.engine.ets import AutoETS
-    from forecastx.engine.arima import AutoARIMA
-    from forecastx.engine.theta import OptimizedTheta
-    from forecastx.analyzer import AutoAnalyzer
+    from vectrix.engine.ets import AutoETS
+    from vectrix.engine.arima import AutoARIMA
+    from vectrix.engine.theta import OptimizedTheta
+    from vectrix.analyzer import AutoAnalyzer
 
     datasets = [
         ('retail_sales', generateRetailSales()),
@@ -292,10 +292,10 @@ def experiment3_validationWeights():
     print("실험 3: 검증 기반 동적 가중치")
     print("=" * 70)
 
-    from forecastx.engine.ets import AutoETS
-    from forecastx.engine.arima import AutoARIMA
-    from forecastx.engine.theta import OptimizedTheta
-    from forecastx.analyzer import AutoAnalyzer
+    from vectrix.engine.ets import AutoETS
+    from vectrix.engine.arima import AutoARIMA
+    from vectrix.engine.theta import OptimizedTheta
+    from vectrix.analyzer import AutoAnalyzer
 
     datasets = [
         ('retail_sales', generateRetailSales()),
@@ -391,10 +391,10 @@ def experiment4_weightComparison():
     print("실험 4: 가중치 전략 비교")
     print("=" * 70)
 
-    from forecastx.engine.ets import AutoETS
-    from forecastx.engine.arima import AutoARIMA
-    from forecastx.engine.theta import OptimizedTheta
-    from forecastx.analyzer import AutoAnalyzer
+    from vectrix.engine.ets import AutoETS
+    from vectrix.engine.arima import AutoARIMA
+    from vectrix.engine.theta import OptimizedTheta
+    from vectrix.analyzer import AutoAnalyzer
 
     datasets = [
         ('retail_sales', generateRetailSales()),

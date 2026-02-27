@@ -242,7 +242,7 @@ def experiment1_noOutlierHandling():
     print("실험 1: 현재 방식 (이상치 처리 없음)")
     print("=" * 70)
 
-    from forecastx import ChaniCast
+    from vectrix import ChaniCast
 
     datasets = [
         ('manufacturing', *generateManufacturingWithDrops()),
@@ -293,7 +293,7 @@ def experiment2_zscoreInterpolate():
     print("실험 2: Z-score + 선형 보간")
     print("=" * 70)
 
-    from forecastx import ChaniCast
+    from vectrix import ChaniCast
 
     datasets = [
         ('manufacturing', *generateManufacturingWithDrops()),
@@ -349,7 +349,7 @@ def experiment3_iqrInterpolate():
     print("실험 3: IQR + 선형 보간")
     print("=" * 70)
 
-    from forecastx import ChaniCast
+    from vectrix import ChaniCast
 
     datasets = [
         ('manufacturing', *generateManufacturingWithDrops()),
@@ -404,7 +404,7 @@ def experiment4_rollingMedian():
     print("실험 4: Rolling 감지 + 중앙값 대체")
     print("=" * 70)
 
-    from forecastx import ChaniCast
+    from vectrix import ChaniCast
 
     datasets = [
         ('manufacturing', *generateManufacturingWithDrops()),
@@ -459,7 +459,7 @@ def experiment5_comparison():
     print("실험 5: 방법별 비교 요약")
     print("=" * 70)
 
-    from forecastx import ChaniCast
+    from vectrix import ChaniCast
 
     datasets = [
         ('manufacturing', *generateManufacturingWithDrops()),

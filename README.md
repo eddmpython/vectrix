@@ -1,13 +1,13 @@
 <div align="center">
 
-# ForecastX
+# Vectrix
 
 **Feed data. Get forecasts. Zero config.**
 
 Pure Python time series forecasting -- 30+ models, zero heavy dependencies.
 
-[![PyPI](https://img.shields.io/pypi/v/forecastx)](https://pypi.org/project/forecastx/)
-[![Python 3.10+](https://img.shields.io/pypi/pyversions/forecastx)](https://pypi.org/project/forecastx/)
+[![PyPI](https://img.shields.io/pypi/v/vectrix)](https://pypi.org/project/vectrix/)
+[![Python 3.10+](https://img.shields.io/pypi/pyversions/vectrix)](https://pypi.org/project/vectrix/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-275%20passed-brightgreen)]()
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-☕-orange)](https://buymeacoffee.com/eddmpython)
@@ -18,16 +18,16 @@ Pure Python time series forecasting -- 30+ models, zero heavy dependencies.
 
 ---
 
-ForecastX is a self-contained time series forecasting library built from scratch with pure NumPy + SciPy. No statsforecast, no statsmodels, no Prophet -- just feed your data and get optimal predictions with confidence intervals.
+Vectrix is a self-contained time series forecasting library built from scratch with pure NumPy + SciPy. No statsforecast, no statsmodels, no Prophet -- just feed your data and get optimal predictions with confidence intervals.
 
 ## 30-Second Quick Start
 
 ```bash
-pip install forecastx
+pip install vectrix
 ```
 
 ```python
-from forecastx import forecast
+from vectrix import forecast
 
 result = forecast("sales.csv", steps=12)
 print(result)
@@ -37,9 +37,9 @@ result.to_csv("output.csv")
 
 That's it. One call gets you automatic model selection, flat-line prevention, confidence intervals, and a plot.
 
-## Why ForecastX?
+## Why Vectrix?
 
-| Feature | ForecastX | statsforecast | Prophet | Darts |
+| Feature | Vectrix | statsforecast | Prophet | Darts |
 |---------|:---------:|:-------------:|:-------:|:-----:|
 | Zero-config auto-forecast | Yes | Yes | -- | -- |
 | Pure Python (no heavy deps) | Yes | -- | -- | -- |
@@ -103,15 +103,15 @@ That's it. One call gets you automatic model selection, flat-line prevention, co
 ## Installation
 
 ```bash
-pip install forecastx
+pip install vectrix
 ```
 
 Optional dependencies:
 
 ```bash
-pip install "forecastx[numba]"    # Numba JIT for 2-5x speedup
-pip install "forecastx[ml]"      # LightGBM, XGBoost, scikit-learn
-pip install "forecastx[all]"     # Everything
+pip install "vectrix[numba]"    # Numba JIT for 2-5x speedup
+pip install "vectrix[ml]"      # LightGBM, XGBoost, scikit-learn
+pip install "vectrix[all]"     # Everything
 ```
 
 **Requirements:** Python 3.10+, NumPy >= 1.24, Pandas >= 2.0, SciPy >= 1.10
@@ -121,18 +121,18 @@ pip install "forecastx[all]"     # Everything
 ### Basic: 2-Line Forecast
 
 ```python
-from forecastx import forecast
+from vectrix import forecast
 
 result = forecast([100, 120, 115, 130, 125, 140, 135, 150], steps=5)
 print(result)
 ```
 
-Pass a list, NumPy array, Pandas Series, DataFrame, dict, or a CSV file path. ForecastX auto-detects everything.
+Pass a list, NumPy array, Pandas Series, DataFrame, dict, or a CSV file path. Vectrix auto-detects everything.
 
 ### Intermediate: DataFrame + Analysis
 
 ```python
-from forecastx import forecast, analyze
+from vectrix import forecast, analyze
 import pandas as pd
 
 df = pd.read_csv("data.csv")
@@ -152,7 +152,7 @@ result.to_csv("forecast.csv")
 ### Advanced: R-Style Regression
 
 ```python
-from forecastx import regress
+from vectrix import regress
 
 model = regress(data=df, formula="sales ~ temperature + promotion + holiday")
 print(model.summary())    # statsmodels-style output
@@ -162,8 +162,8 @@ print(model.diagnose())   # Durbin-Watson, Breusch-Pagan, VIF, normality
 ### Expert: Direct Engine Access
 
 ```python
-from forecastx.engine import AutoETS, AutoARIMA, AutoTBATS
-from forecastx.adaptive import RegimeDetector, ForecastDNA
+from vectrix.engine import AutoETS, AutoARIMA, AutoTBATS
+from vectrix.adaptive import RegimeDetector, ForecastDNA
 
 # ETS with specific configuration
 ets = AutoETS(period=7)
@@ -181,7 +181,7 @@ print(f"Recommended: {profile.recommendedModels}")
 ### Stress Testing
 
 ```python
-from forecastx.engine import AdversarialStressTester
+from vectrix.engine import AdversarialStressTester
 
 tester = AdversarialStressTester(nPerturbations=50)
 result = tester.analyze(data, steps=12)
@@ -192,7 +192,7 @@ print(f"Grade: {result.summary()['grade']}")
 ### Business Constraints
 
 ```python
-from forecastx.adaptive import ConstraintAwareForecaster, Constraint
+from vectrix.adaptive import ConstraintAwareForecaster, Constraint
 
 caf = ConstraintAwareForecaster()
 result = caf.apply(predictions, lower95, upper95, constraints=[
@@ -207,9 +207,9 @@ result = caf.apply(predictions, lower95, upper95, constraints=[
 ### Full Pipeline (Classic API)
 
 ```python
-from forecastx import ForecastX
+from vectrix import Vectrix
 
-fx = ForecastX(verbose=True)
+fx = Vectrix(verbose=True)
 result = fx.forecast(df, dateCol="date", valueCol="sales", steps=30)
 
 if result.success:
@@ -233,8 +233,8 @@ if result.success:
 
 | Method | Description |
 |--------|-------------|
-| `ForecastX().forecast(df, dateCol, valueCol, steps)` | Full pipeline with detailed result object |
-| `ForecastX().analyze(df, dateCol, valueCol)` | Data characteristics + flat risk assessment |
+| `Vectrix().forecast(df, dateCol, valueCol, steps)` | Full pipeline with detailed result object |
+| `Vectrix().analyze(df, dateCol, valueCol)` | Data characteristics + flat risk assessment |
 
 ### Return Objects
 
@@ -247,9 +247,9 @@ if result.success:
 ## Architecture
 
 ```
-forecastx/
+vectrix/
 ├── easy.py              # Zero-config API: forecast(), analyze(), regress()
-├── forecastx.py         # Full pipeline: ForecastX class
+├── vectrix.py         # Full pipeline: Vectrix class
 ├── types.py             # ForecastResult, DataCharacteristics, ModelResult
 ├── engine/              # 30+ statistical models
 │   ├── ets.py           #   AutoETS (30 combinations)
@@ -307,8 +307,8 @@ pytest tests/ -q
 Contributions are welcome. Fork, branch, and submit a pull request.
 
 ```bash
-git clone https://github.com/eddmpython/forecastx.git
-cd forecastx
+git clone https://github.com/eddmpython/vectrix.git
+cd vectrix
 uv sync --extra dev
 uv run pytest
 ```

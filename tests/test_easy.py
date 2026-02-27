@@ -3,7 +3,7 @@ import pytest
 import numpy as np
 import pandas as pd
 
-from forecastx.easy import (
+from vectrix.easy import (
     forecast,
     analyze,
     regress,
@@ -131,8 +131,8 @@ class TestEasyForecast:
             "summary()는 문자열을 반환해야 함"
         assert len(summaryText) > 0, \
             "summary() 문자열이 비어있으면 안 됨"
-        assert "ForecastX" in summaryText, \
-            "summary()에 'ForecastX' 문구가 포함되어야 함"
+        assert "Vectrix" in summaryText, \
+            "summary()에 'Vectrix' 문구가 포함되어야 함"
 
     def test_forecast_to_dataframe(self, ts_list):
         """to_dataframe() 결과 확인"""
@@ -401,8 +401,8 @@ class TestQuickReport:
         summaryText = report['summary']
         assert isinstance(summaryText, str), \
             "report['summary']는 문자열이어야 함"
-        assert "ForecastX" in summaryText, \
-            "summary에 'ForecastX' 문구가 포함되어야 함"
+        assert "Vectrix" in summaryText, \
+            "summary에 'Vectrix' 문구가 포함되어야 함"
 
     def test_quick_report_from_dataframe(self, ts_dataframe):
         """DataFrame 입력 보고서"""

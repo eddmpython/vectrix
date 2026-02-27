@@ -270,7 +270,7 @@ def runSingleBenchmark(
     trainRatio: float = 0.8
 ) -> Dict[str, Any]:
     """단일 데이터셋 벤치마크"""
-    from forecastx import ChaniCast
+    from vectrix import ChaniCast
 
     n = len(df)
     splitIdx = int(n * trainRatio)

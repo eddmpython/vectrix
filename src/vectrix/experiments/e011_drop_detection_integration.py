@@ -139,7 +139,7 @@ def experiment1a_drop_in_prediction():
     print("실험 1a: 예측 구간에 드롭 있음")
     print("=" * 60)
 
-    from forecastx import ChaniCast
+    from vectrix import ChaniCast
 
     df = generateManufacturing90Day(365)
     trainDf = df.iloc[:-60]
@@ -166,7 +166,7 @@ def experiment1b_no_drop_in_prediction():
     print("실험 1b: 예측 구간에 드롭 없음 (Smart 미적용)")
     print("=" * 60)
 
-    from forecastx import ChaniCast
+    from vectrix import ChaniCast
 
     df = generateManufacturing90DayTrainOnly(365)
     trainDf = df.iloc[:-60]
@@ -191,7 +191,7 @@ def experiment2_30day():
     print("실험 2: 30일 주기 드롭")
     print("=" * 60)
 
-    from forecastx import ChaniCast
+    from vectrix import ChaniCast
 
     df = generateManufacturing30Day(365)
     trainDf = df.iloc[:-60]
@@ -216,7 +216,7 @@ def experiment3_weekly():
     print("실험 3: 주간 유지보수 윈도우")
     print("=" * 60)
 
-    from forecastx import ChaniCast
+    from vectrix import ChaniCast
 
     df = generateServerMaintenance(365)
     trainDf = df.iloc[:-60]
@@ -241,7 +241,7 @@ def experiment4_nodrop():
     print("실험 4: 드롭 없는 일반 데이터")
     print("=" * 60)
 
-    from forecastx import ChaniCast
+    from vectrix import ChaniCast
 
     df = generateNoDropData(365)
     trainDf = df.iloc[:-60]

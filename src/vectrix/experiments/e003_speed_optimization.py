@@ -66,7 +66,7 @@ def experiment1_profiling():
     print("실험 1: 속도 프로파일링")
     print("=" * 70)
 
-    from forecastx import ChaniCast
+    from vectrix import ChaniCast
 
     # 테스트 데이터
     np.random.seed(42)
@@ -112,7 +112,7 @@ def experiment2_repeatTiming():
     print("실험 2: 반복 실행 속도")
     print("=" * 70)
 
-    from forecastx import ChaniCast
+    from vectrix import ChaniCast
 
     np.random.seed(42)
     n = 200
@@ -155,7 +155,7 @@ def experiment3_vsStatsforecast():
     print("실험 3: statsforecast 속도 비교")
     print("=" * 70)
 
-    from forecastx import ChaniCast
+    from vectrix import ChaniCast
 
     dataSizes = [100, 200, 365, 500]
     results = {}
@@ -212,11 +212,11 @@ def experiment4_componentTiming():
     print("실험 4: 컴포넌트별 시간")
     print("=" * 70)
 
-    from forecastx.analyzer import AutoAnalyzer
-    from forecastx.flat_defense import FlatRiskDiagnostic
-    from forecastx.engine.ets import AutoETS
-    from forecastx.engine.arima import AutoARIMA
-    from forecastx.engine.theta import OptimizedTheta
+    from vectrix.analyzer import AutoAnalyzer
+    from vectrix.flat_defense import FlatRiskDiagnostic
+    from vectrix.engine.ets import AutoETS
+    from vectrix.engine.arima import AutoARIMA
+    from vectrix.engine.theta import OptimizedTheta
 
     np.random.seed(42)
     n = 200

@@ -2,10 +2,10 @@
 import pytest
 import numpy as np
 
-from forecastx.adaptive.regime import RegimeDetector
-from forecastx.adaptive.healing import SelfHealingForecast
-from forecastx.adaptive.constraints import ConstraintAwareForecaster, Constraint
-from forecastx.adaptive.dna import ForecastDNA
+from vectrix.adaptive.regime import RegimeDetector
+from vectrix.adaptive.healing import SelfHealingForecast
+from vectrix.adaptive.constraints import ConstraintAwareForecaster, Constraint
+from vectrix.adaptive.dna import ForecastDNA
 
 
 @pytest.fixture
