@@ -1,0 +1,62 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+dist/
+build/
+*.whl
+
+# Virtual environments
+.venv/
+env/
+venv/
+CLAUDE.md
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.*
+
+# Data files
+*.xlsx
+*.xls
+*.csv
+*.tsv
+*.pkl
+*.pickle
+*.parquet
+*.feather
+*.jsonl
+
+# Output files
+*.log
+*.html
+*.pdf
+
+# Cache
+.cache/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+coverage.xml
+.coverage
+
+# Jupyter
+.ipynb_checkpoints/
+
+# uv
+uv.lock
