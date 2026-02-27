@@ -1,24 +1,36 @@
 <div align="center">
 
-# Vectrix
+<br>
 
-**Feed data. Get forecasts. Zero config.**
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://img.shields.io/badge/Vectrix-Time%20Series%20Forecasting-6366f1?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiPjxwb2x5bGluZSBwb2ludHM9IjIyIDEyIDE4IDEyIDE1IDE5IDkgNSA2IDEyIDIgMTIiLz48L3N2Zz4=">
+  <img alt="Vectrix" src="https://img.shields.io/badge/Vectrix-Time%20Series%20Forecasting-6366f1?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiPjxwb2x5bGluZSBwb2ludHM9IjIyIDEyIDE4IDEyIDE1IDE5IDkgNSA2IDEyIDIgMTIiLz48L3N2Zz4=">
+</picture>
+
+### Feed data. Get forecasts. Zero config.
 
 Pure Python time series forecasting -- 30+ models, zero heavy dependencies.
 
-[![PyPI](https://img.shields.io/pypi/v/vectrix)](https://pypi.org/project/vectrix/)
-[![Python 3.10+](https://img.shields.io/pypi/pyversions/vectrix)](https://pypi.org/project/vectrix/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-275%20passed-brightgreen)]()
-[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-☕-orange)](https://buymeacoffee.com/eddmpython)
+<br>
+
+[![PyPI](https://img.shields.io/pypi/v/vectrix?style=flat-square&color=6366f1)](https://pypi.org/project/vectrix/)
+[![Python 3.10+](https://img.shields.io/pypi/pyversions/vectrix?style=flat-square)](https://pypi.org/project/vectrix/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
+[![Tests](https://img.shields.io/badge/tests-275%20passed-brightgreen?style=flat-square)]()
+[![Buy Me a Coffee](https://img.shields.io/badge/Sponsor-Buy%20Me%20a%20Coffee-orange?style=flat-square&logo=buy-me-a-coffee&logoColor=white)](https://buymeacoffee.com/eddmpython)
 
 [Installation](#installation) &middot; [Quick Start](#30-second-quick-start) &middot; [Features](#features) &middot; [API Reference](#api-reference) &middot; [Architecture](#architecture) &middot; [한국어](README_KR.md)
 
 </div>
 
----
+<br>
 
-Vectrix is a self-contained time series forecasting library built from scratch with pure NumPy + SciPy. No statsforecast, no statsmodels, no Prophet -- just feed your data and get optimal predictions with confidence intervals.
+> **3 dependencies. 30+ models. 1 line of code.**
+>
+> Vectrix is a self-contained time series forecasting library built from scratch with pure NumPy + SciPy.
+> No statsforecast, no statsmodels, no Prophet -- just feed your data and get optimal predictions with confidence intervals.
+
+<br>
 
 ## 30-Second Quick Start
 
@@ -41,21 +53,24 @@ That's it. One call gets you automatic model selection, flat-line prevention, co
 
 | Feature | Vectrix | statsforecast | Prophet | Darts |
 |---------|:---------:|:-------------:|:-------:|:-----:|
-| Zero-config auto-forecast | Yes | Yes | -- | -- |
-| Pure Python (no heavy deps) | Yes | -- | -- | -- |
-| 30+ models built-in | Yes | Yes | -- | Yes |
-| Flat prediction defense | Yes | -- | -- | -- |
-| Adversarial stress testing | Yes | -- | -- | -- |
-| Forecast DNA fingerprinting | Yes | -- | -- | -- |
-| Business constraints (8 types) | Yes | -- | -- | -- |
-| R-style regression (`y ~ x`) | Yes | -- | -- | -- |
-| Korean market native | Yes | -- | -- | -- |
+| Zero-config auto-forecast | **Yes** | Yes | -- | -- |
+| Pure Python (no heavy deps) | **Yes** | -- | -- | -- |
+| 30+ models built-in | **Yes** | Yes | -- | Yes |
+| Flat prediction defense | **Yes** | -- | -- | -- |
+| Adversarial stress testing | **Yes** | -- | -- | -- |
+| Forecast DNA fingerprinting | **Yes** | -- | -- | -- |
+| Business constraints (8 types) | **Yes** | -- | -- | -- |
+| R-style regression (`y ~ x`) | **Yes** | -- | -- | -- |
+| Korean market native | **Yes** | -- | -- | -- |
 
 **Three dependencies.** `numpy`, `scipy`, `pandas`. That's the entire install.
 
 ## Features
 
-### Core Forecasting Models
+<details>
+<summary><b>Core Forecasting Models</b></summary>
+
+<br>
 
 - **AutoETS** -- 30 Error x Trend x Seasonal combinations with AICc selection (Hyndman-Khandakar)
 - **AutoARIMA** -- Seasonal ARIMA with stepwise order selection via AICc
@@ -68,7 +83,12 @@ That's it. One call gets you automatic model selection, flat-line prevention, co
 - **AutoMSTL** -- Multi-seasonal decomposition + ARIMA residual forecasting
 - **Baselines** -- Naive, Seasonal Naive, Mean, Random Walk with Drift, Window Average
 
-### Novel Methods (World First)
+</details>
+
+<details>
+<summary><b>Novel Methods (World First)</b></summary>
+
+<br>
 
 - **Lotka-Volterra Ensemble** -- Ecological competition dynamics for adaptive model weighting
 - **Phase Transition Forecaster** -- Critical slowing down detection for regime shift prediction
@@ -76,7 +96,12 @@ That's it. One call gets you automatic model selection, flat-line prevention, co
 - **Hawkes Intermittent Demand** -- Self-exciting point process for clustered demand patterns
 - **Entropic Confidence Scorer** -- Shannon entropy-based forecast uncertainty quantification
 
-### Adaptive Intelligence
+</details>
+
+<details>
+<summary><b>Adaptive Intelligence</b></summary>
+
+<br>
 
 - **Regime Detection** -- Pure numpy Hidden Markov Model (Baum-Welch + Viterbi)
 - **Self-Healing Forecast** -- CUSUM + EWMA drift detection with conformal prediction correction
@@ -84,7 +109,12 @@ That's it. One call gets you automatic model selection, flat-line prevention, co
 - **Forecast DNA** -- 65+ feature fingerprinting with meta-learning model recommendation and similarity search
 - **Flat Defense** -- 4-level system (diagnostic, detection, correction, prevention) against flat prediction failure
 
-### Regression & Diagnostics
+</details>
+
+<details>
+<summary><b>Regression & Diagnostics</b></summary>
+
+<br>
 
 - **5 regression methods** -- OLS, Ridge, Lasso, Huber, Quantile
 - **R-style formula interface** -- `regress(data=df, formula="sales ~ ads + price")`
@@ -92,13 +122,20 @@ That's it. One call gets you automatic model selection, flat-line prevention, co
 - **Variable selection** -- Stepwise, regularization CV, best subset
 - **Time series regression** -- Newey-West, Cochrane-Orcutt, Prais-Winsten, Granger causality
 
-### Business Intelligence
+</details>
+
+<details>
+<summary><b>Business Intelligence</b></summary>
+
+<br>
 
 - **Anomaly detection** -- Automated outlier identification and explanation
 - **What-if analysis** -- Scenario-based forecast simulation
 - **Backtesting** -- Rolling origin cross-validation with multiple metrics
 - **Hierarchy reconciliation** -- Bottom-up, top-down, MinTrace optimal reconciliation
 - **Prediction intervals** -- Conformal + bootstrap methods
+
+</details>
 
 ## Installation
 
@@ -137,13 +174,11 @@ import pandas as pd
 
 df = pd.read_csv("data.csv")
 
-# Analyze time series characteristics
 report = analyze(df, date="date", value="sales")
 print(report.summary())
 print(f"Difficulty: {report.dna.difficulty}")
 print(f"Recommended: {report.dna.recommendedModels}")
 
-# Forecast with auto-detected columns
 result = forecast(df, date="date", value="sales", steps=30)
 result.plot()
 result.to_csv("forecast.csv")
@@ -155,8 +190,8 @@ result.to_csv("forecast.csv")
 from vectrix import regress
 
 model = regress(data=df, formula="sales ~ temperature + promotion + holiday")
-print(model.summary())    # statsmodels-style output
-print(model.diagnose())   # Durbin-Watson, Breusch-Pagan, VIF, normality
+print(model.summary())
+print(model.diagnose())
 ```
 
 ### Expert: Direct Engine Access
@@ -165,12 +200,10 @@ print(model.diagnose())   # Durbin-Watson, Breusch-Pagan, VIF, normality
 from vectrix.engine import AutoETS, AutoARIMA, AutoTBATS
 from vectrix.adaptive import RegimeDetector, ForecastDNA
 
-# ETS with specific configuration
 ets = AutoETS(period=7)
 ets.fit(data)
 pred, lower, upper = ets.predict(30)
 
-# Forecast DNA analysis
 dna = ForecastDNA()
 profile = dna.analyze(data, period=7)
 print(f"Fingerprint: {profile.fingerprint}")
@@ -293,11 +326,7 @@ vectrix/
 ## Running Tests
 
 ```bash
-# Using uv
 uv run pytest
-
-# Using pip
-pytest tests/ -q
 ```
 
 275 tests covering all models, edge cases, and integration scenarios.
@@ -312,6 +341,12 @@ cd vectrix
 uv sync --extra dev
 uv run pytest
 ```
+
+## Support
+
+If you find Vectrix useful, consider supporting the project:
+
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Support-orange?style=for-the-badge&logo=buy-me-a-coffee&logoColor=white)](https://buymeacoffee.com/eddmpython)
 
 ## License
 
