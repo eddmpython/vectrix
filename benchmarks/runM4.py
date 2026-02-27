@@ -54,14 +54,15 @@ def naive2Forecast(train: np.ndarray, horizon: int, period: int) -> np.ndarray:
     return np.full(horizon, train[-1])
 
 
-def _isSane(pred: np.ndarray, train: np.ndarray) -> bool:
+def _isSane(pred: np.ndarray, train: np.ndarray, strict: bool = False) -> bool:
     if np.any(np.isnan(pred)) or np.any(np.isinf(pred)):
         return False
     trainRange = np.max(train) - np.min(train)
     if trainRange < 1e-10:
         return True
     maxDev = max(np.abs(pred - np.mean(train)).max(), 1e-10)
-    if maxDev > 10 * trainRange:
+    limit = 5 * trainRange if strict else 10 * trainRange
+    if maxDev > limit:
         return False
     return True
 
@@ -72,24 +73,36 @@ def vectrixForecast(train: np.ndarray, horizon: int, period: int) -> np.ndarray:
     from vectrix.engine.dot import DynamicOptimizedTheta
     from vectrix.engine.ces import AutoCES
     from vectrix.engine.arima import AutoARIMA
+    from vectrix.engine.baselines import RandomWalkDrift, SeasonalNaiveModel
 
     n = len(train)
     effectivePeriod = period if n >= period * 3 else 1
+
+    maxLen = max(200, effectivePeriod * 10)
+    workTrain = train[-maxLen:] if n > maxLen else train
 
     candidates = []
     candidates.append(("theta", lambda: OptimizedTheta(period=effectivePeriod)))
     candidates.append(("dot", lambda: DynamicOptimizedTheta(period=effectivePeriod)))
     candidates.append(("ets", lambda: AutoETS(period=effectivePeriod)))
     candidates.append(("ces", lambda: AutoCES(period=effectivePeriod)))
-    if n >= 30:
-        candidates.append(("arima", lambda: AutoARIMA(maxP=3, maxD=2, maxQ=3, seasonalPeriod=effectivePeriod)))
+    candidates.append(("drift", lambda: RandomWalkDrift()))
+    if len(workTrain) >= 30:
+        candidates.append(("arima", lambda: AutoARIMA(maxP=2, maxD=1, maxQ=2, seasonalPeriod=effectivePeriod)))
 
-    if n < 2 * horizon + 5:
-        bestPred = np.full(horizon, train[-1])
+    if effectivePeriod > 1 and len(workTrain) >= effectivePeriod * 2:
+        from vectrix.engine.tbats import TBATS
+        candidates.append(("tbats", lambda: TBATS(periods=[effectivePeriod], useTrend=True, useDamping=True)))
+        candidates.append(("snaive", lambda: SeasonalNaiveModel(period=effectivePeriod)))
+
+    wn = len(workTrain)
+
+    if wn < horizon + 5:
+        bestPred = np.full(horizon, workTrain[-1])
         for name, factory in candidates:
             try:
                 model = factory()
-                model.fit(train)
+                model.fit(workTrain)
                 pred, _, _ = model.predict(horizon)
                 pred = np.array(pred[:horizon], dtype=np.float64)
                 if _isSane(pred, train):
@@ -98,39 +111,48 @@ def vectrixForecast(train: np.ndarray, horizon: int, period: int) -> np.ndarray:
                 continue
         return bestPred
 
-    valSize = min(horizon, max(n // 5, 3))
-    valTrain = train[:-valSize]
-    valTest = train[-valSize:]
+    foldSize = min(horizon, wn - horizon - 3)
+    if foldSize < 3:
+        foldSize = 3
 
-    bestPred = np.full(horizon, train[-1])
+    cvTrain = workTrain[:wn - foldSize]
+    cvTest = workTrain[wn - foldSize:]
+
     bestErr = float("inf")
+    bestName = None
 
     for name, factory in candidates:
         try:
             model = factory()
-            model.fit(valTrain)
-            valPred, _, _ = model.predict(valSize)
-            valPred = np.array(valPred[:valSize], dtype=np.float64)
+            model.fit(cvTrain)
+            valPred, _, _ = model.predict(foldSize)
+            valPred = np.array(valPred[:foldSize], dtype=np.float64)
 
             if not _isSane(valPred, train):
                 continue
 
-            err = smape(valTest, valPred)
+            err = smape(cvTest, valPred)
 
             if err < bestErr:
                 bestErr = err
-
-                fullModel = factory()
-                fullModel.fit(train)
-                fullPred, _, _ = fullModel.predict(horizon)
-                fullPred = np.array(fullPred[:horizon], dtype=np.float64)
-
-                if _isSane(fullPred, train):
-                    bestPred = fullPred
+                bestName = name
         except Exception:
             continue
 
-    return bestPred
+    if bestName is None:
+        return np.full(horizon, workTrain[-1])
+
+    for name, factory in candidates:
+        if name == bestName:
+            fullModel = factory()
+            fullModel.fit(workTrain)
+            fullPred, _, _ = fullModel.predict(horizon)
+            fullPred = np.array(fullPred[:horizon], dtype=np.float64)
+            if _isSane(fullPred, train):
+                return fullPred
+            break
+
+    return np.full(horizon, workTrain[-1])
 
 
 def runBenchmark(

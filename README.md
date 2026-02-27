@@ -13,9 +13,9 @@
 <h3>Pure Python Time Series Forecasting Engine</h3>
 
 <p>
-<img src="https://img.shields.io/badge/30+-Models-6366f1?style=for-the-badge&labelColor=0f172a" alt="Models">
 <img src="https://img.shields.io/badge/3-Dependencies-818cf8?style=for-the-badge&labelColor=0f172a" alt="Dependencies">
-<img src="https://img.shields.io/badge/1-Line%20of%20Code-a78bfa?style=for-the-badge&labelColor=0f172a" alt="One Line">
+<img src="https://img.shields.io/badge/Pure-Python-6366f1?style=for-the-badge&labelColor=0f172a" alt="Pure Python">
+<img src="https://img.shields.io/badge/No-Compiled%20Extensions-a78bfa?style=for-the-badge&labelColor=0f172a" alt="No Compiled Extensions">
 </p>
 
 <p>
@@ -32,11 +32,73 @@
 <a href="#-models">Models</a> ·
 <a href="#-installation">Installation</a> ·
 <a href="#-usage">Usage</a> ·
+<a href="#-benchmarks">Benchmarks</a> ·
 <a href="#-api-reference">API Reference</a> ·
 <a href="README_KR.md">한국어</a>
 </p>
 
 </div>
+
+<br>
+
+## ◈ What is Vectrix?
+
+Vectrix is a time series forecasting library that runs on **3 dependencies** (NumPy, SciPy, Pandas) with **no compiled extensions**. No C compiler, no cmdstan, no system packages — `pip install` and it works.
+
+### Forecasting
+
+Pass a list, DataFrame, or CSV path to `forecast()`. Vectrix runs multiple models (ETS, ARIMA, Theta, TBATS, CES, MSTL), evaluates each with cross-validation, and returns the best prediction with confidence intervals. You don't choose a model — it does.
+
+```python
+from vectrix import forecast
+result = forecast("sales.csv", steps=12)
+```
+
+### Flat-Line Defense
+
+A common failure mode in automated forecasting is flat predictions — the model outputs a constant line. Vectrix has a 4-level detection and correction system that catches this and falls back to a model that actually captures the signal.
+
+### Forecast DNA
+
+Before fitting any model, Vectrix profiles your data with 65+ statistical features (trend strength, seasonality strength, entropy, spectral density, etc.) and uses them to recommend which models are likely to work best.
+
+### Regression
+
+R-style formula interface with full diagnostics. OLS, Ridge, Lasso, Huber, and Quantile regression are included.
+
+```python
+from vectrix import regress
+model = regress(data=df, formula="sales ~ temperature + promotion")
+print(model.summary())
+```
+
+Diagnostics include Durbin-Watson, Breusch-Pagan, VIF, normality tests, and time series adjustments (Newey-West, Cochrane-Orcutt).
+
+### Analysis
+
+`analyze()` profiles the data and reports changepoints, anomalies, and data characteristics.
+
+```python
+from vectrix import analyze
+report = analyze(df, date="date", value="sales")
+print(report.summary())
+```
+
+### Regime Detection & Self-Healing
+
+A pure-numpy HMM (Baum-Welch + Viterbi) detects regime shifts. When a regime change occurs, the self-healing system uses CUSUM + EWMA to detect drift and applies conformal prediction to recalibrate the forecast.
+
+### Business Constraints
+
+8 constraint types can be applied to any forecast: non-negative, range, capacity, year-over-year change limit, sum constraint, monotonicity, ratio, and custom functions.
+
+### Hierarchical Reconciliation
+
+Bottom-up, top-down, and MinTrace reconciliation for hierarchical time series.
+
+### Everything is Pure Python
+
+All of the above — forecasting models, regime detection, regression diagnostics, constraint enforcement, hierarchical reconciliation — is implemented in pure Python with only NumPy, SciPy, and Pandas. No compiled extensions, no system dependencies.
 
 <br>
 
@@ -54,32 +116,18 @@ print(result)
 result.plot()
 ```
 
-> One function call. Auto model selection, flat-line defense, confidence intervals, and a plot.
-
 <br>
 
 ## ◈ Why Vectrix?
 
-<table>
-<tr>
-<td>
-
-| Dimension | Vectrix | statsforecast | Prophet | Darts |
+| | Vectrix | statsforecast | Prophet | Darts |
 |:--|:--:|:--:|:--:|:--:|
-| **Zero-config** | ✅ | ✅ | ❌ | ❌ |
-| **Pure Python** | ✅ | ❌ | ❌ | ❌ |
-| **30+ models** | ✅ | ✅ | ❌ | ✅ |
-| **Flat defense** | ✅ | ❌ | ❌ | ❌ |
-| **Stress testing** | ✅ | ❌ | ❌ | ❌ |
-| **Forecast DNA** | ✅ | ❌ | ❌ | ❌ |
-| **Constraints (8)** | ✅ | ❌ | ❌ | ❌ |
-| **R-style regress** | ✅ | ❌ | ❌ | ❌ |
-
-</td>
-</tr>
-</table>
-
-> **Three vectors.** `numpy` · `scipy` · `pandas` — that's the entire orbit.
+| **Pure Python (no C/Fortran)** | ✅ | ❌ (numba) | ❌ (cmdstan) | ❌ (torch) |
+| **Dependencies** | 3 | 5+ | 10+ | 20+ |
+| **Auto model selection** | ✅ | ✅ | ❌ | ❌ |
+| **Flat-line defense** | ✅ | ❌ | ❌ | ❌ |
+| **Business constraints** | 8 types | ❌ | ❌ | ❌ |
+| **Built-in regression** | R-style | ❌ | ❌ | ❌ |
 
 <br>
 
@@ -106,7 +154,7 @@ result.plot()
 </details>
 
 <details>
-<summary><b>Novel Methods — Uncharted Territory</b></summary>
+<summary><b>Experimental Methods</b></summary>
 
 <br>
 
@@ -242,6 +290,34 @@ result = caf.apply(predictions, lower95, upper95, constraints=[
 
 <br>
 
+## ◈ Benchmarks
+
+Evaluated on M3 and M4 competition datasets (first 100 series per category). OWA < 1.0 means better than Naive2.
+
+**M3 Competition** — 4/4 categories beat Naive2:
+
+| Category | OWA |
+|:---------|:---:|
+| Yearly | **0.848** |
+| Quarterly | **0.824** |
+| Monthly | **0.756** |
+| Other | **0.820** |
+
+**M4 Competition** — 4/6 frequencies beat Naive2:
+
+| Frequency | OWA |
+|:----------|:---:|
+| Yearly | **0.974** |
+| Quarterly | **0.800** |
+| Monthly | **0.989** |
+| Weekly | **0.737** |
+| Daily | 1.210 |
+| Hourly | 1.007 |
+
+Full results with sMAPE/MASE breakdown: [benchmarks](docs/benchmarks.md)
+
+<br>
+
 ## ◈ API Reference
 
 ### Easy API (Recommended)
@@ -277,7 +353,7 @@ vectrix/
 ├── easy.py               forecast(), analyze(), regress()
 ├── vectrix.py             Vectrix class — full pipeline
 ├── types.py               ForecastResult, DataCharacteristics
-├── engine/                30+ statistical models
+├── engine/                Forecasting models
 │   ├── ets.py               AutoETS (30 combinations)
 │   ├── arima.py             AutoARIMA (AICc stepwise)
 │   ├── theta.py             Theta method
@@ -319,7 +395,7 @@ uv run pytest
 
 ## ◈ Support
 
-If Vectrix is useful to you, consider fueling the mission:
+If Vectrix is useful to you, consider supporting the project:
 
 <a href="https://buymeacoffee.com/eddmpython">
   <img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Support%20Vectrix-f59e0b?style=for-the-badge&logo=buy-me-a-coffee&logoColor=white&labelColor=0f172a" alt="Buy Me a Coffee">

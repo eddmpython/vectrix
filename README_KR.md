@@ -13,9 +13,9 @@
 <h3>순수 Python 시계열 예측 엔진</h3>
 
 <p>
-<img src="https://img.shields.io/badge/30+-Models-6366f1?style=for-the-badge&labelColor=0f172a" alt="Models">
 <img src="https://img.shields.io/badge/3-Dependencies-818cf8?style=for-the-badge&labelColor=0f172a" alt="Dependencies">
-<img src="https://img.shields.io/badge/1-Line%20of%20Code-a78bfa?style=for-the-badge&labelColor=0f172a" alt="One Line">
+<img src="https://img.shields.io/badge/Pure-Python-6366f1?style=for-the-badge&labelColor=0f172a" alt="Pure Python">
+<img src="https://img.shields.io/badge/No-Compiled%20Extensions-a78bfa?style=for-the-badge&labelColor=0f172a" alt="No Compiled Extensions">
 </p>
 
 <p>
@@ -32,11 +32,73 @@
 <a href="#-모델">모델</a> ·
 <a href="#-설치">설치</a> ·
 <a href="#-사용-예시">사용 예시</a> ·
+<a href="#-벤치마크">벤치마크</a> ·
 <a href="#-api-레퍼런스">API</a> ·
 <a href="README.md">English</a>
 </p>
 
 </div>
+
+<br>
+
+## ◈ Vectrix란?
+
+Vectrix는 **의존성 3개**(NumPy, SciPy, Pandas)만으로 동작하는 시계열 예측 라이브러리입니다. C 컴파일러, cmdstan, 시스템 패키지 없이 `pip install`만 하면 됩니다.
+
+### 예측
+
+리스트, DataFrame, CSV 경로를 `forecast()`에 전달하면 됩니다. Vectrix가 여러 모델(ETS, ARIMA, Theta, TBATS, CES, MSTL)을 실행하고, 교차검증으로 최적 모델을 선택한 뒤, 신뢰구간이 포함된 예측을 반환합니다. 모델을 직접 고를 필요 없습니다.
+
+```python
+from vectrix import forecast
+result = forecast("sales.csv", steps=12)
+```
+
+### 평탄 예측 방어
+
+자동화된 예측에서 흔한 실패 패턴은 평탄한 직선 예측입니다. Vectrix는 4단계 감지-보정 시스템으로 이를 잡아내고, 실제 신호를 포착하는 모델로 대체합니다.
+
+### Forecast DNA
+
+모델을 피팅하기 전에 데이터를 65개 이상의 통계 특성(추세 강도, 계절성 강도, 엔트로피, 스펙트럼 밀도 등)으로 프로파일링하고, 어떤 모델이 적합한지 추천합니다.
+
+### 회귀분석
+
+R 스타일 수식 인터페이스와 진단을 지원합니다. OLS, Ridge, Lasso, Huber, Quantile 회귀가 포함됩니다.
+
+```python
+from vectrix import regress
+model = regress(data=df, formula="sales ~ temperature + promotion")
+print(model.summary())
+```
+
+진단: Durbin-Watson, Breusch-Pagan, VIF, 정규성 검정, 시계열 보정(Newey-West, Cochrane-Orcutt).
+
+### 분석
+
+`analyze()`로 데이터를 프로파일링하고 변환점, 이상치, 데이터 특성을 보고합니다.
+
+```python
+from vectrix import analyze
+report = analyze(df, date="date", value="sales")
+print(report.summary())
+```
+
+### 레짐 감지 & 자가 치유
+
+순수 numpy HMM(Baum-Welch + Viterbi)으로 레짐 전환을 감지합니다. 레짐 변화가 발생하면 CUSUM + EWMA로 드리프트를 감지하고, 컨포멀 예측으로 예측을 재보정합니다.
+
+### 비즈니스 제약조건
+
+8종의 제약조건을 예측에 적용할 수 있습니다: 비음수, 범위, 용량, 전년 대비 변화 한도, 합계 제약, 단조성, 비율, 커스텀 함수.
+
+### 계층적 조정
+
+Bottom-up, Top-down, MinTrace로 계층적 시계열을 조정합니다.
+
+### 전부 순수 Python
+
+위의 모든 기능 — 예측 모델, 레짐 감지, 회귀분석 진단, 제약조건 적용, 계층적 조정 — 이 NumPy, SciPy, Pandas만으로 구현되어 있습니다. 컴파일된 확장이나 시스템 의존성이 없습니다.
 
 <br>
 
@@ -54,32 +116,18 @@ print(result)
 result.plot()
 ```
 
-> 한 줄이면 모델 선택, 일직선 예측 방지, 신뢰구간까지 포함된 예측이 완성됩니다.
-
 <br>
 
 ## ◈ 왜 Vectrix?
 
-<table>
-<tr>
-<td>
-
-| 차원 | Vectrix | statsforecast | Prophet | Darts |
+| | Vectrix | statsforecast | Prophet | Darts |
 |:--|:--:|:--:|:--:|:--:|
-| **Zero-config** | ✅ | ✅ | ❌ | ❌ |
-| **순수 Python** | ✅ | ❌ | ❌ | ❌ |
-| **30+ 모델** | ✅ | ✅ | ❌ | ✅ |
+| **순수 Python (C/Fortran 없음)** | ✅ | ❌ (numba) | ❌ (cmdstan) | ❌ (torch) |
+| **의존성** | 3 | 5+ | 10+ | 20+ |
+| **자동 모델 선택** | ✅ | ✅ | ❌ | ❌ |
 | **평탄 예측 방어** | ✅ | ❌ | ❌ | ❌ |
-| **스트레스 테스트** | ✅ | ❌ | ❌ | ❌ |
-| **Forecast DNA** | ✅ | ❌ | ❌ | ❌ |
-| **제약 조건 (8종)** | ✅ | ❌ | ❌ | ❌ |
-| **R 스타일 회귀** | ✅ | ❌ | ❌ | ❌ |
-
-</td>
-</tr>
-</table>
-
-> **벡터 3개.** `numpy` · `scipy` · `pandas` — 그것이 전체 궤도입니다.
+| **비즈니스 제약조건** | 8종 | ❌ | ❌ | ❌ |
+| **내장 회귀분석** | R 스타일 | ❌ | ❌ | ❌ |
 
 <br>
 
@@ -106,7 +154,7 @@ result.plot()
 </details>
 
 <details>
-<summary><b>세계 최초 방법론 — 미지의 영역</b></summary>
+<summary><b>실험적 방법론</b></summary>
 
 <br>
 
@@ -226,6 +274,48 @@ print(f"난이도: {profile.difficulty}")
 print(f"추천: {profile.recommendedModels}")
 ```
 
+### 비즈니스 제약조건
+
+```python
+from vectrix.adaptive import ConstraintAwareForecaster, Constraint
+
+caf = ConstraintAwareForecaster()
+result = caf.apply(predictions, lower95, upper95, constraints=[
+    Constraint('non_negative', {}),
+    Constraint('range', {'min': 100, 'max': 5000}),
+    Constraint('capacity', {'capacity': 10000}),
+    Constraint('yoy_change', {'maxPct': 30, 'historicalData': past_year}),
+])
+```
+
+<br>
+
+## ◈ 벤치마크
+
+M3, M4 대회 데이터셋으로 평가 (카테고리별 100개 시계열). OWA < 1.0이면 Naive2보다 우수.
+
+**M3 Competition** — 4/4 카테고리에서 Naive2 능가:
+
+| 카테고리 | OWA |
+|:---------|:---:|
+| Yearly | **0.848** |
+| Quarterly | **0.824** |
+| Monthly | **0.756** |
+| Other | **0.820** |
+
+**M4 Competition** — 4/6 빈도에서 Naive2 능가:
+
+| 빈도 | OWA |
+|:-----|:---:|
+| Yearly | **0.974** |
+| Quarterly | **0.800** |
+| Monthly | **0.989** |
+| Weekly | **0.737** |
+| Daily | 1.210 |
+| Hourly | 1.007 |
+
+sMAPE/MASE 상세 결과: [벤치마크 상세](docs/benchmarks.ko.md)
+
 <br>
 
 ## ◈ API 레퍼런스
@@ -246,11 +336,66 @@ print(f"추천: {profile.recommendedModels}")
 | `Vectrix().forecast(df, dateCol, valueCol, steps)` | 전체 파이프라인 |
 | `Vectrix().analyze(df, dateCol, valueCol)` | 데이터 분석 |
 
+### 반환 객체
+
+| 객체 | 주요 속성 |
+|:-----|:---------|
+| `EasyForecastResult` | `.predictions` `.dates` `.lower` `.upper` `.model` `.plot()` `.to_csv()` `.to_json()` |
+| `EasyAnalysisResult` | `.dna` `.changepoints` `.anomalies` `.features` `.summary()` |
+| `EasyRegressionResult` | `.coefficients` `.pvalues` `.r_squared` `.f_stat` `.summary()` `.diagnose()` |
+
+<br>
+
+## ◈ 아키텍처
+
+```
+vectrix/
+├── easy.py               forecast(), analyze(), regress()
+├── vectrix.py             Vectrix 클래스 — 전체 파이프라인
+├── types.py               ForecastResult, DataCharacteristics
+├── engine/                예측 모델
+│   ├── ets.py               AutoETS (30개 조합)
+│   ├── arima.py             AutoARIMA (AICc stepwise)
+│   ├── theta.py             Theta method
+│   ├── dot.py               Dynamic Optimized Theta
+│   ├── ces.py               Complex Exponential Smoothing
+│   ├── tbats.py             TBATS / AutoTBATS
+│   ├── mstl.py              Multi-Seasonal Decomposition
+│   ├── garch.py             GARCH / EGARCH / GJR-GARCH
+│   ├── croston.py           Croston Classic / SBA / TSB
+│   ├── logistic.py          Logistic Growth
+│   ├── hawkes.py            Hawkes Intermittent Demand
+│   ├── lotkaVolterra.py     Lotka-Volterra Ensemble
+│   ├── phaseTransition.py   Phase Transition Forecaster
+│   ├── adversarial.py       Adversarial Stress Tester
+│   ├── entropic.py          Entropic Confidence Scorer
+│   └── turbo.py             Numba JIT acceleration
+├── adaptive/              레짐, 자가치유, 제약조건, DNA
+├── regression/            OLS, Ridge, Lasso, Huber, Quantile
+├── business/              이상치, 백테스트, 시나리오, 지표
+├── flat_defense/          4단계 평탄 예측 방지
+├── hierarchy/             Bottom-up, Top-down, MinTrace
+├── intervals/             Conformal + Bootstrap 구간
+├── ml/                    LightGBM, XGBoost 래퍼
+└── global_model/          크로스시리즈 예측
+```
+
+<br>
+
+## ◈ 기여
+
+```bash
+git clone https://github.com/eddmpython/vectrix.git
+cd vectrix
+uv sync --extra dev
+uv run pytest
+```
+
 <br>
 
 ## ◈ 후원
 
-Vectrix가 유용하다면 미션을 지원해주세요:
+Vectrix가 유용하다면 프로젝트를 지원해주세요:
 
 <a href="https://buymeacoffee.com/eddmpython">
   <img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Vectrix%20후원하기-f59e0b?style=for-the-badge&logo=buy-me-a-coffee&logoColor=white&labelColor=0f172a" alt="Buy Me a Coffee">

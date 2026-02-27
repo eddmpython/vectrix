@@ -12,12 +12,12 @@ The [M3 Competition](https://forecasters.org/resources/time-series-data/m3-compe
 
 | Category | Naive2 sMAPE | Vectrix sMAPE | Naive2 MASE | Vectrix MASE | **Vectrix OWA** |
 |----------|:------------:|:-------------:|:-----------:|:------------:|:---------------:|
-| Yearly   | 22.675       | 24.305        | 3.861       | 4.006        | 1.055           |
-| Quarterly| 12.546       | 11.316        | 1.568       | 1.366        | **0.887**       |
-| Monthly  | 37.872       | 28.461        | 1.214       | 0.751        | **0.685**       |
-| Other    | 6.620        | 6.161         | 2.741       | 2.209        | **0.868**       |
+| Yearly   | 22.675       | 19.404        | 3.861       | 3.246        | **0.848**       |
+| Quarterly| 12.546       | 10.429        | 1.568       | 1.281        | **0.824**       |
+| Monthly  | 37.872       | 30.639        | 1.214       | 0.854        | **0.756**       |
+| Other    | 6.620        | 5.912         | 2.741       | 2.047        | **0.820**       |
 
-Vectrix outperforms Naive2 on **3 out of 4** M3 categories, with M3 Monthly achieving OWA = 0.685.
+Vectrix outperforms Naive2 on **4 out of 4** M3 categories, with M3 Monthly achieving OWA = 0.756.
 
 ## M4 Competition Results
 
@@ -25,14 +25,14 @@ The [M4 Competition](https://www.sciencedirect.com/science/article/pii/S01692070
 
 | Frequency  | Naive2 sMAPE | Vectrix sMAPE | Naive2 MASE | Vectrix MASE | **Vectrix OWA** |
 |------------|:------------:|:-------------:|:-----------:|:------------:|:---------------:|
-| Yearly     | 13.493       | 12.092        | 4.369       | 3.827        | **0.886**       |
-| Quarterly  | 3.714        | 3.329         | 1.244       | 1.052        | **0.871**       |
-| Monthly    | 8.943        | 9.386         | 0.923       | 0.999        | 1.066           |
-| Weekly     | 10.534       | 7.785         | 0.857       | 0.554        | **0.693**       |
-| Daily      | 2.652        | 3.196         | 1.122       | 1.361        | 1.209           |
-| Hourly     | 6.814        | 6.524         | 0.987       | 0.973        | **0.972**       |
+| Yearly     | 13.493       | 13.540        | 4.369       | 4.125        | **0.974**       |
+| Quarterly  | 3.714        | 3.139         | 1.244       | 0.940        | **0.800**       |
+| Monthly    | 8.943        | 9.190         | 0.923       | 0.878        | **0.989**       |
+| Weekly     | 10.534       | 8.598         | 0.857       | 0.563        | **0.737**       |
+| Daily      | 2.652        | 3.261         | 1.122       | 1.336        | 1.210           |
+| Hourly     | 6.814        | 6.764         | 0.987       | 1.008        | 1.007           |
 
-Vectrix outperforms Naive2 on **4 out of 6** M4 frequencies, with M4 Weekly achieving OWA = 0.693.
+Vectrix outperforms Naive2 on **4 out of 6** M4 frequencies, with M4 Weekly achieving OWA = 0.737.
 
 ## Metrics
 
