@@ -10,6 +10,7 @@ Pure Python time series forecasting -- 30+ models, zero heavy dependencies.
 [![Python 3.10+](https://img.shields.io/pypi/pyversions/forecastx)](https://pypi.org/project/forecastx/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-275%20passed-brightgreen)]()
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-☕-orange)](https://buymeacoffee.com/eddmpython)
 
 [Installation](#installation) &middot; [Quick Start](#30-second-quick-start) &middot; [Features](#features) &middot; [API Reference](#api-reference) &middot; [Architecture](#architecture) &middot; [한국어](README_KR.md)
 
@@ -306,7 +307,7 @@ pytest tests/ -q
 Contributions are welcome. Fork, branch, and submit a pull request.
 
 ```bash
-git clone https://github.com/paxbun/forecastx.git
+git clone https://github.com/eddmpython/forecastx.git
 cd forecastx
 uv sync --extra dev
 uv run pytest

@@ -3,14 +3,29 @@ name = "forecastx"
 version = "3.0.0"
 description = "Zero-config time series forecasting library. Pure numpy + scipy implementation with no external forecasting library dependencies."
 readme = "README.md"
-license = { text = "MIT" }
+license = {text = "MIT"}
 requires-python = ">=3.10"
-keywords = ["forecasting", "time-series", "prediction", "ets", "arima", "theta", "mstl"]
+authors = [
+    {name = "eddmpython"}
+]
+keywords = [
+    "forecasting",
+    "time-series",
+    "prediction",
+    "ets",
+    "arima",
+    "theta",
+    "mstl",
+    "exponential-smoothing",
+    "auto-forecast",
+    "numpy",
+]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -18,6 +33,7 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Information Analysis",
     "Typing :: Typed",
 ]
 dependencies = [
@@ -41,9 +57,10 @@ dev = [
 all = ["forecastx[numba,ml,dev]"]
 
 [project.urls]
-Homepage = "https://github.com/paxbun/forecastx"
-Repository = "https://github.com/paxbun/forecastx"
-Issues = "https://github.com/paxbun/forecastx/issues"
+Homepage = "https://github.com/eddmpython/forecastx"
+Repository = "https://github.com/eddmpython/forecastx"
+Issues = "https://github.com/eddmpython/forecastx/issues"
+"Buy Me a Coffee" = "https://buymeacoffee.com/eddmpython"
 
 [build-system]
 requires = ["hatchling"]
@@ -61,3 +78,4 @@ select = ["E", "F", "I"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+addopts = "-v --tb=short"
