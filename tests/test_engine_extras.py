@@ -175,6 +175,83 @@ class TestEventEffect:
         assert all(isinstance(e, str) for e in events), \
             "이벤트 이름은 문자열이어야 함"
 
+    def test_us_holidays(self):
+        ee = EventEffect(holidays='us')
+        holidays = ee.getHolidays(2024)
+        names = [h['name'] for h in holidays]
+        assert any('Christmas' in n for n in names)
+        assert any('Thanksgiving' in n for n in names)
+        assert any('Independence' in n for n in names)
+        assert len(holidays) >= 10
+
+    def test_jp_holidays(self):
+        ee = EventEffect(holidays='jp')
+        holidays = ee.getHolidays(2024)
+        names = [h['name'] for h in holidays]
+        assert any('元日' in n for n in names)
+        assert any('憲法記念日' in n for n in names)
+        assert len(holidays) >= 13
+
+    def test_cn_holidays(self):
+        ee = EventEffect(holidays='cn')
+        holidays = ee.getHolidays(2024)
+        names = [h['name'] for h in holidays]
+        assert any('元旦' in n for n in names)
+        assert any('国庆节' in n for n in names)
+        assert len(holidays) >= 5
+
+    def test_us_floating_holiday_effect(self):
+        ee = EventEffect(holidays='us')
+        thanksgiving2024 = np.array([np.datetime64('2024-11-28')])
+        features = ee.getEventFeatures(thanksgiving2024)
+        maxEffect = np.max(features[0])
+        assert maxEffect >= 0.9, \
+            f"Thanksgiving 당일 효과가 0.9 이상이어야 함, 실제={maxEffect:.4f}"
+
+    def test_us_event_features_shape(self):
+        ee = EventEffect(holidays='us')
+        dates = np.array([
+            np.datetime64('2024-01-01') + np.timedelta64(i, 'D')
+            for i in range(365)
+        ])
+        features = ee.getEventFeatures(dates)
+        assert features.shape[0] == 365
+        assert features.shape[1] >= 10
+
+    def test_adjust_forecast(self):
+        ee = EventEffect(holidays='kr')
+        dates = np.array([
+            np.datetime64('2024-01-01') + np.timedelta64(i, 'D')
+            for i in range(365)
+        ])
+        y = np.random.default_rng(42).normal(100, 10, 365)
+        effects = ee.estimateEffects(y, dates)
+        futureDates = np.array([
+            np.datetime64('2025-01-01') + np.timedelta64(i, 'D')
+            for i in range(30)
+        ])
+        predictions = np.ones(30) * 100.0
+        adjusted = ee.adjustForecast(predictions, futureDates, effects)
+        assert adjusted.shape == (30,)
+        assert not np.array_equal(adjusted, predictions)
+
+    def test_get_event_calendar_us(self):
+        ee = EventEffect(holidays='us')
+        calendar = ee.getEventCalendar('2024-01-01', '2024-12-31')
+        assert len(calendar) >= 10
+        names = [h['name'] for h in calendar]
+        assert any('Christmas' in n for n in names)
+
+    def test_adjust_forecast_no_events(self):
+        ee = EventEffect(holidays='none')
+        futureDates = np.array([
+            np.datetime64('2025-06-01') + np.timedelta64(i, 'D')
+            for i in range(10)
+        ])
+        predictions = np.ones(10) * 50.0
+        adjusted = ee.adjustForecast(predictions, futureDates, {})
+        np.testing.assert_array_equal(adjusted, predictions)
+
 
 class TestTSFeatureExtractor:
     """시계열 특성 추출 테스트"""

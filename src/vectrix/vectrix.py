@@ -14,6 +14,7 @@ Features:
 
 import time
 import warnings
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import numpy as np
@@ -345,71 +346,90 @@ class Vectrix:
         applyDropPattern: bool = False,
         trainLength: int = 0
     ) -> Dict[str, ModelResult]:
-        """자체 모델 평가"""
+        """자체 모델 평가 (병렬)"""
         results = {}
         totalModels = len(modelIds)
-        self._fittedModels = {}  # 학습된 모델 캐시 (재학습 방지)
+        self._fittedModels = {}
 
-        for i, modelId in enumerate(modelIds):
+        def evaluateSingle(modelId):
             startTime = time.time()
+            predictions, lower95, upper95, fittedModel = self._fitAndPredictNativeWithCache(
+                modelId, trainData, testSteps, period
+            )
 
-            try:
-                self._progress(f'{self.NATIVE_MODELS.get(modelId, {}).get("name", modelId)} 학습 중...')
+            if applyDropPattern and self.dropDetector and self.dropDetector.hasPeriodicDrop():
+                predictions = self.dropDetector.applyDropPatternSmart(predictions, trainLength)
+                lower95 = self.dropDetector.applyDropPatternSmart(lower95, trainLength)
+                upper95 = self.dropDetector.applyDropPatternSmart(upper95, trainLength)
 
-                # 예측 (모델 캐시 포함)
-                predictions, lower95, upper95, fittedModel = self._fitAndPredictNativeWithCache(
-                    modelId, trainData, testSteps, period
+            flatInfo = self.flatDetector.detect(predictions, trainData)
+
+            if flatInfo.isFlat:
+                predictions, flatInfo = self.flatCorrector.correct(
+                    predictions, trainData, flatInfo, period
                 )
-                if fittedModel is not None:
-                    self._fittedModels[modelId] = fittedModel
 
-                # E009: 드롭 패턴 재적용 (예측 구간에 드롭 발생 시에만)
-                if applyDropPattern and self.dropDetector and self.dropDetector.hasPeriodicDrop():
-                    predictions = self.dropDetector.applyDropPatternSmart(predictions, trainLength)
-                    lower95 = self.dropDetector.applyDropPatternSmart(lower95, trainLength)
-                    upper95 = self.dropDetector.applyDropPatternSmart(upper95, trainLength)
+            mape = TurboCore.mape(testData, predictions[:len(testData)])
+            rmse = TurboCore.rmse(testData, predictions[:len(testData)])
+            mae = TurboCore.mae(testData, predictions[:len(testData)])
 
-                # 일직선 감지
-                flatInfo = self.flatDetector.detect(predictions, trainData)
+            if flatInfo.isFlat and not flatInfo.correctionApplied:
+                mape *= 1.5
 
-                # 보정
-                if flatInfo.isFlat:
-                    predictions, flatInfo = self.flatCorrector.correct(
-                        predictions, trainData, flatInfo, period
-                    )
+            result = ModelResult(
+                modelId=modelId,
+                modelName=self.NATIVE_MODELS.get(modelId, {}).get('name', modelId),
+                predictions=predictions,
+                lower95=lower95,
+                upper95=upper95,
+                mape=mape,
+                rmse=rmse,
+                mae=mae,
+                flatInfo=flatInfo,
+                trainingTime=time.time() - startTime,
+                isValid=True
+            )
+            return modelId, result, fittedModel
 
-                # 평가
-                mape = TurboCore.mape(testData, predictions[:len(testData)])
-                rmse = TurboCore.rmse(testData, predictions[:len(testData)])
-                mae = TurboCore.mae(testData, predictions[:len(testData)])
+        nWorkers = min(totalModels, 4) if self.nJobs != 1 else 1
 
-                if flatInfo.isFlat and not flatInfo.correctionApplied:
-                    mape *= 1.5
-
-                result = ModelResult(
-                    modelId=modelId,
-                    modelName=self.NATIVE_MODELS.get(modelId, {}).get('name', modelId),
-                    predictions=predictions,
-                    lower95=lower95,
-                    upper95=upper95,
-                    mape=mape,
-                    rmse=rmse,
-                    mae=mae,
-                    flatInfo=flatInfo,
-                    trainingTime=time.time() - startTime,
-                    isValid=True
-                )
-                results[modelId] = result
-
-                flatMark = "⚠️" if flatInfo.isFlat else "✓"
-                self._progress(f'{result.modelName} 완료 ({i+1}/{totalModels})')
-
-                if self.verbose:
-                    print(f"  {flatMark} {modelId}: MAPE={mape:.2f}%")
-
-            except Exception as e:
-                if self.verbose:
-                    print(f"  ✗ {modelId} 오류: {str(e)[:50]}")
+        if nWorkers <= 1:
+            for i, modelId in enumerate(modelIds):
+                try:
+                    self._progress(f'{self.NATIVE_MODELS.get(modelId, {}).get("name", modelId)} 학습 중...')
+                    mid, result, fittedModel = evaluateSingle(modelId)
+                    results[mid] = result
+                    if fittedModel is not None:
+                        self._fittedModels[mid] = fittedModel
+                    self._progress(f'{result.modelName} 완료 ({i+1}/{totalModels})')
+                    if self.verbose:
+                        flatMark = "⚠️" if result.flatInfo and result.flatInfo.isFlat else "✓"
+                        print(f"  {flatMark} {modelId}: MAPE={result.mape:.2f}%")
+                except Exception as e:
+                    if self.verbose:
+                        print(f"  ✗ {modelId} 오류: {str(e)[:50]}")
+        else:
+            self._progress(f'{totalModels}개 모델 병렬 학습 중...')
+            with ThreadPoolExecutor(max_workers=nWorkers) as executor:
+                futureMap = {
+                    executor.submit(evaluateSingle, mid): mid for mid in modelIds
+                }
+                completed = 0
+                for future in as_completed(futureMap):
+                    modelId = futureMap[future]
+                    completed += 1
+                    try:
+                        mid, result, fittedModel = future.result()
+                        results[mid] = result
+                        if fittedModel is not None:
+                            self._fittedModels[mid] = fittedModel
+                        self._progress(f'{result.modelName} 완료 ({completed}/{totalModels})')
+                        if self.verbose:
+                            flatMark = "⚠️" if result.flatInfo and result.flatInfo.isFlat else "✓"
+                            print(f"  {flatMark} {modelId}: MAPE={result.mape:.2f}%")
+                    except Exception as e:
+                        if self.verbose:
+                            print(f"  ✗ {modelId} 오류: {str(e)[:50]}")
 
         return results
 

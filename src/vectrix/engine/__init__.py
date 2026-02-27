@@ -31,6 +31,7 @@ from .tbats import TBATS, AutoTBATS
 from .theta import ThetaModel
 from .tsfeatures import TSFeatureExtractor
 from .turbo import TurboCore
+from .var import VARModel, VECMModel
 
 __all__ = [
     "TurboCore",
@@ -77,4 +78,6 @@ __all__ = [
     "PhaseTransitionForecaster",
     "AdversarialStressTester",
     "StressTestResult",
+    "VARModel",
+    "VECMModel",
 ]

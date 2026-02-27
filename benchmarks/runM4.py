@@ -15,6 +15,7 @@ import io
 import sys
 import time
 import warnings
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 import numpy as np
@@ -121,23 +122,26 @@ def vectrixForecast(train: np.ndarray, horizon: int, period: int) -> np.ndarray:
     bestErr = float("inf")
     bestName = None
 
-    for name, factory in candidates:
-        try:
-            model = factory()
-            model.fit(cvTrain)
-            valPred, _, _ = model.predict(foldSize)
-            valPred = np.array(valPred[:foldSize], dtype=np.float64)
+    def _evaluateCandidate(nameFactory):
+        cName, cFactory = nameFactory
+        model = cFactory()
+        model.fit(cvTrain)
+        valPred, _, _ = model.predict(foldSize)
+        valPred = np.array(valPred[:foldSize], dtype=np.float64)
+        if not _isSane(valPred, train):
+            return cName, float("inf")
+        return cName, smape(cvTest, valPred)
 
-            if not _isSane(valPred, train):
+    with ThreadPoolExecutor(max_workers=min(len(candidates), 4)) as executor:
+        futures = {executor.submit(_evaluateCandidate, c): c[0] for c in candidates}
+        for future in as_completed(futures):
+            try:
+                cName, err = future.result()
+                if err < bestErr:
+                    bestErr = err
+                    bestName = cName
+            except Exception:
                 continue
-
-            err = smape(cvTest, valPred)
-
-            if err < bestErr:
-                bestErr = err
-                bestName = name
-        except Exception:
-            continue
 
     if bestName is None:
         return np.full(horizon, workTrain[-1])

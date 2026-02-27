@@ -1,6 +1,6 @@
 [project]
 name = "vectrix"
-version = "0.0.1"
+version = "0.0.2"
 description = "Zero-config time series forecasting & analysis library. Pure numpy + scipy implementation with 30+ models, regression, and adaptive intelligence."
 readme = "README.md"
 license = {text = "MIT"}
@@ -50,6 +50,13 @@ ml = [
     "xgboost>=1.7",
     "scikit-learn>=1.0",
 ]
+foundation = [
+    "torch>=2.0",
+    "chronos-forecasting>=2.0",
+]
+neural = [
+    "neuralforecast>=1.7",
+]
 dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
@@ -62,7 +69,7 @@ docs = [
     "mkdocstrings[python]>=0.24",
     "mkdocs-static-i18n>=1.2",
 ]
-all = ["vectrix[numba,ml,dev,tutorials,docs]"]
+all = ["vectrix[numba,ml,foundation,neural,dev,tutorials,docs]"]
 
 [project.urls]
 Homepage = "https://github.com/eddmpython/vectrix"

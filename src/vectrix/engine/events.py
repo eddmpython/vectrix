@@ -15,9 +15,64 @@ from typing import Dict, List, Optional
 
 import numpy as np
 
+_US_FIXED_HOLIDAYS = [
+    (1, 1, "New Year's Day"),
+    (7, 4, "Independence Day"),
+    (11, 11, "Veterans Day"),
+    (12, 25, "Christmas Day"),
+]
+
+_US_FLOATING_HOLIDAYS = [
+    {"name": "MLK Day", "month": 1, "weekday": 0, "week": 3},
+    {"name": "Presidents' Day", "month": 2, "weekday": 0, "week": 3},
+    {"name": "Memorial Day", "month": 5, "weekday": 0, "week": -1},
+    {"name": "Labor Day", "month": 9, "weekday": 0, "week": 1},
+    {"name": "Columbus Day", "month": 10, "weekday": 0, "week": 2},
+    {"name": "Thanksgiving", "month": 11, "weekday": 3, "week": 4},
+]
+
+_JP_FIXED_HOLIDAYS = [
+    (1, 1, "元日"),
+    (2, 11, "建国記念の日"),
+    (2, 23, "天皇誕生日"),
+    (4, 29, "昭和の日"),
+    (5, 3, "憲法記念日"),
+    (5, 4, "みどりの日"),
+    (5, 5, "こどもの日"),
+    (7, 20, "海の日"),
+    (8, 11, "山の日"),
+    (9, 23, "秋分の日"),
+    (10, 14, "スポーツの日"),
+    (11, 3, "文化の日"),
+    (11, 23, "勤労感謝の日"),
+]
+
+_CN_FIXED_HOLIDAYS = [
+    (1, 1, "元旦"),
+    (5, 1, "劳动节"),
+    (10, 1, "国庆节"),
+    (10, 2, "国庆节"),
+    (10, 3, "国庆节"),
+]
+
+
+def _nthWeekdayOfMonth(year: int, month: int, weekday: int, n: int) -> date:
+    """Get the nth weekday of a month (n=-1 for last)."""
+    if n == -1:
+        if month == 12:
+            lastDay = date(year + 1, 1, 1) - timedelta(days=1)
+        else:
+            lastDay = date(year, month + 1, 1) - timedelta(days=1)
+        offset = (lastDay.weekday() - weekday) % 7
+        return lastDay - timedelta(days=offset)
+    else:
+        firstDay = date(year, month, 1)
+        offset = (weekday - firstDay.weekday()) % 7
+        return firstDay + timedelta(days=offset + 7 * (n - 1))
+
+
 # ─── 한국 공휴일 정의 ─────────────────────────────────────────────────────
 
-# 양력 공휴일: (월, 일, 이름)
 _KR_FIXED_HOLIDAYS = [
     (1, 1, '신정'),
     (3, 1, '삼일절'),
@@ -74,7 +129,7 @@ class EventEffect:
     Parameters
     ----------
     holidays : str
-        사용할 공휴일 세트 ('kr': 한국, 'none': 없음)
+        사용할 공휴일 세트 ('kr': 한국, 'us': 미국, 'jp': 일본, 'cn': 중국, 'none': 없음)
     customEvents : List[Dict], optional
         사용자 정의 이벤트 목록.
         각 이벤트는 {'name': str, 'dates': List[str], 'priorWindow': int, 'postWindow': int}
@@ -96,11 +151,16 @@ class EventEffect:
         self.customEvents = customEvents or []
         self._eventRegistry = {}  # name -> List[dict with date info]
 
-        # 공휴일 등록
-        if self.holidays == 'kr':
-            self._registerKoreanHolidays()
+        _registrationMap = {
+            'kr': self._registerKoreanHolidays,
+            'us': self._registerUSHolidays,
+            'jp': self._registerJPHolidays,
+            'cn': self._registerCNHolidays,
+        }
+        registerFn = _registrationMap.get(self.holidays)
+        if registerFn:
+            registerFn()
 
-        # 사용자 정의 이벤트 등록
         for event in self.customEvents:
             self._registerCustomEvent(event)
 
@@ -123,6 +183,45 @@ class EventEffect:
                 'dayRange': lunarHoliday['dayRange'],
                 'duration': lunarHoliday['duration'],
                 'priorWindow': 2,
+                'postWindow': 1,
+            }
+
+    def _registerUSHolidays(self):
+        for month, day, name in _US_FIXED_HOLIDAYS:
+            self._eventRegistry[name] = {
+                'type': 'fixed',
+                'month': month,
+                'day': day,
+                'priorWindow': 1,
+                'postWindow': 1,
+            }
+        for fh in _US_FLOATING_HOLIDAYS:
+            self._eventRegistry[fh['name']] = {
+                'type': 'floating',
+                'month': fh['month'],
+                'weekday': fh['weekday'],
+                'week': fh['week'],
+                'priorWindow': 1,
+                'postWindow': 1,
+            }
+
+    def _registerJPHolidays(self):
+        for month, day, name in _JP_FIXED_HOLIDAYS:
+            self._eventRegistry[name] = {
+                'type': 'fixed',
+                'month': month,
+                'day': day,
+                'priorWindow': 1,
+                'postWindow': 1,
+            }
+
+    def _registerCNHolidays(self):
+        for month, day, name in _CN_FIXED_HOLIDAYS:
+            self._eventRegistry[name] = {
+                'type': 'fixed',
+                'month': month,
+                'day': day,
+                'priorWindow': 1,
                 'postWindow': 1,
             }
 
@@ -198,6 +297,82 @@ class EventEffect:
 
         return sorted(holidays, key=lambda x: x['date'])
 
+    def getHolidays(self, year: int) -> List[Dict]:
+        """
+        현재 설정된 국가의 공휴일 목록 반환
+
+        Parameters
+        ----------
+        year : int
+            연도
+
+        Returns
+        -------
+        List[Dict]
+            공휴일 목록. 각 항목: {'name': str, 'date': str, 'type': str}
+        """
+        if self.holidays == 'kr':
+            return self.getKoreanHolidays(year)
+
+        holidays = []
+        fixedMap = {
+            'us': _US_FIXED_HOLIDAYS,
+            'jp': _JP_FIXED_HOLIDAYS,
+            'cn': _CN_FIXED_HOLIDAYS,
+        }
+        fixedList = fixedMap.get(self.holidays, [])
+        for month, day, name in fixedList:
+            holidays.append({
+                'name': name,
+                'date': date(year, month, day).isoformat(),
+                'type': 'fixed',
+            })
+
+        if self.holidays == 'us':
+            for fh in _US_FLOATING_HOLIDAYS:
+                d = _nthWeekdayOfMonth(year, fh['month'], fh['weekday'], fh['week'])
+                holidays.append({
+                    'name': fh['name'],
+                    'date': d.isoformat(),
+                    'type': 'floating',
+                })
+
+        return sorted(holidays, key=lambda x: x['date'])
+
+    def adjustForecast(
+        self,
+        predictions: np.ndarray,
+        futureDates: np.ndarray,
+        effects: Dict,
+    ) -> np.ndarray:
+        """
+        추정된 이벤트 효과를 예측값에 적용
+
+        Parameters
+        ----------
+        predictions : np.ndarray
+            원본 예측값 배열
+        futureDates : np.ndarray
+            예측 기간의 날짜 배열 (datetime64 또는 문자열)
+        effects : Dict
+            estimateEffects()의 반환값
+
+        Returns
+        -------
+        np.ndarray
+            이벤트 효과가 반영된 예측값
+        """
+        predictions = np.asarray(predictions, dtype=np.float64).copy()
+        features = self.getEventFeatures(futureDates)
+        eventNames = list(self._eventRegistry.keys())
+
+        for col, name in enumerate(eventNames):
+            if name in effects and name != '_summary':
+                coeff = effects[name].get('coefficient', 0.0)
+                predictions += features[:, col] * coeff
+
+        return predictions
+
     def getEventFeatures(
         self,
         dates: np.ndarray,
@@ -257,6 +432,8 @@ class EventEffect:
 
         if eventType == 'fixed':
             return self._fixedHolidayEffect(dt, eventInfo, priorWindow, postWindow)
+        elif eventType == 'floating':
+            return self._floatingHolidayEffect(dt, eventInfo, priorWindow, postWindow)
         elif eventType == 'lunar':
             return self._lunarHolidayEffect(dt, eventInfo, priorWindow, postWindow)
         elif eventType == 'custom':
@@ -285,6 +462,27 @@ class EventEffect:
             return 1.0 - abs(diff) / (priorWindow + 1)
         elif 0 < diff <= postWindow:
             # 이벤트 후: 가까울수록 효과 큼
+            return 1.0 - diff / (postWindow + 1)
+        return 0.0
+
+    def _floatingHolidayEffect(
+        self,
+        dt: date,
+        eventInfo: Dict,
+        priorWindow: int,
+        postWindow: int
+    ) -> float:
+        month = eventInfo['month']
+        weekday = eventInfo['weekday']
+        week = eventInfo['week']
+        holidayDate = _nthWeekdayOfMonth(dt.year, month, weekday, week)
+        diff = (dt - holidayDate).days
+
+        if diff == 0:
+            return 1.0
+        elif -priorWindow <= diff < 0:
+            return 1.0 - abs(diff) / (priorWindow + 1)
+        elif 0 < diff <= postWindow:
             return 1.0 - diff / (postWindow + 1)
         return 0.0
 
@@ -573,8 +771,8 @@ class EventEffect:
         years = range(start.year, end.year + 1)
 
         for year in years:
-            if self.holidays == 'kr':
-                holidays = self.getKoreanHolidays(year)
+            if self.holidays != 'none':
+                holidays = self.getHolidays(year)
                 for h in holidays:
                     hDate = date.fromisoformat(h['date'])
                     if start <= hDate <= end:

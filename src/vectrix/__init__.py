@@ -33,7 +33,30 @@ from .engine.changepoint import ChangePointDetector
 from .engine.crossval import TimeSeriesCrossValidator
 from .engine.events import EventEffect
 from .engine.tsfeatures import TSFeatureExtractor
+from .ml import (
+    CHRONOS_AVAILABLE,
+    NEURALFORECAST_AVAILABLE,
+    TIMESFM_AVAILABLE,
+    ChronosForecaster,
+    NBEATSForecaster,
+    NeuralForecaster,
+    NHITSForecaster,
+    TFTForecaster,
+    TimesFMForecaster,
+)
 from .persistence import ModelPersistence
+from .pipeline import (
+    BaseTransformer,
+    BoxCoxTransformer,
+    Deseasonalizer,
+    Detrend,
+    Differencer,
+    ForecastPipeline,
+    LogTransformer,
+    MissingValueImputer,
+    OutlierClipper,
+    Scaler,
+)
 from .tsframe import TSFrame
 from .types import (
     DataCharacteristics,
@@ -45,7 +68,7 @@ from .types import (
 )
 from .vectrix import Vectrix
 
-__version__ = "3.0.0"
+__version__ = "0.0.2"
 __all__ = [
     "Vectrix",
     "ForecastResult",
@@ -84,4 +107,26 @@ __all__ = [
     "batchForecast",
     "BatchForecastResult",
     "ModelPersistence",
+    # Foundation Models (optional)
+    "ChronosForecaster",
+    "TimesFMForecaster",
+    "CHRONOS_AVAILABLE",
+    "TIMESFM_AVAILABLE",
+    # Deep Learning Models (optional)
+    "NeuralForecaster",
+    "NBEATSForecaster",
+    "NHITSForecaster",
+    "TFTForecaster",
+    "NEURALFORECAST_AVAILABLE",
+    # Pipeline
+    "ForecastPipeline",
+    "BaseTransformer",
+    "Differencer",
+    "LogTransformer",
+    "BoxCoxTransformer",
+    "Scaler",
+    "Deseasonalizer",
+    "Detrend",
+    "OutlierClipper",
+    "MissingValueImputer",
 ]

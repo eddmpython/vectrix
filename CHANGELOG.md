@@ -5,6 +5,57 @@ All notable changes to Vectrix will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.2] - 2026-02-28
+
+Feature expansion release — Foundation Model wrappers, deep learning models, multivariate forecasting, probabilistic distributions, multi-country holidays, and pipeline system.
+
+### Added
+
+**Foundation Model Wrappers (Optional)**
+- `ChronosForecaster`: Amazon Chronos-2 zero-shot forecasting wrapper with batch prediction and quantile output
+- `TimesFMForecaster`: Google TimesFM 2.5 wrapper with covariate support and multi-horizon prediction
+- Optional dependency groups: `foundation` (torch + chronos-forecasting), `neural` (neuralforecast)
+
+**Deep Learning Model Wrappers (Optional)**
+- `NeuralForecaster`: NeuralForecast wrapper supporting NBEATS, NHITS, TFT architectures
+- Convenience classes: `NBEATSForecaster`, `NHITSForecaster`, `TFTForecaster`
+- Automatic numpy ↔ NeuralForecast DataFrame conversion
+
+**Probabilistic Forecast Distributions**
+- `ForecastDistribution`: Parametric distribution forecasting (Gaussian, Student-t, Log-Normal)
+- `DistributionFitter`: Automatic distribution selection via AIC comparison
+- `empiricalCRPS`: Closed-form Gaussian CRPS + Monte Carlo CRPS for other distributions
+- Full distribution API: quantile, interval, sample, pdf, crps methods
+
+**Multivariate Models**
+- `VARModel`: Vector AutoRegression with automatic lag selection (AIC/BIC) and Granger causality test
+- `VECMModel`: Vector Error Correction Model with Johansen-style cointegration rank estimation
+
+**Multi-Country Holiday Support**
+- US holidays: 4 fixed (New Year, Independence Day, Veterans Day, Christmas) + 6 floating (MLK, Presidents', Memorial, Labor, Columbus, Thanksgiving)
+- Japan holidays: 13 fixed national holidays (元日, 建国記念の日, etc.)
+- China holidays: 5 fixed holidays (元旦, 劳动节, 国庆节)
+- `getHolidays(year)`: Unified holiday query for KR/US/JP/CN
+- `adjustForecast()`: Apply estimated event effects to point forecasts
+- `_nthWeekdayOfMonth()`: Floating holiday date calculation helper
+
+**Pipeline System**
+- `ForecastPipeline`: sklearn-style sequential chaining with automatic inverse transform on predictions
+- 8 built-in transformers: `Differencer`, `LogTransformer`, `BoxCoxTransformer`, `Scaler` (zscore/minmax), `Deseasonalizer`, `Detrend`, `OutlierClipper`, `MissingValueImputer`
+- Named step access, parameter nesting (`step__param`), repr display
+
+### Changed
+
+**Speed Improvements**
+- Parallelized model evaluation in `Vectrix._evaluateNativeModels` via `ThreadPoolExecutor`
+- Parallelized cross-validation candidate loop in M3/M4 benchmark runners
+- ~13% faster M3 Monthly benchmark (11.22s → 9.70s)
+
+**Test Coverage**
+- 346 tests (up from 275), 5 skipped (optional dependency guards)
+
+[0.0.2]: https://github.com/eddmpython/vectrix/compare/v0.0.1...v0.0.2
+
 ## [0.0.1] - 2026-02-27
 
 Initial public release of Vectrix -- a zero-config time series forecasting library built with pure NumPy + SciPy.
