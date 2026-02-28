@@ -117,12 +117,37 @@
 - #11 4Theta: OWA 0.874
 - #18 Theta: OWA 0.897
 
+## 013~015: 세상에 없던 새 모델 실험 (3개 기각)
+
+### 013 Wasserstein Diversity Ensemble (기각)
+- 잔차 분포의 Wasserstein 거리로 "분포적 다양성" 측정 → 앙상블 가중치 결합
+- **alpha=0.0(순수 inv_mape)이 전 그룹 최적** → 다양성 가중치 추가 시 일관 악화
+- 교훈: "다르게 실패하는 모델"의 존재는 확인되나, 가중치 보너스를 주면 정확도 낮은 모델 비중 증가로 역효과
+- 부가 발견: 단일 CES(0.949)가 5개 모델 앙상블(0.977)보다 우수
+
+### 014 Renormalization Group Forecaster (기각)
+- 물리학 RG 원리로 다중 스케일 coarse-grain → 고정점 제약 부과
+- **DOT 대비 전반적 악화** (Hourly -104%): coarse-grain이 24시간 주기를 파괴
+- 교훈: 시계열은 대부분 스케일 불변(자기유사성 0.95+)이라 RG 제약의 효과 미미
+
+### 015 Ergodic Predictability Engine (기각)
+- 국소 Lyapunov 지수로 예측 가능 수평선 추정 → horizon별 모델 가중치 차등
+- **DOT 대비 전반적 악화** (Daily -46%): exp(-LE·h) 변환이 너무 공격적
+- 유효한 발견: Lyapunov 지수가 실제 예측 난이도와 일치 (Hourly 0.01, Yearly 0.47)
+- 교훈: 적응형 모델(DOT/CES)이 이미 내부적으로 불확실성을 처리 → 외부 Naive 가중치 강제는 이중 보정
+
+### 3개 실험 공통 교훈
+1. **기존 최강 모델(DOT, CES)의 벽이 높다** — 새로운 원리를 도입해도 쉽게 넘지 못함
+2. **앙상블 가중치의 핵심은 정확도** — 다양성, 물리적 제약, 예측 가능성 등 추가 축은 noise
+3. **단일 모델 CES가 앙상블보다 우수한 경우가 많다** — 모델 풀의 품질이 앙상블보다 중요
+
 ## 완료된 단계
 - [x] 3개 모델 engine/ 모듈화 (fit/predict/residuals 인터페이스)
 - [x] types.py에 모델 정보 등록
 - [x] vectrix.py _selectNativeModels에 새 모델 반영
 - [x] 기존 테스트 387개 통과 확인
 - [x] 012 M4 100K 벤치마크 완료
+- [x] 013~015 세상에 없던 새 앙상블/예측 원리 3개 실험 (전부 기각)
 
 ## 다음 단계
 - [ ] 4Theta seasonality 처리 개선 (Quarterly/Monthly/Weekly/Daily 약세)
