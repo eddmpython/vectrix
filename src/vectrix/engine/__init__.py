@@ -15,6 +15,9 @@ from .croston import AutoCroston, CrostonClassic, CrostonSBA, CrostonTSB
 from .decomposition import SeasonalDecomposition
 from .diagnostics import ForecastDiagnostics, ForecastDiagnosticsResult
 from .dot import DynamicOptimizedTheta
+from .dtsf import DynamicTimeScanForecaster
+from .esn import EchoStateForecaster
+from .fourTheta import AdaptiveThetaEnsemble
 from .entropic import EntropicConfidenceScorer, EntropyResult
 from .ets import ETSModel
 from .events import EventEffect
@@ -80,4 +83,7 @@ __all__ = [
     "StressTestResult",
     "VARModel",
     "VECMModel",
+    "AdaptiveThetaEnsemble",
+    "EchoStateForecaster",
+    "DynamicTimeScanForecaster",
 ]

@@ -45,7 +45,10 @@ from .engine import (
 )
 from .engine.arima import AutoARIMA
 from .engine.decomposition import MSTLDecomposition
+from .engine.dtsf import DynamicTimeScanForecaster
+from .engine.esn import EchoStateForecaster
 from .engine.ets import AutoETS
+from .engine.fourTheta import AdaptiveThetaEnsemble
 from .engine.theta import OptimizedTheta
 from .flat_defense import FlatPredictionCorrector, FlatPredictionDetector, FlatRiskDiagnostic
 from .models import AdaptiveModelSelector
@@ -164,6 +167,21 @@ class Vectrix:
             'name': 'GJR-GARCH',
             'description': '임계 비대칭 GARCH',
             'class': GJRGARCHModel
+        },
+        'four_theta': {
+            'name': '4Theta Ensemble',
+            'description': '4개 Theta line 가중 결합 앙상블',
+            'class': AdaptiveThetaEnsemble
+        },
+        'esn': {
+            'name': 'Echo State Network',
+            'description': 'Reservoir Computing 비선형 예측',
+            'class': EchoStateForecaster
+        },
+        'dtsf': {
+            'name': 'Dynamic Time Scan',
+            'description': '비모수 패턴 매칭 예측',
+            'class': DynamicTimeScanForecaster
         }
     }
 
@@ -313,26 +331,22 @@ class Vectrix:
         hasMultiSeason = self.characteristics.hasMultipleSeasonality if self.characteristics else False
         seasonalStrength = self.characteristics.seasonalStrength if self.characteristics else 0.0
 
-        # 다중 계절성 또는 강한 계절성이면 AutoMSTL 우선 (E006 결과: 57.8% 개선)
         if (hasMultiSeason or seasonalStrength > 0.4) and n >= 60:
-            models = ['auto_mstl', 'auto_ets', 'theta']
+            models = ['four_theta', 'auto_mstl', 'esn', 'dtsf']
         elif riskLevel in [RiskLevel.CRITICAL, RiskLevel.HIGH]:
-            # 계절성 강제 모델 우선
-            models = ['seasonal_naive', 'ets_aaa', 'theta']
+            models = ['four_theta', 'seasonal_naive', 'ets_aaa', 'esn']
         elif riskLevel == RiskLevel.MEDIUM:
-            models = ['theta', 'auto_ets', 'ets_aaa', 'auto_arima']
+            models = ['four_theta', 'esn', 'auto_ets', 'dtsf']
         else:
-            models = ['auto_ets', 'auto_arima', 'theta']
+            models = ['four_theta', 'esn', 'auto_ets', 'auto_arima']
 
-        # 데이터 길이로 필터
+        if n < 30:
+            models = [m for m in models if m not in ['auto_arima', 'dtsf']]
         if n < period * 2:
             models = [m for m in models if m not in ['ets_aaa', 'mstl', 'auto_mstl']]
 
-        if n < 30:
-            models = [m for m in models if m not in ['auto_arima']]
-
         if not models:
-            models = ['theta', 'seasonal_naive']
+            models = ['four_theta', 'esn']
 
         return models
 
@@ -551,6 +565,24 @@ class Vectrix:
 
         elif modelId == 'window_avg':
             model = WindowAverage(window=min(period, 30))
+            model.fit(trainData)
+            pred, lo, hi = model.predict(steps)
+            return pred, lo, hi, model
+
+        elif modelId == 'four_theta':
+            model = AdaptiveThetaEnsemble(period=period)
+            model.fit(trainData)
+            pred, lo, hi = model.predict(steps)
+            return pred, lo, hi, model
+
+        elif modelId == 'esn':
+            model = EchoStateForecaster()
+            model.fit(trainData)
+            pred, lo, hi = model.predict(steps)
+            return pred, lo, hi, model
+
+        elif modelId == 'dtsf':
+            model = DynamicTimeScanForecaster()
             model.fit(trainData)
             pred, lo, hi = model.predict(steps)
             return pred, lo, hi, model

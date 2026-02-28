@@ -95,7 +95,11 @@ class MSTL:
 
         residPred, residLower, residUpper = self.arimaModel.predict(steps)
 
+        if not np.all(np.isfinite(residPred)):
+            residPred = np.zeros(steps)
+
         trendSlope = self._estimateTrendSlope()
+        trendSlope = np.clip(trendSlope, -np.std(self.originalData), np.std(self.originalData))
         trendPred = self.trend[-1] + trendSlope * np.arange(1, steps + 1)
 
         finalPred = trendPred + residPred
@@ -105,7 +109,13 @@ class MSTL:
             seasonalPred = np.array([seasonalPattern[i % period] for i in range(steps)])
             finalPred += seasonalPred
 
+        if not np.all(np.isfinite(finalPred)):
+            lastVal = self.originalData[-1]
+            finalPred = np.full(steps, lastVal) + trendSlope * np.arange(1, steps + 1)
+
         predStd = np.std(self.residual) if len(self.residual) > 0 else 1.0
+        if not np.isfinite(predStd) or predStd < 1e-10:
+            predStd = np.std(self.originalData)
         lower = finalPred - 1.96 * predStd
         upper = finalPred + 1.96 * predStd
 
@@ -130,17 +140,17 @@ class MSTL:
         detectedPeriods = []
 
         for period in candidatePeriods:
-            if n < period * 2:
+            if n < period * 3:
                 continue
 
             maxLag = min(period + 1, n // 2)
             acf = TurboCore.acf(y, maxLag)
 
-            if len(acf) > period and abs(acf[period]) > 0.15:
+            if len(acf) > period and abs(acf[period]) > 0.2:
                 detectedPeriods.append((period, abs(acf[period])))
 
         detectedPeriods.sort(key=lambda x: -x[1])
-        return [p[0] for p in detectedPeriods[:2]] if detectedPeriods else [7]
+        return [p[0] for p in detectedPeriods[:2]] if detectedPeriods else [max(7, n // 10)]
 
     def _decompose(self, y: np.ndarray):
         """
@@ -165,6 +175,8 @@ class MSTL:
         self.trend = self._movingAverage(residual, max(windowSize, 3))
 
         self.residual = residual - self.trend
+        if not np.all(np.isfinite(self.residual)):
+            self.residual = np.nan_to_num(self.residual, nan=0.0, posinf=0.0, neginf=0.0)
 
     def _extractSeasonal(self, y: np.ndarray, period: int) -> np.ndarray:
         """
@@ -289,17 +301,26 @@ class AutoMSTL:
         results = []
 
         for period in candidatePeriods:
-            if n < period * 2:
+            if n < period * 3:
                 continue
 
             strength = self._measureSeasonalStrength(y, period)
-            if strength > 0.15:
+            if strength > 0.25:
                 results.append((period, strength))
 
         results.sort(key=lambda x: -x[1])
         selectedPeriods = [r[0] for r in results[:2]]
 
-        return selectedPeriods if selectedPeriods else [7]
+        if not selectedPeriods:
+            for period in candidatePeriods:
+                if n < period * 2:
+                    continue
+                strength = self._measureSeasonalStrength(y, period)
+                if strength > 0.15:
+                    selectedPeriods = [period]
+                    break
+
+        return selectedPeriods if selectedPeriods else [max(7, n // 10)]
 
     def _measureSeasonalStrength(self, y: np.ndarray, period: int) -> float:
         """

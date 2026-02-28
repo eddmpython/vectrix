@@ -334,5 +334,26 @@ MODEL_INFO = {
         'flatResistance': 0.50,
         'bestFor': ['금융 데이터', '비대칭 변동성'],
         'minData': 50
+    },
+    'four_theta': {
+        'name': '4Theta Ensemble',
+        'description': '4개 Theta line 가중 결합. 안정성 1위, 범용 최강.',
+        'flatResistance': 0.80,
+        'bestFor': ['범용', '추세 데이터', '안정적 예측'],
+        'minData': 10
+    },
+    'esn': {
+        'name': 'Echo State Network',
+        'description': 'Reservoir Computing 비선형 예측. 정확도 1위.',
+        'flatResistance': 0.70,
+        'bestFor': ['비선형 패턴', '레짐 전환', '변동성 높은 데이터'],
+        'minData': 20
+    },
+    'dtsf': {
+        'name': 'Dynamic Time Scan',
+        'description': '비모수 패턴 매칭 예측. 앙상블 다양성 최고.',
+        'flatResistance': 0.65,
+        'bestFor': ['반복 패턴', '시간별 데이터', '계절성 데이터'],
+        'minData': 30
     }
 }

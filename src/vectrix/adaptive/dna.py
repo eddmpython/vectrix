@@ -1086,14 +1086,16 @@ class ForecastDNA:
         최종적으로 점수가 높은 순으로 정렬하여 상위 5개 반환.
 
         규칙:
-        - 강한 추세 + 약한 계절성 -> theta, auto_arima, rwd
-        - 강한 계절성 + 약한 추세 -> auto_ets, auto_mstl, seasonal_naive
-        - 강한 추세 + 강한 계절성 -> auto_ets, auto_mstl, theta
-        - 높은 변동성 -> garch, window_avg, auto_arima
+        - 강한 추세 + 약한 계절성 -> theta, dot, auto_arima
+        - 강한 계절성 + 약한 추세 -> auto_ets, auto_ces, mstl
+        - 강한 추세 + 강한 계절성 -> auto_ets, theta, auto_ces
+        - 높은 변동성 -> garch, auto_ces, auto_arima
         - 간헐적 수요 -> croston, mean, naive
-        - 안정적 -> mean, naive, auto_ets
-        - 비선형 -> auto_mstl, dot, auto_ces
-        - 복잡한 계절성 -> auto_mstl, tbats, auto_ces
+        - 안정적 -> auto_ces, auto_ets, mean
+        - 비선형 -> dot, auto_ces, auto_ets
+        - 복잡한 다중 계절성 -> tbats, mstl, auto_ces
+        - 높은 자기상관 -> auto_arima, auto_ets, theta
+        - 낮은 자기상관 -> auto_ces, mean, dot
         """
         scores: Dict[str, float] = {}
 
@@ -1108,84 +1110,80 @@ class ForecastDNA:
         volCluster = features.get('volatilityClustering', 0.0)
         fc = features.get('forecastability', 0.5)
         intermType = features.get('intermittencyType', 0.0)
+        dataLen = features.get('length', 100.0)
 
         def _add(model: str, points: float) -> None:
             scores[model] = scores.get(model, 0.0) + points
 
-        # 규칙 1: 강한 추세 + 약한 계절성
         if trendStr > 0.5 and seasStr < 0.3:
             _add('theta', 3.0)
+            _add('dot', 3.0)
             _add('auto_arima', 2.5)
-            _add('rwd', 2.0)
-            _add('dot', 2.0)
+            _add('auto_ces', 2.0)
+            _add('rwd', 1.5)
 
-        # 규칙 2: 강한 계절성 + 약한 추세
-        if seasStr > 0.4 and trendStr < 0.3:
+        if seasStr > 0.5 and trendStr < 0.3:
             _add('auto_ets', 3.0)
-            _add('mstl', 2.5)
+            _add('auto_ces', 2.5)
             _add('seasonal_naive', 2.0)
-            _add('auto_ces', 1.5)
+            if dataLen >= 3 * 7:
+                _add('mstl', 1.5)
 
-        # 규칙 3: 강한 추세 + 강한 계절성
         if trendStr > 0.4 and seasStr > 0.4:
             _add('auto_ets', 3.0)
-            _add('mstl', 3.0)
-            _add('theta', 2.0)
+            _add('theta', 2.5)
+            _add('auto_ces', 2.5)
             _add('tbats', 1.5)
+            if dataLen >= 3 * 7:
+                _add('mstl', 1.0)
 
-        # 규칙 4: 높은 변동성
         if volat > 1.0 or volCluster > 0.3:
             _add('garch', 3.0)
-            _add('window_avg', 1.5)
+            _add('auto_ces', 2.0)
             _add('auto_arima', 1.5)
+            _add('window_avg', 1.0)
 
-        # 규칙 5: 간헐적 수요
         if zeroRatio > 0.3 or intermType >= 1.0:
             _add('croston', 3.0)
             _add('mean', 1.5)
             _add('naive', 1.0)
 
-        # 규칙 6: 안정적 (높은 예측 가능성 + 낮은 변동성)
         if fc > 0.7 and volat < 0.5 and trendStr < 0.2 and seasStr < 0.2:
-            _add('mean', 2.5)
-            _add('naive', 2.0)
+            _add('auto_ces', 2.5)
+            _add('auto_ets', 2.5)
+            _add('mean', 2.0)
+            _add('dot', 1.5)
+
+        if apen > 1.0 or nonlinAcf > 0.3:
+            _add('dot', 3.0)
+            _add('auto_ces', 2.5)
             _add('auto_ets', 2.0)
 
-        # 규칙 7: 비선형
-        if apen > 1.0 or nonlinAcf > 0.3:
-            _add('mstl', 2.5)
-            _add('dot', 2.5)
-            _add('auto_ces', 2.0)
-
-        # 규칙 8: 복잡한 다중 계절성
-        if multiSeas > 0.3:
-            _add('mstl', 3.0)
+        if multiSeas > 0.4 and dataLen >= 60:
             _add('tbats', 3.0)
+            _add('mstl', 2.5)
             _add('auto_ces', 2.0)
 
-        # 규칙 9: 높은 자기상관 (지속성)
         if acf1 > 0.7:
-            _add('auto_arima', 2.0)
-            _add('auto_ets', 1.5)
-            _add('theta', 1.0)
+            _add('auto_arima', 2.5)
+            _add('auto_ets', 2.0)
+            _add('theta', 1.5)
 
-        # 규칙 10: 낮은 자기상관 (잡음)
         if acf1 < 0.2 and seasStr < 0.2:
+            _add('auto_ces', 2.5)
             _add('mean', 2.0)
-            _add('window_avg', 1.5)
-            _add('naive', 1.0)
+            _add('dot', 1.5)
+            _add('window_avg', 1.0)
 
-        # 기본 추천 (아무 규칙도 매칭되지 않을 때)
         if not scores:
             scores = {
                 'auto_ets': 3.0,
+                'auto_ces': 2.5,
                 'theta': 2.5,
-                'auto_arima': 2.0,
-                'mstl': 1.5,
-                'dot': 1.0
+                'dot': 2.0,
+                'auto_arima': 1.5
             }
 
-        # 점수 내림차순 정렬, 상위 5개
         ranked = sorted(scores.items(), key=lambda x: x[1], reverse=True)
         return [model for model, _ in ranked[:5]]
 

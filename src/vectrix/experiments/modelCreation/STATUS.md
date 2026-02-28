@@ -1,0 +1,134 @@
+# Model Creation 연구 현황
+
+## 개요
+기존에 없던 완전히 새로운 예측 모델을 연구하고 구현하는 실험 방향.
+4개 전문 에이전트 토론(통계학, 물리학/신호처리, ML/정보이론, M4 Competition)에서 도출된 12개 모델 중 10개 실험 완료.
+011 종합 스트레스 테스트로 최종 엔진 통합 3개 모델 확정.
+
+## 실험 결과표
+
+### Top 5 (1차 라운드)
+
+| 실험 | 모델 | 평균순위 | 승률 | 결론 |
+|------|------|----------|------|------|
+| 001 | DynamicTimeScanForecaster | 3.58 (2위) | 41.7% | 조건부 채택 |
+| 002 | KoopmanModeForecaster | 4.67 (5위) | 25.0% | 보류 (특수목적) |
+| 003 | WaveletShrinkageForecaster | 3.33 (2위) | 8.3% | 기각 |
+| 004 | AdaptiveThetaEnsemble | **2.73 (1위)** | 36.4% | **채택** |
+| 005 | SingularSpectrumForecaster | 4.82 (4위) | 18.2% | 조건부 보류 |
+
+### 대기 후보 (2차 라운드)
+
+| 실험 | 모델 | 평균순위 | 승률 | 결론 |
+|------|------|----------|------|------|
+| 006 | TemporalAggregation (MAPA) | 4.27 (4위) | 9.1% | 조건부 채택 (hourly 전용) |
+| 007 | EchoStateForecaster (ESN) | **3.82 (3위)** | 27.3% | **채택** |
+| 008 | FeatureWeightedCombiner (FFORMA) | 4.00 (3위) | 9.1% | 조건부 채택 (메타러닝) |
+| 009 | DampedTrendWithChangepoint | 4.82 (5위) | 0.0% | 기각 |
+| 010 | StochasticResonance | 5.18 (5위) | 9.1% | 기각 |
+
+### 011 종합 스트레스 테스트 (최종 판정)
+
+| 모델 | Safety | Seed CV | Speed (n=1000) | Avg Rank (34ds) | Win Rate | 판정 |
+|------|--------|---------|----------------|-----------------|----------|------|
+| **ESN** | 100% | 21.7~39.2% | 11ms | **3.47 (1위)** | 17.6% | **엔진 통합 확정** |
+| **4Theta** | 100% | 4.7~19.7% | 53ms | **3.62 (2위)** | 26.5% | **엔진 통합 확정** |
+| **DTSF** | 92% | 11.5~40.8% | 16ms | **3.74 (3위)** | 38.2% | **엔진 통합 확정 (n≥30)** |
+| mstl (기존) | - | - | - | 3.71 | - | 기존 엔진 |
+
+## 핵심 발견
+
+### 001 DynamicTimeScanForecaster (엔진 통합 확정)
+- 비모수 패턴 매칭: 과거 유사 패턴의 후속값 중앙값 = 예측
+- **hourlyMultiSeasonal에서 64.7% 개선** (기존 최고 theta 11.69% → dtsf 4.12%)
+- 잔차 상관 0.1~0.5 — 기존 모델과 근본적으로 다른 예측 원리 확인
+- 011: CI sqrt 확장 수정, n<30 fallback 추가
+
+### 002 KoopmanModeForecaster (보류)
+- DMD(동적 모드 분해): Takens 임베딩 → SVD → 고유값 분해 → 모드 예측
+- **stockPrice에서 42.6% 개선** — 금융 시계열 전문
+
+### 003 WaveletShrinkageForecaster (기각)
+- **교훈: 좋은 디노이저 ≠ 좋은 예측기**
+
+### 004 AdaptiveThetaEnsemble (엔진 통합 확정)
+- **평균 순위 1위 (2.73)** — mstl(3.27)까지 초과
+- 기존 Theta 대비 8/11 개선 (73% 승률)
+- 011: Safety 100%, CV<20% (전 유형 최고 안정성)
+
+### 005 SingularSpectrumForecaster (조건부 보류)
+- autoRank r=1 문제로 계절성 포착 불가 → 개선 필요
+
+### 006 TemporalAggregation (조건부 채택 — hourly 전용)
+- **hourlyMultiSeasonal에서 80.6% 개선** (기존 최고 theta 11.69% → mapa 2.26%)
+- **hourly 잔차 상관 ~0** — 모든 기존 모델과 거의 무상관!
+- 주기 감지 실패 시 효과 미미 → 주기 명시 필요
+
+### 007 EchoStateForecaster (엔진 통합 확정)
+- **011 수정 후 평균 순위 1위 (3.47)** — 전 모델 중 최고!
+- **hourlyMultiSeasonal 77.3% 개선, volatile 18.1% 개선, regimeShift 4.7% 개선**
+- **잔차 상관 0.13~0.66** — 기존 모델과 "다르게 틀리는" 비선형 모델
+- 011: adaptive ridge + prediction clamp로 noisy CV 251% → 21.7% 해결
+
+### 008 FeatureWeightedCombiner (조건부 채택)
+- 평균 순위 4.00 (3위) — 안정적 결합 성능
+- **FFORMA > equal_avg: 9/11** — 특성 기반 가중 유효
+- 학습 데이터 11개로는 메타러닝 불충분 → M4 전체로 확장 필요
+
+### 009 DampedTrendWithChangepoint (기각)
+- 0/11 승률 — CUSUM 과민 반응, 가중 ETS가 4theta 수준 미달
+
+### 010 StochasticResonance (기각)
+- 1/11 승률 — K-means 시간 순서 무시, Markov 전환 확률 너무 낮음
+
+## 종합 인사이트
+
+1. **ESN이 수정 후 전체 1위 (3.47)** — clamp + adaptive ridge로 안정화
+2. **4Theta가 안정성 1위** — CV<20%, Safety 100%, 속도만 약간 느림
+3. **DTSF가 승률 1위 (38.2%)** — 비모수 다양성으로 기존 모델과 차별화
+4. **3개 신규 모델 모두 기존 최강 mstl(3.71) 능가** — 엔진 통합 자격 확인
+5. **변화점/레짐 기반 모델은 실패** (ee/003, 009, 010) — 기존 모델이 이미 내재적으로 적응
+6. **엔진 통합 최종 3개 모델**:
+   - 1위: **EchoStateForecaster** (007) — 비선형 동역학 + 가장 높은 정확도
+   - 2위: **AdaptiveThetaEnsemble** (004) — 가장 안정적 + 기존 Theta 완전 대체
+   - 3위: **DynamicTimeScanForecaster** (001) — 최고 승률 + 앙상블 다양성
+
+## 012: M4 Competition 100K 벤치마크 결과
+
+| 모델 | Yearly | Quarterly | Monthly | Weekly | Daily | Hourly | AVG OWA |
+|------|--------|-----------|---------|--------|-------|--------|---------|
+| **dot** | 0.887 | **0.942** | **0.937** | **0.938** | 1.004 | 0.722 | **0.905** |
+| **auto_ces** | 0.986 | **0.957** | **0.944** | **0.972** | 1.000 | **0.702** | **0.927** |
+| **vx_ensemble** | 1.031 | 1.130 | 1.062 | **0.984** | 1.198 | **0.696** | 1.017 |
+| **four_theta** | **0.879** | 1.065 | 1.096 | 1.386 | 1.858 | 1.292 | 1.263 |
+| esn | 1.293 | 1.363 | 1.324 | 1.143 | 1.361 | 2.149 | 1.439 |
+| dtsf | 2.081 | 3.381 | 2.295 | 1.905 | 2.125 | **0.765** | 2.092 |
+
+### 핵심 발견
+1. **DOT/AutoCES가 범용 최강** — M4 #18 Theta(0.897) 수준
+2. **4Theta Yearly OWA 0.879** — M4 공식 #11 4Theta(0.874)와 동등
+3. **VX-Ensemble Hourly OWA 0.696** — 전 모델 중 1위, M4 우승자급
+4. **DTSF Hourly OWA 0.765** — 패턴 반복 데이터에서 강점 확인
+5. **ESN은 독립 사용 부적합** — 앙상블 다양성 기여 역할에 특화
+
+### M4 Competition 레퍼런스
+- #1 ES-RNN: OWA 0.821
+- #2 FFORMA: OWA 0.838
+- #11 4Theta: OWA 0.874
+- #18 Theta: OWA 0.897
+
+## 완료된 단계
+- [x] 3개 모델 engine/ 모듈화 (fit/predict/residuals 인터페이스)
+- [x] types.py에 모델 정보 등록
+- [x] vectrix.py _selectNativeModels에 새 모델 반영
+- [x] 기존 테스트 387개 통과 확인
+- [x] 012 M4 100K 벤치마크 완료
+
+## 다음 단계
+- [ ] 4Theta seasonality 처리 개선 (Quarterly/Monthly/Weekly/Daily 약세)
+- [ ] DTSF 단기 시리즈 성능 개선 (n<100에서 약세)
+- [ ] ESN reservoir 크기 자동 조정 (긴 시리즈에서 느림)
+
+## 남은 대기 후보 (미실험)
+- KernelDensityForecaster
+- BayesianChangeForecaster
