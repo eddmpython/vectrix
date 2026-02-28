@@ -36,6 +36,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Scientific/Engineering :: Information Analysis",
     "Typing :: Typed",
+    "Programming Language :: Rust",
 ]
 dependencies = [
     "numpy>=1.24.0",
@@ -57,6 +58,7 @@ foundation = [
 neural = [
     "neuralforecast>=1.7",
 ]
+turbo = ["vectrix-core>=0.1.0"]
 dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
@@ -69,7 +71,7 @@ docs = [
     "mkdocstrings[python]>=0.24",
     "mkdocs-static-i18n>=1.2",
 ]
-all = ["vectrix[numba,ml,foundation,neural,dev,tutorials,docs]"]
+all = ["vectrix[turbo,numba,ml,foundation,neural,dev,tutorials,docs]"]
 
 [project.urls]
 Homepage = "https://github.com/eddmpython/vectrix"
