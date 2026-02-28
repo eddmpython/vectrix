@@ -15,14 +15,14 @@
 <p>
 <img src="https://img.shields.io/badge/3-Dependencies-818cf8?style=for-the-badge&labelColor=0f172a" alt="Dependencies">
 <img src="https://img.shields.io/badge/Pure-Python-6366f1?style=for-the-badge&labelColor=0f172a" alt="Pure Python">
-<img src="https://img.shields.io/badge/No-Compiled%20Extensions-a78bfa?style=for-the-badge&labelColor=0f172a" alt="No Compiled Extensions">
+<img src="https://img.shields.io/badge/Rust-Turbo%20Mode-e45a33?style=for-the-badge&labelColor=0f172a&logo=rust&logoColor=white" alt="Rust Turbo">
 </p>
 
 <p>
 <a href="https://pypi.org/project/vectrix/"><img src="https://img.shields.io/pypi/v/vectrix?style=for-the-badge&color=6366f1&labelColor=0f172a&logo=pypi&logoColor=white" alt="PyPI"></a>
 <a href="https://pypi.org/project/vectrix/"><img src="https://img.shields.io/pypi/pyversions/vectrix?style=for-the-badge&labelColor=0f172a&logo=python&logoColor=white" alt="Python"></a>
 <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-22d3ee?style=for-the-badge&labelColor=0f172a" alt="License"></a>
-<img src="https://img.shields.io/badge/Tests-275%20passed-10b981?style=for-the-badge&labelColor=0f172a&logo=pytest&logoColor=white" alt="Tests">
+<img src="https://img.shields.io/badge/Tests-387%20passed-10b981?style=for-the-badge&labelColor=0f172a&logo=pytest&logoColor=white" alt="Tests">
 </p>
 
 <br>
@@ -101,9 +101,35 @@ print(report.summary())
 
 Bottom-up, Top-down, MinTrace로 계층적 시계열을 조정합니다.
 
+### Rust Turbo Mode
+
+`vectrix[turbo]`를 설치하면 Rust로 작성된 핵심 루프가 활성화됩니다. Rust 컴파일러 불필요 — Linux, macOS (x86 + ARM), Windows용 사전 빌드 wheel 제공.
+
+| 구성요소 | Turbo 없음 | Turbo 적용 | 속도 향상 |
+|:---------|:----------|:----------|:---------|
+| `forecast()` 200pts | 295ms | **52ms** | **5.6x** |
+| AutoETS fit | 348ms | **32ms** | **10.8x** |
+| AutoARIMA fit | 195ms | **35ms** | **5.6x** |
+| ETS 필터 (핫 루프) | 0.17ms | **0.003ms** | **67x** |
+
+Turbo는 완전 선택사항입니다. 없으면 Numba JIT(설치 시) 또는 순수 Python으로 동작합니다. 코드 변경 불필요 — 설치만 하면 자동으로 빨라집니다.
+
+### 내장 샘플 데이터셋
+
+즉시 테스트 가능한 7개 데이터셋 내장:
+
+```python
+from vectrix import loadSample, forecast
+
+df = loadSample("airline")       # 144개 월간 관측
+result = forecast(df, date="date", value="passengers", steps=12)
+```
+
+사용 가능: `airline`, `retail`, `stock`, `temperature`, `energy`, `web`, `intermittent`
+
 ### 전부 순수 Python
 
-위의 모든 기능 — 예측 모델, 레짐 감지, 회귀분석 진단, 제약조건 적용, 계층적 조정 — 이 NumPy, SciPy, Pandas만으로 구현되어 있습니다. 컴파일된 확장이나 시스템 의존성이 없습니다.
+위의 모든 기능 — 예측 모델, 레짐 감지, 회귀분석 진단, 제약조건 적용, 계층적 조정 — 이 NumPy, SciPy, Pandas만으로 구현되어 있습니다. Rust turbo는 선택사항이며 필수가 아닙니다.
 
 <br>
 
@@ -114,9 +140,10 @@ pip install vectrix
 ```
 
 ```python
-from vectrix import forecast
+from vectrix import forecast, loadSample
 
-result = forecast("sales.csv", steps=12)
+df = loadSample("airline")
+result = forecast(df, date="date", value="passengers", steps=12)
 print(result)
 result.plot()
 ```
@@ -128,11 +155,13 @@ result.plot()
 | | Vectrix | statsforecast | Prophet | Darts |
 |:--|:--:|:--:|:--:|:--:|
 | **순수 Python (C/Fortran 없음)** | ✅ | ❌ (numba) | ❌ (cmdstan) | ❌ (torch) |
+| **선택적 Rust 가속** | ✅ (5-10x) | ❌ | ❌ | ❌ |
 | **의존성** | 3 | 5+ | 10+ | 20+ |
 | **자동 모델 선택** | ✅ | ✅ | ❌ | ❌ |
 | **평탄 예측 방어** | ✅ | ❌ | ❌ | ❌ |
 | **비즈니스 제약조건** | 8종 | ❌ | ❌ | ❌ |
 | **내장 회귀분석** | R 스타일 | ❌ | ❌ | ❌ |
+| **샘플 데이터셋** | 7종 내장 | ❌ | ❌ | ✅ |
 
 <br>
 
@@ -224,6 +253,7 @@ result.plot()
 
 ```bash
 pip install vectrix                # 핵심 (numpy + scipy + pandas)
+pip install "vectrix[turbo]"       # + Rust 가속 (5-10배 속도 향상)
 pip install "vectrix[numba]"       # + Numba JIT (2-5배 가속)
 pip install "vectrix[ml]"          # + LightGBM, XGBoost, scikit-learn
 pip install "vectrix[all]"         # 전체
@@ -382,7 +412,11 @@ vectrix/
 ├── hierarchy/             Bottom-up, Top-down, MinTrace
 ├── intervals/             Conformal + Bootstrap 구간
 ├── ml/                    LightGBM, XGBoost 래퍼
-└── global_model/          크로스시리즈 예측
+├── global_model/          크로스시리즈 예측
+└── datasets.py            7개 내장 샘플 데이터셋
+
+rust/                         선택적 Rust 가속 (vectrix-core)
+└── src/lib.rs             ETS, ARIMA, Theta, SES 핫 루프 (PyO3)
 ```
 
 <br>

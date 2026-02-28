@@ -5,6 +5,49 @@ All notable changes to Vectrix will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.3] - 2026-02-28
+
+Performance release — Rust-accelerated core loops (vectrix-core), built-in sample datasets, and pandas 2.x compatibility fixes.
+
+### Added
+
+**Rust Turbo Mode (vectrix-core)**
+- Native Rust extension for core forecasting hot loops via PyO3 + maturin
+- 9 accelerated functions: `ets_filter`, `ets_loglik`, `css_objective`, `seasonal_css_objective`, `ses_sse`, `ses_filter`, `theta_decompose`, `arima_css`, `batch_ets_filter`
+- 3-tier fallback: Rust > Numba JIT > Pure Python — transparent, no code changes needed
+- Pre-built wheels for Linux (manylinux), macOS (x86 + ARM), Windows (x86_64), Python 3.10-3.13
+- Install via `pip install "vectrix[turbo]"` — no Rust compiler needed for users
+- GitHub Actions CI workflow (`publish-core.yml`) for automated wheel builds on `core-v*` tags
+
+**Built-in Sample Datasets**
+- 7 deterministic sample datasets for quick testing: `airline` (144 monthly), `retail` (730 daily), `stock` (252 business daily), `temperature` (1095 daily), `energy` (720 hourly), `web` (180 daily), `intermittent` (365 daily)
+- `loadSample(name)`: Load a sample dataset as DataFrame
+- `listSamples()`: List all available datasets with metadata
+- 41 tests covering all datasets
+
+### Changed
+
+**Performance Improvements**
+- AutoETS: 348ms → 32ms (10.8x faster with Rust turbo)
+- AutoARIMA: 195ms → 35ms (5.6x faster)
+- Theta: 1.3ms → 0.16ms (8.1x faster)
+- `forecast()` end-to-end: 295ms → 52ms (5.6x faster)
+- ETS filter hot loop: 0.17ms → 0.003ms (67x faster)
+- ARIMA CSS objective: 0.19ms → 0.001ms (157x faster)
+
+### Fixed
+
+- pandas 2.x frequency deprecation: `"M"` → `"ME"`, `"Q"` → `"QE"`, `"Y"` → `"YE"`, `"H"` → `"h"`
+
+### Changed (Docs)
+
+- Complete bilingual docs site (EN/KO) with i18n plugin
+- Installation guide updated with Rust Turbo Mode section
+- README updated with turbo benchmarks, sample datasets, comparison table
+- 387 tests (up from 346), 5 skipped (optional dependency guards)
+
+[0.0.3]: https://github.com/eddmpython/vectrix/compare/v0.0.2...v0.0.3
+
 ## [0.0.2] - 2026-02-28
 
 Feature expansion release — Foundation Model wrappers, deep learning models, multivariate forecasting, probabilistic distributions, multi-country holidays, and pipeline system.

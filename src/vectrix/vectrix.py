@@ -66,7 +66,7 @@ class Vectrix:
     Dependencies: numpy, pandas, scipy (required), numba (optional)
     """
 
-    VERSION = "0.0.2"
+    VERSION = "0.0.3"
 
     # 자체 구현 모델 목록
     NATIVE_MODELS = {

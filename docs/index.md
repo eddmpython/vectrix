@@ -141,6 +141,13 @@ Tested against the M3 and M4 forecasting competitions (OWA < 1.0 = beats Naive2)
     ```
     NumPy + SciPy + Pandas only. Works on Python 3.10+.
 
+=== "Rust Turbo"
+
+    ```bash
+    pip install "vectrix[turbo]"
+    ```
+    5-10x faster with Rust-accelerated core loops. No Rust compiler needed — pre-built wheels for all platforms.
+
 === "With Numba"
 
     ```bash

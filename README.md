@@ -15,14 +15,14 @@
 <p>
 <img src="https://img.shields.io/badge/3-Dependencies-818cf8?style=for-the-badge&labelColor=0f172a" alt="Dependencies">
 <img src="https://img.shields.io/badge/Pure-Python-6366f1?style=for-the-badge&labelColor=0f172a" alt="Pure Python">
-<img src="https://img.shields.io/badge/No-Compiled%20Extensions-a78bfa?style=for-the-badge&labelColor=0f172a" alt="No Compiled Extensions">
+<img src="https://img.shields.io/badge/Rust-Turbo%20Mode-e45a33?style=for-the-badge&labelColor=0f172a&logo=rust&logoColor=white" alt="Rust Turbo">
 </p>
 
 <p>
 <a href="https://pypi.org/project/vectrix/"><img src="https://img.shields.io/pypi/v/vectrix?style=for-the-badge&color=6366f1&labelColor=0f172a&logo=pypi&logoColor=white" alt="PyPI"></a>
 <a href="https://pypi.org/project/vectrix/"><img src="https://img.shields.io/pypi/pyversions/vectrix?style=for-the-badge&labelColor=0f172a&logo=python&logoColor=white" alt="Python"></a>
 <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-22d3ee?style=for-the-badge&labelColor=0f172a" alt="License"></a>
-<img src="https://img.shields.io/badge/Tests-275%20passed-10b981?style=for-the-badge&labelColor=0f172a&logo=pytest&logoColor=white" alt="Tests">
+<img src="https://img.shields.io/badge/Tests-387%20passed-10b981?style=for-the-badge&labelColor=0f172a&logo=pytest&logoColor=white" alt="Tests">
 </p>
 
 <br>
@@ -101,9 +101,35 @@ A pure-numpy HMM (Baum-Welch + Viterbi) detects regime shifts. When a regime cha
 
 Bottom-up, top-down, and MinTrace reconciliation for hierarchical time series.
 
+### Rust Turbo Mode
+
+Install `vectrix[turbo]` to unlock Rust-accelerated core loops. No Rust compiler needed — pre-built wheels for Linux, macOS (x86 + ARM), and Windows.
+
+| Component | Without Turbo | With Turbo | Speedup |
+|:----------|:-------------|:-----------|:--------|
+| `forecast()` 200pts | 295ms | **52ms** | **5.6x** |
+| AutoETS fit | 348ms | **32ms** | **10.8x** |
+| AutoARIMA fit | 195ms | **35ms** | **5.6x** |
+| ETS filter (hot loop) | 0.17ms | **0.003ms** | **67x** |
+
+Turbo is fully optional. Without it, Vectrix falls back to Numba JIT (if available) or pure Python. Your code doesn't change — just install and it's faster.
+
+### Built-in Sample Datasets
+
+7 ready-to-use datasets for quick testing:
+
+```python
+from vectrix import loadSample, forecast
+
+df = loadSample("airline")       # 144 monthly observations
+result = forecast(df, date="date", value="passengers", steps=12)
+```
+
+Available: `airline`, `retail`, `stock`, `temperature`, `energy`, `web`, `intermittent`
+
 ### Everything is Pure Python
 
-All of the above — forecasting models, regime detection, regression diagnostics, constraint enforcement, hierarchical reconciliation — is implemented in pure Python with only NumPy, SciPy, and Pandas. No compiled extensions, no system dependencies.
+All of the above — forecasting models, regime detection, regression diagnostics, constraint enforcement, hierarchical reconciliation — is implemented in pure Python with only NumPy, SciPy, and Pandas. No compiled extensions, no system dependencies. Rust turbo is optional and never required.
 
 <br>
 
@@ -114,9 +140,10 @@ pip install vectrix
 ```
 
 ```python
-from vectrix import forecast
+from vectrix import forecast, loadSample
 
-result = forecast("sales.csv", steps=12)
+df = loadSample("airline")
+result = forecast(df, date="date", value="passengers", steps=12)
 print(result)
 result.plot()
 ```
@@ -128,11 +155,13 @@ result.plot()
 | | Vectrix | statsforecast | Prophet | Darts |
 |:--|:--:|:--:|:--:|:--:|
 | **Pure Python (no C/Fortran)** | ✅ | ❌ (numba) | ❌ (cmdstan) | ❌ (torch) |
+| **Optional Rust acceleration** | ✅ (5-10x) | ❌ | ❌ | ❌ |
 | **Dependencies** | 3 | 5+ | 10+ | 20+ |
 | **Auto model selection** | ✅ | ✅ | ❌ | ❌ |
 | **Flat-line defense** | ✅ | ❌ | ❌ | ❌ |
 | **Business constraints** | 8 types | ❌ | ❌ | ❌ |
 | **Built-in regression** | R-style | ❌ | ❌ | ❌ |
+| **Sample datasets** | 7 built-in | ❌ | ❌ | ✅ |
 
 <br>
 
@@ -224,6 +253,7 @@ result.plot()
 
 ```bash
 pip install vectrix                # Core (numpy + scipy + pandas)
+pip install "vectrix[turbo]"       # + Rust acceleration (5-10x speedup)
 pip install "vectrix[numba]"       # + Numba JIT (2-5x speedup)
 pip install "vectrix[ml]"          # + LightGBM, XGBoost, scikit-learn
 pip install "vectrix[all]"         # Everything
@@ -382,7 +412,11 @@ vectrix/
 ├── hierarchy/             Bottom-up, top-down, MinTrace
 ├── intervals/             Conformal + bootstrap intervals
 ├── ml/                    LightGBM, XGBoost wrappers
-└── global_model/          Cross-series forecasting
+├── global_model/          Cross-series forecasting
+└── datasets.py            7 built-in sample datasets
+
+rust/                         Optional Rust acceleration (vectrix-core)
+└── src/lib.rs             ETS, ARIMA, Theta, SES hot loops (PyO3)
 ```
 
 <br>
