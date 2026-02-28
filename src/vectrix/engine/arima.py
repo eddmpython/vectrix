@@ -15,6 +15,13 @@ import numpy as np
 from scipy.optimize import minimize
 
 try:
+    from vectrix_core import css_objective as _cssObjectiveRust
+    from vectrix_core import seasonal_css_objective as _seasonalCSSObjectiveRust
+    RUST_AVAILABLE = True
+except ImportError:
+    RUST_AVAILABLE = False
+
+try:
     from numba import jit
     NUMBA_AVAILABLE = True
 except ImportError:
@@ -578,17 +585,31 @@ class ARIMAModel:
         hasSeasonal = bigP + bigQ > 0
 
         if hasSeasonal:
-            def objective(params):
-                arC = np.asarray(params[:p]) if p > 0 else np.zeros(0)
-                maC = np.asarray(params[p:p + q]) if q > 0 else np.zeros(0)
-                sarC = np.asarray(params[p + q:p + q + bigP]) if bigP > 0 else np.zeros(0)
-                smaC = np.asarray(params[p + q + bigP:]) if bigQ > 0 else np.zeros(0)
-                return _seasonalCSSObjectiveNumba(y, arC, maC, sarC, smaC, m)
+            if RUST_AVAILABLE:
+                def objective(params):
+                    arC = np.asarray(params[:p], dtype=np.float64) if p > 0 else np.zeros(0, dtype=np.float64)
+                    maC = np.asarray(params[p:p + q], dtype=np.float64) if q > 0 else np.zeros(0, dtype=np.float64)
+                    sarC = np.asarray(params[p + q:p + q + bigP], dtype=np.float64) if bigP > 0 else np.zeros(0, dtype=np.float64)
+                    smaC = np.asarray(params[p + q + bigP:], dtype=np.float64) if bigQ > 0 else np.zeros(0, dtype=np.float64)
+                    return _seasonalCSSObjectiveRust(y, arC, maC, sarC, smaC, m)
+            else:
+                def objective(params):
+                    arC = np.asarray(params[:p]) if p > 0 else np.zeros(0)
+                    maC = np.asarray(params[p:p + q]) if q > 0 else np.zeros(0)
+                    sarC = np.asarray(params[p + q:p + q + bigP]) if bigP > 0 else np.zeros(0)
+                    smaC = np.asarray(params[p + q + bigP:]) if bigQ > 0 else np.zeros(0)
+                    return _seasonalCSSObjectiveNumba(y, arC, maC, sarC, smaC, m)
         else:
-            def objective(params):
-                arC = np.asarray(params[:p]) if p > 0 else np.zeros(0)
-                maC = np.asarray(params[p:]) if q > 0 else np.zeros(0)
-                return _cssObjectiveNumba(y, arC, maC)
+            if RUST_AVAILABLE:
+                def objective(params):
+                    arC = np.asarray(params[:p], dtype=np.float64) if p > 0 else np.zeros(0, dtype=np.float64)
+                    maC = np.asarray(params[p:], dtype=np.float64) if q > 0 else np.zeros(0, dtype=np.float64)
+                    return _cssObjectiveRust(y, arC, maC)
+            else:
+                def objective(params):
+                    arC = np.asarray(params[:p]) if p > 0 else np.zeros(0)
+                    maC = np.asarray(params[p:]) if q > 0 else np.zeros(0)
+                    return _cssObjectiveNumba(y, arC, maC)
 
         try:
             result = minimize(

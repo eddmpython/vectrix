@@ -21,6 +21,12 @@ import numpy as np
 from scipy.optimize import minimize
 
 try:
+    from vectrix_core import ets_filter as _etsFilterRust
+    RUST_AVAILABLE = True
+except ImportError:
+    RUST_AVAILABLE = False
+
+try:
     from numba import jit
     NUMBA_AVAILABLE = True
 except ImportError:
@@ -399,7 +405,7 @@ class ETSModel:
         self.residuals = residuals
 
     def _filter(self, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-        """상태공간 필터링 (Numba JIT 가속)"""
+        """상태공간 필터링 (Rust > Numba JIT > Pure Python)"""
         errorInt = 0 if self.errorType == 'A' else 1
         trendMap = {'N': 0, 'A': 1, 'Ad': 2, 'M': 3}
         trendKey = self.trendType + ('d' if self.damped else '')
@@ -410,11 +416,19 @@ class ETSModel:
         seasonal0 = self.seasonal.copy() if self.seasonalType != 'N' else np.zeros(self.period)
         phi = self.phi if self.damped else 1.0
 
-        fitted, residuals, level, trend, seasonal = _etsFilterJIT(
-            y, self.level, trend0, seasonal0,
-            self.alpha, self.beta, self.gamma, phi,
-            self.period, errorInt, trendInt, seasonalInt
-        )
+        if RUST_AVAILABLE:
+            fitted, residuals, level, trend, seasonal = _etsFilterRust(
+                y.astype(np.float64, copy=False), float(self.level), float(trend0),
+                seasonal0.astype(np.float64, copy=False),
+                float(self.alpha), float(self.beta), float(self.gamma), float(phi),
+                int(self.period), int(errorInt), int(trendInt), int(seasonalInt)
+            )
+        else:
+            fitted, residuals, level, trend, seasonal = _etsFilterJIT(
+                y, self.level, trend0, seasonal0,
+                self.alpha, self.beta, self.gamma, phi,
+                self.period, errorInt, trendInt, seasonalInt
+            )
 
         self.level = level
         self.trend = trend

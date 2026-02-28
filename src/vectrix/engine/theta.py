@@ -12,6 +12,14 @@ from typing import Tuple
 import numpy as np
 
 try:
+    from vectrix_core import ses_sse as _sesSSERust
+    from vectrix_core import ses_filter as _sesFilterRust
+    from vectrix_core import theta_decompose as _thetaDecomposeRust
+    RUST_AVAILABLE = True
+except ImportError:
+    RUST_AVAILABLE = False
+
+try:
     from numba import jit
     NUMBA_AVAILABLE = True
 except ImportError:
@@ -222,9 +230,13 @@ class ThetaModel:
         """SES 알파 최적화"""
         bestAlpha = 0.3
         bestSSE = np.inf
+        yF64 = y.astype(np.float64, copy=False)
 
         for alpha in [0.1, 0.3, 0.5, 0.7, 0.9]:
-            sse = _sesSSEJIT(y, alpha)
+            if RUST_AVAILABLE:
+                sse = _sesSSERust(yF64, alpha)
+            else:
+                sse = _sesSSEJIT(y, alpha)
             if sse < bestSSE:
                 bestSSE = sse
                 bestAlpha = alpha
@@ -233,10 +245,14 @@ class ThetaModel:
 
     def _sesSSE(self, y: np.ndarray, alpha: float) -> float:
         """SES SSE 계산"""
+        if RUST_AVAILABLE:
+            return _sesSSERust(y.astype(np.float64, copy=False), alpha)
         return _sesSSEJIT(y, alpha)
 
     def _sesFilter(self, y: np.ndarray, alpha: float) -> np.ndarray:
         """SES 필터링"""
+        if RUST_AVAILABLE:
+            return _sesFilterRust(y.astype(np.float64, copy=False), alpha)
         return _sesFilterJIT(y, alpha)
 
     def _computeFitted(self, y: np.ndarray, n: int) -> np.ndarray:
