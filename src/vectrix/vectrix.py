@@ -770,7 +770,9 @@ class Vectrix:
         # 날짜 생성
         lastDate = pd.to_datetime(df[dateCol].iloc[-1])
         freq = self.characteristics.frequency.value if self.characteristics else 'D'
-        futureDates = pd.date_range(start=lastDate + pd.Timedelta(days=1), periods=steps, freq=freq)
+        _FREQ_MAP = {'M': 'ME', 'Q': 'QE', 'Y': 'YE', 'H': 'h'}
+        pdFreq = _FREQ_MAP.get(freq, freq)
+        futureDates = pd.date_range(start=lastDate + pd.Timedelta(days=1), periods=steps, freq=pdFreq)
         dateStrings = [d.strftime('%Y-%m-%d') for d in futureDates]
 
         return ForecastResult(

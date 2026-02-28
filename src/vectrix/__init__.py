@@ -19,6 +19,7 @@ from .adaptive import (
     SelfHealingForecast,
 )
 from .batch import BatchForecastResult, batchForecast
+from .datasets import listSamples, loadSample
 from .easy import (
     EasyAnalysisResult,
     EasyForecastResult,
@@ -129,4 +130,7 @@ __all__ = [
     "Detrend",
     "OutlierClipper",
     "MissingValueImputer",
+    # Datasets
+    "loadSample",
+    "listSamples",
 ]
