@@ -7,7 +7,7 @@ Built-in sample datasets for quick testing and demos.
     >>> result = forecast(df, date="date", value="passengers", steps=12)
 """
 
-from typing import Dict, List, Optional
+from typing import Dict
 
 import numpy as np
 import pandas as pd

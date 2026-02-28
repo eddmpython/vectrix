@@ -12,9 +12,8 @@ from typing import Tuple
 import numpy as np
 
 try:
-    from vectrix_core import ses_sse as _sesSSERust
     from vectrix_core import ses_filter as _sesFilterRust
-    from vectrix_core import theta_decompose as _thetaDecomposeRust
+    from vectrix_core import ses_sse as _sesSSERust
     RUST_AVAILABLE = True
 except ImportError:
     RUST_AVAILABLE = False
