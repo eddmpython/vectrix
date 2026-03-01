@@ -45,6 +45,7 @@ Thumbs.db
 # Output files
 *.log
 *.html
+!docs/overrides/*.html
 *.pdf
 
 # Cache

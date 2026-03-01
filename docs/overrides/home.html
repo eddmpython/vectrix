@@ -1,0 +1,317 @@
+{% extends "main.html" %}
+
+{% block tabs %}
+  {{ super() }}
+{% endblock %}
+
+{% block content %}
+<div class="vx-landing md-content--home">
+
+  <!-- Hero -->
+  <section class="vx-hero">
+    <div class="vx-hero-badge">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+      v0.0.3 — Rust Turbo Mode Available
+    </div>
+    <h1 class="vx-hero-title">
+      Time Series Forecasting<br>
+      <span>Made Simple</span>
+    </h1>
+    <p class="vx-hero-sub">
+      One line of code. 30+ models. Zero configuration.<br>
+      Pure Python — no compiled dependencies required.
+    </p>
+    <div class="vx-hero-stats">
+      <div class="vx-hero-stat">
+        <span class="vx-hero-stat-value">30+</span>
+        <span class="vx-hero-stat-label">Models</span>
+      </div>
+      <div class="vx-hero-stat">
+        <span class="vx-hero-stat-value">3</span>
+        <span class="vx-hero-stat-label">Dependencies</span>
+      </div>
+      <div class="vx-hero-stat">
+        <span class="vx-hero-stat-value">10x</span>
+        <span class="vx-hero-stat-label">Rust Turbo</span>
+      </div>
+      <div class="vx-hero-stat">
+        <span class="vx-hero-stat-value">M4</span>
+        <span class="vx-hero-stat-label">Benchmarked</span>
+      </div>
+    </div>
+    <div class="vx-hero-actions">
+      <a href="getting-started/installation/" class="vx-btn vx-btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Install
+      </a>
+      <a href="getting-started/quickstart/" class="vx-btn vx-btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Quickstart
+      </a>
+      <a href="https://github.com/eddmpython/vectrix" class="vx-btn vx-btn-secondary" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+        GitHub
+      </a>
+    </div>
+
+    <div class="vx-code-window">
+      <div class="vx-code-header">
+        <span class="vx-code-dot"></span>
+        <span class="vx-code-dot"></span>
+        <span class="vx-code-dot"></span>
+        <span class="vx-code-title">forecast.py</span>
+      </div>
+      <div class="vx-code-body">
+        <span class="kw">from</span> <span class="var">vectrix</span> <span class="kw">import</span> <span class="fn">forecast</span><br><br>
+        <span class="var">result</span> <span class="op">=</span> <span class="fn">forecast</span><span class="op">(</span><span class="str">"sales.csv"</span><span class="op">,</span> <span class="var">steps</span><span class="op">=</span><span class="num">12</span><span class="op">)</span><br>
+        <span class="var">result</span><span class="op">.</span><span class="fn">plot</span><span class="op">()</span>  <span class="cm"># auto model + intervals + plot</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="vx-section vx-center">
+    <span class="vx-section-label">Features</span>
+    <h2 class="vx-section-title">Everything you need for forecasting</h2>
+    <p class="vx-section-desc">
+      From one-line forecasts to advanced adaptive intelligence — Vectrix scales with your needs.
+    </p>
+    <div class="vx-features">
+      <div class="vx-feature">
+        <div class="vx-feature-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </div>
+        <h3>Zero Configuration</h3>
+        <p>Pass your data, get forecasts. Auto model selection, hyperparameter tuning, and flat-line defense — all automatic.</p>
+      </div>
+      <div class="vx-feature">
+        <div class="vx-feature-icon purple">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        </div>
+        <h3>30+ Statistical Models</h3>
+        <p>ETS, ARIMA, Theta, MSTL, TBATS, GARCH, CES, Croston, DOT, 4Theta, ESN, DTSF — and more.</p>
+      </div>
+      <div class="vx-feature">
+        <div class="vx-feature-icon green">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <h3>Flat Defense System</h3>
+        <p>Unique 4-level system prevents constant predictions — the most common forecasting failure mode in production.</p>
+      </div>
+      <div class="vx-feature">
+        <div class="vx-feature-icon amber">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+        </div>
+        <h3>Forecast DNA</h3>
+        <p>65+ feature fingerprinting. Know your data's difficulty, optimal model, seasonality, and similarity to other series.</p>
+      </div>
+      <div class="vx-feature">
+        <div class="vx-feature-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+        </div>
+        <h3>Adaptive Intelligence</h3>
+        <p>Regime detection (HMM), self-healing forecasts (CUSUM + EWMA), and 8 business constraint types.</p>
+      </div>
+      <div class="vx-feature">
+        <div class="vx-feature-icon purple">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+        </div>
+        <h3>Pure Python</h3>
+        <p>Built on NumPy + SciPy + Pandas only. No compiled extensions, no platform issues. Optional Rust turbo for 10x speed.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Code Demo -->
+  <section class="vx-section-alt">
+    <div class="vx-section-inner vx-center">
+      <span class="vx-section-label">How it works</span>
+      <h2 class="vx-section-title">Three lines. Full pipeline.</h2>
+      <p class="vx-section-desc">
+        Forecasting, analysis, and regression — each designed to work with one function call.
+      </p>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; text-align: left;">
+        <div class="vx-code-window">
+          <div class="vx-code-header">
+            <span class="vx-code-dot"></span><span class="vx-code-dot"></span><span class="vx-code-dot"></span>
+            <span class="vx-code-title">Forecasting</span>
+          </div>
+          <div class="vx-code-body">
+            <span class="kw">from</span> <span class="var">vectrix</span> <span class="kw">import</span> <span class="fn">forecast</span><br><br>
+            <span class="var">result</span> <span class="op">=</span> <span class="fn">forecast</span><span class="op">(</span><span class="str">"sales.csv"</span><span class="op">,</span> <span class="var">steps</span><span class="op">=</span><span class="num">12</span><span class="op">)</span><br>
+            <span class="var">result</span><span class="op">.</span><span class="fn">plot</span><span class="op">()</span><br>
+            <span class="var">result</span><span class="op">.</span><span class="fn">to_csv</span><span class="op">(</span><span class="str">"forecast.csv"</span><span class="op">)</span>
+          </div>
+        </div>
+        <div class="vx-code-window">
+          <div class="vx-code-header">
+            <span class="vx-code-dot"></span><span class="vx-code-dot"></span><span class="vx-code-dot"></span>
+            <span class="vx-code-title">Analysis</span>
+          </div>
+          <div class="vx-code-body">
+            <span class="kw">from</span> <span class="var">vectrix</span> <span class="kw">import</span> <span class="fn">analyze</span><br><br>
+            <span class="var">report</span> <span class="op">=</span> <span class="fn">analyze</span><span class="op">(</span><span class="str">"data.csv"</span><span class="op">)</span><br>
+            <span class="fn">print</span><span class="op">(</span><span class="var">report</span><span class="op">.</span><span class="var">dna</span><span class="op">.</span><span class="var">difficulty</span><span class="op">)</span><br>
+            <span class="fn">print</span><span class="op">(</span><span class="var">report</span><span class="op">.</span><span class="var">dna</span><span class="op">.</span><span class="var">recommended_model</span><span class="op">)</span>
+          </div>
+        </div>
+        <div class="vx-code-window">
+          <div class="vx-code-header">
+            <span class="vx-code-dot"></span><span class="vx-code-dot"></span><span class="vx-code-dot"></span>
+            <span class="vx-code-title">Regression</span>
+          </div>
+          <div class="vx-code-body">
+            <span class="kw">from</span> <span class="var">vectrix</span> <span class="kw">import</span> <span class="fn">regress</span><br><br>
+            <span class="var">r</span> <span class="op">=</span> <span class="fn">regress</span><span class="op">(</span><span class="var">df</span><span class="op">,</span> <span class="str">"sales ~ ads + price"</span><span class="op">)</span><br>
+            <span class="fn">print</span><span class="op">(</span><span class="var">r</span><span class="op">.</span><span class="var">r_squared</span><span class="op">)</span><br>
+            <span class="var">r</span><span class="op">.</span><span class="fn">plot</span><span class="op">()</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benchmarks -->
+  <section class="vx-section vx-center">
+    <span class="vx-section-label">Performance</span>
+    <h2 class="vx-section-title">M3 & M4 Competition Benchmarks</h2>
+    <p class="vx-section-desc">
+      Tested against 200,000+ real-world time series. OWA &lt; 1.0 means beating the Naive2 baseline.
+    </p>
+    <div class="vx-bench-table-wrap">
+      <table class="vx-bench-table">
+        <thead>
+          <tr>
+            <th>Competition</th>
+            <th>Yearly</th>
+            <th>Quarterly</th>
+            <th>Monthly</th>
+            <th>Weekly</th>
+            <th>Daily</th>
+            <th>Hourly</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>M3</td>
+            <td class="vx-bench-good">0.848</td>
+            <td class="vx-bench-good">0.825</td>
+            <td class="vx-bench-good">0.758</td>
+            <td>—</td>
+            <td>—</td>
+            <td class="vx-bench-good">0.819</td>
+          </tr>
+          <tr>
+            <td>M4</td>
+            <td class="vx-bench-good">0.974</td>
+            <td class="vx-bench-good">0.797</td>
+            <td class="vx-bench-good">0.987</td>
+            <td class="vx-bench-good">0.737</td>
+            <td class="vx-bench-warn">1.207</td>
+            <td class="vx-bench-warn">1.006</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="margin-top: 1.5rem;">
+      <a href="benchmarks/" class="vx-btn vx-btn-secondary" style="font-size: 0.85rem;">
+        View full benchmark results →
+      </a>
+    </p>
+  </section>
+
+  <!-- Install -->
+  <section class="vx-section-alt">
+    <div class="vx-section-inner vx-center">
+      <span class="vx-section-label">Get Started</span>
+      <h2 class="vx-section-title">Install in seconds</h2>
+      <p class="vx-section-desc">
+        Choose the installation that fits your needs.
+      </p>
+      <div class="vx-install-tabs" id="installTabs">
+        <button class="vx-install-tab active" data-cmd="pip install vectrix">Core</button>
+        <button class="vx-install-tab" data-cmd='pip install "vectrix[turbo]"'>Rust Turbo</button>
+        <button class="vx-install-tab" data-cmd='pip install "vectrix[ml]"'>With ML</button>
+        <button class="vx-install-tab" data-cmd='pip install "vectrix[foundation]"'>Foundation</button>
+        <button class="vx-install-tab" data-cmd='pip install "vectrix[all]"'>Everything</button>
+      </div>
+      <div class="vx-install-cmd">
+        <span class="prompt">$</span>
+        <span class="cmd" id="installCmd">pip install vectrix</span>
+        <button class="copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('installCmd').textContent)" title="Copy">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Vectrix -->
+  <section class="vx-section vx-center">
+    <span class="vx-section-label">Comparison</span>
+    <h2 class="vx-section-title">How Vectrix compares</h2>
+    <p class="vx-section-desc">
+      Purpose-built for production forecasting with features no other library offers.
+    </p>
+    <div class="vx-comparison">
+      <div class="vx-vs-card">
+        <h4>vs. statsforecast</h4>
+        <p>Similar model count, but Vectrix adds Forecast DNA, flat defense, business constraints, and adaptive intelligence.</p>
+      </div>
+      <div class="vx-vs-card">
+        <h4>vs. Prophet</h4>
+        <p>No compiled dependencies. More models. Automatic model selection instead of manual configuration.</p>
+      </div>
+      <div class="vx-vs-card">
+        <h4>vs. Darts</h4>
+        <p>Lighter footprint. No PyTorch dependency for statistical models. Faster install and startup.</p>
+      </div>
+      <div class="vx-vs-card">
+        <h4>vs. pmdarima</h4>
+        <p>Not just ARIMA — 30+ models with auto selection. Plus regression, analysis, and business intelligence built in.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="vx-cta">
+    <h2 class="vx-cta-title">Ready to forecast?</h2>
+    <p class="vx-cta-desc">Get started with Vectrix in under a minute.</p>
+    <div class="vx-cta-actions">
+      <a href="getting-started/quickstart/" class="vx-btn vx-btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        Get Started
+      </a>
+      <a href="https://github.com/eddmpython/vectrix" class="vx-btn vx-btn-secondary" target="_blank" rel="noopener">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+        Star on GitHub
+      </a>
+      <a href="https://buymeacoffee.com/eddmpython" class="vx-coffee" target="_blank" rel="noopener">
+        <img src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg" alt="Buy Me A Coffee">
+        Buy me a coffee
+      </a>
+    </div>
+    <div class="vx-footer-links">
+      <a href="https://pypi.org/project/vectrix/" target="_blank" rel="noopener">PyPI</a>
+      <a href="api/easy/">API Reference</a>
+      <a href="changelog/">Changelog</a>
+      <a href="https://github.com/eddmpython/vectrix/blob/master/LICENSE" target="_blank" rel="noopener">MIT License</a>
+    </div>
+  </section>
+
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  var tabs = document.querySelectorAll(".vx-install-tab");
+  var cmdEl = document.getElementById("installCmd");
+  if (!tabs.length || !cmdEl) return;
+  tabs.forEach(function(tab) {
+    tab.addEventListener("click", function() {
+      tabs.forEach(function(t) { t.classList.remove("active"); });
+      tab.classList.add("active");
+      cmdEl.textContent = tab.getAttribute("data-cmd");
+    });
+  });
+});
+</script>
+{% endblock %}

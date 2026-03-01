@@ -1,25 +1,26 @@
 site_name: Vectrix
 site_url: https://eddmpython.github.io/vectrix/
-site_description: Zero-config time series forecasting library
+site_description: "Zero-config time series forecasting for Python. 30+ models, auto selection, flat defense, Forecast DNA — one line of code."
 site_author: eddmpython
 repo_url: https://github.com/eddmpython/vectrix
 repo_name: eddmpython/vectrix
 
 theme:
   name: material
+  custom_dir: docs/overrides
   language: en
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
-      primary: indigo
-      accent: deep purple
+      primary: custom
+      accent: custom
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
-      primary: indigo
-      accent: deep purple
+      primary: custom
+      accent: custom
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
@@ -35,6 +36,22 @@ theme:
     - content.tabs.link
   icon:
     repo: fontawesome/brands/github
+    logo: material/chart-timeline-variant-shimmer
+  favicon: stylesheets/favicon.svg
+  font:
+    text: Inter
+    code: JetBrains Mono
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/eddmpython/vectrix
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/vectrix/
+  generator: false
+
+extra_css:
+  - stylesheets/theme.css
 
 plugins:
   - search
@@ -99,3 +116,4 @@ markdown_extensions:
   - pymdownx.snippets
   - toc:
       permalink: true
+  - meta
