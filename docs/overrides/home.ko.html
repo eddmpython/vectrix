@@ -168,6 +168,91 @@
     </div>
   </section>
 
+  <!-- Code Demo -->
+  <section class="vx-section-alt">
+    <div class="vx-section-inner vx-center">
+      <span class="vx-section-label">사용법</span>
+      <h2 class="vx-section-title">세 줄이면 충분합니다</h2>
+      <p class="vx-section-desc">
+        예측, 분석, 회귀 — 모두 함수 한 번으로 동작합니다.
+      </p>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; text-align: left;">
+        <div class="vx-code-window">
+          <div class="vx-code-header">
+            <span class="vx-code-dot"></span><span class="vx-code-dot"></span><span class="vx-code-dot"></span>
+            <span class="vx-code-title">예측</span>
+          </div>
+          <div class="vx-code-body">
+            <span class="kw">from</span> <span class="var">vectrix</span> <span class="kw">import</span> <span class="fn">forecast</span><br><br>
+            <span class="var">result</span> <span class="op">=</span> <span class="fn">forecast</span><span class="op">(</span><span class="str">"sales.csv"</span><span class="op">,</span> <span class="var">steps</span><span class="op">=</span><span class="num">12</span><span class="op">)</span><br>
+            <span class="var">result</span><span class="op">.</span><span class="fn">plot</span><span class="op">()</span><br>
+            <span class="var">result</span><span class="op">.</span><span class="fn">to_csv</span><span class="op">(</span><span class="str">"forecast.csv"</span><span class="op">)</span>
+          </div>
+        </div>
+        <div class="vx-code-window">
+          <div class="vx-code-header">
+            <span class="vx-code-dot"></span><span class="vx-code-dot"></span><span class="vx-code-dot"></span>
+            <span class="vx-code-title">분석</span>
+          </div>
+          <div class="vx-code-body">
+            <span class="kw">from</span> <span class="var">vectrix</span> <span class="kw">import</span> <span class="fn">analyze</span><br><br>
+            <span class="var">report</span> <span class="op">=</span> <span class="fn">analyze</span><span class="op">(</span><span class="str">"data.csv"</span><span class="op">)</span><br>
+            <span class="fn">print</span><span class="op">(</span><span class="var">report</span><span class="op">.</span><span class="var">dna</span><span class="op">.</span><span class="var">difficulty</span><span class="op">)</span><br>
+            <span class="fn">print</span><span class="op">(</span><span class="var">report</span><span class="op">.</span><span class="var">dna</span><span class="op">.</span><span class="var">recommended_model</span><span class="op">)</span>
+          </div>
+        </div>
+        <div class="vx-code-window">
+          <div class="vx-code-header">
+            <span class="vx-code-dot"></span><span class="vx-code-dot"></span><span class="vx-code-dot"></span>
+            <span class="vx-code-title">회귀</span>
+          </div>
+          <div class="vx-code-body">
+            <span class="kw">from</span> <span class="var">vectrix</span> <span class="kw">import</span> <span class="fn">regress</span><br><br>
+            <span class="var">r</span> <span class="op">=</span> <span class="fn">regress</span><span class="op">(</span><span class="var">df</span><span class="op">,</span> <span class="str">"sales ~ ads + price"</span><span class="op">)</span><br>
+            <span class="fn">print</span><span class="op">(</span><span class="var">r</span><span class="op">.</span><span class="var">r_squared</span><span class="op">)</span><br>
+            <span class="var">r</span><span class="op">.</span><span class="fn">plot</span><span class="op">()</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Install -->
+  <section class="vx-section vx-center">
+    <span class="vx-section-label">시작하기</span>
+    <h2 class="vx-section-title">초 단위 설치</h2>
+    <p class="vx-section-desc">
+      필요에 맞는 설치 옵션을 선택하세요.
+    </p>
+    <div class="vx-install-tabs" id="installTabsKo">
+      <button class="vx-install-tab active" data-cmd="pip install vectrix">기본</button>
+      <button class="vx-install-tab" data-cmd='pip install "vectrix[turbo]"'>Rust 가속</button>
+      <button class="vx-install-tab" data-cmd='pip install "vectrix[ml]"'>ML 포함</button>
+      <button class="vx-install-tab" data-cmd='pip install "vectrix[all]"'>전체</button>
+    </div>
+    <div class="vx-install-cmd">
+      <span class="prompt">$</span>
+      <span class="cmd" id="installCmdKo">pip install vectrix</span>
+      <button class="copy-btn" onclick="navigator.clipboard.writeText(document.getElementById('installCmdKo').textContent)" title="복사">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+      </button>
+    </div>
+    <div class="vx-install-details">
+      <div class="vx-install-detail">
+        <strong>기본</strong> — NumPy + SciPy + Pandas. 30+ 모델 포함.
+      </div>
+      <div class="vx-install-detail">
+        <strong>Rust 가속</strong> — 5~10배 빠름. 사전 빌드 wheel 제공.
+      </div>
+      <div class="vx-install-detail">
+        <strong>ML</strong> — LightGBM + XGBoost + scikit-learn 모델 추가.
+      </div>
+      <div class="vx-install-detail">
+        <strong>전체</strong> — 모든 의존성 포함 (Rust + ML + Foundation).
+      </div>
+    </div>
+  </section>
+
   <!-- CTA -->
   <section class="vx-cta">
     <h2 class="vx-cta-title">예측을 시작할 준비가 되셨나요?</h2>
@@ -186,13 +271,96 @@
         커피 한잔 사주기
       </a>
     </div>
-    <div class="vx-footer-links">
-      <a href="https://pypi.org/project/vectrix/" target="_blank" rel="noopener">PyPI</a>
-      <a href="../api/easy/">API 레퍼런스</a>
-      <a href="../changelog/">변경 이력</a>
-      <a href="https://github.com/eddmpython/vectrix/blob/master/LICENSE" target="_blank" rel="noopener">MIT 라이선스</a>
-    </div>
   </section>
 
+  <!-- Footer -->
+  <footer class="vx-footer">
+    <div class="vx-footer-inner">
+      <div class="vx-footer-grid">
+        <div class="vx-footer-col">
+          <div class="vx-footer-brand">
+            <svg width="24" height="24" viewBox="0 0 32 32">
+              <defs><linearGradient id="fg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#06b6d4"/><stop offset="100%" style="stop-color:#8b5cf6"/></linearGradient></defs>
+              <rect width="32" height="32" rx="6" fill="#0f172a"/>
+              <path d="M6 22 L10 14 L14 18 L18 8 L22 16 L26 10" stroke="url(#fg)" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <strong>Vectrix</strong>
+          </div>
+          <p class="vx-footer-tagline">파이썬을 위한 제로 설정 시계열 예측.</p>
+          <div class="vx-footer-social">
+            <a href="https://github.com/eddmpython" target="_blank" rel="noopener" title="GitHub">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+            </a>
+            <a href="https://www.youtube.com/@eddmpython" target="_blank" rel="noopener" title="YouTube">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            </a>
+            <a href="https://www.threads.net/@eddmpython" target="_blank" rel="noopener" title="Threads">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.472 12.01v-.017c.03-3.579.879-6.43 2.525-8.482C5.845 1.205 8.6.024 12.18 0h.014c2.746.02 5.043.725 6.826 2.098 1.677 1.29 2.858 3.13 3.509 5.467l-2.04.569c-1.104-3.96-3.898-5.984-8.304-6.015-2.91.022-5.11.936-6.54 2.717C4.307 6.504 3.616 8.914 3.589 12c.027 3.086.718 5.496 2.057 7.164 1.43 1.783 3.631 2.698 6.54 2.717 2.623-.02 4.358-.631 5.8-2.045 1.647-1.613 1.618-3.593 1.09-4.798-.31-.71-.873-1.3-1.634-1.75-.192 1.352-.622 2.446-1.284 3.272-.886 1.102-2.14 1.704-3.73 1.79-1.202.065-2.361-.218-3.259-.801-1.063-.689-1.685-1.74-1.752-2.96-.065-1.19.408-2.285 1.33-3.082.88-.762 2.083-1.198 3.575-1.297 1.068-.07 2.065.008 2.986.232-.07-.805-.294-1.436-.672-1.876-.47-.547-1.186-.827-2.13-.834h-.07c-.735 0-1.717.22-2.34.96l-1.525-1.29C9.792 5.478 11.07 4.96 12.56 4.96h.09c1.413.016 2.534.49 3.328 1.408.718.833 1.134 1.974 1.244 3.393.498.152.96.344 1.382.576 1.09.6 1.932 1.46 2.443 2.476.8 1.587.868 4.27-1.207 6.3-1.764 1.727-3.976 2.564-7.16 2.593l-.295-.006zM12.7 13.386c-1.045.072-2.86.396-2.967 1.65-.043.51.194.955.667 1.261.567.367 1.32.525 2.12.484 1.074-.058 1.9-.457 2.455-1.187.377-.495.623-1.12.739-1.876-.97-.263-2-.38-3.014-.332z"/></svg>
+            </a>
+            <a href="https://eddm.tistory.com" target="_blank" rel="noopener" title="Tistory">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M5 4a3 3 0 100 6 3 3 0 000-6zm7 0a3 3 0 100 6 3 3 0 000-6zm7 0a3 3 0 100 6 3 3 0 000-6zM12 14a3 3 0 100 6 3 3 0 000-6z"/></svg>
+            </a>
+            <a href="mailto:eddmpython@gmail.com" title="Email">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </a>
+            <a href="https://buymeacoffee.com/eddmpython" target="_blank" rel="noopener" title="Buy Me a Coffee">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.216 6.415l-.132-.666c-.119-.598-.388-1.163-1.001-1.379-.197-.069-.42-.098-.57-.241-.152-.143-.196-.366-.231-.572-.065-.378-.125-.756-.192-1.133-.057-.325-.102-.69-.25-.987-.195-.4-.597-.634-.996-.788a5.723 5.723 0 00-.626-.194c-1-.263-2.05-.36-3.077-.416a25.834 25.834 0 00-3.7.062c-.915.083-1.88.184-2.75.5-.318.116-.646.256-.888.501-.297.302-.393.77-.177 1.146.154.267.415.456.692.58.36.162.737.284 1.123.366 1.075.238 2.189.331 3.287.37 1.218.05 2.437.01 3.65-.118.299-.033.598-.073.896-.119.352-.054.578-.513.474-.834-.124-.383-.457-.531-.834-.473-.466.074-.96.108-1.382.146-1.177.08-2.358.082-3.536.006a22.228 22.228 0 01-1.157-.107c-.086-.01-.18-.025-.258-.036-.243-.036-.484-.08-.724-.13-.111-.027-.111-.185 0-.212h.005c.277-.06.557-.108.838-.147h.002c.131-.009.263-.032.394-.048a25.076 25.076 0 013.426-.12c.674.019 1.347.062 2.014.13l.04.005a6.251 6.251 0 011.084.21c.115.038.228.08.34.127.227.095.352.32.275.56-.072.226-.267.39-.504.341a6.44 6.44 0 00-1.14-.173 24.796 24.796 0 00-4.109.035c-.653.056-1.302.145-1.942.273-.216.043-.373.218-.373.439 0 .468.556.741.948.6 1.08-.28 2.198-.402 3.313-.457.565-.028 1.131-.034 1.697-.016.395.013.791.044 1.183.095.072.009.149.021.197.072.016.016.029.047.017.066-.041.047-.167.07-.239.088a5.32 5.32 0 01-1.033.14c-.842.05-1.687.018-2.527-.072a14.612 14.612 0 01-.98-.148c-.164-.03-.186.193-.03.238.628.18 1.266.3 1.912.36.564.054 1.135.065 1.7.022a5.88 5.88 0 001.227-.2c.109-.038.17-.154.132-.263-.038-.108-.154-.17-.263-.132-.413.14-.844.217-1.279.248-.494.035-1.002.024-1.492-.029-.47-.05-.933-.138-1.387-.258v-.001a.476.476 0 01-.276-.24.477.477 0 01.035-.365.47.47 0 01.243-.22 15.16 15.16 0 011.576-.281c.891-.109 1.79-.141 2.684-.092.43.024.86.065 1.286.13.155.024.297.07.41.194.105.116.17.266.16.42-.014.21-.116.389-.275.52-.226.186-.52.287-.814.34-.728.133-1.474.123-2.21.053-.416-.04-.83-.1-1.24-.18-.14-.028-.254.092-.227.227.016.076.072.138.146.158.428.11.864.188 1.302.237.774.085 1.56.1 2.334-.01.284-.04.568-.103.829-.22.193-.088.367-.215.483-.395.15-.23.176-.517.104-.773-.085-.304-.302-.54-.58-.673z"/><path d="M7.834 13.625c.084 2.657 1.082 5.091 2.665 6.955.255.3.53.578.82.837 1.048.94 2.348 1.512 3.683 1.512 1.334 0 2.634-.573 3.682-1.512.29-.259.565-.537.82-.837 1.583-1.864 2.581-4.298 2.665-6.955H7.834z"/></svg>
+            </a>
+          </div>
+        </div>
+        <div class="vx-footer-col">
+          <h5>문서</h5>
+          <a href="../getting-started/installation/">설치 가이드</a>
+          <a href="../getting-started/quickstart/">빠른 시작</a>
+          <a href="../api/easy/">API 레퍼런스</a>
+          <a href="../guide/forecasting/">사용 가이드</a>
+          <a href="../tutorials/">튜토리얼</a>
+        </div>
+        <div class="vx-footer-col">
+          <h5>프로젝트</h5>
+          <a href="https://github.com/eddmpython/vectrix" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://pypi.org/project/vectrix/" target="_blank" rel="noopener">PyPI</a>
+          <a href="../changelog/">변경 이력</a>
+          <a href="../benchmarks/">벤치마크</a>
+          <a href="https://github.com/eddmpython/vectrix/issues" target="_blank" rel="noopener">이슈</a>
+        </div>
+        <div class="vx-footer-col">
+          <h5>eddmpython</h5>
+          <a href="https://github.com/eddmpython" target="_blank" rel="noopener">GitHub 프로필</a>
+          <a href="https://pypi.org/user/eddmpython/" target="_blank" rel="noopener">PyPI 프로필</a>
+          <a href="https://github.com/eddmpython/tradix" target="_blank" rel="noopener">tradix</a>
+          <a href="https://github.com/eddmpython/eddmPrint" target="_blank" rel="noopener">eddmPrint</a>
+        </div>
+        <div class="vx-footer-col">
+          <h5>소통</h5>
+          <a href="https://www.youtube.com/@eddmpython" target="_blank" rel="noopener">YouTube</a>
+          <a href="https://www.threads.net/@eddmpython" target="_blank" rel="noopener">Threads</a>
+          <a href="https://eddm.tistory.com" target="_blank" rel="noopener">Tistory 블로그</a>
+          <a href="mailto:eddmpython@gmail.com">이메일</a>
+          <a href="https://buymeacoffee.com/eddmpython" target="_blank" rel="noopener">Buy Me a Coffee</a>
+        </div>
+      </div>
+      <div class="vx-footer-bottom">
+        <span>MIT License &copy; 2026 eddmpython</span>
+        <span>Made with NumPy + SciPy + Pandas</span>
+      </div>
+    </div>
+  </footer>
+
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  var tabs = document.querySelectorAll("#installTabsKo .vx-install-tab");
+  var cmdEl = document.getElementById("installCmdKo");
+  if (!tabs.length || !cmdEl) return;
+  tabs.forEach(function(tab) {
+    tab.addEventListener("click", function() {
+      tabs.forEach(function(t) { t.classList.remove("active"); });
+      tab.classList.add("active");
+      cmdEl.textContent = tab.getAttribute("data-cmd");
+    });
+  });
+});
+</script>
 {% endblock %}
