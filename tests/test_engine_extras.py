@@ -99,18 +99,17 @@ class TestEventEffect:
     """이벤트/공휴일 효과 테스트"""
 
     def test_korean_holidays(self):
-        """한국 공휴일 목록 반환"""
         ee = EventEffect(holidays='kr')
         holidays = ee.getKoreanHolidays(2024)
         assert len(holidays) >= 8, \
-            f"최소 8개 공휴일 기대 (양력 8개 + 음력), 실제={len(holidays)}"
+            f"Expected at least 8 holidays, got {len(holidays)}"
         names = [h['name'] for h in holidays]
-        assert any('신정' in n for n in names), "신정이 포함되어야 함"
-        assert any('추석' in n for n in names), "추석이 포함되어야 함"
+        assert any('New Year' in n for n in names), "New Year should be included"
+        assert any('Chuseok' in n for n in names), "Chuseok should be included"
         for h in holidays:
-            assert 'name' in h, "공휴일에 'name' 키 기대"
-            assert 'date' in h, "공휴일에 'date' 키 기대"
-            assert 'type' in h, "공휴일에 'type' 키 기대"
+            assert 'name' in h
+            assert 'date' in h
+            assert 'type' in h
 
     def test_event_features_shape(self):
         """이벤트 특성 행렬 크기"""

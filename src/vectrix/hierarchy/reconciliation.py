@@ -1,10 +1,10 @@
 """
 Hierarchical Reconciliation Methods
 
-계층적 시계열 (예: 전국 → 지역 → 매장) 예측 조정.
+Hierarchical time series (e.g., national -> regional -> store) forecast reconciliation.
 
-S matrix: summing matrix (계층 구조 정의)
-y_tilde = S @ P @ y_hat  (조정된 예측)
+S matrix: summing matrix (defines hierarchical structure)
+y_tilde = S @ P @ y_hat  (reconciled forecasts)
 """
 
 from typing import Dict, List, Optional
@@ -16,8 +16,8 @@ class BottomUp:
     """
     Bottom-Up Reconciliation
 
-    하위 시계열 예측을 합산하여 상위 예측 생성.
-    가장 단순하고 안전한 방법.
+    Aggregates bottom-level forecasts to produce upper-level forecasts.
+    The simplest and safest method.
     """
 
     def reconcile(
@@ -29,14 +29,14 @@ class BottomUp:
         Parameters
         ----------
         bottomForecasts : np.ndarray
-            하위 시계열 예측 [nBottom, steps]
+            Bottom-level forecasts [nBottom, steps]
         summingMatrix : np.ndarray
-            합산 행렬 S [nTotal, nBottom]
+            Summing matrix S [nTotal, nBottom]
 
         Returns
         -------
         np.ndarray
-            조정된 전체 예측 [nTotal, steps]
+            Reconciled forecasts [nTotal, steps]
         """
         return summingMatrix @ bottomForecasts
 
@@ -45,11 +45,11 @@ class TopDown:
     """
     Top-Down Reconciliation
 
-    상위 예측을 비율에 따라 하위로 배분.
+    Distributes top-level forecasts to bottom levels by proportions.
 
     Methods:
-    - 'proportions': 과거 비율 기반
-    - 'forecast_proportions': 예측 비율 기반
+    - 'proportions': Based on historical proportions
+    - 'forecast_proportions': Based on forecast proportions
     """
 
     def __init__(self, method: str = 'proportions'):
@@ -65,16 +65,16 @@ class TopDown:
         Parameters
         ----------
         topForecast : np.ndarray
-            상위 예측 [steps]
+            Top-level forecast [steps]
         proportions : np.ndarray
-            배분 비율 [nBottom]
+            Distribution proportions [nBottom]
         summingMatrix : np.ndarray
-            합산 행렬 S [nTotal, nBottom]
+            Summing matrix S [nTotal, nBottom]
 
         Returns
         -------
         np.ndarray
-            조정된 전체 예측 [nTotal, steps]
+            Reconciled forecasts [nTotal, steps]
         """
         nBottom = len(proportions)
         steps = len(topForecast)
@@ -88,17 +88,17 @@ class TopDown:
     @staticmethod
     def computeProportions(historicalBottom: np.ndarray) -> np.ndarray:
         """
-        과거 데이터로 배분 비율 계산
+        Compute distribution proportions from historical data
 
         Parameters
         ----------
         historicalBottom : np.ndarray
-            하위 과거 데이터 [nBottom, T]
+            Historical bottom-level data [nBottom, T]
 
         Returns
         -------
         np.ndarray
-            비율 [nBottom]
+            Proportions [nBottom]
         """
         totals = np.sum(historicalBottom, axis=1)
         grandTotal = np.sum(totals)
@@ -111,12 +111,12 @@ class MinTrace:
     """
     MinTrace Reconciliation (Wickramasuriya et al., 2019)
 
-    최소 분산 조정으로 계층 전체의 예측 오차를 최소화.
+    Minimizes forecast error variance across the entire hierarchy.
 
     y_tilde = S @ (S'W^{-1}S)^{-1} S'W^{-1} @ y_hat
 
     Methods:
-    - 'ols': W = I (단위 행렬)
+    - 'ols': W = I (identity matrix)
     - 'wls': W = diag(residual variances)
     """
 
@@ -133,16 +133,16 @@ class MinTrace:
         Parameters
         ----------
         forecasts : np.ndarray
-            전체 (조정 전) 예측 [nTotal, steps]
+            Base (unreconciled) forecasts [nTotal, steps]
         summingMatrix : np.ndarray
-            합산 행렬 S [nTotal, nBottom]
+            Summing matrix S [nTotal, nBottom]
         residuals : np.ndarray, optional
-            잔차 [nTotal, T] (WLS에 필요)
+            Residuals [nTotal, T] (required for WLS)
 
         Returns
         -------
         np.ndarray
-            조정된 전체 예측 [nTotal, steps]
+            Reconciled forecasts [nTotal, steps]
         """
         S = summingMatrix
         nTotal, nBottom = S.shape
@@ -165,18 +165,18 @@ class MinTrace:
         structure: Dict[str, List[str]]
     ) -> np.ndarray:
         """
-        계층 구조에서 합산 행렬 S 생성
+        Build summing matrix S from hierarchical structure
 
         Parameters
         ----------
         structure : Dict[str, List[str]]
-            {상위노드: [하위노드들]}
-            예: {'total': ['A', 'B'], 'A': ['A1', 'A2'], 'B': ['B1', 'B2']}
+            {parent_node: [child_nodes]}
+            e.g., {'total': ['A', 'B'], 'A': ['A1', 'A2'], 'B': ['B1', 'B2']}
 
         Returns
         -------
         np.ndarray
-            합산 행렬 S
+            Summing matrix S
         """
         allNodes = set()
         bottomNodes = set()

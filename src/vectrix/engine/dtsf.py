@@ -1,13 +1,13 @@
 """
 Dynamic Time Scan Forecaster (DTSF)
 
-비모수 패턴 매칭 예측 모델.
-과거에서 현재와 가장 유사한 패턴을 찾아 그 후속값으로 예측.
+Non-parametric pattern matching forecasting model.
+Finds the most similar historical patterns to the current state and forecasts using their subsequent values.
 
-E031 실험 결과 → E041 스트레스 테스트 통과 → 엔진 통합.
-- 승률 38.2% (1위): 기존 엔진 대비 가장 높은 승률
-- 잔차 상관 0.1~0.5: 기존 모델과 근본적으로 다른 예측 원리
-- n >= 30 조건 (패턴 매칭에 충분한 이력 필요)
+E031 experiment result -> E041 stress test passed -> engine integration.
+- Win rate 38.2% (1st): highest win rate among existing engines
+- Residual correlation 0.1~0.5: fundamentally different forecasting principle from existing models
+- n >= 30 required (sufficient history for pattern matching)
 """
 
 from typing import Tuple
@@ -20,9 +20,9 @@ class DynamicTimeScanForecaster:
     """
     Dynamic Time Scan Forecaster
 
-    1. 현재 시점의 윈도우(query)와 과거 모든 윈도우 간 정규화된 유클리드 거리 계산
-    2. 가장 유사한 K개 패턴의 후속값 중앙값 = 예측
-    3. 시간 가중(timeDecay)으로 최근 패턴에 더 높은 가중치
+    1. Compute normalized Euclidean distance between current window (query) and all historical windows
+    2. Median of subsequent values from the K most similar patterns = forecast
+    3. Time weighting (timeDecay) gives higher weight to recent patterns
     """
 
     def __init__(self, windowSize=None, nNeighbors=5, normalize=True, timeDecay=0.001, computeResiduals=True):

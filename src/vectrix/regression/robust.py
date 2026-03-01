@@ -1,7 +1,7 @@
 """
 Robust Regression Models
 
-이상치에 강건한 회귀 모델:
+Outlier-robust regression models:
 - WLS (Weighted Least Squares)
 - HuberRegressor (IRLS)
 - RANSACRegressor
@@ -18,17 +18,17 @@ from scipy.optimize import linprog
 
 class WLSRegressor:
     """
-    가중 최소제곱법 (Weighted Least Squares)
+    Weighted Least Squares (WLS)
 
     beta = (X'WX)^{-1} X'Wy
 
-    가중치가 알려진 경우의 이분산성 보정.
-    가중치 w_i는 분산의 역수에 비례해야 함.
+    Heteroscedasticity correction when weights are known.
+    Weights w_i should be proportional to the inverse of variance.
 
     Parameters
     ----------
     fitIntercept : bool
-        절편 포함 여부 (기본값: True)
+        Whether to include intercept (default: True)
     """
 
     def __init__(self, fitIntercept: bool = True):
@@ -40,16 +40,16 @@ class WLSRegressor:
 
     def fit(self, X: np.ndarray, y: np.ndarray, weights: np.ndarray) -> 'WLSRegressor':
         """
-        가중 최소제곱법으로 회귀계수 추정
+        Estimate regression coefficients via weighted least squares
 
         Parameters
         ----------
         X : np.ndarray, shape (n, p)
-            설계 행렬
+            Design matrix
         y : np.ndarray, shape (n,)
-            반응변수
+            Response variable
         weights : np.ndarray, shape (n,)
-            양수 가중치. 분산의 역수에 비례.
+            Positive weights. Proportional to inverse of variance.
 
         Returns
         -------
@@ -57,14 +57,14 @@ class WLSRegressor:
         """
         n, p = X.shape
 
-        # 가중치 검증
+        # Validate weights
         weights = np.asarray(weights, dtype=float).ravel()
         if len(weights) != n:
-            raise ValueError(f"가중치 길이({len(weights)})가 표본 수({n})와 불일치")
+            raise ValueError(f"Weight length({len(weights)}) mismatches sample count({n})")
         if np.any(weights < 0):
-            raise ValueError("가중치는 모두 양수여야 합니다")
+            raise ValueError("All weights must be positive")
 
-        # 가중치 행렬 (대각)
+        # Weight matrix (diagonal)
         sqrtW = np.sqrt(weights)
 
         if self.fitIntercept:
@@ -72,7 +72,7 @@ class WLSRegressor:
         else:
             Xa = X.copy()
 
-        # W^{1/2} X, W^{1/2} y로 변환 후 OLS
+        # Transform to W^{1/2} X, W^{1/2} y then OLS
         Xw = Xa * sqrtW[:, np.newaxis]
         yw = y * sqrtW
 
@@ -96,19 +96,19 @@ class WLSRegressor:
         return self
 
     def predict(self, X: np.ndarray) -> np.ndarray:
-        """예측값 반환"""
+        """Return predictions"""
         if self.coef is None:
-            raise ValueError("모델이 아직 학습되지 않았습니다.")
+            raise ValueError("Model has not been fitted yet.")
         return X @ self.coef + self.intercept
 
     @property
     def residuals(self) -> Optional[np.ndarray]:
-        """학습 잔차"""
+        """Training residuals"""
         return self._residuals
 
     @property
     def fittedValues(self) -> Optional[np.ndarray]:
-        """학습 적합값"""
+        """Training fitted values"""
         return self._fittedValues
 
 
@@ -116,29 +116,29 @@ class HuberRegressor:
     """
     Huber M-estimation via IRLS (Iteratively Reweighted Least Squares)
 
-    Huber 손실 함수를 사용하여 이상치에 강건한 회귀 추정.
+    Outlier-robust regression estimation using the Huber loss function.
 
-    가중치 함수:
+    Weight function:
         w(e) = 1               if |e| <= epsilon * scale
         w(e) = epsilon / |e|   if |e| > epsilon * scale
 
-    반복 알고리즘:
-        1. OLS로 초기 beta 추정
-        2. 잔차 및 scale(MAD) 계산
-        3. Huber 가중치 계산
-        4. WLS 수행
-        5. 수렴까지 반복
+    Iterative algorithm:
+        1. Initial beta estimation via OLS
+        2. Compute residuals and scale (MAD)
+        3. Compute Huber weights
+        4. Perform WLS
+        5. Repeat until convergence
 
     Parameters
     ----------
     epsilon : float
-        Huber 함수의 경계값. 작을수록 이상치에 강건 (기본값: 1.35)
+        Huber function threshold. Smaller values are more robust (default: 1.35)
     maxIter : int
-        최대 반복 횟수 (기본값: 100)
+        Maximum iterations (default: 100)
     tol : float
-        수렴 허용 오차 (기본값: 1e-4)
+        Convergence tolerance (default: 1e-4)
     fitIntercept : bool
-        절편 포함 여부 (기본값: True)
+        Whether to include intercept (default: True)
     """
 
     def __init__(
@@ -161,14 +161,14 @@ class HuberRegressor:
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> 'HuberRegressor':
         """
-        IRLS 알고리즘으로 Huber 회귀 추정
+        Huber regression estimation via IRLS algorithm
 
         Parameters
         ----------
         X : np.ndarray, shape (n, p)
-            설계 행렬
+            Design matrix
         y : np.ndarray, shape (n,)
-            반응변수
+            Response variable
 
         Returns
         -------
@@ -183,7 +183,7 @@ class HuberRegressor:
 
         k = Xa.shape[1]
 
-        # Step 1: OLS 초기 추정
+        # Step 1: Initial OLS estimation
         try:
             beta = np.linalg.lstsq(Xa, y, rcond=None)[0]
         except np.linalg.LinAlgError:
@@ -194,15 +194,15 @@ class HuberRegressor:
         for iteration in range(self.maxIter):
             betaOld = beta.copy()
 
-            # Step 2: 잔차 계산
+            # Step 2: Compute residuals
             residuals = y - Xa @ beta
 
-            # Step 3: Scale 추정 (MAD)
+            # Step 3: Scale estimation (MAD)
             mad = np.median(np.abs(residuals - np.median(residuals)))
             scale = mad / 0.6745 if mad > 1e-15 else 1.0
             self.scale = scale
 
-            # Step 4: Huber 가중치 계산
+            # Step 4: Compute Huber weights
             scaledResid = np.abs(residuals) / scale
             weights = np.where(
                 scaledResid <= self.epsilon,
@@ -220,7 +220,7 @@ class HuberRegressor:
             except np.linalg.LinAlgError:
                 break
 
-            # 수렴 확인
+            # Check convergence
             if np.max(np.abs(beta - betaOld)) < self.tol:
                 self.nIter = iteration + 1
                 break
@@ -240,19 +240,19 @@ class HuberRegressor:
         return self
 
     def predict(self, X: np.ndarray) -> np.ndarray:
-        """예측값 반환"""
+        """Return predictions"""
         if self.coef is None:
-            raise ValueError("모델이 아직 학습되지 않았습니다.")
+            raise ValueError("Model has not been fitted yet.")
         return X @ self.coef + self.intercept
 
     @property
     def residuals(self) -> Optional[np.ndarray]:
-        """학습 잔차"""
+        """Training residuals"""
         return self._residuals
 
     @property
     def weights(self) -> Optional[np.ndarray]:
-        """최종 IRLS 가중치 (이상치일수록 작음)"""
+        """Final IRLS weights (smaller for outliers)"""
         return self._weights
 
 
@@ -260,27 +260,27 @@ class RANSACRegressor:
     """
     Random Sample Consensus (RANSAC)
 
-    랜덤 서브샘플링으로 이상치에 강건한 회귀 추정.
+    Outlier-robust regression via random subsampling.
 
-    알고리즘:
-        1. 랜덤으로 최소 샘플(p+1) 선택
-        2. 서브샘플로 OLS 학습
-        3. 인라이어 판별 (|residual| < threshold)
-        4. 인라이어 수가 최대인 모델 선택
-        5. 최종 인라이어로 재학습
+    Algorithm:
+        1. Randomly select minimum sample (p+1)
+        2. OLS on subsample
+        3. Determine inliers (|residual| < threshold)
+        4. Select model with maximum inlier count
+        5. Refit on final inliers
 
     Parameters
     ----------
     minSamples : int, optional
-        최소 서브샘플 크기. None이면 p + 1
+        Minimum subsample size. None defaults to p + 1
     residualThreshold : float, optional
-        인라이어 판별 임계값. None이면 MAD 기반 자동 계산
+        Inlier threshold. None uses MAD-based auto-computation
     maxTrials : int
-        최대 랜덤 시행 횟수 (기본값: 100)
+        Maximum random trials (default: 100)
     fitIntercept : bool
-        절편 포함 여부 (기본값: True)
+        Whether to include intercept (default: True)
     randomState : int, optional
-        난수 시드
+        Random seed
     """
 
     def __init__(
@@ -303,14 +303,14 @@ class RANSACRegressor:
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> 'RANSACRegressor':
         """
-        RANSAC 알고리즘으로 강건 회귀 추정
+        Robust regression estimation via RANSAC algorithm
 
         Parameters
         ----------
         X : np.ndarray, shape (n, p)
-            설계 행렬
+            Design matrix
         y : np.ndarray, shape (n,)
-            반응변수
+            Response variable
 
         Returns
         -------
@@ -319,20 +319,20 @@ class RANSACRegressor:
         n, p = X.shape
         rng = np.random.RandomState(self.randomState)
 
-        # 최소 샘플 크기 결정
+        # Determine minimum sample size
         minSamples = self.minSamples
         if minSamples is None:
             minSamples = p + 1 + (1 if self.fitIntercept else 0)
         minSamples = max(minSamples, p + 1)
 
         if minSamples >= n:
-            # 표본이 너무 적으면 일반 OLS
+            # Too few samples, fall back to OLS
             return self._fallbackOLS(X, y, n)
 
-        # 잔차 임계값 결정
+        # Determine residual threshold
         threshold = self.residualThreshold
         if threshold is None:
-            # MAD 기반: 전체 OLS 잔차의 MAD * 3
+            # MAD-based: full OLS residual MAD * 3
             try:
                 Xa = np.column_stack([np.ones(n), X]) if self.fitIntercept else X
                 betaInit = np.linalg.lstsq(Xa, y, rcond=None)[0]
@@ -351,12 +351,12 @@ class RANSACRegressor:
         bestBeta = None
 
         for trial in range(self.maxTrials):
-            # Step 1: 랜덤 서브샘플 선택
+            # Step 1: Random subsample selection
             sampleIdx = rng.choice(n, minSamples, replace=False)
             Xs = X[sampleIdx]
             ys = y[sampleIdx]
 
-            # Step 2: 서브샘플로 OLS
+            # Step 2: OLS on subsample
             if self.fitIntercept:
                 Xa = np.column_stack([np.ones(minSamples), Xs])
             else:
@@ -367,14 +367,14 @@ class RANSACRegressor:
             except np.linalg.LinAlgError:
                 continue
 
-            # Step 3: 전체 데이터에 대한 잔차 계산
+            # Step 3: Compute residuals on full data
             if self.fitIntercept:
                 XaFull = np.column_stack([np.ones(n), X])
             else:
                 XaFull = X
             residuals = np.abs(y - XaFull @ betaSample)
 
-            # Step 4: 인라이어 판별
+            # Step 4: Determine inliers
             inlierMask = residuals < threshold
             inlierCount = np.sum(inlierMask)
 
@@ -385,7 +385,7 @@ class RANSACRegressor:
 
         self.nTrials = self.maxTrials
 
-        # Step 5: 최종 인라이어로 재학습
+        # Step 5: Refit on final inliers
         if bestInlierCount >= minSamples and bestBeta is not None:
             Xinlier = X[bestInlierMask]
             yInlier = y[bestInlierMask]
@@ -403,7 +403,7 @@ class RANSACRegressor:
         elif bestBeta is not None:
             betaFinal = bestBeta
         else:
-            # 모든 시행 실패 → OLS fallback
+            # All trials failed -> OLS fallback
             return self._fallbackOLS(X, y, n)
 
         if self.fitIntercept:
@@ -417,13 +417,13 @@ class RANSACRegressor:
         return self
 
     def predict(self, X: np.ndarray) -> np.ndarray:
-        """예측값 반환"""
+        """Return predictions"""
         if self.coef is None:
-            raise ValueError("모델이 아직 학습되지 않았습니다.")
+            raise ValueError("Model has not been fitted yet.")
         return X @ self.coef + self.intercept
 
     def _fallbackOLS(self, X: np.ndarray, y: np.ndarray, n: int) -> 'RANSACRegressor':
-        """표본이 부족할 때 일반 OLS로 대체"""
+        """Fall back to OLS when samples are insufficient"""
         if self.fitIntercept:
             Xa = np.column_stack([np.ones(n), X])
         else:
@@ -449,30 +449,30 @@ class QuantileRegressor:
     """
     Quantile Regression
 
-    조건부 분위수를 추정하는 회귀 모델.
-    중위수 회귀(quantile=0.5)는 LAD(Least Absolute Deviations)와 동일.
+    Regression model that estimates conditional quantiles.
+    Median regression (quantile=0.5) is equivalent to LAD (Least Absolute Deviations).
 
     check function: rho_tau(u) = u * (tau - I(u < 0))
 
-    선형 계획법(Linear Programming)으로 해결:
+    Solved via Linear Programming:
         min sum rho_tau(y_i - x_i'beta)
       = min tau * u_plus + (1-tau) * u_minus
         s.t. Xa @ beta + u_plus - u_minus = y
              u_plus, u_minus >= 0
 
-    scipy.optimize.linprog 활용.
+    Uses scipy.optimize.linprog.
 
     Parameters
     ----------
     quantile : float
-        목표 분위수, 0 < quantile < 1 (기본값: 0.5)
+        Target quantile, 0 < quantile < 1 (default: 0.5)
     fitIntercept : bool
-        절편 포함 여부 (기본값: True)
+        Whether to include intercept (default: True)
     """
 
     def __init__(self, quantile: float = 0.5, fitIntercept: bool = True):
         if not 0 < quantile < 1:
-            raise ValueError(f"quantile은 (0, 1) 구간이어야 합니다: {quantile}")
+            raise ValueError(f"quantile must be in (0, 1): {quantile}")
         self.quantile = quantile
         self.fitIntercept = fitIntercept
         self.coef = None
@@ -481,14 +481,14 @@ class QuantileRegressor:
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> 'QuantileRegressor':
         """
-        선형 계획법으로 분위수 회귀 추정
+        Quantile regression estimation via linear programming
 
         Parameters
         ----------
         X : np.ndarray, shape (n, p)
-            설계 행렬
+            Design matrix
         y : np.ndarray, shape (n,)
-            반응변수
+            Response variable
 
         Returns
         -------
@@ -504,17 +504,17 @@ class QuantileRegressor:
 
         k = Xa.shape[1]
 
-        # LP 정식화:
-        # 변수: [beta (k), u_plus (n), u_minus (n)]
-        # 목적함수: 0'*beta + tau*1'*u_plus + (1-tau)*1'*u_minus
-        # 등식 제약: Xa*beta + I*u_plus - I*u_minus = y
-        # 비음 제약: u_plus >= 0, u_minus >= 0 (beta는 자유변수)
+        # LP formulation:
+        # Variables: [beta (k), u_plus (n), u_minus (n)]
+        # Objective: 0'*beta + tau*1'*u_plus + (1-tau)*1'*u_minus
+        # Equality constraint: Xa*beta + I*u_plus - I*u_minus = y
+        # Non-negativity: u_plus >= 0, u_minus >= 0 (beta is free)
 
-        # beta를 자유변수로 만들기 위해 beta = beta_plus - beta_minus로 분할
-        # 변수: [beta_plus (k), beta_minus (k), u_plus (n), u_minus (n)]
+        # Split beta = beta_plus - beta_minus to make it free
+        # Variables: [beta_plus (k), beta_minus (k), u_plus (n), u_minus (n)]
         nVars = 2 * k + 2 * n
 
-        # 목적함수 계수
+        # Objective function coefficients
         c = np.zeros(nVars)
         # beta_plus, beta_minus: 0
         # u_plus: tau
@@ -522,7 +522,7 @@ class QuantileRegressor:
         # u_minus: 1 - tau
         c[2 * k + n: 2 * k + 2 * n] = 1.0 - tau
 
-        # 등식 제약: Xa*(beta_plus - beta_minus) + I*u_plus - I*u_minus = y
+        # Equality constraint: Xa*(beta_plus - beta_minus) + I*u_plus - I*u_minus = y
         Aeq = np.zeros((n, nVars))
         Aeq[:, :k] = Xa           # beta_plus
         Aeq[:, k:2*k] = -Xa      # -beta_minus
@@ -530,7 +530,7 @@ class QuantileRegressor:
         Aeq[:, 2*k+n:2*k+2*n] = -np.eye(n) # -u_minus
         beq = y
 
-        # 모든 변수 >= 0
+        # All variables >= 0
         bounds = [(0, None)] * nVars
 
         try:
@@ -544,7 +544,7 @@ class QuantileRegressor:
                 betaMinus = result.x[k:2*k]
                 beta = betaPlus - betaMinus
             else:
-                # LP 실패 시 OLS 대체
+                # Fall back to OLS on LP failure
                 beta = self._fallbackOLS(Xa, y)
         except Exception:
             beta = self._fallbackOLS(Xa, y)
@@ -560,19 +560,19 @@ class QuantileRegressor:
         return self
 
     def predict(self, X: np.ndarray) -> np.ndarray:
-        """예측값 반환"""
+        """Return predictions"""
         if self.coef is None:
-            raise ValueError("모델이 아직 학습되지 않았습니다.")
+            raise ValueError("Model has not been fitted yet.")
         return X @ self.coef + self.intercept
 
     @property
     def residuals(self) -> Optional[np.ndarray]:
-        """학습 잔차"""
+        """Training residuals"""
         return self._residuals
 
     @staticmethod
     def _fallbackOLS(Xa: np.ndarray, y: np.ndarray) -> np.ndarray:
-        """LP 실패 시 OLS 대체"""
+        """Fall back to OLS on LP failure"""
         try:
             return np.linalg.lstsq(Xa, y, rcond=None)[0]
         except np.linalg.LinAlgError:

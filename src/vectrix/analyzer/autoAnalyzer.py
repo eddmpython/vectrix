@@ -1,7 +1,7 @@
 """
-AutoAnalyzer: 시계열 데이터 자동 분석기
+AutoAnalyzer: Automatic Time Series Data Analyzer
 
-데이터의 특성(추세, 계절성, 정상성, 변동성 등)을 자동으로 분석합니다.
+Automatically analyzes data characteristics (trend, seasonality, stationarity, volatility, etc.).
 """
 
 from typing import List, Tuple
@@ -14,9 +14,9 @@ from ..types import DataCharacteristics, Frequency
 
 class AutoAnalyzer:
     """
-    시계열 데이터 자동 분석기
+    Automatic Time Series Data Analyzer
 
-    데이터의 주기, 추세, 계절성, 정상성, 변동성 등을 자동으로 분석합니다.
+    Automatically analyzes frequency, trend, seasonality, stationarity, volatility, etc.
     """
 
     def analyze(
@@ -26,53 +26,53 @@ class AutoAnalyzer:
         valueCol: str
     ) -> DataCharacteristics:
         """
-        데이터 특성 종합 분석
+        Comprehensive data characteristics analysis
 
         Parameters
         ----------
         df : pd.DataFrame
-            시계열 데이터프레임
+            Time series DataFrame
         dateCol : str
-            날짜 컬럼명
+            Date column name
         valueCol : str
-            값 컬럼명
+            Value column name
 
         Returns
         -------
         DataCharacteristics
-            분석된 데이터 특성
+            Analyzed data characteristics
         """
         dates = pd.to_datetime(df[dateCol])
         values = df[valueCol].values.astype(float)
         n = len(values)
 
-        # 기본 정보
+        # Basic info
         freq, basePeriod = self._detectFrequency(dates)
         dateRange = (
             dates.iloc[0].strftime('%Y-%m-%d'),
             dates.iloc[-1].strftime('%Y-%m-%d')
         )
 
-        # 계절성 분석
+        # Seasonality analysis
         seasonalPeriods = self._detectSeasonalPeriods(values, freq, basePeriod)
         hasSeasonality, seasonalStrength = self._analyzeSeasonality(
             values, seasonalPeriods[0] if seasonalPeriods else basePeriod
         )
 
-        # 추세 분석
+        # Trend analysis
         hasTrend, trendDirection, trendStrength = self._analyzeTrend(values)
 
-        # 정상성 검정
+        # Stationarity test
         isStationary = self._checkStationarity(values)
 
-        # 변동성 분석
+        # Volatility analysis
         volatility, volatilityLevel = self._analyzeVolatility(values)
 
-        # 품질 분석
+        # Quality analysis
         missingRatio = df[valueCol].isna().sum() / n * 100
         outlierCount, outlierRatio = self._detectOutliers(values)
 
-        # 예측 가능성 점수
+        # Predictability score
         predictabilityScore = self._calculatePredictability(
             hasSeasonality, seasonalStrength,
             hasTrend, trendStrength,
@@ -101,7 +101,7 @@ class AutoAnalyzer:
         )
 
     def _detectFrequency(self, dates: pd.Series) -> Tuple[Frequency, int]:
-        """날짜 간격으로 데이터 주기 감지"""
+        """Detect data frequency from date intervals"""
         if len(dates) < 2:
             return Frequency.DAILY, 7
 
@@ -127,7 +127,7 @@ class AutoAnalyzer:
         freq: Frequency,
         basePeriod: int
     ) -> List[int]:
-        """FFT 기반 계절 주기 감지"""
+        """FFT-based seasonal period detection"""
         n = len(values)
 
         if n < 20:
@@ -136,7 +136,7 @@ class AutoAnalyzer:
         periods = []
 
         try:
-            # 추세 제거
+            # Detrend
             detrended = values - np.linspace(values[0], values[-1], n)
 
             # FFT
@@ -145,7 +145,7 @@ class AutoAnalyzer:
             magnitudes[0] = 0
             magnitudes[n // 2:] = 0
 
-            # 유의한 주파수 탐지
+            # Detect significant frequencies
             threshold = np.mean(magnitudes) + 2 * np.std(magnitudes)
 
             for i in range(1, min(n // 2, 100)):
@@ -159,7 +159,7 @@ class AutoAnalyzer:
         except Exception:
             pass
 
-        # 기본 주기 추가
+        # Add default periods
         if not periods:
             defaultPeriods = {
                 Frequency.DAILY: [7],
@@ -178,14 +178,14 @@ class AutoAnalyzer:
         values: np.ndarray,
         period: int
     ) -> Tuple[bool, float]:
-        """계절성 분석"""
+        """Seasonality analysis"""
         n = len(values)
 
         if n < period * 2:
             return False, 0.0
 
         try:
-            # 주기별 평균 계산
+            # Compute per-period means
             seasonalMeans = []
             for i in range(period):
                 indices = list(range(i, n, period))
@@ -210,14 +210,14 @@ class AutoAnalyzer:
             return False, 0.0
 
     def _analyzeTrend(self, values: np.ndarray) -> Tuple[bool, str, float]:
-        """추세 분석 — O(n) 선형회귀 + t-검정 (Mann-Kendall O(n²) 대체)"""
+        """Trend analysis - O(n) linear regression + t-test (replaces Mann-Kendall O(n^2))"""
         n = len(values)
 
         if n < 10:
             return False, "none", 0.0
 
         try:
-            # O(n) 선형회귀 t-검정
+            # O(n) linear regression t-test
             x = np.arange(n, dtype=np.float64)
             xMean = (n - 1) / 2.0
             yMean = np.mean(values)
@@ -239,7 +239,7 @@ class AutoAnalyzer:
 
             tStat = slope / seSlope
 
-            # 추세 방향
+            # Trend direction
             if tStat > 1.96:
                 direction = "up"
             elif tStat < -1.96:
@@ -247,10 +247,10 @@ class AutoAnalyzer:
             else:
                 direction = "none"
 
-            # 추세 강도 (0 ~ 1)
+            # Trend strength (0 ~ 1)
             strength = min(abs(tStat) / 3.0, 1.0)
 
-            # 정상성 확인
+            # Stationarity check
             hasTrend = abs(tStat) > 1.96 or not self._checkStationarity(values)
 
             return hasTrend, direction, strength
@@ -300,15 +300,15 @@ class AutoAnalyzer:
             return False
 
     def _analyzeVolatility(self, values: np.ndarray) -> Tuple[float, str]:
-        """변동성 분석"""
+        """Volatility analysis"""
         if len(values) < 2:
             return 0.0, "normal"
 
-        # 수익률 기반 변동성
+        # Return-based volatility
         returns = np.diff(values) / (np.abs(values[:-1]) + 1e-10)
         volatility = float(np.std(returns))
 
-        # 변동성 수준 판단
+        # Volatility level classification
         if volatility > 0.3:
             level = "high"
         elif volatility > 0.1:
@@ -319,7 +319,7 @@ class AutoAnalyzer:
         return volatility, level
 
     def _detectOutliers(self, values: np.ndarray) -> Tuple[int, float]:
-        """이상치 탐지 (IQR 방법)"""
+        """Outlier detection (IQR method)"""
         if len(values) < 4:
             return 0, 0.0
 
@@ -346,18 +346,18 @@ class AutoAnalyzer:
         dataLength: int,
         missingRatio: float
     ) -> float:
-        """예측 가능성 점수 계산 (0 ~ 100)"""
+        """Calculate predictability score (0 ~ 100)"""
         score = 50.0
 
-        # 계절성 보너스
+        # Seasonality bonus
         if hasSeasonality:
             score += seasonalStrength * 20
 
-        # 추세 보너스
+        # Trend bonus
         if hasTrend:
             score += trendStrength * 10
 
-        # 데이터 길이 보너스
+        # Data length bonus
         if dataLength >= 100:
             score += 15
         elif dataLength >= 50:
@@ -367,13 +367,13 @@ class AutoAnalyzer:
         elif dataLength < 20:
             score -= 15
 
-        # 변동성 페널티
+        # Volatility penalty
         if volatility > 0.3:
             score -= 15
         elif volatility > 0.2:
             score -= 10
 
-        # 결측치 페널티
+        # Missing value penalty
         if missingRatio > 10:
             score -= 20
         elif missingRatio > 5:
@@ -383,19 +383,19 @@ class AutoAnalyzer:
 
     def quickAnalyze(self, values: np.ndarray, period: int = 7) -> dict:
         """
-        빠른 분석 (DataFrame 없이 값만으로)
+        Quick analysis (values only, without DataFrame)
 
         Parameters
         ----------
         values : np.ndarray
-            시계열 값
+            Time series values
         period : int
-            예상 주기
+            Expected period
 
         Returns
         -------
         dict
-            간단한 분석 결과
+            Simple analysis results
         """
         n = len(values)
 

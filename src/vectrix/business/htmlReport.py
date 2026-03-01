@@ -1,11 +1,11 @@
-"""자체 포함 HTML 예측 보고서"""
+"""Self-contained HTML forecast report"""
 from datetime import datetime
 
 import numpy as np
 
 
 class HTMLReportGenerator:
-    """CDN 없이 완전 자체 포함 HTML 보고서 생성"""
+    """Generates fully self-contained HTML reports without CDN"""
 
     def generate(
         self,
@@ -15,10 +15,10 @@ class HTMLReportGenerator:
         upper95: np.ndarray,
         modelName: str = "Auto",
         dates: list = None,
-        title: str = "Vectrix 예측 보고서",
+        title: str = "Vectrix Forecast Report",
         outputPath: str = "report.html",
     ) -> str:
-        """HTML 보고서 생성 후 파일 경로 반환"""
+        """Generate HTML report and return file path"""
 
         sections = []
         sections.append(self._overviewCard(historicalData, predictions, modelName))
@@ -41,33 +41,33 @@ class HTMLReportGenerator:
 
         return f'''
         <div class="card">
-            <h2>개요</h2>
+            <h2>Overview</h2>
             <div class="metrics-row">
                 <div class="metric">
                     <div class="value">{modelName}</div>
-                    <div class="label">최적 모델</div>
+                    <div class="label">Best Model</div>
                 </div>
                 <div class="metric">
                     <div class="value">{len(predictions)}</div>
-                    <div class="label">예측 기간</div>
+                    <div class="label">Forecast Horizon</div>
                 </div>
                 <div class="metric">
                     <div class="value">{mean:,.1f}</div>
-                    <div class="label">예측 평균</div>
+                    <div class="label">Forecast Mean</div>
                 </div>
                 <div class="metric">
                     <div class="value" style="color:{changeColor}">{changeArrow} {abs(change):.1f}%</div>
-                    <div class="label">변화율</div>
+                    <div class="label">Change Rate</div>
                 </div>
                 <div class="metric">
                     <div class="value">{std:,.1f}</div>
-                    <div class="label">예측 표준편차</div>
+                    <div class="label">Forecast Std Dev</div>
                 </div>
             </div>
         </div>'''
 
     def _forecastChart(self, historical, predictions, lower, upper, modelName):
-        """matplotlib -> SVG 인라인"""
+        """matplotlib -> inline SVG"""
         try:
             import matplotlib
             matplotlib.use('Agg')
@@ -80,14 +80,14 @@ class HTMLReportGenerator:
             nHist = len(historical)
             nPred = len(predictions)
 
-            ax.plot(range(nHist), historical, color='#2c3e50', linewidth=1.2, label='실측')
+            ax.plot(range(nHist), historical, color='#2c3e50', linewidth=1.2, label='Actual')
             predX = range(nHist, nHist + nPred)
-            ax.plot(predX, predictions, color='#e74c3c', linewidth=2, label=f'예측 ({modelName})')
+            ax.plot(predX, predictions, color='#e74c3c', linewidth=2, label=f'Forecast ({modelName})')
             ax.fill_between(predX, lower, upper, color='#e74c3c', alpha=0.15, label='95% CI')
             ax.axvline(x=nHist - 0.5, color='#95a5a6', linestyle='--', alpha=0.5)
             ax.legend(loc='upper left')
             ax.grid(True, alpha=0.3)
-            ax.set_title('시계열 예측 결과', fontsize=14, fontweight='bold')
+            ax.set_title('Time Series Forecast', fontsize=14, fontweight='bold')
             plt.tight_layout()
 
             buf = io.BytesIO()
@@ -95,9 +95,9 @@ class HTMLReportGenerator:
             plt.close(fig)
             svgStr = buf.getvalue().decode('utf-8')
 
-            return f'<div class="card"><h2>예측 그래프</h2>{svgStr}</div>'
+            return f'<div class="card"><h2>Forecast Chart</h2>{svgStr}</div>'
         except ImportError:
-            return '<div class="card"><h2>예측 그래프</h2><p>matplotlib 미설치 — 그래프 생략</p></div>'
+            return '<div class="card"><h2>Forecast Chart</h2><p>matplotlib not installed — chart omitted</p></div>'
 
     def _metricsTable(self, historical, predictions):
         histMean = float(np.mean(historical))
@@ -108,13 +108,13 @@ class HTMLReportGenerator:
 
         return f'''
         <div class="card">
-            <h2>주요 지표</h2>
+            <h2>Key Metrics</h2>
             <table>
-                <tr><th>지표</th><th>과거</th><th>예측</th></tr>
-                <tr><td>평균</td><td>{histMean:,.2f}</td><td>{predMean:,.2f}</td></tr>
-                <tr><td>표준편차</td><td>{histStd:,.2f}</td><td>{float(np.std(predictions)):,.2f}</td></tr>
-                <tr><td>최솟값</td><td>{float(np.min(historical)):,.2f}</td><td>{predMin:,.2f}</td></tr>
-                <tr><td>최댓값</td><td>{float(np.max(historical)):,.2f}</td><td>{predMax:,.2f}</td></tr>
+                <tr><th>Metric</th><th>Historical</th><th>Forecast</th></tr>
+                <tr><td>Mean</td><td>{histMean:,.2f}</td><td>{predMean:,.2f}</td></tr>
+                <tr><td>Std Dev</td><td>{histStd:,.2f}</td><td>{float(np.std(predictions)):,.2f}</td></tr>
+                <tr><td>Min</td><td>{float(np.min(historical)):,.2f}</td><td>{predMin:,.2f}</td></tr>
+                <tr><td>Max</td><td>{float(np.max(historical)):,.2f}</td><td>{predMax:,.2f}</td></tr>
             </table>
         </div>'''
 
@@ -130,9 +130,9 @@ class HTMLReportGenerator:
 
         return f'''
         <div class="card">
-            <h2>예측 데이터</h2>
+            <h2>Forecast Data</h2>
             <table>
-                <tr><th>날짜</th><th>예측</th><th>하한 (95%)</th><th>상한 (95%)</th></tr>
+                <tr><th>Date</th><th>Forecast</th><th>Lower (95%)</th><th>Upper (95%)</th></tr>
                 {tableRows}
             </table>
         </div>'''
@@ -140,7 +140,7 @@ class HTMLReportGenerator:
     def _assemble(self, title, sections):
         body = '\n'.join(sections)
         return f'''<!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>{title}</title>
@@ -164,7 +164,7 @@ svg {{ width: 100%; height: auto; }}
 </head>
 <body>
 <h1>{title}</h1>
-<p class="subtitle">생성: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | Vectrix v3.0.0</p>
+<p class="subtitle">Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | Vectrix v3.0.0</p>
 {body}
 </body>
 </html>'''

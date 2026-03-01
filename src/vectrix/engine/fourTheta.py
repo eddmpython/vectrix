@@ -1,11 +1,11 @@
 """
 Adaptive Theta Ensemble (4Theta)
 
-4개 theta line (θ=0,1,2,3)을 각각 독립 예측 후 holdout sMAPE 기반 가중 결합.
-M4 Competition 3위 방법론의 확장.
+Independent forecasts from 4 theta lines (theta=0,1,2,3) with holdout sMAPE-based weighted combination.
+Extension of the M4 Competition 3rd place methodology.
 
-E034 실험 결과 → E041 스트레스 테스트 통과 → 엔진 통합.
-- 평균 순위 2.73 (1위): mstl(3.27) 초과
+E034 experiment result -> E041 stress test passed -> engine integration.
+- Average rank 2.73 (1st): exceeds mstl(3.27)
 - Safety 100%, Seed CV < 20%, Speed 53ms (n=1000)
 """
 
@@ -54,12 +54,12 @@ def _linearRegression(x: np.ndarray, y: np.ndarray) -> Tuple[float, float]:
 
 class AdaptiveThetaEnsemble:
     """
-    4Theta: 다중 Theta Line 앙상블
+    4Theta: Multi Theta Line Ensemble
 
-    θ=0 (순수 추세), θ=1 (원본), θ=2 (곡률 2배), θ=3 (곡률 3배)을
-    각각 SES로 적합하고 holdout sMAPE 역수로 가중 결합.
+    Fits theta=0 (pure trend), theta=1 (original), theta=2 (2x curvature), theta=3 (3x curvature)
+    with SES and combines using inverse holdout sMAPE weights.
 
-    자동 계절 분해 (multiplicative/additive) 포함.
+    Includes automatic seasonal decomposition (multiplicative/additive).
     """
 
     def __init__(self, thetaValues=None, period=None, holdoutRatio=0.15):

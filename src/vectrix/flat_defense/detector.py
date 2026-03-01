@@ -1,7 +1,7 @@
 """
-Level 3: 일직선 예측 감지
+Level 3: Flat prediction detection
 
-예측 수행 후 결과가 일직선인지 감지합니다.
+Detects whether prediction results are flat after forecasting.
 """
 
 from typing import Optional
@@ -13,9 +13,9 @@ from ..types import FlatPredictionInfo, FlatPredictionType
 
 class FlatPredictionDetector:
     """
-    일직선 예측 감지기
+    Flat prediction detector
 
-    예측 결과를 분석하여 일직선(수평, 대각선, 평균 수렴)인지 판단합니다.
+    Analyzes prediction results to determine if they are flat (horizontal, diagonal, mean reversion).
     """
 
     def __init__(
@@ -28,11 +28,11 @@ class FlatPredictionDetector:
         Parameters
         ----------
         horizontalThreshold : float
-            수평 일직선 판단 임계값 (예측 std / 원본 std)
+            Horizontal flat threshold (prediction std / original std)
         diagonalThreshold : float
-            대각선 일직선 판단 임계값 (차분의 분산)
+            Diagonal flat threshold (variance of differences)
         varianceThreshold : float
-            상대 분산 임계값
+            Relative variance threshold
         """
         self.horizontalThreshold = horizontalThreshold
         self.diagonalThreshold = diagonalThreshold
@@ -45,27 +45,27 @@ class FlatPredictionDetector:
         originalStd: Optional[float] = None
     ) -> FlatPredictionInfo:
         """
-        일직선 예측 감지
+        Detect flat predictions
 
         Parameters
         ----------
         predictions : np.ndarray
-            예측값
+            Predicted values
         originalData : np.ndarray
-            원본 데이터
+            Original data
         originalStd : float, optional
-            원본 데이터 표준편차 (없으면 계산)
+            Original data standard deviation (calculated if not provided)
 
         Returns
         -------
         FlatPredictionInfo
-            감지 결과
+            Detection result
         """
         if len(predictions) < 3:
             return FlatPredictionInfo(
                 isFlat=False,
                 flatType=FlatPredictionType.NONE,
-                message='예측 길이가 너무 짧아 감지 불가'
+                message='Prediction length too short for detection'
             )
 
         if originalStd is None:
@@ -75,7 +75,7 @@ class FlatPredictionDetector:
         predVar = np.var(predictions)
         predMean = np.mean(np.abs(predictions))
 
-        # 수평 일직선 감지
+        # Horizontal flat detection
         if originalStd > 0:
             stdRatio = predStd / originalStd
             if stdRatio < self.horizontalThreshold:
@@ -85,11 +85,11 @@ class FlatPredictionDetector:
                     predictionStd=predStd,
                     originalStd=originalStd,
                     stdRatio=stdRatio,
-                    message='수평 일직선 예측 감지: 모델이 계절성/변동을 감지하지 못함',
-                    suggestion='Seasonal Naive 또는 MSTL 모델 사용 권장'
+                    message='Horizontal flat prediction detected: model failed to capture seasonality/variation',
+                    suggestion='Consider using Seasonal Naive or MSTL model'
                 )
 
-        # 상대 분산으로 수평 일직선 감지
+        # Horizontal flat detection via relative variance
         if predMean > 0:
             relativeVar = predVar / (predMean ** 2)
             if relativeVar < self.varianceThreshold:
@@ -99,11 +99,11 @@ class FlatPredictionDetector:
                     predictionStd=predStd,
                     originalStd=originalStd,
                     varianceRatio=relativeVar,
-                    message='수평 일직선 예측 감지: 예측값이 거의 변하지 않음',
-                    suggestion='계절 패턴 강제 주입 권장'
+                    message='Horizontal flat prediction detected: predictions barely change',
+                    suggestion='Consider forced seasonal pattern injection'
                 )
 
-        # 대각선 일직선 감지 (일정한 기울기)
+        # Diagonal flat detection (constant slope)
         diffs = np.diff(predictions)
         diffVar = np.var(diffs)
 
@@ -114,11 +114,11 @@ class FlatPredictionDetector:
                 predictionStd=predStd,
                 originalStd=originalStd,
                 varianceRatio=diffVar,
-                message='대각선 일직선 예측 감지: 추세만 반영되고 계절성 미감지',
-                suggestion='계절 변동 추가 권장'
+                message='Diagonal flat prediction detected: only trend captured, no seasonality',
+                suggestion='Consider adding seasonal variation'
             )
 
-        # 평균 수렴 감지 (장기 예측에서 변동 감소)
+        # Mean reversion detection (variation decrease in long-horizon forecasts)
         if len(predictions) >= 10:
             firstHalfStd = np.std(predictions[:len(predictions)//2])
             secondHalfStd = np.std(predictions[len(predictions)//2:])
@@ -130,8 +130,8 @@ class FlatPredictionDetector:
                     predictionStd=predStd,
                     originalStd=originalStd,
                     stdRatio=secondHalfStd / firstHalfStd,
-                    message='평균 수렴 예측 감지: 장기 예측에서 변동이 급감',
-                    suggestion='예측 기간 단축 또는 불확실성 확대 권장'
+                    message='Mean reversion detected: variation drops sharply in long-horizon forecast',
+                    suggestion='Consider shortening forecast horizon or expanding uncertainty'
                 )
 
         return FlatPredictionInfo(
@@ -148,19 +148,19 @@ class FlatPredictionDetector:
         originalData: np.ndarray
     ) -> dict:
         """
-        여러 모델의 예측 결과 일괄 감지
+        Batch detection of multiple model predictions
 
         Parameters
         ----------
         modelPredictions : dict
-            {모델ID: 예측값} 딕셔너리
+            {modelID: predictions} dictionary
         originalData : np.ndarray
-            원본 데이터
+            Original data
 
         Returns
         -------
         dict
-            {모델ID: FlatPredictionInfo} 딕셔너리
+            {modelID: FlatPredictionInfo} dictionary
         """
         originalStd = np.std(originalData)
         results = {}
@@ -171,7 +171,7 @@ class FlatPredictionDetector:
         return results
 
     def getFlatModels(self, detectionResults: dict) -> list:
-        """일직선 예측을 생성한 모델 목록 반환"""
+        """Return list of models that produced flat predictions"""
         return [
             modelId
             for modelId, info in detectionResults.items()
@@ -179,7 +179,7 @@ class FlatPredictionDetector:
         ]
 
     def getValidModels(self, detectionResults: dict) -> list:
-        """유효한 예측을 생성한 모델 목록 반환"""
+        """Return list of models that produced valid predictions"""
         return [
             modelId
             for modelId, info in detectionResults.items()

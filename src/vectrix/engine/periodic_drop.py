@@ -1,12 +1,12 @@
 """
-정기 드롭 패턴 감지 및 처리
+Periodic Drop Pattern Detection and Handling
 
-E009 실험 결과: 61.3% 개선 (5.87% → 2.27%)
+E009 experiment result: 61.3% improvement (5.87% -> 2.27%)
 
-사용 사례:
-- 제조 공장 정기 점검 (90일 주기 1주일 가동 중단)
-- 시스템 유지보수 윈도우
-- 정기적으로 반복되는 저하 패턴
+Use cases:
+- Manufacturing plant scheduled maintenance (90-day cycle, 1-week shutdown)
+- System maintenance windows
+- Regularly recurring degradation patterns
 """
 
 from typing import List, Optional, Tuple
@@ -16,20 +16,20 @@ import numpy as np
 
 class PeriodicDropDetector:
     """
-    정기 드롭 패턴 감지 및 처리
+    Periodic drop pattern detection and handling
 
-    알고리즘:
-    1. 이동평균 대비 급락 구간 감지
-    2. 드롭 구간의 주기성 분석
-    3. 드롭 구간을 선형 보간으로 대체 (학습용)
-    4. 예측값에 드롭 패턴 재적용
+    Algorithm:
+    1. Detect sharp decline segments relative to moving average
+    2. Analyze periodicity of drop segments
+    3. Replace drop segments with linear interpolation (for training)
+    4. Reapply drop pattern to forecast values
     """
 
     def __init__(self, minDropRatio: float = 0.8, minDropDuration: int = 3):
         """
         Args:
-            minDropRatio: 이동평균 대비 이 비율 미만이면 드롭으로 판정 (0.8 = 20% 하락)
-            minDropDuration: 최소 연속 드롭 일수
+            minDropRatio: Classified as drop when below this ratio relative to moving average (0.8 = 20% decline)
+            minDropDuration: Minimum consecutive drop days
         """
         self.minDropRatio = minDropRatio
         self.minDropDuration = minDropDuration
@@ -40,7 +40,7 @@ class PeriodicDropDetector:
 
     def detect(self, y: np.ndarray) -> bool:
         """
-        드롭 패턴 감지
+        Detect drop patterns
 
         Returns:
             True if periodic drop pattern detected
@@ -106,7 +106,7 @@ class PeriodicDropDetector:
         return False
 
     def removeDrops(self, y: np.ndarray) -> np.ndarray:
-        """드롭 구간을 선형 보간으로 대체"""
+        """Replace drop segments with linear interpolation"""
         result = y.copy()
 
         for start, end in self.detectedDrops:
@@ -121,7 +121,7 @@ class PeriodicDropDetector:
         return result
 
     def applyDropPattern(self, predictions: np.ndarray, startIdx: int) -> np.ndarray:
-        """예측값에 드롭 패턴 적용"""
+        """Apply drop pattern to forecast values"""
         if self.dropPeriod is None or self.dropRatio is None:
             return predictions
 
@@ -143,15 +143,15 @@ class PeriodicDropDetector:
         return result
 
     def hasPeriodicDrop(self) -> bool:
-        """정기 드롭 패턴이 감지되었는지 확인"""
+        """Check if periodic drop pattern was detected"""
         return self.dropPeriod is not None and self.dropRatio is not None
 
     def willDropOccurInPrediction(self, trainLength: int, predSteps: int) -> Tuple[bool, int]:
         """
-        예측 구간에 드롭이 발생할지 계산
+        Calculate whether a drop will occur in the forecast horizon
 
         Returns:
-            (발생 여부, 첫 드롭 시작 offset)
+            (whether it occurs, first drop start offset)
         """
         if not self.hasPeriodicDrop() or not self.detectedDrops:
             return False, -1
@@ -172,9 +172,9 @@ class PeriodicDropDetector:
 
     def applyDropPatternSmart(self, predictions: np.ndarray, trainLength: int) -> np.ndarray:
         """
-        예측 구간에 드롭이 발생할 때만 패턴 적용
+        Apply drop pattern only when a drop will occur in the forecast horizon
 
-        기존 applyDropPattern과 달리, 예측 구간 내 드롭 발생 여부를 먼저 확인
+        Unlike applyDropPattern, first checks whether a drop occurs within the forecast period
         """
         willOccur, firstOffset = self.willDropOccurInPrediction(trainLength, len(predictions))
 

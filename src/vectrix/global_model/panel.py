@@ -1,10 +1,10 @@
 """
 Panel Data Handler
 
-다중 시계열 DataFrame 관리:
-- Long format (id, date, value) 변환
-- Wide format (date x series) 변환
-- 시계열별 접근
+Multi-series DataFrame management:
+- Long format (id, date, value) conversion
+- Wide format (date x series) conversion
+- Per-series access
 """
 
 from typing import Dict, List, Optional
@@ -37,18 +37,18 @@ class PanelData:
         valueCol: str
     ) -> 'PanelData':
         """
-        Long format DataFrame에서 PanelData 생성
+        Create PanelData from a long format DataFrame
 
         Parameters
         ----------
         df : pd.DataFrame
             Long format (id, date, value per row)
         idCol : str
-            시계열 ID 컬럼
+            Series ID column
         dateCol : str
-            날짜 컬럼
+            Date column
         valueCol : str
-            값 컬럼
+            Value column
         """
         panel = cls()
         df = df.copy()
@@ -71,16 +71,16 @@ class PanelData:
         valueCols: Optional[List[str]] = None
     ) -> 'PanelData':
         """
-        Wide format DataFrame에서 PanelData 생성
+        Create PanelData from a wide format DataFrame
 
         Parameters
         ----------
         df : pd.DataFrame
             Wide format (date x series columns)
         dateCol : str
-            날짜 컬럼
+            Date column
         valueCols : List[str], optional
-            값 컬럼들. None이면 dateCol 외 모든 컬럼.
+            Value columns. If None, all columns except dateCol.
         """
         panel = cls()
         df = df.copy()
@@ -101,7 +101,7 @@ class PanelData:
 
     @classmethod
     def fromDict(cls, data: Dict[str, np.ndarray]) -> 'PanelData':
-        """Dict에서 PanelData 생성"""
+        """Create PanelData from a dict"""
         panel = cls()
         for name, values in data.items():
             panel.seriesData[name] = np.asarray(values, dtype=np.float64)
@@ -109,17 +109,17 @@ class PanelData:
         return panel
 
     def toDict(self) -> Dict[str, np.ndarray]:
-        """모든 시계열을 Dict로 반환"""
+        """Return all series as a dict"""
         return dict(self.seriesData)
 
     def getSeries(self, name: str) -> np.ndarray:
-        """특정 시계열 반환"""
+        """Return a specific series"""
         if name not in self.seriesData:
             raise KeyError(f"Series '{name}' not found. Available: {self.seriesNames}")
         return self.seriesData[name]
 
     def getDates(self, name: str) -> Optional[np.ndarray]:
-        """특정 시계열의 날짜 반환"""
+        """Return dates for a specific series"""
         return self.seriesDates.get(name)
 
     @property
@@ -131,7 +131,7 @@ class PanelData:
         return {name: len(data) for name, data in self.seriesData.items()}
 
     def summary(self) -> Dict[str, Dict]:
-        """패널 데이터 요약"""
+        """Panel data summary"""
         result = {}
         for name, data in self.seriesData.items():
             result[name] = {

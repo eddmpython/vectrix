@@ -1,5 +1,5 @@
 """
-데이터 분석 모듈
+Data Analysis Module
 """
 
 from .autoAnalyzer import AutoAnalyzer

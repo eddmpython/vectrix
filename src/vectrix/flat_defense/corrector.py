@@ -1,7 +1,7 @@
 """
-Level 3-4: 일직선 예측 보정
+Level 3-4: Flat prediction correction
 
-일직선 예측 감지시 지능적으로 보정합니다.
+Intelligently corrects predictions when flat patterns are detected.
 """
 
 from typing import Optional, Tuple
@@ -13,27 +13,27 @@ from ..types import FlatPredictionInfo, FlatPredictionType
 
 class FlatPredictionCorrector:
     """
-    일직선 예측 보정기
+    Flat prediction corrector
 
-    일직선 예측이 감지되면 원본 데이터의 패턴을 활용하여 보정합니다.
-    단순히 노이즈를 추가하는 것이 아니라, 실제 패턴을 기반으로 보정합니다.
+    When flat predictions are detected, corrects them using patterns from the original data.
+    Not simply adding noise, but correcting based on actual patterns.
     """
 
     def __init__(
         self,
         seasonalStrength: float = 0.5,
         variationStrength: float = 0.3,
-        maxCorrection: float = 0.5  # 원본 std 대비 최대 보정 비율
+        maxCorrection: float = 0.5
     ):
         """
         Parameters
         ----------
         seasonalStrength : float
-            계절 패턴 주입 강도 (0.0 ~ 1.0)
+            Seasonal pattern injection strength (0.0 ~ 1.0)
         variationStrength : float
-            변동 추가 강도 (0.0 ~ 1.0)
+            Variation addition strength (0.0 ~ 1.0)
         maxCorrection : float
-            최대 보정 비율 (원본 std 기준)
+            Maximum correction ratio (relative to original std)
         """
         self.seasonalStrength = seasonalStrength
         self.variationStrength = variationStrength
@@ -47,23 +47,23 @@ class FlatPredictionCorrector:
         period: int = 7
     ) -> Tuple[np.ndarray, FlatPredictionInfo]:
         """
-        일직선 예측 보정
+        Correct flat predictions
 
         Parameters
         ----------
         predictions : np.ndarray
-            원본 예측값
+            Original predictions
         originalData : np.ndarray
-            원본 시계열 데이터
+            Original time series data
         flatInfo : FlatPredictionInfo
-            일직선 감지 정보
+            Flat detection info
         period : int
-            계절 주기
+            Seasonal period
 
         Returns
         -------
         Tuple[np.ndarray, FlatPredictionInfo]
-            (보정된 예측값, 업데이트된 감지 정보)
+            (corrected predictions, updated detection info)
         """
         if not flatInfo.isFlat:
             return predictions, flatInfo
@@ -97,7 +97,7 @@ class FlatPredictionCorrector:
             correctionMethod=correctionMethod,
             correctionStrength=self.seasonalStrength,
             message=flatInfo.message,
-            suggestion=f'보정 적용됨: {correctionMethod}'
+            suggestion=f'Correction applied: {correctionMethod}'
         )
 
         return corrected, updatedInfo
@@ -109,24 +109,24 @@ class FlatPredictionCorrector:
         period: int
     ) -> Tuple[np.ndarray, str]:
         """
-        수평 일직선 보정: 계절 패턴 주입
+        Horizontal flat correction: seasonal pattern injection
 
-        원본 데이터에서 계절 패턴을 추출하여 예측에 주입합니다.
+        Extracts seasonal patterns from original data and injects into predictions.
         """
         seasonal = self._extractSeasonalPattern(originalData, period)
 
         if seasonal is None:
             return self._addSimpleVariation(predictions, originalData), "simple_variation"
 
-        # 예측 길이에 맞게 계절 패턴 반복
+        # Repeat seasonal pattern to match prediction length
         nPred = len(predictions)
         seasonalExtended = np.tile(seasonal, nPred // len(seasonal) + 1)[:nPred]
 
-        # 강도 조절하여 주입
+        # Inject with adjusted strength
         originalStd = np.std(originalData)
         maxAdjustment = originalStd * self.maxCorrection
 
-        # 계절 패턴 스케일링
+        # Scale seasonal pattern
         seasonalAdjustment = seasonalExtended * self.seasonalStrength
         seasonalAdjustment = np.clip(seasonalAdjustment, -maxAdjustment, maxAdjustment)
 
@@ -141,20 +141,20 @@ class FlatPredictionCorrector:
         period: int
     ) -> Tuple[np.ndarray, str]:
         """
-        대각선 일직선 보정: 계절 변동 추가
+        Diagonal flat correction: add seasonal variation
 
-        추세는 유지하면서 계절적 변동을 추가합니다.
+        Adds seasonal variation while preserving the trend.
         """
         seasonal = self._extractSeasonalPattern(originalData, period)
 
         if seasonal is None:
             return self._addSimpleVariation(predictions, originalData), "simple_variation"
 
-        # 예측의 추세 보존
+        # Preserve prediction trend
         nPred = len(predictions)
         trend = np.linspace(predictions[0], predictions[-1], nPred)
 
-        # 계절 패턴 추가
+        # Add seasonal pattern
         seasonalExtended = np.tile(seasonal, nPred // len(seasonal) + 1)[:nPred]
 
         originalStd = np.std(originalData)
@@ -171,24 +171,24 @@ class FlatPredictionCorrector:
         period: int
     ) -> Tuple[np.ndarray, str]:
         """
-        평균 수렴 보정: 변동성 유지
+        Mean reversion correction: preserve variability
 
-        장기 예측에서도 변동성이 유지되도록 보정합니다.
+        Corrects to maintain variability even in long-horizon forecasts.
         """
         nPred = len(predictions)
         originalStd = np.std(originalData[-min(30, len(originalData)):])
 
-        # 현재 예측의 변동성 계산
+        # Calculate current prediction variability
         predStd = np.std(predictions)
 
         if predStd < 1e-10:
-            # 완전히 평평하면 계절 패턴 주입
+            # Inject seasonal pattern if completely flat
             return self._correctHorizontal(predictions, originalData, period)
 
-        # 타겟 변동성 (원본의 일정 비율 유지)
+        # Target variability (maintain a fraction of original)
         targetStd = originalStd * 0.7
 
-        # 변동성 스케일링
+        # Variability scaling
         predMean = np.mean(predictions)
         scaleFactor = targetStd / predStd
 
@@ -202,18 +202,18 @@ class FlatPredictionCorrector:
         period: int
     ) -> Optional[np.ndarray]:
         """
-        데이터에서 계절 패턴 추출 (간단한 평균 기반)
+        Extract seasonal pattern from data (simple average-based)
         """
         n = len(data)
 
         if n < period:
             return None
 
-        # 최근 데이터에서 계절 패턴 추출
+        # Extract seasonal pattern from recent data
         recentData = data[-min(period * 3, n):]
         nRecent = len(recentData)
 
-        # 주기별 평균 계산
+        # Calculate per-period average
         seasonal = np.zeros(period)
         counts = np.zeros(period)
 
@@ -222,10 +222,10 @@ class FlatPredictionCorrector:
             seasonal[idx] += recentData[i]
             counts[idx] += 1
 
-        counts[counts == 0] = 1  # 0으로 나누기 방지
+        counts[counts == 0] = 1
         seasonal = seasonal / counts
 
-        # 평균 제거 (계절 성분만)
+        # Remove mean (seasonal component only)
         seasonal = seasonal - np.mean(seasonal)
 
         return seasonal
@@ -236,23 +236,23 @@ class FlatPredictionCorrector:
         originalData: np.ndarray
     ) -> np.ndarray:
         """
-        단순 변동 추가 (계절 패턴 추출 실패시)
+        Add simple variation (when seasonal pattern extraction fails)
 
-        완전히 랜덤이 아니라, 최근 데이터의 변동 패턴을 모방합니다.
+        Not purely random, but mimics variation patterns from recent data.
         """
         n = len(predictions)
         originalStd = np.std(originalData[-min(30, len(originalData)):])
 
-        # 최근 변동 패턴
+        # Recent variation pattern
         recentDiffs = np.diff(originalData[-min(n + 10, len(originalData)):])
 
         if len(recentDiffs) < n:
-            # 패턴 반복
+            # Repeat pattern
             recentDiffs = np.tile(recentDiffs, n // len(recentDiffs) + 1)[:n]
         else:
             recentDiffs = recentDiffs[:n]
 
-        # 변동 스케일 조정
+        # Adjust variation scale
         variation = recentDiffs * self.variationStrength
         maxVar = originalStd * self.maxCorrection
         variation = np.clip(variation, -maxVar, maxVar)
@@ -261,7 +261,7 @@ class FlatPredictionCorrector:
         for i in range(1, n):
             corrected[i] = corrected[i - 1] + variation[i - 1]
 
-        # 레벨 조정 (원래 예측의 평균 유지)
+        # Level adjustment (preserve original prediction mean)
         corrected = corrected - np.mean(corrected) + np.mean(predictions)
 
         return corrected
@@ -275,9 +275,9 @@ def correctWithConfidenceInterval(
     originalData: np.ndarray
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    신뢰구간도 함께 보정
+    Correct confidence intervals along with predictions
 
-    일직선 예측이면 신뢰구간을 확대합니다.
+    Expands confidence intervals for flat predictions.
     """
     if not flatInfo.isFlat:
         return predictions, lower95, upper95
@@ -287,11 +287,11 @@ def correctWithConfidenceInterval(
         predictions, originalData, flatInfo
     )
 
-    # 신뢰구간 확대
+    # Expand confidence intervals
     originalStd = np.std(originalData)
     steps = np.arange(1, len(predictions) + 1)
 
-    # 일직선일수록 불확실성 증가
+    # Greater uncertainty for flat predictions
     uncertaintyMultiplier = 1.5 if flatInfo.flatType != FlatPredictionType.NONE else 1.0
 
     margin = 1.96 * originalStd * np.sqrt(steps) * uncertaintyMultiplier

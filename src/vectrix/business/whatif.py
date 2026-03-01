@@ -1,11 +1,11 @@
 """
 What-If Scenario Analysis
 
-시나리오 시뮬레이션:
-- 추세 변화: "추세가 10% 증가하면?"
-- 계절성 변화: "계절 패턴이 사라지면?"
-- 충격 이벤트: "30일차에 -20% 충격이 발생하면?"
-- 수준 이동: "전체 수준이 5% 상승하면?"
+Scenario simulation:
+- Trend change: "What if trend increases by 10%?"
+- Seasonality change: "What if seasonal pattern disappears?"
+- Shock event: "What if a -20% shock occurs on day 30?"
+- Level shift: "What if overall level rises by 5%?"
 """
 
 from dataclasses import dataclass, field
@@ -16,7 +16,7 @@ import numpy as np
 
 @dataclass
 class Scenario:
-    """시나리오 정의"""
+    """Scenario definition"""
     name: str = ""
     trendChange: float = 0.0
     seasonalMultiplier: float = 1.0
@@ -28,7 +28,7 @@ class Scenario:
 
 @dataclass
 class ScenarioResult:
-    """시나리오 결과"""
+    """Scenario result"""
     name: str = ""
     predictions: np.ndarray = field(default_factory=lambda: np.array([]))
     baselinePredictions: np.ndarray = field(default_factory=lambda: np.array([]))
@@ -39,7 +39,7 @@ class ScenarioResult:
 
 class WhatIfAnalyzer:
     """
-    What-If 시나리오 분석기
+    What-If scenario analyzer
 
     Usage:
         >>> analyzer = WhatIfAnalyzer()
@@ -60,18 +60,18 @@ class WhatIfAnalyzer:
         period: int = 7
     ) -> List[ScenarioResult]:
         """
-        시나리오 분석
+        Scenario analysis
 
         Parameters
         ----------
         basePredictions : np.ndarray
-            기본 예측
+            Base predictions
         historicalData : np.ndarray
-            과거 데이터
+            Historical data
         scenarios : List[Dict]
-            시나리오 정의 리스트
+            List of scenario definitions
         period : int
-            계절 주기
+            Seasonal period
         """
         results = []
 
@@ -142,15 +142,15 @@ class WhatIfAnalyzer:
 
     def compareSummary(self, results: List[ScenarioResult], locale: str = 'ko') -> str:
         if not results:
-            return "시나리오 없음"
+            return "No scenarios"
 
-        lines = ["시나리오 비교 분석:" if locale == 'ko' else "Scenario Comparison:"]
+        lines = ["Scenario Comparison:"]
 
         for r in sorted(results, key=lambda x: -abs(x.impact)):
             if locale == 'ko':
                 lines.append(
-                    f"  [{r.name}] 평균 영향: {r.impact:.1f}%, "
-                    f"최종값 변화: {r.percentChange[-1]:.1f}%"
+                    f"  [{r.name}] Avg impact: {r.impact:.1f}%, "
+                    f"Final change: {r.percentChange[-1]:.1f}%"
                 )
             else:
                 lines.append(

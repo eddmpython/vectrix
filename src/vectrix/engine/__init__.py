@@ -1,7 +1,7 @@
 """
-ChaniCast 자체 엔진
+Vectrix Forecasting Engine
 
-외부 라이브러리 의존 없이 순수 numpy + numba로 구현된 시계열 예측 엔진
+Time series forecasting engine implemented in pure numpy + numba without external library dependencies
 """
 
 from .adversarial import AdversarialStressTester, StressTestResult

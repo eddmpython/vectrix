@@ -1,21 +1,23 @@
 """
 Constraint-Aware Forecasting
 
-비즈니스/물리적 제약 조건을 예측에 직접 반영하는 제약 인식 예측 후처리기.
+Constraint-aware forecast post-processor that directly incorporates
+business/physical constraints into predictions.
 
-기존 시계열 라이브러리가 예측 후 수동 클리핑만 지원하는 것과 달리,
-제약 유형별 최적 교정 전략(Projection, Smooth, Redistribute)을 적용하고,
-신뢰구간까지 일관성 있게 조정한다.
+Unlike other time series libraries that only support manual clipping after
+forecasting, this module applies optimal correction strategies per constraint
+type (Projection, Smooth, Redistribute) and consistently adjusts confidence
+intervals as well.
 
-지원 제약:
-- non_negative: 비음수 제약 (재고, 판매량 등)
-- range: 최소/최대 범위 제약 (물리적 한계)
-- sum_constraint: 윈도우 합계 제약 (예산, 용량)
-- yoy_change: 전년동기대비 변동폭 제약 (비즈니스 규칙)
-- monotone: 단조 증가/감소 제약 (PAVA 알고리즘)
-- capacity: 로지스틱 성장 상한 (Prophet style)
-- ratio: 연속 값 비율 제약 (성장률 제한)
-- custom: 사용자 정의 함수
+Supported constraints:
+- non_negative: Non-negativity constraint (inventory, sales volume, etc.)
+- range: Min/max range constraint (physical limits)
+- sum_constraint: Window sum constraint (budget, capacity)
+- yoy_change: Year-over-year change limit constraint (business rules)
+- monotone: Monotone increasing/decreasing constraint (PAVA algorithm)
+- capacity: Logistic growth upper bound (Prophet style)
+- ratio: Consecutive value ratio constraint (growth rate limit)
+- custom: User-defined function
 
 Usage:
     >>> from vectrix.adaptive.constraints import ConstraintAwareForecaster, Constraint
@@ -38,15 +40,15 @@ import numpy as np
 @dataclass
 class Constraint:
     """
-    예측 제약 조건
+    Forecast constraint definition.
 
     Parameters
     ----------
     type : str
-        제약 유형. 지원: 'non_negative', 'range', 'sum_constraint',
+        Constraint type. Supported: 'non_negative', 'range', 'sum_constraint',
         'yoy_change', 'monotone', 'capacity', 'ratio', 'custom'
     params : Dict
-        제약 파라미터. 유형별로 상이.
+        Constraint parameters. Varies by type.
 
     Examples
     --------
@@ -66,24 +68,24 @@ class Constraint:
 @dataclass
 class ConstraintResult:
     """
-    제약 적용 결과
+    Constraint application result.
 
     Attributes
     ----------
     predictions : np.ndarray
-        제약 적용 후 예측값
+        Predictions after constraint application
     lower95 : np.ndarray
-        제약 적용 후 하한 95% 신뢰구간
+        Lower 95% confidence interval after constraint application
     upper95 : np.ndarray
-        제약 적용 후 상한 95% 신뢰구간
+        Upper 95% confidence interval after constraint application
     violationsBefore : int
-        제약 적용 전 위반 수
+        Number of violations before constraint application
     violationsAfter : int
-        제약 적용 후 위반 수 (정상 시 0)
+        Number of violations after constraint application (should be 0)
     constraintsApplied : List[str]
-        적용된 제약 유형 목록
+        List of applied constraint types
     adjustmentDetails : List[Dict]
-        각 제약별 조정 상세 (변경된 인덱스, 조정량 등)
+        Adjustment details per constraint (modified indices, adjustment amounts, etc.)
     """
     predictions: np.ndarray = field(default_factory=lambda: np.array([]))
     lower95: np.ndarray = field(default_factory=lambda: np.array([]))
@@ -94,24 +96,25 @@ class ConstraintResult:
     adjustmentDetails: List[Dict] = field(default_factory=list)
 
 
-# 제약 유형별 우선순위 (Hard constraints 먼저)
+# Priority by constraint type (hard constraints first)
 _HARD_CONSTRAINTS = {'non_negative', 'range', 'capacity'}
 _SOFT_CONSTRAINTS = {'sum_constraint', 'yoy_change', 'monotone', 'ratio', 'custom'}
 
 
 class ConstraintAwareForecaster:
     """
-    제약 조건 인식 예측기
+    Constraint-aware forecaster.
 
-    제약 조건을 예측값과 신뢰구간에 일관되게 적용.
-    Hard constraints (non_negative, range, capacity)를 먼저 처리한 뒤,
-    Soft constraints (sum, yoy_change, monotone, ratio, custom)를 순서대로 적용.
-    마지막으로 부드러운 전환(smoothing)을 수행하여 교정 경계의 인위적 불연속을 완화.
+    Consistently applies constraints to predictions and confidence intervals.
+    Processes hard constraints (non_negative, range, capacity) first, then
+    soft constraints (sum, yoy_change, monotone, ratio, custom) in order.
+    Finally applies smooth transitions to mitigate artificial discontinuities
+    at correction boundaries.
 
-    교정 전략:
-    - Projection: 제약 위반 시 가장 가까운 유효점으로 투영 (range, capacity)
-    - Smooth: 위반 구간 전후를 부드럽게 연결 (monotone)
-    - Redistribute: 합계 제약 시 초과분을 주변 시점에 비례 분배 (sum_constraint)
+    Correction strategies:
+    - Projection: Projects to nearest valid point on violation (range, capacity)
+    - Smooth: Smoothly connects before/after violation intervals (monotone)
+    - Redistribute: Proportionally distributes excess to neighboring points (sum_constraint)
 
     Usage:
         >>> caf = ConstraintAwareForecaster()
@@ -133,40 +136,40 @@ class ConstraintAwareForecaster:
         smoothing: bool = True
     ) -> ConstraintResult:
         """
-        제약 조건을 순서대로 적용
+        Apply constraints in order.
 
-        적용 순서:
-        1. hard constraints (non_negative, range, capacity) 먼저
-        2. soft constraints (sum, yoy_change, monotone, ratio, custom) 나중에
-        3. smoothing=True이면 부드러운 보간으로 마무리
+        Application order:
+        1. Hard constraints (non_negative, range, capacity) first
+        2. Soft constraints (sum, yoy_change, monotone, ratio, custom) second
+        3. If smoothing=True, finish with smooth interpolation
 
         Parameters
         ----------
         predictions : np.ndarray
-            원본 예측값
+            Original predictions
         lower95 : np.ndarray
-            원본 하한 95% 신뢰구간
+            Original lower 95% confidence interval
         upper95 : np.ndarray
-            원본 상한 95% 신뢰구간
+            Original upper 95% confidence interval
         constraints : List[Constraint]
-            적용할 제약 조건 리스트
+            List of constraints to apply
         smoothing : bool
-            교정 후 부드러운 전환 적용 여부
+            Whether to apply smooth transitions after correction
 
         Returns
         -------
         ConstraintResult
-            제약 적용 결과
+            Constraint application result
         """
         pred = np.array(predictions, dtype=np.float64).copy()
         lo = np.array(lower95, dtype=np.float64).copy()
         hi = np.array(upper95, dtype=np.float64).copy()
         originalPred = pred.copy()
 
-        # 적용 전 위반 수
+        # Violation count before application
         violationsBefore = self._countViolations(pred, constraints)
 
-        # Hard/Soft 분리 후 순서대로 적용
+        # Separate hard/soft and apply in order
         hardConstraints = [c for c in constraints if c.type in _HARD_CONSTRAINTS]
         softConstraints = [c for c in constraints if c.type in _SOFT_CONSTRAINTS]
         orderedConstraints = hardConstraints + softConstraints
@@ -189,16 +192,16 @@ class ConstraintAwareForecaster:
                     'nAdjusted': 0
                 })
 
-        # 신뢰구간 일관성: lo <= pred <= hi
+        # Confidence interval consistency: lo <= pred <= hi
         lo = np.minimum(lo, pred)
         hi = np.maximum(hi, pred)
 
-        # 부드러운 전환
+        # Smooth transitions
         if smoothing:
             adjustedMask = np.abs(pred - originalPred) > 1e-10
             if np.any(adjustedMask):
                 pred = self._smoothTransitions(pred, originalPred, adjustedMask)
-                # smoothing 후에도 hard constraints 재확인
+                # Re-verify hard constraints after smoothing
                 for constraint in hardConstraints:
                     try:
                         pred, lo, hi, _ = self._applyOne(pred, lo, hi, constraint)
@@ -207,7 +210,7 @@ class ConstraintAwareForecaster:
                 lo = np.minimum(lo, pred)
                 hi = np.maximum(hi, pred)
 
-        # 적용 후 위반 수
+        # Violation count after application
         violationsAfter = self._countViolations(pred, constraints)
 
         return ConstraintResult(
@@ -227,7 +230,7 @@ class ConstraintAwareForecaster:
         hi: np.ndarray,
         constraint: Constraint
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, Dict]:
-        """단일 제약 적용 디스패처"""
+        """Single constraint application dispatcher."""
         cType = constraint.type
         params = constraint.params
 
@@ -250,7 +253,7 @@ class ConstraintAwareForecaster:
             maxPct = params.get('maxPct', 100.0)
             historicalData = params.get('historicalData', None)
             if historicalData is None:
-                raise ValueError("yoy_change 제약에는 'historicalData' 파라미터가 필요합니다.")
+                raise ValueError("yoy_change constraint requires 'historicalData' parameter.")
             p, l, h = self._applyYoYChange(pred, lo, hi, maxPct,
                                             np.asarray(historicalData, dtype=np.float64))
             detail = {'constraint': 'yoy_change', 'maxPct': maxPct}
@@ -271,11 +274,11 @@ class ConstraintAwareForecaster:
         elif cType == 'custom':
             fn = params.get('fn', None)
             if fn is None:
-                raise ValueError("custom 제약에는 'fn' 파라미터(callable)가 필요합니다.")
+                raise ValueError("custom constraint requires 'fn' parameter (callable).")
             p, l, h = self._applyCustom(pred, lo, hi, fn)
             detail = {'constraint': 'custom'}
         else:
-            raise ValueError(f"지원하지 않는 제약 유형: {cType}")
+            raise ValueError(f"Unsupported constraint type: {cType}")
 
         return p, l, h, detail
 
@@ -290,9 +293,9 @@ class ConstraintAwareForecaster:
         hi: np.ndarray
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
-        비음수 제약: 음수 -> 0으로 클리핑
+        Non-negativity constraint: clip negatives to 0.
 
-        예측값과 신뢰구간 하한 모두 0 이상으로 보정.
+        Corrects both predictions and lower confidence interval to >= 0.
         """
         p = np.maximum(pred, 0.0)
         l = np.maximum(lo, 0.0)
@@ -308,9 +311,9 @@ class ConstraintAwareForecaster:
         maxVal: float
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
-        범위 제약: min <= 예측값 <= max
+        Range constraint: min <= prediction <= max.
 
-        가장 가까운 유효점으로 투영 (projection).
+        Projects to nearest valid point (projection).
         """
         p = np.clip(pred, minVal, maxVal)
         l = np.clip(lo, minVal, maxVal)
@@ -326,12 +329,12 @@ class ConstraintAwareForecaster:
         floor: float = -np.inf
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
-        로지스틱 성장 상한/하한 적용 (Prophet style)
+        Logistic growth upper/lower bound (Prophet style).
 
-        단순 클리핑이 아닌, 상한 근처에서 로지스틱 감쇠를 적용하여
-        예측이 상한에 부드럽게 수렴하도록 한다.
+        Instead of simple clipping, applies logistic damping near the
+        upper bound so predictions converge smoothly to the capacity.
 
-        capacity에 가까울수록 (상위 10% 구간) 로지스틱 압축 적용:
+        Near the capacity (top 10% range), logistic compression is applied:
         adjusted = floor + (capacity - floor) * sigmoid(scaled)
         """
         p = pred.copy()
@@ -339,20 +342,20 @@ class ConstraintAwareForecaster:
         h = hi.copy()
 
         if capacity < np.inf:
-            # 상한 근처에서 로지스틱 감쇠
+            # Logistic damping near upper bound
             effectiveRange = capacity - floor if floor > -np.inf else capacity
-            threshold = capacity - 0.1 * effectiveRange  # 상위 10%
+            threshold = capacity - 0.1 * effectiveRange  # Top 10%
 
             mask = p > threshold
             if np.any(mask):
-                # 로지스틱 압축: cap 근처에서 부드럽게 포화
+                # Logistic compression: smooth saturation near cap
                 overshoot = (p[mask] - threshold) / max(effectiveRange * 0.1, 1e-10)
-                # sigmoid 매핑: 0..inf -> 0..1
+                # Sigmoid mapping: 0..inf -> 0..1
                 compressed = 1.0 / (1.0 + np.exp(-overshoot + 2.0))
                 p[mask] = threshold + (capacity - threshold) * compressed
 
         if floor > -np.inf:
-            # 하한 근처에서 로지스틱 감쇠 (대칭)
+            # Logistic damping near lower bound (symmetric)
             effectiveRange = capacity - floor if capacity < np.inf else abs(floor) * 2
             threshold = floor + 0.1 * effectiveRange
 
@@ -362,7 +365,7 @@ class ConstraintAwareForecaster:
                 compressed = 1.0 / (1.0 + np.exp(-undershoot + 2.0))
                 p[mask] = threshold - (threshold - floor) * compressed
 
-        # 최종 안전 클리핑
+        # Final safety clipping
         if capacity < np.inf:
             p = np.minimum(p, capacity)
             h = np.minimum(h, capacity)
@@ -389,12 +392,13 @@ class ConstraintAwareForecaster:
         minSum: float = -np.inf
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
-        윈도우 합계 제약
+        Window sum constraint.
 
-        window 기간의 합계가 maxSum을 초과하면 해당 윈도우 내 값들을
-        비례적으로 축소. minSum 미달 시 비례적으로 확대.
+        If the sum over a window period exceeds maxSum, values within that
+        window are proportionally scaled down. If below minSum, they are
+        proportionally scaled up.
 
-        비례 축소: 각 값의 상대적 크기를 보존하면서 합계를 맞춤.
+        Proportional scaling preserves relative magnitudes while matching the sum.
         pred[i] *= (maxSum / currentSum) for i in window
         """
         p = pred.copy()
@@ -408,26 +412,26 @@ class ConstraintAwareForecaster:
             currentSum = np.sum(p[windowSlice])
 
             if currentSum > maxSum and currentSum > 1e-10:
-                # 비례 축소
+                # Proportional scale down
                 ratio = maxSum / currentSum
                 p[windowSlice] *= ratio
                 l[windowSlice] *= ratio
                 h[windowSlice] *= ratio
             elif currentSum < minSum and abs(currentSum) > 1e-10:
-                # 비례 확대
+                # Proportional scale up
                 ratio = minSum / currentSum
                 p[windowSlice] *= ratio
                 l[windowSlice] *= ratio
                 h[windowSlice] *= ratio
             elif currentSum < minSum and abs(currentSum) <= 1e-10:
-                # 합이 0에 가까운데 minSum이 양수인 경우: 균등 분배
+                # Sum near zero but minSum is positive: distribute equally
                 windowLen = end - start
                 fillVal = minSum / windowLen
                 p[windowSlice] = fillVal
                 l[windowSlice] = fillVal * 0.8
                 h[windowSlice] = fillVal * 1.2
 
-        # lo <= hi 일관성
+        # lo <= hi consistency
         l, h = np.minimum(l, h), np.maximum(l, h)
         return p, l, h
 
@@ -440,30 +444,31 @@ class ConstraintAwareForecaster:
         historicalData: np.ndarray
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
-        전년동기대비 변동폭 제약
+        Year-over-year change limit constraint.
 
-        과거 동일 기간(historicalData)과 비교하여, 각 시점의 예측값이
-        해당 시점의 전년 값 대비 maxPct% 이내가 되도록 제한.
+        Compares against the same period from the prior year (historicalData)
+        and limits each point's prediction to within maxPct% of the
+        corresponding historical value.
 
-        historicalData의 길이는 pred 길이 이상이어야 함.
-        historicalData[-len(pred):]을 전년 동기로 사용.
+        historicalData length must be >= pred length.
+        Uses historicalData[-len(pred):] as the year-ago reference.
 
         Parameters
         ----------
         maxPct : float
-            최대 허용 변동률 (%)
+            Maximum allowed change rate (%)
         historicalData : np.ndarray
-            전년 동기 데이터 (pred와 같은 길이 이상)
+            Prior year data (length >= pred)
         """
         p = pred.copy()
         l = lo.copy()
         h = hi.copy()
         n = len(p)
 
-        # historicalData에서 전년 동기 추출
+        # Extract year-ago reference from historicalData
         histLen = len(historicalData)
         if histLen < n:
-            # 데이터 부족 시 가용한 만큼만 적용
+            # Insufficient data: apply only what is available
             refData = np.full(n, np.nan)
             refData[:histLen] = historicalData
         else:
@@ -476,11 +481,11 @@ class ConstraintAwareForecaster:
             if np.isnan(ref) or abs(ref) < 1e-10:
                 continue
 
-            # 허용 범위 계산
+            # Compute allowed range
             allowedMin = ref * (1.0 - maxRatio)
             allowedMax = ref * (1.0 + maxRatio)
 
-            # 음수 참조값 처리 (min/max 교환)
+            # Handle negative reference values (swap min/max)
             if ref < 0:
                 allowedMin, allowedMax = allowedMax, allowedMin
 
@@ -506,47 +511,48 @@ class ConstraintAwareForecaster:
         direction: str
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
-        단조 제약 (isotonic regression via PAVA)
+        Monotone constraint (isotonic regression via PAVA).
 
-        direction='increasing': 단조 증가 제약 (y[i] <= y[i+1])
-        direction='decreasing': 단조 감소 제약 (y[i] >= y[i+1])
+        direction='increasing': Monotone increasing constraint (y[i] <= y[i+1])
+        direction='decreasing': Monotone decreasing constraint (y[i] >= y[i+1])
 
-        Pool Adjacent Violators (PAVA) 알고리즘으로 최소 제곱 의미의
-        최적 단조 근사를 계산.
+        Uses the Pool Adjacent Violators (PAVA) algorithm to compute the
+        optimal monotone approximation in the least squares sense.
         """
         increasing = (direction == 'increasing')
         p = self._pava(pred, increasing=increasing)
         l = self._pava(lo, increasing=increasing)
         h = self._pava(hi, increasing=increasing)
 
-        # 일관성 보장
+        # Ensure consistency
         l = np.minimum(l, p)
         h = np.maximum(h, p)
         return p, l, h
 
     def _pava(self, y: np.ndarray, increasing: bool = True) -> np.ndarray:
         """
-        Isotonic Regression via Pool Adjacent Violators Algorithm (PAVA)
+        Isotonic Regression via Pool Adjacent Violators Algorithm (PAVA).
 
-        단조 증가 제약 하에 ||y - result||^2를 최소화하는 result를 찾는다.
+        Finds result that minimizes ||y - result||^2 subject to the
+        monotone increasing constraint.
 
-        알고리즘:
-        1. y를 순서대로 스캔
-        2. y[i] < y[i-1]이면 위반 -> 두 값을 평균으로 pooling
-        3. pooled 값이 이전과 위반이면 계속 pooling
-        4. 모든 위반이 해소될 때까지 반복
+        Algorithm:
+        1. Scan y sequentially
+        2. If y[i] < y[i-1], violation -> pool both values to their mean
+        3. If pooled value violates previous, continue pooling
+        4. Repeat until all violations are resolved
 
         Parameters
         ----------
         y : np.ndarray
-            입력 배열
+            Input array
         increasing : bool
-            True면 단조 증가, False면 단조 감소
+            True for monotone increasing, False for monotone decreasing
 
         Returns
         -------
         np.ndarray
-            단조 제약을 만족하는 최적 근사
+            Optimal approximation satisfying the monotone constraint
         """
         n = len(y)
         if n <= 1:
@@ -556,7 +562,7 @@ class ConstraintAwareForecaster:
         if not increasing:
             result = -result
 
-        # 블록 기반 PAVA
+        # Block-based PAVA
         blocks: List[List[int]] = [[i] for i in range(n)]
         blockMeans: List[float] = [float(result[i]) for i in range(n)]
 
@@ -568,7 +574,7 @@ class ConstraintAwareForecaster:
 
             for i in range(1, len(blocks)):
                 if blockMeans[i] < newMeans[-1]:
-                    # 위반 -> 합치기
+                    # Violation -> merge
                     combinedBlock = newBlocks[-1] + blocks[i]
                     combinedMean = float(np.mean(result[combinedBlock]))
                     newBlocks[-1] = combinedBlock
@@ -581,7 +587,7 @@ class ConstraintAwareForecaster:
             blocks = newBlocks
             blockMeans = newMeans
 
-        # 결과 할당
+        # Assign results
         for block, mean in zip(blocks, blockMeans):
             for idx in block:
                 result[idx] = mean
@@ -600,10 +606,10 @@ class ConstraintAwareForecaster:
         maxRatio: float
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
-        연속 값 비율 제약: minRatio <= pred[t+1]/pred[t] <= maxRatio
+        Consecutive value ratio constraint: minRatio <= pred[t+1]/pred[t] <= maxRatio.
 
-        t=0부터 순방향으로 순회하며, t+1의 값이 비율 범위를 벗어나면
-        허용 범위 경계로 조정. 이전 조정이 다음에 전파됨.
+        Traverses forward from t=0. If t+1 exceeds the ratio range, adjusts
+        to the allowed boundary. Prior adjustments propagate to subsequent values.
         """
         p = pred.copy()
         l = lo.copy()
@@ -642,10 +648,10 @@ class ConstraintAwareForecaster:
         fn: Callable
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
-        사용자 정의 제약 함수 적용
+        Apply user-defined constraint function.
 
-        fn 시그니처: fn(pred, lo, hi) -> (pred, lo, hi)
-        각각 np.ndarray.
+        fn signature: fn(pred, lo, hi) -> (pred, lo, hi)
+        Each is np.ndarray.
         """
         p, l, h = fn(pred.copy(), lo.copy(), hi.copy())
         return np.asarray(p, dtype=np.float64), \
@@ -663,23 +669,23 @@ class ConstraintAwareForecaster:
         adjustedMask: np.ndarray
     ) -> np.ndarray:
         """
-        교정된 부분과 원본 사이 부드러운 전환
+        Smooth transition between corrected and original predictions.
 
-        조정된 지점의 경계에서 가우시안 가중 블렌딩을 적용하여
-        인위적인 불연속을 완화.
+        Applies Gaussian-weighted blending at the boundaries of adjusted
+        regions to mitigate artificial discontinuities.
 
-        경계 탐지 후, 전환 구간 (반경 radius=3)에서:
+        After boundary detection, within transition zones (radius=3):
         weight = exp(-dist^2 / (2 * sigma^2))
         blended = weight * adjusted + (1 - weight) * original
 
         Parameters
         ----------
         pred : np.ndarray
-            교정된 예측값
+            Corrected predictions
         originalPred : np.ndarray
-            교정 전 원본 예측값
+            Original predictions before correction
         adjustedMask : np.ndarray (bool)
-            교정이 적용된 시점의 마스크
+            Mask of time points where correction was applied
         """
         result = pred.copy()
         n = len(pred)
@@ -689,7 +695,7 @@ class ConstraintAwareForecaster:
 
         sigma = max(radius / 2.0, 1.0)
 
-        # 경계 탐지: adjustedMask의 변경 지점
+        # Boundary detection: change points in adjustedMask
         boundaries = []
         for i in range(1, n):
             if adjustedMask[i] != adjustedMask[i - 1]:
@@ -701,12 +707,12 @@ class ConstraintAwareForecaster:
                 if idx < 0 or idx >= n:
                     continue
                 if adjustedMask[idx]:
-                    # 조정된 지점: 경계에서 먼 쪽은 조정값 유지,
-                    # 가까운 쪽은 원본과 블렌딩
+                    # Adjusted point: retain adjusted value far from boundary,
+                    # blend with original near boundary
                     dist = abs(offset)
                     weight = np.exp(-dist ** 2 / (2.0 * sigma ** 2))
-                    # 조정된 포인트는 weight가 높을수록 원본 비중 증가 (경계 근처)
-                    blend = weight * 0.3  # 최대 30%까지 원본 블렌딩
+                    # For adjusted points, higher weight means more original blending (near boundary)
+                    blend = weight * 0.3  # Up to 30% original blending
                     result[idx] = (1.0 - blend) * pred[idx] + blend * originalPred[idx]
 
         return result
@@ -717,10 +723,10 @@ class ConstraintAwareForecaster:
         constraints: List[Constraint]
     ) -> int:
         """
-        제약 위반 수 계산
+        Count constraint violations.
 
-        모든 제약에 대해 위반하는 시점의 총 수를 반환.
-        (동일 시점이 여러 제약을 위반하면 중복 카운트)
+        Returns the total number of time points violating any constraint.
+        (If a single point violates multiple constraints, it is counted multiple times)
         """
         total = 0
         n = len(pred)
@@ -738,7 +744,7 @@ class ConstraintAwareForecaster:
         pred: np.ndarray,
         constraint: Constraint
     ) -> int:
-        """단일 제약의 위반 수 계산"""
+        """Count violations for a single constraint."""
         cType = constraint.type
         params = constraint.params
         n = len(pred)
@@ -818,7 +824,7 @@ class ConstraintAwareForecaster:
             return violations
 
         elif cType == 'custom':
-            # custom 제약은 위반 수를 사전에 알기 어려움
+            # Cannot predetermine violation count for custom constraints
             return 0
 
         return 0

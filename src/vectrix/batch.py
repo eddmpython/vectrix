@@ -1,4 +1,4 @@
-"""배치 예측 API"""
+"""Batch Forecast API"""
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import Callable, Optional
 
@@ -6,7 +6,7 @@ import pandas as pd
 
 
 class BatchForecastResult:
-    """배치 예측 결과"""
+    """Batch forecast result"""
 
     def __init__(self, results, failures):
         self.results = results
@@ -25,7 +25,7 @@ class BatchForecastResult:
         return self.successCount + self.failureCount
 
     def bestModels(self) -> pd.DataFrame:
-        """시계열별 최적 모델 요약"""
+        """Summary of best model per series"""
         rows = []
         for seriesId, result in self.results.items():
             rows.append({
@@ -35,7 +35,7 @@ class BatchForecastResult:
         return pd.DataFrame(rows)
 
     def export(self, path):
-        """전체 예측 결과 CSV 내보내기"""
+        """Export all forecast results to CSV"""
         allRows = []
         for seriesId, result in self.results.items():
             n = len(result.predictions)
@@ -51,17 +51,17 @@ class BatchForecastResult:
         return self
 
     def summary(self) -> str:
-        """배치 요약"""
+        """Batch summary"""
         lines = [
-            f"BatchForecast: {self.successCount}/{self.totalCount} 성공",
-            f"  실패: {self.failureCount}건",
+            f"BatchForecast: {self.successCount}/{self.totalCount} succeeded",
+            f"  Failed: {self.failureCount}",
         ]
         if self.results:
             models = [r.bestModelName for r in self.results.values() if hasattr(r, 'bestModelName')]
             if models:
                 from collections import Counter
                 mc = Counter(models).most_common(3)
-                lines.append(f"  주요 모델: {', '.join(f'{m}({c})' for m, c in mc)}")
+                lines.append(f"  Top models: {', '.join(f'{m}({c})' for m, c in mc)}")
         return '\n'.join(lines)
 
     def __str__(self):
@@ -82,26 +82,26 @@ def batchForecast(
     progress: Optional[Callable] = None,
 ) -> BatchForecastResult:
     """
-    다중 시계열 배치 예측.
+    Batch forecast for multiple time series.
 
     Parameters
     ----------
     data : pd.DataFrame
-        Long-format 데이터. idCol로 시계열 구분.
+        Long-format data. Series distinguished by idCol.
     idCol : str
-        시계열 ID 컬럼.
+        Series ID column.
     dateCol : str
-        날짜 컬럼.
+        Date column.
     valueCol : str
-        값 컬럼.
+        Value column.
     steps : int
-        예측 기간.
+        Forecast horizon.
     nJobs : int
-        병렬 수 (1=순차).
+        Parallelism level (1=sequential).
     onFailure : str
-        실패 처리 ('skip', 'raise').
+        Failure handling ('skip', 'raise').
     progress : callable
-        진행 콜백 (current, total, seriesId).
+        Progress callback (current, total, seriesId).
     """
     from .vectrix import Vectrix
 

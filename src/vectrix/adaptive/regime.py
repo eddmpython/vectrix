@@ -1,22 +1,22 @@
 """
 Regime-Aware Adaptive Forecasting
 
-HMM(Hidden Markov Model) 기반 시계열 레짐 감지 및 레짐별 적응 예측.
+HMM (Hidden Markov Model) based time series regime detection and regime-adaptive forecasting.
 
-레짐 유형:
-- 'growth':   상승 추세 + 낮은 변동성
-- 'decline':  하락 추세 + 낮은 변동성
-- 'volatile': 높은 변동성 (추세 무관)
-- 'stable':   낮은 변동성 + 추세 없음
-- 'crisis':   급격한 하락 + 매우 높은 변동성
+Regime types:
+- 'growth':   Upward trend + low volatility
+- 'decline':  Downward trend + low volatility
+- 'volatile': High volatility (trend-independent)
+- 'stable':   Low volatility + no trend
+- 'crisis':   Sharp decline + very high volatility
 
-핵심 알고리즘:
-- Baum-Welch (EM) 알고리즘으로 HMM 학습
-- Forward-Backward 알고리즘 (log-space 수치 안정성)
-- Viterbi 알고리즘으로 최적 상태 시퀀스 추정
-- 전이 확률 가중 앙상블 예측
+Core algorithms:
+- Baum-Welch (EM) algorithm for HMM training
+- Forward-Backward algorithm (log-space numerical stability)
+- Viterbi algorithm for optimal state sequence estimation
+- Transition probability weighted ensemble forecasting
 
-순수 numpy/scipy만 사용. 외부 HMM 라이브러리 없음.
+Pure numpy/scipy only. No external HMM libraries.
 """
 
 from dataclasses import dataclass, field
@@ -25,82 +25,82 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 
 # ---------------------------------------------------------------------------
-# 데이터 클래스
+# Data Classes
 # ---------------------------------------------------------------------------
 
 @dataclass
 class RegimeResult:
-    """레짐 감지 결과"""
+    """Regime detection result"""
 
     states: np.ndarray = field(default_factory=lambda: np.array([]))
-    """각 시점의 레짐 번호 (0-indexed)"""
+    """Regime number for each time point (0-indexed)"""
 
     labels: List[str] = field(default_factory=list)
-    """각 시점의 레짐 레이블 (예: 'growth', 'stable', ...)"""
+    """Regime label for each time point (e.g., 'growth', 'stable', ...)"""
 
     regimeHistory: List[Tuple[str, int, int]] = field(default_factory=list)
-    """(레이블, 시작인덱스, 끝인덱스) 구간 리스트"""
+    """(label, start_index, end_index) interval list"""
 
     currentRegime: str = ""
-    """마지막 시점의 레짐 레이블"""
+    """Regime label at the last time point"""
 
     transitionMatrix: np.ndarray = field(default_factory=lambda: np.array([]))
-    """K x K 전이 확률 행렬"""
+    """K x K transition probability matrix"""
 
     regimeStats: Dict[str, Dict] = field(default_factory=dict)
-    """각 레짐의 통계 {'growth': {'mean': ..., 'std': ..., 'trend': ...}, ...}"""
+    """Statistics per regime {'growth': {'mean': ..., 'std': ..., 'trend': ...}, ...}"""
 
     nRegimes: int = 0
-    """감지된 레짐 수"""
+    """Number of detected regimes"""
 
     logLikelihood: float = 0.0
-    """HMM 학습 후 로그 우도"""
+    """Log-likelihood after HMM training"""
 
 
 @dataclass
 class RegimeForecastResult:
-    """레짐 인식 적응 예측 결과"""
+    """Regime-aware adaptive forecast result"""
 
     predictions: np.ndarray = field(default_factory=lambda: np.array([]))
-    """예측값 배열"""
+    """Prediction array"""
 
     lower95: np.ndarray = field(default_factory=lambda: np.array([]))
-    """95% 하한 신뢰구간"""
+    """95% lower confidence bound"""
 
     upper95: np.ndarray = field(default_factory=lambda: np.array([]))
-    """95% 상한 신뢰구간"""
+    """95% upper confidence bound"""
 
     currentRegime: str = ""
-    """현재(마지막) 레짐"""
+    """Current (last) regime"""
 
     regimeHistory: List[Tuple[str, int, int]] = field(default_factory=list)
-    """레짐 전환 이력"""
+    """Regime transition history"""
 
     transitionMatrix: np.ndarray = field(default_factory=lambda: np.array([]))
-    """전이 확률 행렬"""
+    """Transition probability matrix"""
 
     regimeStats: Dict[str, Dict] = field(default_factory=dict)
-    """레짐별 통계"""
+    """Per-regime statistics"""
 
     modelPerRegime: Dict[str, str] = field(default_factory=dict)
-    """{레짐 레이블: 사용된 모델 ID}"""
+    """{regime_label: model_id_used}"""
 
     regimeProbabilities: np.ndarray = field(default_factory=lambda: np.array([]))
-    """예측 기간 각 시점의 레짐 확률 [steps x K]"""
+    """Regime probabilities for each forecast step [steps x K]"""
 
     scenarioForecasts: Dict[str, np.ndarray] = field(default_factory=dict)
-    """각 레짐 시나리오별 예측 {레짐레이블: predictions}"""
+    """Forecast per regime scenario {regime_label: predictions}"""
 
 
 # ---------------------------------------------------------------------------
-# 수치 유틸리티
+# Numerical Utilities
 # ---------------------------------------------------------------------------
 
 def _logSumExp(logA: np.ndarray) -> float:
     """
     log-sum-exp trick: log(sum(exp(logA)))
 
-    수치 안정성을 위해 max를 빼고 계산한 후 다시 더한다.
+    Subtracts max for numerical stability, then adds it back.
     """
     maxVal = np.max(logA)
     if maxVal == -np.inf:
@@ -109,47 +109,47 @@ def _logSumExp(logA: np.ndarray) -> float:
 
 
 def _logSumExpAxis(logA: np.ndarray, axis: int) -> np.ndarray:
-    """다차원 배열에서 특정 axis에 대한 log-sum-exp"""
+    """log-sum-exp along a specific axis of a multi-dimensional array"""
     maxVal = np.max(logA, axis=axis, keepdims=True)
-    # -inf인 경우 처리
+    # Handle -inf cases
     mask = np.isfinite(maxVal)
     safe = np.where(mask, maxVal, 0.0)
     result = safe.squeeze(axis) + np.log(
         np.sum(np.exp(logA - np.where(mask, maxVal, 0.0)), axis=axis)
     )
-    # 모두 -inf인 행/열은 -inf 유지
+    # Rows/columns that are all -inf remain -inf
     allInf = ~np.any(np.isfinite(logA), axis=axis)
     result[allInf] = -np.inf
     return result
 
 
 def _logGaussianPdf(x: float, mu: float, sigma2: float) -> float:
-    """가우시안 PDF의 로그값: log N(x | mu, sigma2)"""
+    """Log of Gaussian PDF: log N(x | mu, sigma2)"""
     if sigma2 <= 0:
         sigma2 = 1e-10
     return -0.5 * np.log(2 * np.pi * sigma2) - 0.5 * (x - mu) ** 2 / sigma2
 
 
 # ---------------------------------------------------------------------------
-# RegimeDetector: HMM 기반 레짐 감지
+# RegimeDetector: HMM-based Regime Detection
 # ---------------------------------------------------------------------------
 
 class RegimeDetector:
     """
-    HMM 기반 시계열 레짐(국면) 감지기
+    HMM-based time series regime detector
 
-    가우시안 관측 모델을 사용한 Hidden Markov Model로 시계열의
-    숨겨진 상태(레짐)를 추정한다.
+    Estimates hidden states (regimes) of a time series using a Hidden Markov Model
+    with Gaussian observation model.
 
-    관측값으로는 로그 수익률을 사용하며, 각 상태는 고유한
-    평균과 분산을 가진 가우시안 분포로 모델링된다.
+    Uses log returns as observations, where each state is modeled as a Gaussian
+    distribution with unique mean and variance.
 
     Parameters
     ----------
     nRegimes : int
-        감지할 레짐(상태) 수 (기본 3)
+        Number of regimes (states) to detect (default 3)
     maxIter : int
-        Baum-Welch EM 알고리즘 최대 반복 횟수 (기본 100)
+        Maximum iterations for Baum-Welch EM algorithm (default 100)
 
     Examples
     --------
@@ -165,72 +165,72 @@ class RegimeDetector:
 
     def __init__(self, nRegimes: int = 3, maxIter: int = 100):
         if nRegimes < 2:
-            raise ValueError("nRegimes는 2 이상이어야 합니다.")
+            raise ValueError("nRegimes must be at least 2.")
         self.nRegimes = nRegimes
         self.maxIter = maxIter
 
-        # HMM 파라미터 (학습 후 설정)
-        self.pi: Optional[np.ndarray] = None          # 초기 상태 확률 [K]
-        self.transitionMatrix: Optional[np.ndarray] = None  # 전이 행렬 [K x K]
-        self.means: Optional[np.ndarray] = None        # 각 상태 평균 [K]
-        self.variances: Optional[np.ndarray] = None    # 각 상태 분산 [K]
+        # HMM parameters (set after training)
+        self.pi: Optional[np.ndarray] = None          # Initial state probabilities [K]
+        self.transitionMatrix: Optional[np.ndarray] = None  # Transition matrix [K x K]
+        self.means: Optional[np.ndarray] = None        # State means [K]
+        self.variances: Optional[np.ndarray] = None    # State variances [K]
 
         self._fitted = False
         self._logLikelihood = -np.inf
 
     # ------------------------------------------------------------------
-    # 공개 API
+    # Public API
     # ------------------------------------------------------------------
 
     def detect(self, y: np.ndarray) -> RegimeResult:
         """
-        레짐 감지 실행
+        Run regime detection
 
         Parameters
         ----------
         y : np.ndarray
-            시계열 원본 데이터 (레벨)
+            Original time series data (level)
 
         Returns
         -------
         RegimeResult
-            감지 결과 (상태, 레이블, 전이행렬, 통계 등)
+            Detection result (states, labels, transition matrix, statistics, etc.)
         """
         y = np.asarray(y, dtype=np.float64).ravel()
         if len(y) < 10:
-            raise ValueError("레짐 감지에 최소 10개 이상의 데이터가 필요합니다.")
+            raise ValueError("Regime detection requires at least 10 data points.")
 
-        # 관측값 = 로그 수익률
+        # Observations = log returns
         observations = self._computeReturns(y)
 
-        # 적응적 레짐 수 결정: 데이터가 짧으면 레짐 수 줄이기
+        # Adaptive regime count: reduce if data is short
         effectiveRegimes = min(self.nRegimes, max(2, len(observations) // 20))
 
-        # 원래 nRegimes 백업 후 적응
+        # Backup original nRegimes then adapt
         origRegimes = self.nRegimes
         self.nRegimes = effectiveRegimes
 
-        # HMM 학습 (Baum-Welch)
+        # HMM training (Baum-Welch)
         self._fitHMM(observations)
 
-        # 최적 상태 시퀀스 (Viterbi)
+        # Optimal state sequence (Viterbi)
         states = self._viterbi(observations)
 
-        # 상태 → 의미있는 레이블 변환
+        # Convert states to meaningful labels
         labels = self._labelRegimes(y, states)
 
-        # 레짐 이력 생성
+        # Build regime history
         regimeHistory = self._buildRegimeHistory(labels)
 
-        # 레짐별 통계
+        # Per-regime statistics
         regimeStats = self._computeRegimeStats(y, states, labels)
 
-        # 전이 행렬 (학습된 것 사용)
+        # Transition matrix (use trained one)
         transitionMatrix = self.transitionMatrix.copy()
 
         currentRegime = labels[-1] if labels else "stable"
 
-        # nRegimes 복원
+        # Restore nRegimes
         self.nRegimes = origRegimes
 
         return RegimeResult(
@@ -245,23 +245,23 @@ class RegimeDetector:
         )
 
     # ------------------------------------------------------------------
-    # 관측값 계산
+    # Observation Computation
     # ------------------------------------------------------------------
 
     def _computeReturns(self, y: np.ndarray) -> np.ndarray:
         """
-        로그 수익률 계산: log(y[t] / y[t-1])
+        Compute log returns: log(y[t] / y[t-1])
 
-        0이나 음수 값이 있으면 안전하게 처리한다.
+        Safely handles zero and negative values.
         """
-        # 안전 처리: 0 이하인 값을 작은 양수로 대체
+        # Safety: replace values <= 0 with small positive number
         safeY = y.copy()
         minPositive = np.min(safeY[safeY > 0]) if np.any(safeY > 0) else 1.0
         safeY[safeY <= 0] = minPositive * 0.01
 
         returns = np.diff(np.log(safeY))
 
-        # NaN/Inf 처리
+        # Handle NaN/Inf
         mask = ~np.isfinite(returns)
         if np.any(mask):
             median = np.nanmedian(returns[~mask]) if np.any(~mask) else 0.0
@@ -270,24 +270,24 @@ class RegimeDetector:
         return returns
 
     # ------------------------------------------------------------------
-    # HMM 학습: Baum-Welch (EM)
+    # HMM Training: Baum-Welch (EM)
     # ------------------------------------------------------------------
 
     def _fitHMM(self, observations: np.ndarray) -> None:
         """
-        Baum-Welch (EM) 알고리즘으로 HMM 학습
+        Train HMM using Baum-Welch (EM) algorithm
 
-        모든 계산을 log-space에서 수행하여 수치 안정성을 보장한다.
+        All computations performed in log-space for numerical stability.
 
         Parameters
         ----------
         observations : np.ndarray
-            관측값 시퀀스 (로그 수익률)
+            Observation sequence (log returns)
         """
         T = len(observations)
         K = self.nRegimes
 
-        # --- 파라미터 초기화 ---
+        # --- Parameter initialization ---
         self._initializeParams(observations)
 
         prevLogLik = -np.inf
@@ -298,19 +298,19 @@ class RegimeDetector:
             logAlpha, logLik = self._forward(observations)
             logBeta = self._backward(observations)
 
-            # 수렴 체크
+            # Convergence check
             if abs(logLik - prevLogLik) < tolerance and iteration > 5:
                 break
             prevLogLik = logLik
 
-            # gamma[t][k] = P(state_t = k | Y): 사후 상태 확률
+            # gamma[t][k] = P(state_t = k | Y): posterior state probability
             logGamma = logAlpha + logBeta
-            # 정규화: 각 시점에서 합이 1이 되도록
+            # Normalize: sum to 1 at each time step
             logGammaNorm = _logSumExpAxis(logGamma, axis=1)
             logGamma = logGamma - logGammaNorm[:, np.newaxis]
 
             gamma = np.exp(logGamma)
-            # 안전장치
+            # Safety guard
             gamma = np.clip(gamma, 1e-300, None)
             gammaSum = gamma.sum(axis=0)
             gammaSum = np.where(gammaSum < 1e-300, 1e-300, gammaSum)
@@ -331,7 +331,7 @@ class RegimeDetector:
                             + logEmission
                             + logBeta[t + 1, k]
                         )
-                # 정규화
+                # Normalize
                 norm = _logSumExp(logXi[t].ravel())
                 if np.isfinite(norm):
                     logXi[t] -= norm
@@ -339,42 +339,42 @@ class RegimeDetector:
             xi = np.exp(logXi)
             xi = np.clip(xi, 1e-300, None)
 
-            # --- M-step: 파라미터 업데이트 ---
+            # --- M-step: Parameter update ---
 
-            # 초기 상태 확률
+            # Initial state probabilities
             self.pi = gamma[0] / gamma[0].sum()
             self.pi = np.clip(self.pi, 1e-10, None)
             self.pi /= self.pi.sum()
 
-            # 전이 행렬
+            # Transition matrix
             xiSumOverT = xi.sum(axis=0)  # [K x K]
             gammaSumForTrans = gamma[:-1].sum(axis=0)  # [K]
             gammaSumForTrans = np.where(
                 gammaSumForTrans < 1e-300, 1e-300, gammaSumForTrans
             )
             self.transitionMatrix = xiSumOverT / gammaSumForTrans[:, np.newaxis]
-            # 행 정규화
+            # Row normalization
             rowSums = self.transitionMatrix.sum(axis=1, keepdims=True)
             rowSums = np.where(rowSums < 1e-300, 1e-300, rowSums)
             self.transitionMatrix /= rowSums
-            # 수치 안정 클리핑
+            # Numerical stability clipping
             self.transitionMatrix = np.clip(self.transitionMatrix, 1e-10, None)
             self.transitionMatrix /= self.transitionMatrix.sum(axis=1, keepdims=True)
 
-            # 관측 모델 파라미터 (가우시안)
+            # Observation model parameters (Gaussian)
             for k in range(K):
                 wk = gamma[:, k]
                 wkSum = wk.sum()
                 if wkSum < 1e-300:
                     continue
 
-                # 평균
+                # Mean
                 self.means[k] = np.dot(wk, observations) / wkSum
 
-                # 분산
+                # Variance
                 diff = observations - self.means[k]
                 self.variances[k] = np.dot(wk, diff ** 2) / wkSum
-                # 최소 분산 보장
+                # Ensure minimum variance
                 self.variances[k] = max(self.variances[k], 1e-10)
 
         self._logLikelihood = prevLogLik
@@ -382,23 +382,23 @@ class RegimeDetector:
 
     def _initializeParams(self, observations: np.ndarray) -> None:
         """
-        HMM 파라미터 K-means 스타일 초기화
+        K-means style HMM parameter initialization
 
-        관측값을 분위수 기반으로 K개 클러스터로 나누어 초기 평균/분산을 설정한다.
+        Splits observations into K clusters based on quantiles to set initial means/variances.
         """
         K = self.nRegimes
         T = len(observations)
 
-        # 초기 상태 확률: 균등
+        # Initial state probabilities: uniform
         self.pi = np.ones(K) / K
 
-        # 전이 행렬: 대각 성분 우세 (자기 유지 확률 높음)
+        # Transition matrix: diagonal-dominant (high self-persistence probability)
         self.transitionMatrix = np.full((K, K), 0.05 / (K - 1))
         np.fill_diagonal(self.transitionMatrix, 0.95)
-        # 행 정규화
+        # Row normalization
         self.transitionMatrix /= self.transitionMatrix.sum(axis=1, keepdims=True)
 
-        # 관측 모델: 분위수 기반 초기화
+        # Observation model: quantile-based initialization
         sortedObs = np.sort(observations)
         self.means = np.zeros(K)
         self.variances = np.zeros(K)
@@ -412,7 +412,7 @@ class RegimeDetector:
             self.means[k] = np.mean(segment)
             self.variances[k] = max(np.var(segment), 1e-10)
 
-        # 평균을 정렬하여 해석 용이하게
+        # Sort means for interpretability
         sortIdx = np.argsort(self.means)
         self.means = self.means[sortIdx]
         self.variances = self.variances[sortIdx]
@@ -423,7 +423,7 @@ class RegimeDetector:
 
     def _forward(self, observations: np.ndarray) -> Tuple[np.ndarray, float]:
         """
-        Forward 알고리즘 (log-space)
+        Forward algorithm (log-space)
 
         alpha[t][k] = p(y_1,...,y_t, state_t=k)
 
@@ -434,14 +434,14 @@ class RegimeDetector:
         Parameters
         ----------
         observations : np.ndarray
-            관측값 시퀀스
+            Observation sequence
 
         Returns
         -------
         logAlpha : np.ndarray
-            [T x K] 전방 변수 (log)
+            [T x K] forward variables (log)
         logLikelihood : float
-            전체 시퀀스의 로그 우도
+            Log-likelihood of the full sequence
         """
         T = len(observations)
         K = self.nRegimes
@@ -466,7 +466,7 @@ class RegimeDetector:
                 logTerms = logAlpha[t - 1, :] + logA[:, k]
                 logAlpha[t, k] = logEmission + _logSumExp(logTerms)
 
-        # 로그 우도
+        # Log-likelihood
         logLikelihood = _logSumExp(logAlpha[T - 1, :])
 
         return logAlpha, logLikelihood
@@ -477,7 +477,7 @@ class RegimeDetector:
 
     def _backward(self, observations: np.ndarray) -> np.ndarray:
         """
-        Backward 알고리즘 (log-space)
+        Backward algorithm (log-space)
 
         beta[t][k] = p(y_{t+1},...,y_T | state_t=k)
 
@@ -489,12 +489,12 @@ class RegimeDetector:
         Parameters
         ----------
         observations : np.ndarray
-            관측값 시퀀스
+            Observation sequence
 
         Returns
         -------
         logBeta : np.ndarray
-            [T x K] 후방 변수 (log)
+            [T x K] backward variables (log)
         """
         T = len(observations)
         K = self.nRegimes
@@ -524,7 +524,7 @@ class RegimeDetector:
 
     def _viterbi(self, observations: np.ndarray) -> np.ndarray:
         """
-        Viterbi 알고리즘으로 최적 상태 시퀀스 추정 (log-space)
+        Optimal state sequence estimation via Viterbi algorithm (log-space)
 
         delta[t][k] = max_j(delta[t-1][j] * A[j][k]) * p(y_t | state=k)
 
@@ -535,12 +535,12 @@ class RegimeDetector:
         Parameters
         ----------
         observations : np.ndarray
-            관측값 시퀀스
+            Observation sequence
 
         Returns
         -------
         states : np.ndarray
-            최적 상태 시퀀스 [T] (0-indexed)
+            Optimal state sequence [T] (0-indexed)
         """
         T = len(observations)
         K = self.nRegimes
@@ -574,8 +574,8 @@ class RegimeDetector:
         for t in range(T - 2, -1, -1):
             states[t] = psi[t + 1, states[t + 1]]
 
-        # 상태를 관측 시퀀스 길이(T)에서 원본 시계열 길이(T+1)로 확장
-        # observations는 diff이므로 길이가 원본-1. 첫 시점은 첫 관측의 상태로 채운다.
+        # Extend states from observation sequence length (T) to original series length (T+1)
+        # observations are diff so length is original-1. First point gets first observation's state.
         fullStates = np.empty(T + 1, dtype=int)
         fullStates[0] = states[0]
         fullStates[1:] = states
@@ -583,39 +583,39 @@ class RegimeDetector:
         return fullStates
 
     # ------------------------------------------------------------------
-    # 상태 → 레이블 변환
+    # State to Label Conversion
     # ------------------------------------------------------------------
 
     def _labelRegimes(self, y: np.ndarray, states: np.ndarray) -> List[str]:
         """
-        상태 번호를 의미있는 레이블로 변환
+        Convert state numbers to meaningful labels
 
-        각 HMM 상태의 통계를 분석하여 레짐 유형을 결정:
-        - 평균 수익률 > 0.01  --> 'growth'
-        - 평균 수익률 < -0.01 --> 'decline'
+        Analyzes statistics of each HMM state to determine regime type:
+        - Mean return > 0.01  --> 'growth'
+        - Mean return < -0.01 --> 'decline'
         - std > median_std * 1.5 --> 'volatile'
-        - 평균 수익률 < -0.03 AND std > median_std * 2 --> 'crisis'
-        - 나머지 --> 'stable'
+        - Mean return < -0.03 AND std > median_std * 2 --> 'crisis'
+        - Otherwise --> 'stable'
 
         Parameters
         ----------
         y : np.ndarray
-            원본 시계열
+            Original time series
         states : np.ndarray
-            상태 시퀀스 (길이 = len(y))
+            State sequence (length = len(y))
 
         Returns
         -------
         List[str]
-            각 시점의 레이블
+            Label for each time point
         """
         K = self.nRegimes
         returns = self._computeReturns(y)
-        # states는 len(y) 길이이므로, 수익률(len(y)-1)에 맞춰 정렬
-        # states[1:]가 returns에 대응
+        # states has length len(y), align with returns (len(y)-1)
+        # states[1:] corresponds to returns
         stateForReturns = states[1:]  # len = len(returns)
 
-        # 각 상태의 통계
+        # Statistics per state
         stateMeanReturn = np.zeros(K)
         stateStdReturn = np.zeros(K)
 
@@ -632,44 +632,44 @@ class RegimeDetector:
         if medianStd < 1e-10:
             medianStd = 1e-6
 
-        # 레이블 매핑: 상태 번호 -> 레이블
+        # Label mapping: state number -> label
         stateToLabel: Dict[int, str] = {}
 
         for k in range(K):
             mr = stateMeanReturn[k]
             sd = stateStdReturn[k]
 
-            # crisis: 큰 폭 하락 + 매우 높은 변동성
+            # crisis: sharp decline + very high volatility
             if mr < -0.03 and sd > medianStd * 2:
                 stateToLabel[k] = "crisis"
-            # volatile: 높은 변동성
+            # volatile: high volatility
             elif sd > medianStd * 1.5:
                 stateToLabel[k] = "volatile"
-            # growth: 상승 추세
+            # growth: upward trend
             elif mr > 0.01:
                 stateToLabel[k] = "growth"
-            # decline: 하락 추세
+            # decline: downward trend
             elif mr < -0.01:
                 stateToLabel[k] = "decline"
-            # stable: 나머지
+            # stable: everything else
             else:
                 stateToLabel[k] = "stable"
 
-        # 중복 레이블 처리: 같은 레이블이 여러 상태에 배정되면
-        # 구분을 위해 변동성 기준으로 재라벨
+        # Handle duplicate labels: if same label assigned to multiple states,
+        # re-label based on volatility for differentiation
         usedLabels: Dict[str, List[int]] = {}
         for k, label in stateToLabel.items():
             usedLabels.setdefault(label, []).append(k)
 
         for label, stateList in usedLabels.items():
             if len(stateList) > 1:
-                # 변동성 오름차순 정렬
+                # Sort by volatility ascending
                 stateList.sort(key=lambda s: stateStdReturn[s])
                 for idx, s in enumerate(stateList):
                     if idx == 0:
-                        pass  # 변동성 가장 낮은 상태는 원래 레이블 유지
+                        pass  # Keep original label for lowest volatility state
                     else:
-                        # 변동성이 더 높은 상태에 다른 레이블 부여
+                        # Assign different label to higher volatility states
                         if label == "stable":
                             stateToLabel[s] = "volatile"
                         elif label == "growth":
@@ -683,11 +683,11 @@ class RegimeDetector:
         return labels
 
     # ------------------------------------------------------------------
-    # 레짐 이력 구간 생성
+    # Regime History Interval Construction
     # ------------------------------------------------------------------
 
     def _buildRegimeHistory(self, labels: List[str]) -> List[Tuple[str, int, int]]:
-        """연속된 동일 레짐을 구간으로 묶기"""
+        """Group consecutive identical regimes into intervals"""
         if not labels:
             return []
 
@@ -705,20 +705,20 @@ class RegimeDetector:
         return history
 
     # ------------------------------------------------------------------
-    # 레짐별 통계 계산
+    # Per-Regime Statistics Computation
     # ------------------------------------------------------------------
 
     def _computeRegimeStats(
         self, y: np.ndarray, states: np.ndarray, labels: List[str]
     ) -> Dict[str, Dict]:
         """
-        각 레짐의 통계 계산
+        Compute statistics for each regime
 
         Returns
         -------
         Dict[str, Dict]
-            {레짐레이블: {'mean': float, 'std': float, 'trend': float,
-                         'count': int, 'proportion': float}}
+            {regime_label: {'mean': float, 'std': float, 'trend': float,
+                           'count': int, 'proportion': float}}
         """
         uniqueLabels = sorted(set(labels))
         stats: Dict[str, Dict] = {}
@@ -727,17 +727,17 @@ class RegimeDetector:
         returns = self._computeReturns(y)
 
         for label in uniqueLabels:
-            # 이 레짐에 속하는 인덱스들
+            # Indices belonging to this regime
             indices = [i for i, lb in enumerate(labels) if lb == label]
             if not indices:
                 continue
 
             segmentValues = y[indices]
-            # 수익률 인덱스 (labels[1:]에 대응)
+            # Return indices (corresponding to labels[1:])
             returnIndices = [i - 1 for i in indices if 0 < i <= len(returns)]
             segmentReturns = returns[returnIndices] if returnIndices else np.array([0.0])
 
-            # 추세: 선형 회귀 기울기
+            # Trend: linear regression slope
             if len(segmentValues) > 1:
                 x = np.arange(len(segmentValues))
                 slope = np.polyfit(x, segmentValues, 1)[0]
@@ -758,31 +758,31 @@ class RegimeDetector:
 
 
 # ---------------------------------------------------------------------------
-# RegimeAwareForecaster: 레짐 인식 적응 예측기
+# RegimeAwareForecaster: Regime-Aware Adaptive Forecaster
 # ---------------------------------------------------------------------------
 
 class RegimeAwareForecaster:
     """
-    레짐 인식 적응 예측기
+    Regime-aware adaptive forecaster
 
-    각 레짐에 최적화된 모델을 자동 선택하여 예측한다.
-    전이 확률을 기반으로 여러 레짐 시나리오의 예측을 가중 결합한다.
+    Automatically selects optimal models for each regime and generates forecasts.
+    Combines forecasts from multiple regime scenarios using transition probabilities.
 
-    레짐별 모델 매핑:
-    - growth   -> auto_ets 또는 theta (추세 추적에 강한 모델)
-    - decline  -> rwd 또는 auto_ets (보수적 하락 반영)
-    - volatile -> garch 또는 window_avg (변동성 모델링)
-    - stable   -> mean 또는 naive (안정적 예측)
-    - crisis   -> seasonal_naive (급변 시 보수적 접근)
+    Per-regime model mapping:
+    - growth   -> auto_ets or theta (models strong at trend tracking)
+    - decline  -> rwd or auto_ets (conservative decline reflection)
+    - volatile -> garch or window_avg (volatility modeling)
+    - stable   -> mean or naive (stable prediction)
+    - crisis   -> seasonal_naive (conservative approach during sharp changes)
 
-    모델 ID 문자열만 반환하여 Vectrix 엔진이 실행하게 함.
+    Returns only model ID strings for execution by the Vectrix engine.
 
     Parameters
     ----------
     nRegimes : int
-        감지할 레짐 수 (기본 3)
+        Number of regimes to detect (default 3)
     period : int
-        계절 주기 (기본 7)
+        Seasonal period (default 7)
 
     Examples
     --------
@@ -798,7 +798,7 @@ class RegimeAwareForecaster:
      [0.02 0.10 0.88]]
     """
 
-    # 레짐별 기본 모델 매핑
+    # Default model mapping per regime
     REGIME_MODEL_MAP: Dict[str, List[str]] = {
         "growth":   ["auto_ets", "theta", "dot"],
         "decline":  ["rwd", "auto_ets", "theta"],
@@ -814,7 +814,7 @@ class RegimeAwareForecaster:
         self._regimeResult: Optional[RegimeResult] = None
 
     # ------------------------------------------------------------------
-    # 공개 API
+    # Public API
     # ------------------------------------------------------------------
 
     def forecast(
@@ -824,38 +824,38 @@ class RegimeAwareForecaster:
         period: int = 7,
     ) -> RegimeForecastResult:
         """
-        레짐 인식 예측 실행
+        Run regime-aware forecasting
 
-        절차:
-        1. 레짐 감지 (HMM)
-        2. 현재 레짐 파악
-        3. 레짐별 최적 모델 선택
-        4. 전이 확률 기반 앙상블 가중치 계산
-        5. 각 레짐 시나리오별 예측 생성 (단순 통계 기반)
-        6. 가중 결합 + 신뢰구간
-        7. 레짐 전환 시나리오 반환
+        Procedure:
+        1. Regime detection (HMM)
+        2. Identify current regime
+        3. Select optimal model per regime
+        4. Compute ensemble weights based on transition probabilities
+        5. Generate forecasts per regime scenario (simple statistics-based)
+        6. Weighted combination + confidence intervals
+        7. Return regime transition scenarios
 
         Parameters
         ----------
         y : np.ndarray
-            시계열 데이터
+            Time series data
         steps : int
-            예측 스텝 수
+            Number of forecast steps
         period : int
-            계절 주기
+            Seasonal period
 
         Returns
         -------
         RegimeForecastResult
-            레짐 인식 예측 결과
+            Regime-aware forecast result
         """
         y = np.asarray(y, dtype=np.float64).ravel()
         if len(y) < 10:
-            raise ValueError("예측에 최소 10개 이상의 데이터가 필요합니다.")
+            raise ValueError("Forecasting requires at least 10 data points.")
 
         self.period = period
 
-        # 1. 레짐 감지
+        # 1. Regime detection
         regimeResult = self.detector.detect(y)
         self._regimeResult = regimeResult
 
@@ -863,13 +863,13 @@ class RegimeAwareForecaster:
         K = regimeResult.nRegimes
         transMatrix = regimeResult.transitionMatrix
 
-        # 2. 레짐별 모델 선택
+        # 2. Model selection per regime
         uniqueLabels = sorted(set(regimeResult.labels))
         modelPerRegime: Dict[str, str] = {}
         for label in uniqueLabels:
             modelPerRegime[label] = self._selectModelForRegime(label, y, period)
 
-        # 3. 레짐별 시나리오 예측 (통계 기반 단순 예측)
+        # 3. Scenario forecasts per regime (simple statistics-based)
         scenarioForecasts: Dict[str, np.ndarray] = {}
         scenarioStds: Dict[str, float] = {}
 
@@ -880,12 +880,12 @@ class RegimeAwareForecaster:
             scenarioForecasts[label] = pred
             scenarioStds[label] = predStd
 
-        # 4. 전이 확률 기반 가중 예측
+        # 4. Transition probability weighted forecast
         predictions, regimeProbabilities = self._transitionWeightedForecast(
             y, steps, period, currentRegime, regimeResult
         )
 
-        # 5. 신뢰구간 계산
+        # 5. Confidence interval computation
         lower95, upper95 = self._computeConfidenceIntervals(
             predictions, y, steps, regimeProbabilities, regimeResult
         )
@@ -904,35 +904,35 @@ class RegimeAwareForecaster:
         )
 
     # ------------------------------------------------------------------
-    # 레짐별 모델 선택
+    # Per-Regime Model Selection
     # ------------------------------------------------------------------
 
     def _selectModelForRegime(
         self, regimeLabel: str, y: np.ndarray, period: int
     ) -> str:
         """
-        레짐별 최적 모델 ID 반환
+        Return optimal model ID for a regime
 
-        데이터 길이에 따라 후보 중 적합한 모델을 선택한다.
+        Selects appropriate model from candidates based on data length.
 
         Parameters
         ----------
         regimeLabel : str
-            레짐 레이블
+            Regime label
         y : np.ndarray
-            시계열 데이터
+            Time series data
         period : int
-            계절 주기
+            Seasonal period
 
         Returns
         -------
         str
-            모델 ID (Vectrix 엔진용)
+            Model ID (for Vectrix engine)
         """
         n = len(y)
         candidates = self.REGIME_MODEL_MAP.get(regimeLabel, ["auto_ets"])
 
-        # 데이터 길이에 따른 필터링
+        # Filter based on data length requirements
         minDataRequirements = {
             "auto_ets": 20,
             "auto_arima": 30,
@@ -951,11 +951,11 @@ class RegimeAwareForecaster:
             if n >= minRequired:
                 return candidate
 
-        # 모든 후보가 데이터 부족이면 가장 단순한 모델
+        # If all candidates lack data, use simplest model
         return "mean" if n >= 2 else "naive"
 
     # ------------------------------------------------------------------
-    # 레짐 시나리오별 예측 생성
+    # Per-Regime Scenario Forecast Generation
     # ------------------------------------------------------------------
 
     def _generateRegimeScenarioForecast(
@@ -967,28 +967,28 @@ class RegimeAwareForecaster:
         period: int,
     ) -> Tuple[np.ndarray, float]:
         """
-        특정 레짐이 지속된다고 가정한 시나리오 예측
+        Scenario forecast assuming a specific regime persists
 
-        해당 레짐 구간의 통계 특성(추세, 변동성)을 활용하여
-        단순 통계 기반 예측을 생성한다.
+        Generates simple statistics-based forecasts using the statistical properties
+        (trend, volatility) of the corresponding regime segment.
 
         Parameters
         ----------
         y : np.ndarray
-            원본 시계열
+            Original time series
         regimeLabel : str
-            시나리오 레짐
+            Scenario regime
         regimeResult : RegimeResult
-            레짐 감지 결과
+            Regime detection result
         steps : int
-            예측 스텝 수
+            Number of forecast steps
         period : int
-            계절 주기
+            Seasonal period
 
         Returns
         -------
         Tuple[np.ndarray, float]
-            (예측값, 예측 표준편차)
+            (predictions, prediction standard deviation)
         """
         stats = regimeResult.regimeStats.get(regimeLabel, {})
         meanReturn = stats.get("meanReturn", 0.0)
@@ -999,7 +999,7 @@ class RegimeAwareForecaster:
         predictions = np.zeros(steps)
 
         if regimeLabel == "growth":
-            # 상승 추세 반영: 마지막 값에서 평균 수익률만큼 성장
+            # Reflect upward trend: grow from last value by mean return
             for h in range(steps):
                 if h == 0:
                     predictions[h] = lastValue * (1 + meanReturn)
@@ -1007,7 +1007,7 @@ class RegimeAwareForecaster:
                     predictions[h] = predictions[h - 1] * (1 + meanReturn)
 
         elif regimeLabel == "decline":
-            # 하락 추세: damped decline (점점 완화)
+            # Downward trend: damped decline (gradually attenuated)
             dampFactor = 0.95
             for h in range(steps):
                 dampedReturn = meanReturn * (dampFactor ** h)
@@ -1017,17 +1017,17 @@ class RegimeAwareForecaster:
                     predictions[h] = predictions[h - 1] * (1 + dampedReturn)
 
         elif regimeLabel == "volatile":
-            # 변동성: 평균 회귀 + 넓은 변동
+            # Volatility: mean reversion + wide variation
             regimeMean = stats.get("mean", lastValue)
             for h in range(steps):
-                # 평균으로의 점진적 회귀
+                # Gradual reversion to mean
                 alpha = min(0.1 * (h + 1), 1.0)
                 predictions[h] = lastValue * (1 - alpha) + regimeMean * alpha
 
         elif regimeLabel == "crisis":
-            # 위기: 급락 후 안정화
+            # Crisis: sharp drop then stabilization
             for h in range(steps):
-                # 급격한 하락이 점점 완화
+                # Sharp decline gradually attenuated
                 dampedReturn = meanReturn * (0.8 ** h)
                 if h == 0:
                     predictions[h] = lastValue * (1 + dampedReturn)
@@ -1035,9 +1035,9 @@ class RegimeAwareForecaster:
                     predictions[h] = predictions[h - 1] * (1 + dampedReturn)
 
         elif regimeLabel == "stable":
-            # 안정: 거의 변화 없음
+            # Stable: minimal change
             predictions[:] = lastValue
-            # 약간의 추세 반영
+            # Slight trend reflection
             if abs(trend) > 0:
                 trendPerStep = trend / max(stats.get("count", 1), 1)
                 for h in range(steps):
@@ -1049,7 +1049,7 @@ class RegimeAwareForecaster:
         return predictions, float(stdReturn * lastValue) if lastValue != 0 else float(stdReturn)
 
     # ------------------------------------------------------------------
-    # 전이 확률 가중 예측
+    # Transition Probability Weighted Forecast
     # ------------------------------------------------------------------
 
     def _transitionWeightedForecast(
@@ -1061,51 +1061,50 @@ class RegimeAwareForecaster:
         regimeResult: RegimeResult,
     ) -> Tuple[np.ndarray, np.ndarray]:
         """
-        전이 확률 가중 예측: 다른 레짐으로의 전환 확률도 반영
+        Transition probability weighted forecast: incorporates transition probabilities to other regimes
 
-        현재 레짐이 growth이고 전이 확률이:
+        If current regime is growth with transition probabilities:
         - P(growth->growth) = 0.8
         - P(growth->stable) = 0.15
         - P(growth->decline) = 0.05
-        이면 예측 가중치:
-        - growth 모델 예측 * 0.8 + stable 모델 예측 * 0.15 + decline 모델 예측 * 0.05
+        Then forecast weights:
+        - growth forecast * 0.8 + stable forecast * 0.15 + decline forecast * 0.05
 
-        장기 예측에서는 행렬 거듭제곱으로 수렴:
-        - step h에서의 가중치 = transitionMatrix^h 의 currentRegime 행
+        For long-term forecasts, converges via matrix power:
+        - Weights at step h = row of transitionMatrix^h for currentRegime
 
         Parameters
         ----------
         y : np.ndarray
-            시계열 데이터
+            Time series data
         steps : int
-            예측 스텝 수
+            Number of forecast steps
         period : int
-            계절 주기
+            Seasonal period
         currentRegime : str
-            현재 레짐
+            Current regime
         regimeResult : RegimeResult
-            레짐 감지 결과
+            Regime detection result
 
         Returns
         -------
         Tuple[np.ndarray, np.ndarray]
-            (가중 예측값 [steps], 레짐 확률 [steps x K])
+            (weighted predictions [steps], regime probabilities [steps x K])
         """
         K = regimeResult.nRegimes
         transMatrix = regimeResult.transitionMatrix  # [K x K]
 
-        # 상태 번호와 레이블 매핑 구축
-        # HMM 상태 -> 레이블 매핑 (labels의 마지막 K개 고유값과 상태 대응)
+        # Build state number to label mapping
         uniqueLabels = sorted(set(regimeResult.labels))
         stateToLabel: Dict[int, str] = {}
         labelToState: Dict[str, int] = {}
 
-        # 각 HMM 상태에서 가장 빈번한 레이블 결정
+        # Determine most frequent label for each HMM state
         for k in range(K):
             mask = regimeResult.states == k
             if np.sum(mask) > 0:
                 labelsForState = [regimeResult.labels[i] for i in range(len(regimeResult.labels)) if mask[i]]
-                # 최빈 레이블
+                # Most frequent label
                 labelCounts: Dict[str, int] = {}
                 for lb in labelsForState:
                     labelCounts[lb] = labelCounts.get(lb, 0) + 1
@@ -1115,10 +1114,10 @@ class RegimeAwareForecaster:
             else:
                 stateToLabel[k] = "stable"
 
-        # 현재 레짐에 대응하는 상태 인덱스
+        # State index corresponding to current regime
         currentStateIdx = labelToState.get(currentRegime, 0)
 
-        # 각 레짐별 시나리오 예측 생성
+        # Generate scenario forecasts per regime
         scenarioPreds: Dict[int, np.ndarray] = {}
         for k in range(K):
             label = stateToLabel.get(k, "stable")
@@ -1127,19 +1126,19 @@ class RegimeAwareForecaster:
             )
             scenarioPreds[k] = pred
 
-        # step h에서의 레짐 확률: transMatrix^h의 currentState 행
+        # Regime probabilities at step h: row of transMatrix^h for currentState
         regimeProbabilities = np.zeros((steps, K))
         weightedPredictions = np.zeros(steps)
 
-        # 행렬 거듭제곱 누적
+        # Cumulative matrix power
         matPower = np.eye(K)  # A^0 = I
 
         for h in range(steps):
-            # h=0: A^1의 currentState 행
+            # h=0: row of A^1 for currentState
             matPower = matPower @ transMatrix
 
             regimeProbs = matPower[currentStateIdx, :]
-            # 수치 안정화
+            # Numerical stabilization
             regimeProbs = np.clip(regimeProbs, 0, None)
             probSum = regimeProbs.sum()
             if probSum > 0:
@@ -1147,14 +1146,14 @@ class RegimeAwareForecaster:
 
             regimeProbabilities[h, :] = regimeProbs
 
-            # 가중 예측
+            # Weighted forecast
             for k in range(K):
                 weightedPredictions[h] += regimeProbs[k] * scenarioPreds[k][h]
 
         return weightedPredictions, regimeProbabilities
 
     # ------------------------------------------------------------------
-    # 신뢰구간 계산
+    # Confidence Interval Computation
     # ------------------------------------------------------------------
 
     def _computeConfidenceIntervals(
@@ -1166,24 +1165,24 @@ class RegimeAwareForecaster:
         regimeResult: RegimeResult,
     ) -> Tuple[np.ndarray, np.ndarray]:
         """
-        레짐 불확실성을 반영한 95% 신뢰구간 계산
+        Compute 95% confidence intervals reflecting regime uncertainty
 
-        신뢰구간은 두 가지 불확실성을 결합:
-        1. 각 레짐 내의 고유 변동성
-        2. 레짐 전환 불확실성 (여러 레짐의 예측이 다를 때)
+        Confidence intervals combine two sources of uncertainty:
+        1. Intrinsic volatility within each regime
+        2. Regime transition uncertainty (when forecasts differ across regimes)
 
         Parameters
         ----------
         predictions : np.ndarray
-            가중 예측값
+            Weighted predictions
         y : np.ndarray
-            원본 시계열
+            Original time series
         steps : int
-            예측 스텝 수
+            Number of forecast steps
         regimeProbabilities : np.ndarray
-            [steps x K] 레짐 확률
+            [steps x K] regime probabilities
         regimeResult : RegimeResult
-            레짐 감지 결과
+            Regime detection result
 
         Returns
         -------
@@ -1192,7 +1191,7 @@ class RegimeAwareForecaster:
         """
         K = regimeResult.nRegimes
 
-        # 상태 -> 레이블 매핑
+        # State -> label mapping
         stateToLabel: Dict[int, str] = {}
         for k in range(K):
             mask = regimeResult.states == k
@@ -1205,24 +1204,24 @@ class RegimeAwareForecaster:
             else:
                 stateToLabel[k] = "stable"
 
-        # 각 레짐의 변동성 (표준편차)
+        # Volatility (std) per regime
         regimeStds = np.zeros(K)
         for k in range(K):
             label = stateToLabel.get(k, "stable")
             stats = regimeResult.regimeStats.get(label, {})
             regimeStds[k] = stats.get("std", np.std(y))
 
-        # 기본 불확실성: 전체 데이터의 표준편차
+        # Base uncertainty: std of overall data
         baseStd = np.std(y[-min(60, len(y)):])
 
         margin = np.zeros(steps)
         for h in range(steps):
-            # 1. 레짐 내 변동성의 가중 합
+            # 1. Weighted sum of within-regime volatility
             withinVar = 0.0
             for k in range(K):
                 withinVar += regimeProbabilities[h, k] * regimeStds[k] ** 2
 
-            # 2. 레짐 간 예측 분산 (시나리오 차이)
+            # 2. Between-regime forecast variance (scenario differences)
             betweenVar = 0.0
             for k in range(K):
                 label = stateToLabel.get(k, "stable")
@@ -1231,10 +1230,10 @@ class RegimeAwareForecaster:
                 )
                 betweenVar += regimeProbabilities[h, k] * (scenarioPred[h] - predictions[h]) ** 2
 
-            # 총 분산 = 레짐 내 + 레짐 간 (Law of Total Variance)
+            # Total variance = within + between (Law of Total Variance)
             totalVar = withinVar + betweenVar + baseStd ** 2
 
-            # 시간 경과에 따른 불확실성 증가 (sqrt(h+1))
+            # Uncertainty increases over time (sqrt(h+1))
             margin[h] = 1.96 * np.sqrt(totalVar) * np.sqrt(h + 1)
 
         lower95 = predictions - margin

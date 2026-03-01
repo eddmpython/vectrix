@@ -1,12 +1,12 @@
 """
 GARCH Family Models
 
-금융/변동성 시계열 예측:
-- GARCH(1,1): 표준 조건부 분산 모델
-- EGARCH: 비대칭 변동성 (레버리지 효과)
-- GJR-GARCH: 비대칭 변동성 (threshold)
+Financial/volatility time series forecasting:
+- GARCH(1,1): Standard conditional variance model
+- EGARCH: Asymmetric volatility (leverage effect)
+- GJR-GARCH: Asymmetric volatility (threshold)
 
-MLE 기반 파라미터 추정 (scipy.optimize)
+MLE-based parameter estimation (scipy.optimize)
 """
 
 from typing import Tuple
@@ -19,10 +19,10 @@ class GARCHModel:
     """
     GARCH(1,1) Model
 
-    조건부 분산: σ²_t = ω + α·ε²_{t-1} + β·σ²_{t-1}
+    Conditional variance: σ²_t = ω + α·ε²_{t-1} + β·σ²_{t-1}
 
-    수익률/변동성 예측에 사용.
-    평균 모델은 AR(1) 또는 상수.
+    Used for return/volatility forecasting.
+    Mean model is AR(1) or constant.
     """
 
     def __init__(self, meanModel: str = 'constant'):
@@ -166,7 +166,7 @@ class EGARCHModel:
     log(σ²_t) = ω + α·g(z_{t-1}) + β·log(σ²_{t-1})
     g(z) = θ·z + γ·(|z| - E|z|)
 
-    비대칭 변동성 모델링 (레버리지 효과).
+    Asymmetric volatility modeling (leverage effect).
     """
 
     def __init__(self):
@@ -272,9 +272,9 @@ class GJRGARCHModel:
     GJR-GARCH(1,1) Model
 
     σ²_t = ω + (α + γ·I_{t-1})·ε²_{t-1} + β·σ²_{t-1}
-    I_{t-1} = 1 if ε_{t-1} < 0 (비대칭 반응)
+    I_{t-1} = 1 if ε_{t-1} < 0 (asymmetric response)
 
-    음의 충격에 더 큰 변동성 반응.
+    Larger volatility response to negative shocks.
     """
 
     def __init__(self):

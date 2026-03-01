@@ -1,8 +1,8 @@
 """
-Level 4: 변동성 보존 앙상블
+Level 4: Variability-preserving ensemble
 
-일반 앙상블은 평균을 내면서 변동성이 줄어드는 문제가 있습니다.
-이 앙상블은 변동성을 보존하면서 정확도도 유지합니다.
+Standard ensembles reduce variability through averaging.
+This ensemble preserves variability while maintaining accuracy.
 """
 
 from typing import Dict, List, Tuple
@@ -14,12 +14,12 @@ from ...types import ModelResult
 
 class VariabilityPreservingEnsemble:
     """
-    변동성 보존 앙상블
+    Variability-preserving ensemble
 
-    핵심 아이디어:
-    1. 정확도 기반 가중치 + 변동성 보존 가중치 결합
-    2. 일직선 예측 모델은 가중치 감소
-    3. 앙상블 후 변동성이 과도하게 줄면 스케일링
+    Core idea:
+    1. Combine accuracy-based weights + variability preservation weights
+    2. Reduce weights for flat prediction models
+    3. Scale up if variability drops excessively after ensembling
     """
 
     def __init__(
@@ -32,11 +32,11 @@ class VariabilityPreservingEnsemble:
         Parameters
         ----------
         variabilityWeight : float
-            변동성 보존 가중치 비중 (0.0 ~ 1.0)
+            Variability preservation weight ratio (0.0 ~ 1.0)
         minVariabilityRatio : float
-            최소 변동성 비율 (원본 대비)
+            Minimum variability ratio (relative to original)
         excludeFlatModels : bool
-            일직선 모델 제외 여부
+            Whether to exclude flat prediction models
         """
         self.variabilityWeight = variabilityWeight
         self.minVariabilityRatio = minVariabilityRatio
@@ -49,31 +49,31 @@ class VariabilityPreservingEnsemble:
         topK: int = 3
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, Dict]:
         """
-        변동성 보존 앙상블 수행
+        Perform variability-preserving ensemble
 
         Parameters
         ----------
         modelResults : Dict[str, ModelResult]
-            모델별 결과
+            Results by model
         originalData : np.ndarray
-            원본 데이터
+            Original data
         topK : int
-            상위 K개 모델만 사용
+            Use only top K models
 
         Returns
         -------
         Tuple[np.ndarray, np.ndarray, np.ndarray, Dict]
-            (예측값, lower95, upper95, 메타데이터)
+            (predictions, lower95, upper95, metadata)
         """
         originalStd = np.std(originalData[-min(30, len(originalData)):])
 
-        # 유효한 모델 필터링
+        # Filter valid models
         validResults = self._filterValidModels(modelResults)
 
         if not validResults:
             return self._fallbackPrediction(originalData, modelResults)
 
-        # MAPE 기준 정렬
+        # Sort by MAPE
         sortedModels = sorted(
             validResults.items(),
             key=lambda x: x[1].mape
@@ -82,16 +82,16 @@ class VariabilityPreservingEnsemble:
         if not sortedModels:
             return self._fallbackPrediction(originalData, modelResults)
 
-        # 가중치 계산
+        # Calculate weights
         weights = self._calculateWeights(sortedModels, originalStd)
 
-        # 가중 앙상블
+        # Weighted ensemble
         predictions = self._weightedAverage(sortedModels, weights)
 
-        # 변동성 보정
+        # Variability correction
         predictions = self._correctVariability(predictions, originalStd)
 
-        # 신뢰구간 계산
+        # Calculate confidence interval
         lower95, upper95 = self._calculateConfidenceInterval(
             sortedModels, predictions, originalStd
         )
@@ -110,7 +110,7 @@ class VariabilityPreservingEnsemble:
         self,
         modelResults: Dict[str, ModelResult]
     ) -> Dict[str, ModelResult]:
-        """유효한 모델 필터링"""
+        """Filter valid models"""
         valid = {}
 
         for modelId, result in modelResults.items():
@@ -140,48 +140,48 @@ class VariabilityPreservingEnsemble:
         originalStd: float
     ) -> np.ndarray:
         """
-        가중치 계산: 정확도 × 변동성 보존
+        Calculate weights: accuracy x variability preservation
 
         Parameters
         ----------
         sortedModels : List[Tuple[str, ModelResult]]
-            (모델ID, 결과) 튜플 리스트
+            (modelID, result) tuple list
         originalStd : float
-            원본 데이터 표준편차
+            Original data standard deviation
 
         Returns
         -------
         np.ndarray
-            정규화된 가중치
+            Normalized weights
         """
         n = len(sortedModels)
         accuracyWeights = np.zeros(n)
         variabilityWeights = np.zeros(n)
 
         for i, (modelId, result) in enumerate(sortedModels):
-            # 정확도 가중치 (MAPE 역수)
+            # Accuracy weight (inverse MAPE)
             accuracyWeights[i] = 1.0 / (result.mape + 1e-6)
 
-            # 변동성 보존 가중치
+            # Variability preservation weight
             predStd = np.std(result.predictions)
             if originalStd > 0:
                 varRatio = predStd / originalStd
-                # 원본과 비슷한 변동성일수록 높은 점수
+                # Higher score for variability similar to original
                 variabilityWeights[i] = 1.0 / (1.0 + abs(varRatio - 1.0))
             else:
                 variabilityWeights[i] = 1.0
 
-        # 정규화
+        # Normalize
         if accuracyWeights.sum() > 0:
             accuracyWeights /= accuracyWeights.sum()
         if variabilityWeights.sum() > 0:
             variabilityWeights /= variabilityWeights.sum()
 
-        # 결합
+        # Combine
         alpha = self.variabilityWeight
         finalWeights = (1 - alpha) * accuracyWeights + alpha * variabilityWeights
 
-        # 다시 정규화
+        # Re-normalize
         if finalWeights.sum() > 0:
             finalWeights /= finalWeights.sum()
         else:
@@ -194,8 +194,8 @@ class VariabilityPreservingEnsemble:
         sortedModels: List[Tuple[str, ModelResult]],
         weights: np.ndarray
     ) -> np.ndarray:
-        """가중 평균 계산"""
-        # 예측 길이 통일
+        """Calculate weighted average"""
+        # Unify prediction length
         predLength = min(len(m[1].predictions) for m in sortedModels)
 
         predictions = np.zeros(predLength)
@@ -210,9 +210,9 @@ class VariabilityPreservingEnsemble:
         originalStd: float
     ) -> np.ndarray:
         """
-        변동성 보정
+        Variability correction
 
-        앙상블 후 변동성이 너무 줄었으면 스케일링
+        Scale up if variability decreased too much after ensembling
         """
         ensembleStd = np.std(predictions)
 
@@ -221,7 +221,7 @@ class VariabilityPreservingEnsemble:
 
         varRatio = ensembleStd / originalStd
 
-        # 변동성이 최소 비율 이하면 스케일업
+        # Scale up if variability is below minimum ratio
         if varRatio < self.minVariabilityRatio:
             targetStd = originalStd * self.minVariabilityRatio * 0.8
             scaleFactor = targetStd / ensembleStd
@@ -237,18 +237,18 @@ class VariabilityPreservingEnsemble:
         predictions: np.ndarray,
         originalStd: float
     ) -> Tuple[np.ndarray, np.ndarray]:
-        """신뢰구간 계산"""
+        """Calculate confidence interval"""
         nPred = len(predictions)
 
-        # 모델 간 불확실성
+        # Inter-model uncertainty
         modelPreds = [m[1].predictions[:nPred] for m in sortedModels]
         modelStd = np.std(modelPreds, axis=0)
 
-        # 시간에 따른 불확실성 증가
+        # Uncertainty increasing over time
         steps = np.arange(1, nPred + 1)
         timeUncertainty = originalStd * np.sqrt(steps) * 0.5
 
-        # 결합
+        # Combine
         totalUncertainty = np.sqrt(modelStd ** 2 + timeUncertainty ** 2)
 
         margin = 1.96 * totalUncertainty
@@ -263,13 +263,13 @@ class VariabilityPreservingEnsemble:
         originalData: np.ndarray,
         modelResults: Dict[str, ModelResult]
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, Dict]:
-        """폴백 예측 (유효한 모델 없을 때)"""
-        # 아무 모델이나 하나 선택
+        """Fallback prediction (when no valid models available)"""
+        # Select any available model
         if modelResults:
             firstResult = next(iter(modelResults.values()))
             predictions = firstResult.predictions
         else:
-            # 최후의 수단: Naive
+            # Last resort: Naive
             lastVal = originalData[-1]
             predictions = np.full(30, lastVal)
 
@@ -281,7 +281,7 @@ class VariabilityPreservingEnsemble:
             predictions,
             predictions - margin,
             predictions + margin,
-            {'warning': '유효한 모델이 없어 폴백 예측 사용'}
+            {'warning': 'No valid models available, using fallback prediction'}
         )
 
 
@@ -291,29 +291,29 @@ def quickEnsemble(
     originalStd: float
 ) -> np.ndarray:
     """
-    간단한 앙상블 (결과 객체 없이)
+    Simple ensemble (without result objects)
 
     Parameters
     ----------
     modelPredictions : Dict[str, np.ndarray]
-        모델별 예측값
+        Predictions by model
     modelMapes : Dict[str, float]
-        모델별 MAPE
+        MAPE by model
     originalStd : float
-        원본 데이터 표준편차
+        Original data standard deviation
 
     Returns
     -------
     np.ndarray
-        앙상블 예측값
+        Ensemble predictions
     """
     if not modelPredictions:
         return np.array([])
 
-    # 예측 길이 통일
+    # Unify prediction length
     predLength = min(len(p) for p in modelPredictions.values())
 
-    # MAPE 기반 가중치
+    # MAPE-based weights
     weights = {}
     totalWeight = 0
 
@@ -321,7 +321,7 @@ def quickEnsemble(
         mape = modelMapes.get(modelId, 100)
         w = 1.0 / (mape + 1e-6)
 
-        # 변동성 보너스
+        # Variability bonus
         predStd = np.std(pred)
         if originalStd > 0:
             varRatio = predStd / originalStd
@@ -331,11 +331,11 @@ def quickEnsemble(
         weights[modelId] = w
         totalWeight += w
 
-    # 정규화
+    # Normalize
     for modelId in weights:
         weights[modelId] /= totalWeight
 
-    # 앙상블
+    # Ensemble
     ensemble = np.zeros(predLength)
     for modelId, pred in modelPredictions.items():
         ensemble += weights[modelId] * pred[:predLength]

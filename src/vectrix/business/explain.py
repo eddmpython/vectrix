@@ -1,10 +1,10 @@
 """
 Forecast Explainer
 
-예측 결과를 비전문가에게 설명하는 모듈:
-- 성분 분해 (추세, 계절성, 잔차 기여도)
-- 자연어 설명 생성
-- 핵심 드라이버 식별
+Module for explaining forecast results to non-experts:
+- Component decomposition (trend, seasonality, residual contribution)
+- Natural language explanation generation
+- Key driver identification
 """
 
 from typing import Any, Dict, List
@@ -14,7 +14,7 @@ import numpy as np
 
 class ForecastExplainer:
     """
-    예측 설명기
+    Forecast explainer
 
     Usage:
         >>> explainer = ForecastExplainer()
@@ -29,7 +29,7 @@ class ForecastExplainer:
         locale: str = 'ko'
     ) -> Dict[str, Any]:
         """
-        예측 결과 설명
+        Explain forecast results
 
         Returns
         -------
@@ -128,20 +128,20 @@ class ForecastExplainer:
     ) -> str:
         topDriver = drivers[0] if drivers else {'name': 'unknown', 'contribution': 0}
         predChange = (predictions[-1] - y[-1]) / abs(y[-1]) * 100 if abs(y[-1]) > 0 else 0
-        direction = '상승' if predChange > 1 else '하락' if predChange < -1 else '유지'
+        direction = 'upward' if predChange > 1 else 'downward' if predChange < -1 else 'stable'
 
         if locale == 'ko':
-            lines = [f"예측 결과: 향후 {len(predictions)}기간 동안 {direction} 전망"]
+            lines = [f"Forecast: {direction} outlook over next {len(predictions)} periods"]
 
             for d in drivers:
                 if d['name'] == 'trend':
-                    dirKo = '상승' if d.get('direction') == 'upward' else '하락' if d.get('direction') == 'downward' else '수평'
-                    lines.append(f"  - 추세 ({d['contribution']}%): {dirKo} 추세")
+                    dirEn = 'upward' if d.get('direction') == 'upward' else 'downward' if d.get('direction') == 'downward' else 'flat'
+                    lines.append(f"  - Trend ({d['contribution']}%): {dirEn} trend")
                 elif d['name'] == 'seasonality':
-                    lines.append(f"  - 계절성 ({d['contribution']}%): {d.get('period', period)}일 주기")
+                    lines.append(f"  - Seasonality ({d['contribution']}%): {d.get('period', period)}-period cycle")
                 elif d['name'] == 'momentum':
-                    dirKo = '양' if d.get('direction') == 'positive' else '음'
-                    lines.append(f"  - 최근 모멘텀 ({d['contribution']}%): {dirKo}의 방향")
+                    dirEn = 'positive' if d.get('direction') == 'positive' else 'negative'
+                    lines.append(f"  - Recent momentum ({d['contribution']}%): {dirEn} direction")
 
             return '\n'.join(lines)
         else:
@@ -178,5 +178,5 @@ class ForecastExplainer:
             parts.append(f"{d['contribution']}% {d['name']}")
 
         if locale == 'ko':
-            return f"예측 주요 요인: {', '.join(parts)}"
+            return f"Key drivers: {', '.join(parts)}"
         return f"Key drivers: {', '.join(parts)}"

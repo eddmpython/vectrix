@@ -1,12 +1,12 @@
 """
-TurboCore: Numba 기반 고속 연산 코어
+TurboCore: Numba-based High-Performance Computation Core
 
-시계열 분석에 필요한 핵심 연산을 Numba JIT으로 최적화
-- ACF/PACF 계산
-- FFT 기반 계절성 탐지
-- 롤링 통계량
-- 차분/적분
-- 평가 지표 (MAPE, RMSE, MAE)
+Core operations for time series analysis optimized with Numba JIT
+- ACF/PACF computation
+- FFT-based seasonality detection
+- Rolling statistics
+- Differencing/Integration
+- Evaluation metrics (MAPE, RMSE, MAE)
 """
 
 from typing import Tuple
@@ -26,25 +26,25 @@ except ImportError:
 
 
 class TurboCore:
-    """Numba 기반 고속 연산 코어"""
+    """Numba-based high-performance computation core"""
 
     @staticmethod
     @jit(nopython=True, cache=True)
     def acf(x: np.ndarray, maxLag: int) -> np.ndarray:
         """
-        자기상관함수 (ACF) 계산
+        Autocorrelation Function (ACF) computation
 
         Parameters
         ----------
         x : np.ndarray
-            시계열 데이터
+            Time series data
         maxLag : int
-            최대 래그
+            Maximum lag
 
         Returns
         -------
         np.ndarray
-            ACF 값 (lag 0 ~ maxLag)
+            ACF values (lag 0 to maxLag)
         """
         n = len(x)
         mean = np.mean(x)
@@ -68,19 +68,19 @@ class TurboCore:
     @jit(nopython=True, cache=True)
     def pacf(x: np.ndarray, maxLag: int) -> np.ndarray:
         """
-        편자기상관함수 (PACF) 계산 - Durbin-Levinson 알고리즘
+        Partial Autocorrelation Function (PACF) - Durbin-Levinson algorithm
 
         Parameters
         ----------
         x : np.ndarray
-            시계열 데이터
+            Time series data
         maxLag : int
-            최대 래그
+            Maximum lag
 
         Returns
         -------
         np.ndarray
-            PACF 값
+            PACF values
         """
         n = len(x)
         acfVals = TurboCore.acf(x, maxLag)
@@ -91,13 +91,11 @@ class TurboCore:
         if maxLag < 1:
             return pacf
 
-        # Durbin-Levinson 재귀
         phi = np.zeros((maxLag + 1, maxLag + 1))
         phi[1, 1] = acfVals[1]
         pacf[1] = acfVals[1]
 
         for k in range(2, maxLag + 1):
-            # phi[k,k] 계산
             num = acfVals[k]
             den = 1.0
 
@@ -112,7 +110,6 @@ class TurboCore:
 
             pacf[k] = phi[k, k]
 
-            # phi[k, 1:k-1] 업데이트
             for j in range(1, k):
                 phi[k, j] = phi[k-1, j] - phi[k, k] * phi[k-1, k - j]
 
@@ -122,19 +119,19 @@ class TurboCore:
     @jit(nopython=True, cache=True)
     def diff(x: np.ndarray, d: int = 1) -> np.ndarray:
         """
-        차분
+        Differencing
 
         Parameters
         ----------
         x : np.ndarray
-            시계열 데이터
+            Time series data
         d : int
-            차분 차수
+            Differencing order
 
         Returns
         -------
         np.ndarray
-            차분된 데이터
+            Differenced data
         """
         result = x.copy()
         for _ in range(d):
@@ -148,21 +145,21 @@ class TurboCore:
     @jit(nopython=True, cache=True)
     def integrate(x: np.ndarray, initial: float, d: int = 1) -> np.ndarray:
         """
-        적분 (차분의 역연산)
+        Integration (inverse of differencing)
 
         Parameters
         ----------
         x : np.ndarray
-            차분된 데이터
+            Differenced data
         initial : float
-            초기값
+            Initial value
         d : int
-            적분 차수
+            Integration order
 
         Returns
         -------
         np.ndarray
-            복원된 데이터
+            Restored data
         """
         result = x.copy()
         for _ in range(d):
@@ -176,7 +173,7 @@ class TurboCore:
     @staticmethod
     @jit(nopython=True, cache=True)
     def seasonalDiff(x: np.ndarray, period: int) -> np.ndarray:
-        """계절 차분"""
+        """Seasonal differencing"""
         n = len(x)
         result = np.zeros(n - period)
         for i in range(n - period):
@@ -186,17 +183,15 @@ class TurboCore:
     @staticmethod
     @jit(nopython=True, cache=True)
     def rollingMean(x: np.ndarray, window: int) -> np.ndarray:
-        """롤링 평균"""
+        """Rolling mean"""
         n = len(x)
         result = np.zeros(n)
 
-        # 초기 윈도우
         cumSum = 0.0
         for i in range(min(window, n)):
             cumSum += x[i]
             result[i] = cumSum / (i + 1)
 
-        # 롤링
         for i in range(window, n):
             cumSum += x[i] - x[i - window]
             result[i] = cumSum / window
@@ -206,11 +201,10 @@ class TurboCore:
     @staticmethod
     @jit(nopython=True, cache=True)
     def rollingStd(x: np.ndarray, window: int) -> np.ndarray:
-        """롤링 표준편차 — O(n) Welford 온라인 알고리즘"""
+        """Rolling standard deviation - O(n) Welford online algorithm"""
         n = len(x)
         result = np.zeros(n)
 
-        # 초기 윈도우 누적
         sumX = 0.0
         sumX2 = 0.0
 
@@ -219,7 +213,6 @@ class TurboCore:
             sumX2 += x[i] * x[i]
 
             if i >= window:
-                # 윈도우 밖 값 제거
                 sumX -= x[i - window]
                 sumX2 -= x[i - window] * x[i - window]
 
@@ -227,7 +220,6 @@ class TurboCore:
             if count > 1:
                 mean = sumX / count
                 variance = sumX2 / count - mean * mean
-                # 수치 안정성
                 if variance > 0.0:
                     result[i] = np.sqrt(variance)
 
@@ -236,7 +228,7 @@ class TurboCore:
     @staticmethod
     @jit(nopython=True, cache=True)
     def ewma(x: np.ndarray, alpha: float) -> np.ndarray:
-        """지수가중이동평균 (EWMA)"""
+        """Exponentially Weighted Moving Average (EWMA)"""
         n = len(x)
         result = np.zeros(n)
         result[0] = x[0]
@@ -249,7 +241,7 @@ class TurboCore:
     @staticmethod
     @jit(nopython=True, cache=True)
     def mape(actual: np.ndarray, predicted: np.ndarray) -> float:
-        """MAPE 계산"""
+        """Compute MAPE"""
         n = len(actual)
         total = 0.0
         count = 0
@@ -267,7 +259,7 @@ class TurboCore:
     @staticmethod
     @jit(nopython=True, cache=True)
     def rmse(actual: np.ndarray, predicted: np.ndarray) -> float:
-        """RMSE 계산"""
+        """Compute RMSE"""
         n = len(actual)
         total = 0.0
 
@@ -279,7 +271,7 @@ class TurboCore:
     @staticmethod
     @jit(nopython=True, cache=True)
     def mae(actual: np.ndarray, predicted: np.ndarray) -> float:
-        """MAE 계산"""
+        """Compute MAE"""
         n = len(actual)
         total = 0.0
 
@@ -291,7 +283,7 @@ class TurboCore:
     @staticmethod
     @jit(nopython=True, cache=True)
     def smape(actual: np.ndarray, predicted: np.ndarray) -> float:
-        """SMAPE 계산"""
+        """Compute SMAPE"""
         n = len(actual)
         total = 0.0
         count = 0
@@ -310,35 +302,32 @@ class TurboCore:
     @staticmethod
     def fftSeasonality(x: np.ndarray, topK: int = 3) -> Tuple[np.ndarray, np.ndarray]:
         """
-        FFT 기반 계절 주기 탐지
+        FFT-based seasonal period detection
 
         Parameters
         ----------
         x : np.ndarray
-            시계열 데이터
+            Time series data
         topK : int
-            상위 K개 주기 반환
+            Number of top periods to return
 
         Returns
         -------
         Tuple[np.ndarray, np.ndarray]
-            (주기 배열, 강도 배열)
+            (period array, strength array)
         """
         n = len(x)
 
         if n < 10:
             return np.array([7]), np.array([0.0])
 
-        # 추세 제거
         detrended = x - np.linspace(x[0], x[-1], n)
 
-        # FFT
         fft = np.fft.fft(detrended)
         magnitudes = np.abs(fft)
-        magnitudes[0] = 0  # DC 성분 제거
-        magnitudes[n // 2:] = 0  # 나이퀴스트 이상 제거
+        magnitudes[0] = 0
+        magnitudes[n // 2:] = 0
 
-        # 상위 K개 주파수
         indices = np.argsort(magnitudes)[::-1][:topK * 2]
 
         periods = []
@@ -364,30 +353,24 @@ class TurboCore:
     @jit(nopython=True, cache=True)
     def adfStatistic(x: np.ndarray, maxLag: int = 12) -> float:
         """
-        ADF 검정 통계량 계산 (간소화)
+        ADF test statistic computation (simplified)
 
         Returns
         -------
         float
-            ADF 통계량 (음수일수록 정상성)
+            ADF statistic (more negative indicates stationarity)
         """
         n = len(x)
 
         if n < maxLag + 2:
             return 0.0
 
-        # 1차 차분
         dx = np.zeros(n - 1)
         for i in range(n - 1):
             dx[i] = x[i + 1] - x[i]
 
-        # 래그 선택 (AIC)
         lag = min(maxLag, int((n - 1) ** (1/3)))
 
-        # 회귀: dx_t = alpha + beta * x_{t-1} + sum(gamma_i * dx_{t-i})
-        # 간소화: beta만 추정
-
-        # x_{t-1}과 dx_t의 상관
         xLag = x[lag:-1]
         dxCurrent = dx[lag:]
 
@@ -414,7 +397,6 @@ class TurboCore:
 
         beta = num / denX
 
-        # 표준오차 추정
         residuals = np.zeros(m)
         for i in range(m):
             residuals[i] = dxCurrent[i] - beta * (xLag[i] - meanX)
@@ -433,12 +415,12 @@ class TurboCore:
     @jit(nopython=True, cache=True)
     def linearRegression(x: np.ndarray, y: np.ndarray) -> Tuple[float, float]:
         """
-        단순 선형회귀
+        Simple linear regression
 
         Returns
         -------
         Tuple[float, float]
-            (기울기, 절편)
+            (slope, intercept)
         """
         n = len(x)
         meanX = np.mean(x)
@@ -461,6 +443,5 @@ class TurboCore:
         return slope, intercept
 
 
-# Numba 사용 가능 여부 확인
 def isNumbaAvailable() -> bool:
     return NUMBA_AVAILABLE

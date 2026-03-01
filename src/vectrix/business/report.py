@@ -1,10 +1,10 @@
 """
 Report Generator
 
-종합 예측 보고서 생성:
-- Dict/JSON 형식 (API/프로그래밍용)
-- HTML 형식 (시각화용, matplotlib optional)
-- 텍스트 형식 (터미널/로그용)
+Comprehensive forecast report generation:
+- Dict/JSON format (for API/programming)
+- HTML format (for visualization, matplotlib optional)
+- Text format (for terminal/logging)
 """
 
 from datetime import datetime
@@ -19,7 +19,7 @@ from .metrics import BusinessMetrics
 
 class ReportGenerator:
     """
-    종합 예측 보고서 생성기
+    Comprehensive forecast report generator
 
     Usage:
         >>> gen = ReportGenerator()
@@ -43,7 +43,7 @@ class ReportGenerator:
         dates: Optional[List[str]] = None
     ) -> Dict[str, Any]:
         """
-        종합 보고서 생성
+        Generate comprehensive report
 
         Returns
         -------
@@ -195,51 +195,51 @@ class ReportGenerator:
         anomalyCount = report.get('anomalies', {}).get('count', 0)
         if anomalyCount > 0:
             if self.locale == 'ko':
-                recs.append(f"이상치 {anomalyCount}개 감지됨 -데이터 품질 확인 권장")
+                recs.append(f"{anomalyCount} anomalies detected - review data quality")
             else:
                 recs.append(f"{anomalyCount} anomalies detected -review data quality")
 
         cv = report.get('overview', {}).get('statistics', {}).get('cv', 0)
         if cv > 0.5:
             if self.locale == 'ko':
-                recs.append("높은 변동성 -예측 신뢰구간에 주의")
+                recs.append("High variability - pay attention to prediction intervals")
             else:
                 recs.append("High variability -pay attention to prediction intervals")
 
         conf = report.get('explanation', {}).get('confidence', {})
         if conf.get('level') == 'low':
             if self.locale == 'ko':
-                recs.append("예측 신뢰도 낮음 -더 많은 데이터 수집 또는 외부 요인 검토 권장")
+                recs.append("Low forecast confidence - consider collecting more data")
             else:
                 recs.append("Low forecast confidence -consider collecting more data")
 
         if not recs:
             if self.locale == 'ko':
-                recs.append("예측 품질 양호 -정기적 모니터링 권장")
+                recs.append("Forecast quality is good - regular monitoring recommended")
             else:
                 recs.append("Forecast quality is good -regular monitoring recommended")
 
         return recs
 
     def toText(self, report: Dict[str, Any]) -> str:
-        """보고서를 텍스트로 변환"""
+        """Convert report to text format"""
         lines = []
         lines.append("=" * 60)
-        lines.append("Vectrix 예측 보고서" if self.locale == 'ko' else "Vectrix Forecast Report")
-        lines.append(f"생성: {report.get('generatedAt', '')}")
+        lines.append("Vectrix Forecast Report")
+        lines.append(f"Generated: {report.get('generatedAt', '')}")
         lines.append("=" * 60)
 
         overview = report.get('overview', {})
-        lines.append(f"\n데이터: {overview.get('dataPoints', 0)}개 관측값")
-        lines.append(f"예측 기간: {overview.get('forecastHorizon', 0)}스텝")
-        lines.append(f"모델: {overview.get('model', 'N/A')}")
+        lines.append(f"\nData: {overview.get('dataPoints', 0)} observations")
+        lines.append(f"Forecast horizon: {overview.get('forecastHorizon', 0)} steps")
+        lines.append(f"Model: {overview.get('model', 'N/A')}")
 
         stats = overview.get('statistics', {})
-        lines.append(f"평균: {stats.get('mean', 0)}, 표준편차: {stats.get('std', 0)}")
+        lines.append(f"Mean: {stats.get('mean', 0)}, Std Dev: {stats.get('std', 0)}")
 
         forecast = report.get('forecast', {})
-        lines.append(f"\n예측 방향: {forecast.get('direction', 'N/A')}")
-        lines.append(f"전체 변화: {forecast.get('overallChange', 0)}%")
+        lines.append(f"\nForecast direction: {forecast.get('direction', 'N/A')}")
+        lines.append(f"Overall change: {forecast.get('overallChange', 0)}%")
 
         explanation = report.get('explanation', {})
         summary = explanation.get('summary', '')
@@ -247,11 +247,11 @@ class ReportGenerator:
             lines.append(f"\n{summary}")
 
         anomalies = report.get('anomalies', {})
-        lines.append(f"\n이상치: {anomalies.get('count', 0)}개 ({anomalies.get('ratio', 0)}%)")
+        lines.append(f"\nAnomalies: {anomalies.get('count', 0)} ({anomalies.get('ratio', 0)}%)")
 
         recs = report.get('recommendations', [])
         if recs:
-            lines.append("\n권장사항:")
+            lines.append("\nRecommendations:")
             for r in recs:
                 lines.append(f"  - {r}")
 

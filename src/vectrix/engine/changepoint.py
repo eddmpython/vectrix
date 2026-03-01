@@ -1,13 +1,13 @@
 """
-변경점 자동 감지 (Changepoint Detection)
+Automatic Changepoint Detection
 
-시계열 데이터에서 통계적 특성이 변하는 지점을 자동으로 감지:
-- PELT (Pruned Exact Linear Time): 가우시안 로그 우도 기반, BIC/커스텀 페널티
-- CUSUM (Cumulative Sum): 양방향 누적합 기반 감지
-- BOCPD (Bayesian Online Changepoint Detection): 간소화된 베이지안 온라인 감지
-- Auto: 여러 방법의 합의(consensus) 기반 자동 감지
+Automatically detects points where statistical properties change in time series data:
+- PELT (Pruned Exact Linear Time): Gaussian log-likelihood based, BIC/custom penalty
+- CUSUM (Cumulative Sum): Bidirectional cumulative sum based detection
+- BOCPD (Bayesian Online Changepoint Detection): Simplified Bayesian online detection
+- Auto: Consensus-based automatic detection from multiple methods
 
-순수 numpy/scipy만 사용
+Uses pure numpy/scipy only
 """
 
 from dataclasses import dataclass
@@ -18,20 +18,20 @@ import numpy as np
 
 @dataclass
 class ChangePointResult:
-    """변경점 감지 결과"""
-    indices: np.ndarray          # 변경점 위치
-    nChangepoints: int           # 변경점 수
-    confidence: np.ndarray       # 각 변경점의 신뢰도 (0~1)
-    segments: List[Dict]         # 각 구간의 통계 (mean, std, trend)
-    method: str                  # 사용된 방법
+    """Changepoint detection result"""
+    indices: np.ndarray          # Changepoint positions
+    nChangepoints: int           # Number of changepoints
+    confidence: np.ndarray       # Confidence of each changepoint (0~1)
+    segments: List[Dict]         # Statistics for each segment (mean, std, trend)
+    method: str                  # Method used
 
 
 class ChangePointDetector:
     """
-    시계열 변경점 감지기
+    Time Series Changepoint Detector
 
-    PELT, CUSUM, BOCPD, Auto 방법 지원.
-    Auto 모드에서는 세 가지 방법의 합의를 통해 변경점을 결정.
+    Supports PELT, CUSUM, BOCPD, and Auto methods.
+    In Auto mode, changepoints are determined through consensus of three methods.
 
     Examples
     --------
@@ -49,23 +49,23 @@ class ChangePointDetector:
         penalty: str = 'bic'
     ) -> ChangePointResult:
         """
-        시계열에서 변경점 감지
+        Detect changepoints in a time series
 
         Parameters
         ----------
         y : np.ndarray
-            시계열 데이터 (1차원)
+            Time series data (1-dimensional)
         method : str
-            감지 방법 ('pelt', 'cusum', 'bocpd', 'auto')
+            Detection method ('pelt', 'cusum', 'bocpd', 'auto')
         minSize : int
-            최소 세그먼트 크기
+            Minimum segment size
         penalty : str or float
-            페널티 유형 ('bic') 또는 직접 지정 값
+            Penalty type ('bic') or custom value
 
         Returns
         -------
         ChangePointResult
-            감지된 변경점 정보
+            Detected changepoint information
         """
         y = np.asarray(y, dtype=np.float64).ravel()
         n = len(y)
@@ -89,13 +89,13 @@ class ChangePointDetector:
             elif method == 'auto':
                 indices, confidence = self._detectAuto(y, minSize, penalty)
             else:
-                raise ValueError(f"알 수 없는 방법: {method}. 'pelt', 'cusum', 'bocpd', 'auto' 중 선택")
+                raise ValueError(f"Unknown method: {method}. Choose from 'pelt', 'cusum', 'bocpd', 'auto'")
         except Exception:
-            # graceful fallback: 변경점 없음 반환
+            # Graceful fallback: return no changepoints
             indices = np.array([], dtype=int)
             confidence = np.array([], dtype=float)
 
-        # 세그먼트 통계 계산
+        # Compute segment statistics
         segments = self._computeAllSegmentStats(y, indices)
 
         return ChangePointResult(
@@ -115,14 +115,14 @@ class ChangePointDetector:
         penalty: str = 'bic'
     ) -> Tuple[np.ndarray, np.ndarray]:
         """
-        PELT 알고리즘으로 변경점 감지
+        Detect changepoints using the PELT algorithm
 
-        비용함수: 가우시안 로그 우도 (평균 + 분산 변화)
-        페널티: BIC = log(n) 또는 사용자 지정
+        Cost function: Gaussian log-likelihood (mean + variance change)
+        Penalty: BIC = log(n) or user-specified
         """
         n = len(y)
 
-        # 페널티 값 계산
+        # Compute penalty value
         if isinstance(penalty, str) and penalty.lower() == 'bic':
             pen = np.log(n)
         elif isinstance(penalty, (int, float)):
@@ -130,14 +130,14 @@ class ChangePointDetector:
         else:
             pen = np.log(n)
 
-        # 누적합 사전 계산 (비용 함수 O(1) 계산용)
+        # Precompute cumulative sums (for O(1) cost function computation)
         cumSum = np.zeros(n + 1)
         cumSumSq = np.zeros(n + 1)
         cumSum[1:] = np.cumsum(y)
         cumSumSq[1:] = np.cumsum(y ** 2)
 
         def cost(start: int, end: int) -> float:
-            """구간 [start, end)의 가우시안 로그 우도 비용"""
+            """Gaussian log-likelihood cost for segment [start, end)"""
             length = end - start
             if length <= 1:
                 return 0.0
@@ -147,15 +147,15 @@ class ChangePointDetector:
             variance = ss / length - mean ** 2
             if variance <= 1e-12:
                 return 0.0
-            # -2 * 로그 우도 (상수항 제외)
+            # -2 * log-likelihood (excluding constant terms)
             return length * (np.log(max(variance, 1e-20)) + 1.0)
 
-        # DP 배열
+        # DP array
         F = np.full(n + 1, np.inf)
-        F[0] = -pen  # 시작점에 -pen (첫 세그먼트의 pen 상쇄)
+        F[0] = -pen  # -pen at start (offsets pen of the first segment)
         lastChange = np.zeros(n + 1, dtype=int)
 
-        # PELT 가지치기를 위한 후보 집합
+        # Candidate set for PELT pruning
         candidates = [0]
 
         for tStar in range(minSize, n + 1):
@@ -171,7 +171,7 @@ class ChangePointDetector:
                 if c < bestCost:
                     bestCost = c
                     bestIdx = t
-                # PELT 가지치기: F[t] + cost(t, tStar) <= F[tStar] 이면 유지
+                # PELT pruning: keep if F[t] + cost(t, tStar) <= F[tStar]
                 if F[t] + cost(t, tStar) <= bestCost:
                     newCandidates.append(t)
 
@@ -180,7 +180,7 @@ class ChangePointDetector:
             newCandidates.append(tStar)
             candidates = newCandidates
 
-        # 변경점 역추적
+        # Backtrack changepoints
         changepoints = []
         idx = n
         while idx > 0:
@@ -192,7 +192,7 @@ class ChangePointDetector:
         changepoints = sorted(changepoints)
         indices = np.array(changepoints, dtype=int)
 
-        # 신뢰도 계산 (전후 세그먼트의 통계적 차이 기반)
+        # Compute confidence (based on statistical difference between adjacent segments)
         confidence = self._computeConfidence(y, indices, minSize)
 
         return indices, confidence
@@ -205,9 +205,9 @@ class ChangePointDetector:
         minSize: int
     ) -> Tuple[np.ndarray, np.ndarray]:
         """
-        양방향 CUSUM 기반 변경점 감지
+        Bidirectional CUSUM-based changepoint detection
 
-        순방향과 역방향 CUSUM을 계산하여 변경점 후보를 검출.
+        Computes forward and backward CUSUM to detect changepoint candidates.
         threshold = 5 * sigma
         """
         n = len(y)
@@ -215,34 +215,34 @@ class ChangePointDetector:
         sigma = max(np.std(y), 1e-10)
         threshold = 5.0 * sigma
 
-        # 순방향 CUSUM (양의 방향)
+        # Forward CUSUM (positive direction)
         cusumPos = np.zeros(n)
         cusumNeg = np.zeros(n)
         for t in range(1, n):
             cusumPos[t] = max(0, cusumPos[t - 1] + (y[t] - mu))
             cusumNeg[t] = min(0, cusumNeg[t - 1] + (y[t] - mu))
 
-        # 역방향 CUSUM
+        # Backward CUSUM
         cusumPosRev = np.zeros(n)
         cusumNegRev = np.zeros(n)
         for t in range(n - 2, -1, -1):
             cusumPosRev[t] = max(0, cusumPosRev[t + 1] + (y[t] - mu))
             cusumNegRev[t] = min(0, cusumNegRev[t + 1] + (y[t] - mu))
 
-        # 통합 CUSUM 통계량
+        # Combined CUSUM statistic
         cusumStat = np.abs(cusumPos) + np.abs(cusumNeg)
         cusumStatRev = np.abs(cusumPosRev) + np.abs(cusumNegRev)
         combinedStat = cusumStat + cusumStatRev
 
-        # threshold 초과 지점에서 변경점 후보 탐색
+        # Search for changepoint candidates at points exceeding threshold
         candidates = np.where(combinedStat > threshold)[0]
         if len(candidates) == 0:
             return np.array([], dtype=int), np.array([], dtype=float)
 
-        # 후보를 클러스터링하여 변경점 정제
+        # Cluster candidates to refine changepoints
         indices = self._clusterChangepoints(candidates, combinedStat, minSize)
 
-        # 신뢰도 계산
+        # Compute confidence
         confidence = self._computeConfidence(y, indices, minSize)
 
         return indices, confidence
@@ -256,52 +256,52 @@ class ChangePointDetector:
         hazardLambda: float = 250.0
     ) -> Tuple[np.ndarray, np.ndarray]:
         """
-        간소화된 베이지안 온라인 변경점 감지 (BOCPD)
+        Simplified Bayesian Online Changepoint Detection (BOCPD)
 
-        실행길이 분포를 계산하여 변경점을 추론.
-        hazard function: H(r) = 1/lambda (일정한 위험률)
+        Infers changepoints by computing the run-length distribution.
+        hazard function: H(r) = 1/lambda (constant hazard rate)
 
         Parameters
         ----------
         y : np.ndarray
-            시계열 데이터
+            Time series data
         minSize : int
-            최소 세그먼트 크기
+            Minimum segment size
         hazardLambda : float
-            hazard function의 lambda 파라미터 (기대 실행길이)
+            Lambda parameter for the hazard function (expected run length)
         """
         n = len(y)
         hazard = 1.0 / hazardLambda
 
-        # 실행길이 확률 행렬 (메모리 효율: 현재/이전만 유지)
+        # Run-length probability matrix (memory efficient: keep only current/previous)
         # R[t, r] = P(run length = r at time t)
         maxRunLen = n + 1
 
-        # Student-t 예측 분포를 위한 충분 통계량
-        # 각 가능한 실행길이에 대해 유지
+        # Sufficient statistics for Student-t predictive distribution
+        # Maintained for each possible run length
         mu0 = np.mean(y)
         kappa0 = 1.0
         alpha0 = 1.0
         beta0 = np.var(y) if np.var(y) > 0 else 1.0
 
-        # 현재 실행길이별 충분 통계량
+        # Sufficient statistics per current run length
         muN = np.full(maxRunLen, mu0)
         kappaN = np.full(maxRunLen, kappa0)
         alphaN = np.full(maxRunLen, alpha0)
         betaN = np.full(maxRunLen, beta0)
 
-        # 실행길이 확률
+        # Run-length probabilities
         runLenProb = np.zeros(maxRunLen)
-        runLenProb[0] = 1.0  # 초기: 실행길이 0에 확률 1
+        runLenProb[0] = 1.0  # Initial: probability 1 at run length 0
 
-        # 변경점 확률 누적
+        # Accumulated changepoint probabilities
         cpProb = np.zeros(n)
 
         for t in range(n):
-            # 현재 데이터 포인트
+            # Current data point
             xt = y[t]
 
-            # 각 실행길이에 대한 예측 확률 (Student-t)
+            # Predictive probability for each run length (Student-t)
             predProb = np.zeros(t + 1)
             for r in range(t + 1):
                 predProb[r] = self._studentTPdf(
@@ -311,28 +311,28 @@ class ChangePointDetector:
                     2.0 * alphaN[r]
                 )
 
-            # 성장 확률: P(r_{t+1} = r+1) = P(r_t = r) * pi(x_t | r_t = r) * (1-H)
+            # Growth probability: P(r_{t+1} = r+1) = P(r_t = r) * pi(x_t | r_t = r) * (1-H)
             growthProb = runLenProb[:t + 1] * predProb * (1 - hazard)
 
-            # 변경점 확률: P(r_{t+1} = 0) = sum P(r_t = r) * pi(x_t | r_t = r) * H
+            # Changepoint probability: P(r_{t+1} = 0) = sum P(r_t = r) * pi(x_t | r_t = r) * H
             cpMass = np.sum(runLenProb[:t + 1] * predProb * hazard)
 
-            # 새 실행길이 확률
+            # New run-length probabilities
             newRunLenProb = np.zeros(maxRunLen)
             newRunLenProb[0] = cpMass
             newRunLenProb[1:t + 2] = growthProb
 
-            # 정규화
+            # Normalize
             total = np.sum(newRunLenProb)
             if total > 0:
                 newRunLenProb /= total
 
             runLenProb = newRunLenProb
 
-            # 변경점 확률 = P(r_t = 0)
+            # Changepoint probability = P(r_t = 0)
             cpProb[t] = runLenProb[0]
 
-            # 충분 통계량 업데이트 (각 실행길이에 대해)
+            # Update sufficient statistics (for each run length)
             newMuN = np.full(maxRunLen, mu0)
             newKappaN = np.full(maxRunLen, kappa0)
             newAlphaN = np.full(maxRunLen, alpha0)
@@ -354,10 +354,10 @@ class ChangePointDetector:
             alphaN = newAlphaN
             betaN = newBetaN
 
-        # 변경점 확률에서 피크 추출
+        # Extract peaks from changepoint probabilities
         indices = self._extractPeaks(cpProb, minSize, threshold=0.1)
 
-        # 신뢰도는 변경점 확률에서 직접 추출
+        # Confidence is directly extracted from changepoint probabilities
         if len(indices) > 0:
             confidence = np.clip(cpProb[indices], 0, 1)
         else:
@@ -372,7 +372,7 @@ class ChangePointDetector:
         varScale: float,
         nu: float
     ) -> float:
-        """Student-t 확률밀도함수"""
+        """Student-t probability density function"""
         try:
             from scipy.special import gammaln
             sigma2 = max(varScale, 1e-10)
@@ -385,11 +385,11 @@ class ChangePointDetector:
             )
             return np.exp(logp)
         except Exception:
-            # fallback: 가우시안 근사
+            # Fallback: Gaussian approximation
             sigma = np.sqrt(max(varScale, 1e-10))
             return np.exp(-0.5 * ((x - mu) / sigma) ** 2) / (sigma * np.sqrt(2 * np.pi))
 
-    # ─── Auto (합의 기반) ─────────────────────────────────────────────────
+    # ─── Auto (Consensus-based) ──────────────────────────────────────────
 
     def _detectAuto(
         self,
@@ -398,14 +398,14 @@ class ChangePointDetector:
         penalty: str = 'bic'
     ) -> Tuple[np.ndarray, np.ndarray]:
         """
-        자동 변경점 감지: 여러 방법의 합의(consensus)
+        Automatic changepoint detection: multi-method consensus
 
-        세 가지 방법을 모두 실행하고, 최소 2개 이상의 방법에서
-        근접한 위치에 변경점이 감지된 경우만 최종 변경점으로 채택.
+        Runs all three methods and only accepts changepoints detected
+        at nearby positions by at least 2 methods.
         """
         n = len(y)
 
-        # 각 방법으로 감지
+        # Detect with each method
         results = {}
         methods = ['pelt', 'cusum', 'bocpd']
 
@@ -421,8 +421,8 @@ class ChangePointDetector:
             except Exception:
                 results[m] = np.array([], dtype=int)
 
-        # 합의 기반 변경점 결정
-        # 모든 감지된 변경점을 수집하고 근접한 것들을 그룹화
+        # Consensus-based changepoint determination
+        # Collect all detected changepoints and group nearby ones
         allCandidates = []
         for m, idx in results.items():
             for cp in idx:
@@ -433,7 +433,7 @@ class ChangePointDetector:
 
         allCandidates.sort(key=lambda x: x[0])
 
-        # 근접 변경점 그룹화 (tolerance = minSize // 2)
+        # Group nearby changepoints (tolerance = minSize // 2)
         tolerance = max(minSize // 2, 3)
         groups = []
         currentGroup = [allCandidates[0]]
@@ -446,30 +446,30 @@ class ChangePointDetector:
                 currentGroup = [allCandidates[i]]
         groups.append(currentGroup)
 
-        # 최소 2개 방법에서 감지된 그룹만 채택
+        # Accept only groups detected by at least 2 methods
         consensusIndices = []
         consensusConfidence = []
 
         for group in groups:
             uniqueMethods = set(item[1] for item in group)
             if len(uniqueMethods) >= 2:
-                # 그룹의 중앙값을 변경점으로 사용
+                # Use median of group as changepoint
                 positions = [item[0] for item in group]
                 cpIdx = int(np.median(positions))
                 consensusIndices.append(cpIdx)
-                # 신뢰도: 합의한 방법 수 / 전체 방법 수
+                # Confidence: number of agreeing methods / total methods
                 consensusConfidence.append(len(uniqueMethods) / len(methods))
 
         indices = np.array(consensusIndices, dtype=int)
         confidence = np.array(consensusConfidence, dtype=float)
 
-        # minSize 조건 재확인
+        # Re-verify minSize condition
         if len(indices) > 0:
             indices, confidence = self._enforceMinSize(indices, confidence, n, minSize)
 
         return indices, confidence
 
-    # ─── 유틸리티 ─────────────────────────────────────────────────────────
+    # ─── Utilities ────────────────────────────────────────────────────────
 
     def _clusterChangepoints(
         self,
@@ -478,14 +478,14 @@ class ChangePointDetector:
         minSize: int
     ) -> np.ndarray:
         """
-        후보 변경점들을 클러스터링하여 정제
+        Cluster and refine candidate changepoints
 
-        근접한 후보를 묶고, 각 클러스터에서 통계량이 가장 높은 지점 선택.
+        Groups nearby candidates and selects the point with the highest statistic in each cluster.
         """
         if len(candidates) == 0:
             return np.array([], dtype=int)
 
-        # 연속 후보를 클러스터로 묶기
+        # Group consecutive candidates into clusters
         clusters = []
         currentCluster = [candidates[0]]
 
@@ -497,14 +497,14 @@ class ChangePointDetector:
                 currentCluster = [candidates[i]]
         clusters.append(currentCluster)
 
-        # 각 클러스터에서 통계량 최대 지점 선택
+        # Select point with maximum statistic from each cluster
         changepoints = []
         for cluster in clusters:
             clusterArr = np.array(cluster)
             bestIdx = clusterArr[np.argmax(stat[clusterArr])]
             changepoints.append(bestIdx)
 
-        # minSize 간격 보장
+        # Ensure minSize spacing
         result = []
         for cp in sorted(changepoints):
             if len(result) == 0 or cp - result[-1] >= minSize:
@@ -518,7 +518,7 @@ class ChangePointDetector:
         minSize: int,
         threshold: float = 0.1
     ) -> np.ndarray:
-        """확률 배열에서 피크(변경점 후보) 추출"""
+        """Extract peaks (changepoint candidates) from probability array"""
         n = len(prob)
         peaks = []
 
@@ -529,7 +529,7 @@ class ChangePointDetector:
         if len(peaks) == 0:
             return np.array([], dtype=int)
 
-        # minSize 간격 보장 (가장 높은 확률 우선)
+        # Ensure minSize spacing (highest probability first)
         peaks = sorted(peaks, key=lambda x: prob[x], reverse=True)
         selected = []
 
@@ -546,10 +546,10 @@ class ChangePointDetector:
         minSize: int
     ) -> np.ndarray:
         """
-        변경점의 신뢰도 계산
+        Compute changepoint confidence
 
-        전후 세그먼트의 평균 차이를 전체 표준편차로 정규화.
-        Welch t-test p-value 기반.
+        Normalizes the mean difference between adjacent segments by the global standard deviation.
+        Based on Welch t-test p-value.
         """
         if len(indices) == 0:
             return np.array([], dtype=float)
@@ -559,11 +559,11 @@ class ChangePointDetector:
         globalStd = max(np.std(y), 1e-10)
 
         for i, cp in enumerate(indices):
-            # 전 세그먼트
+            # Before segment
             start = indices[i - 1] if i > 0 else 0
             before = y[start:cp]
 
-            # 후 세그먼트
+            # After segment
             end = indices[i + 1] if i < len(indices) - 1 else n
             after = y[cp:end]
 
@@ -571,7 +571,7 @@ class ChangePointDetector:
                 confidence[i] = 0.0
                 continue
 
-            # Welch t-test 근사
+            # Welch t-test approximation
             meanDiff = abs(np.mean(after) - np.mean(before))
             pooledSe = np.sqrt(
                 np.var(before) / len(before) + np.var(after) / len(after)
@@ -582,7 +582,7 @@ class ChangePointDetector:
             else:
                 tStat = meanDiff / pooledSe
 
-            # t-stat을 0~1 신뢰도로 변환 (시그모이드 근사)
+            # Convert t-stat to 0~1 confidence (sigmoid approximation)
             confidence[i] = 1.0 - 2.0 / (1.0 + np.exp(0.5 * tStat))
 
         return np.clip(confidence, 0.0, 1.0)
@@ -593,7 +593,7 @@ class ChangePointDetector:
         start: int,
         end: int
     ) -> Dict:
-        """단일 세그먼트의 통계량 계산"""
+        """Compute statistics for a single segment"""
         segment = y[start:end]
         n = len(segment)
 
@@ -603,7 +603,7 @@ class ChangePointDetector:
         mean = float(np.mean(segment))
         std = float(np.std(segment))
 
-        # 추세 (선형 회귀 기울기)
+        # Trend (linear regression slope)
         if n >= 2:
             x = np.arange(n, dtype=np.float64)
             xMean = np.mean(x)
@@ -628,11 +628,11 @@ class ChangePointDetector:
         y: np.ndarray,
         indices: np.ndarray
     ) -> List[Dict]:
-        """모든 세그먼트의 통계량 계산"""
+        """Compute statistics for all segments"""
         n = len(y)
         segments = []
 
-        # 시작점 포함
+        # Include start point
         boundaries = [0] + list(indices) + [n]
 
         for i in range(len(boundaries) - 1):
@@ -649,25 +649,25 @@ class ChangePointDetector:
         n: int,
         minSize: int
     ) -> Tuple[np.ndarray, np.ndarray]:
-        """변경점 간 최소 크기 보장"""
+        """Ensure minimum size between changepoints"""
         if len(indices) == 0:
             return indices, confidence
 
-        # 신뢰도 순으로 정렬하여 높은 것 우선 유지
+        # Sort by confidence, keeping highest first
         order = np.argsort(-confidence)
         selected = []
         selectedConf = []
 
         for idx in order:
             cp = indices[idx]
-            # minSize 간격 확인 (시작/끝/다른 변경점과)
+            # Check minSize spacing (from start/end/other changepoints)
             if cp < minSize or cp > n - minSize:
                 continue
             if all(abs(cp - s) >= minSize for s in selected):
                 selected.append(cp)
                 selectedConf.append(confidence[idx])
 
-        # 위치 순으로 재정렬
+        # Re-sort by position
         if len(selected) > 0:
             sortOrder = np.argsort(selected)
             selected = np.array(selected, dtype=int)[sortOrder]

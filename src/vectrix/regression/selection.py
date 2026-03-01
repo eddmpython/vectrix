@@ -1,7 +1,7 @@
 """
 Model Selection Tools
 
-변수 선택 및 정규화 파라미터 튜닝:
+Variable selection and regularization parameter tuning:
 - Stepwise Selection (Forward/Backward/Both)
 - RidgeCV / LassoCV / ElasticNetCV
 - Best Subset (exhaustive, small p only)
@@ -18,7 +18,7 @@ import numpy as np
 
 @dataclass
 class StepwiseResult:
-    """Stepwise 선택 결과"""
+    """Stepwise selection result"""
     selectedFeatures: List[str]
     selectedIndices: List[int]
     selectionHistory: List[Dict]
@@ -27,19 +27,19 @@ class StepwiseResult:
     finalR2: float = 0.0
 
     def summary(self) -> str:
-        """결과 요약"""
+        """Result summary"""
         lines = []
         lines.append("=" * 50)
-        lines.append("  Stepwise Selection 결과")
+        lines.append("  Stepwise Selection Results")
         lines.append("=" * 50)
-        lines.append(f"  선택된 변수 수: {len(self.selectedFeatures)}")
-        lines.append(f"  선택된 변수: {self.selectedFeatures}")
-        lines.append(f"  선택된 인덱스: {self.selectedIndices}")
+        lines.append(f"  Selected variables: {len(self.selectedFeatures)}")
+        lines.append(f"  Selected features: {self.selectedFeatures}")
+        lines.append(f"  Selected indices: {self.selectedIndices}")
         lines.append(f"  AIC: {self.finalAIC:.4f}")
         lines.append(f"  BIC: {self.finalBIC:.4f}")
         lines.append(f"  R^2: {self.finalR2:.4f}")
         lines.append("")
-        lines.append("  선택 이력:")
+        lines.append("  Selection history:")
         for step in self.selectionHistory:
             action = step.get('action', '')
             variable = step.get('variable', '')
@@ -51,7 +51,7 @@ class StepwiseResult:
 
 @dataclass
 class RegularizationCVResult:
-    """정규화 CV 결과"""
+    """Regularization CV result"""
     bestAlpha: float = 0.0
     bestScore: float = 0.0
     bestL1Ratio: Optional[float] = None
@@ -61,25 +61,25 @@ class RegularizationCVResult:
     intercept: float = 0.0
 
     def summary(self) -> str:
-        """결과 요약"""
+        """Result summary"""
         lines = []
         lines.append("=" * 50)
-        lines.append("  Regularization CV 결과")
+        lines.append("  Regularization CV Results")
         lines.append("=" * 50)
-        lines.append(f"  최적 alpha: {self.bestAlpha:.6f}")
-        lines.append(f"  최적 CV score (neg MSE): {self.bestScore:.6f}")
+        lines.append(f"  Best alpha: {self.bestAlpha:.6f}")
+        lines.append(f"  Best CV score (neg MSE): {self.bestScore:.6f}")
         if self.bestL1Ratio is not None:
-            lines.append(f"  최적 l1_ratio: {self.bestL1Ratio:.4f}")
+            lines.append(f"  Best l1_ratio: {self.bestL1Ratio:.4f}")
         if len(self.coef) > 0:
             nNonzero = np.sum(np.abs(self.coef) > 1e-10)
-            lines.append(f"  비영 계수 수: {nNonzero} / {len(self.coef)}")
+            lines.append(f"  Non-zero coefficients: {nNonzero} / {len(self.coef)}")
         lines.append("=" * 50)
         return "\n".join(lines)
 
 
 @dataclass
 class BestSubsetResult:
-    """Best Subset Selection 결과"""
+    """Best Subset Selection result"""
     selectedIndices: List[int] = field(default_factory=list)
     selectedFeatures: List[str] = field(default_factory=list)
     bestCriterion: float = 0.0
@@ -88,7 +88,7 @@ class BestSubsetResult:
 
 class StepwiseSelector:
     """
-    AIC/BIC 기반 Stepwise 변수 선택
+    AIC/BIC-based Stepwise Variable Selection
 
     direction: 'forward', 'backward', 'both'
     criterion: 'aic', 'bic'
@@ -96,11 +96,11 @@ class StepwiseSelector:
     Parameters
     ----------
     direction : str
-        선택 방향: 'forward', 'backward', 'both' (기본값: 'both')
+        Selection direction: 'forward', 'backward', 'both' (default: 'both')
     criterion : str
-        정보 기준: 'aic' 또는 'bic' (기본값: 'aic')
+        Information criterion: 'aic' or 'bic' (default: 'aic')
     maxFeatures : int, optional
-        최대 선택 변수 수. None이면 제한 없음
+        Maximum number of selected variables. None for no limit
     """
 
     def __init__(
@@ -110,9 +110,9 @@ class StepwiseSelector:
         maxFeatures: Optional[int] = None
     ):
         if direction not in ('forward', 'backward', 'both'):
-            raise ValueError(f"direction은 'forward', 'backward', 'both' 중 하나: {direction}")
+            raise ValueError(f"direction must be one of 'forward', 'backward', 'both': {direction}")
         if criterion not in ('aic', 'bic'):
-            raise ValueError(f"criterion은 'aic' 또는 'bic' 중 하나: {criterion}")
+            raise ValueError(f"criterion must be 'aic' or 'bic': {criterion}")
 
         self.direction = direction
         self.criterion = criterion
@@ -125,16 +125,16 @@ class StepwiseSelector:
         featureNames: Optional[List[str]] = None
     ) -> StepwiseResult:
         """
-        Stepwise 변수 선택 수행
+        Perform stepwise variable selection
 
         Parameters
         ----------
         X : np.ndarray, shape (n, p)
-            설계 행렬
+            Design matrix
         y : np.ndarray, shape (n,)
-            반응변수
+            Response variable
         featureNames : List[str], optional
-            변수명 목록. None이면 X0, X1, ... 자동 생성
+            Variable names. None auto-generates X0, X1, ...
 
         Returns
         -------
@@ -160,7 +160,7 @@ class StepwiseSelector:
         n: int
     ) -> Tuple[float, float, float]:
         """
-        선택된 변수로 AIC, BIC, R^2 계산
+        Compute AIC, BIC, R^2 for selected variables
 
         Returns
         -------
@@ -172,7 +172,7 @@ class StepwiseSelector:
         else:
             Xa = np.column_stack([np.ones(n), X[:, indices]])
 
-        k = Xa.shape[1]  # intercept 포함 파라미터 수
+        k = Xa.shape[1]  # Parameter count including intercept
 
         try:
             beta = np.linalg.lstsq(Xa, y, rcond=None)[0]
@@ -188,7 +188,7 @@ class StepwiseSelector:
 
         r2 = 1.0 - sse / ssTot
 
-        # 로그 우도 (정규 분포 가정)
+        # Log-likelihood (normal distribution assumption)
         if sse < 1e-15:
             sse = 1e-15
         logLik = -n / 2.0 * (np.log(2 * np.pi) + np.log(sse / n) + 1)
@@ -199,7 +199,7 @@ class StepwiseSelector:
         return aic, bic, r2
 
     def _getCriterionValue(self, aic: float, bic: float) -> float:
-        """선택된 정보 기준 값 반환"""
+        """Return the selected criterion value"""
         return aic if self.criterion == 'aic' else bic
 
     def _forward(
@@ -215,7 +215,7 @@ class StepwiseSelector:
         remaining = list(range(p))
         history = []
 
-        # 초기 모델 (intercept only)
+        # Initial model (intercept only)
         aic0, bic0, r2_0 = self._computeCriterion(X, y, selected, n)
         bestVal = self._getCriterionValue(aic0, bic0)
 
@@ -248,7 +248,7 @@ class StepwiseSelector:
             else:
                 break
 
-        # 최종 결과
+        # Final results
         aic, bic, r2 = self._computeCriterion(X, y, selected, n)
 
         return StepwiseResult(
@@ -329,10 +329,10 @@ class StepwiseSelector:
 
         maxFeatures = self.maxFeatures or p
 
-        for step in range(2 * p):  # 최대 반복 제한
+        for step in range(2 * p):  # Maximum iteration limit
             improved = False
 
-            # Forward step: 추가할 변수 탐색
+            # Forward step: search for variable to add
             remaining = [j for j in range(p) if j not in selected]
             bestAddCandidate = None
             bestAddVal = bestVal
@@ -347,7 +347,7 @@ class StepwiseSelector:
                         bestAddVal = val
                         bestAddCandidate = j
 
-            # Backward step: 제거할 변수 탐색
+            # Backward step: search for variable to remove
             bestRemoveCandidate = None
             bestRemoveVal = bestVal
 
@@ -360,7 +360,7 @@ class StepwiseSelector:
                     bestRemoveVal = val
                     bestRemoveCandidate = j
 
-            # 더 나은 방향 선택
+            # Choose better direction
             if bestAddCandidate is not None and bestRemoveCandidate is not None:
                 if bestAddVal <= bestRemoveVal:
                     selected.append(bestAddCandidate)
@@ -420,22 +420,22 @@ class StepwiseSelector:
 
 class RegularizationCV:
     """
-    K-fold CV로 최적 alpha 선택
+    K-fold CV for optimal alpha selection
 
-    지원 모델: Ridge, Lasso, ElasticNet
+    Supported models: Ridge, Lasso, ElasticNet
 
     Parameters
     ----------
     model : str
-        모델 종류: 'ridge', 'lasso', 'elasticnet' (기본값: 'ridge')
+        Model type: 'ridge', 'lasso', 'elasticnet' (default: 'ridge')
     alphas : np.ndarray, optional
-        탐색할 alpha 값들. None이면 자동 생성
+        Alpha values to search. None for auto-generation
     nFolds : int
-        교차검증 폴드 수 (기본값: 5)
+        Number of cross-validation folds (default: 5)
     l1Ratios : list, optional
-        ElasticNet 전용: 탐색할 l1_ratio 값들 (기본값: [0.1, 0.5, 0.7, 0.9, 0.95, 0.99])
+        ElasticNet only: l1_ratio values to search (default: [0.1, 0.5, 0.7, 0.9, 0.95, 0.99])
     randomState : int, optional
-        난수 시드
+        Random seed
     """
 
     def __init__(
@@ -447,7 +447,7 @@ class RegularizationCV:
         randomState: Optional[int] = None
     ):
         if model not in ('ridge', 'lasso', 'elasticnet'):
-            raise ValueError(f"model은 'ridge', 'lasso', 'elasticnet' 중 하나: {model}")
+            raise ValueError(f"model must be one of 'ridge', 'lasso', 'elasticnet': {model}")
 
         self.model = model
         self.alphas = alphas
@@ -457,14 +457,14 @@ class RegularizationCV:
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> RegularizationCVResult:
         """
-        K-fold CV로 최적 정규화 파라미터 선택
+        Select optimal regularization parameter via K-fold CV
 
         Parameters
         ----------
         X : np.ndarray, shape (n, p)
-            설계 행렬
+            Design matrix
         y : np.ndarray, shape (n,)
-            반응변수
+            Response variable
 
         Returns
         -------
@@ -472,7 +472,7 @@ class RegularizationCV:
         """
         n, p = X.shape
 
-        # alpha 격자 자동 생성
+        # Auto-generate alpha grid
         alphas = self.alphas
         if alphas is None:
             alphas = np.logspace(-4, 4, 50)
@@ -494,7 +494,7 @@ class RegularizationCV:
         nFolds: int,
         modelType: str
     ) -> RegularizationCVResult:
-        """Ridge 또는 Lasso에 대한 CV"""
+        """CV for Ridge or Lasso"""
         n, p = X.shape
         foldIndices = self._createFolds(n, nFolds)
 
@@ -518,7 +518,7 @@ class RegularizationCV:
 
                 pred = Xval @ coef + intercept
                 mse = np.mean((yval - pred) ** 2)
-                foldScores.append(-mse)  # 부호 반전 (높을수록 좋음)
+                foldScores.append(-mse)  # Sign flip (higher is better)
 
             if foldScores:
                 scores[aIdx] = np.mean(foldScores)
@@ -529,7 +529,7 @@ class RegularizationCV:
         bestAlpha = alphas[bestIdx]
         bestScore = scores[bestIdx]
 
-        # 전체 데이터로 최종 학습
+        # Final training on full data
         if modelType == 'ridge':
             coef, intercept = self._fitRidge(X, y, bestAlpha)
         else:
@@ -551,14 +551,14 @@ class RegularizationCV:
         alphas: np.ndarray,
         nFolds: int
     ) -> RegularizationCVResult:
-        """ElasticNet CV (alpha + l1Ratio 동시 탐색)"""
+        """ElasticNet CV (simultaneous alpha + l1Ratio search)"""
         n, p = X.shape
         foldIndices = self._createFolds(n, nFolds)
 
         bestOverallScore = -np.inf
         bestAlpha = alphas[0]
         bestL1Ratio = self.l1Ratios[0]
-        allScores = np.zeros(len(alphas))  # best l1_ratio 기준 저장
+        allScores = np.zeros(len(alphas))  # Stored at best l1_ratio
 
         for l1Ratio in self.l1Ratios:
             scores = np.zeros(len(alphas))
@@ -591,7 +591,7 @@ class RegularizationCV:
                 bestL1Ratio = l1Ratio
                 allScores = scores.copy()
 
-        # 전체 데이터로 최종 학습
+        # Final training on full data
         coef, intercept = self._fitElasticNet(X, y, bestAlpha, bestL1Ratio)
 
         return RegularizationCVResult(
@@ -605,7 +605,7 @@ class RegularizationCV:
         )
 
     # ----------------------------------------------------------------
-    # 내부 모델 학습
+    # Internal Model Fitting
     # ----------------------------------------------------------------
 
     def _fitRidge(
@@ -614,7 +614,7 @@ class RegularizationCV:
         y: np.ndarray,
         alpha: float
     ) -> Tuple[np.ndarray, float]:
-        """Ridge 학습, (coef, intercept) 반환"""
+        """Ridge fitting, returns (coef, intercept)"""
         n, p = X.shape
         xMean = np.mean(X, axis=0)
         yMean = np.mean(y)
@@ -638,7 +638,7 @@ class RegularizationCV:
         maxIter: int = 1000,
         tol: float = 1e-4
     ) -> Tuple[np.ndarray, float]:
-        """Lasso 학습 (coordinate descent), (coef, intercept) 반환"""
+        """Lasso fitting (coordinate descent), returns (coef, intercept)"""
         n, p = X.shape
         xMean = np.mean(X, axis=0)
         yMean = np.mean(y)
@@ -676,7 +676,7 @@ class RegularizationCV:
         maxIter: int = 1000,
         tol: float = 1e-4
     ) -> Tuple[np.ndarray, float]:
-        """ElasticNet 학습 (coordinate descent), (coef, intercept) 반환"""
+        """ElasticNet fitting (coordinate descent), returns (coef, intercept)"""
         n, p = X.shape
         l1Penalty = alpha * l1Ratio
         l2Penalty = alpha * (1 - l1Ratio)
@@ -711,7 +711,7 @@ class RegularizationCV:
 
     @staticmethod
     def _softThreshold(x: float, lam: float) -> float:
-        """Soft thresholding 연산"""
+        """Soft thresholding operation"""
         if x > lam:
             return x - lam
         elif x < -lam:
@@ -719,11 +719,11 @@ class RegularizationCV:
         return 0.0
 
     # ----------------------------------------------------------------
-    # K-fold 유틸리티
+    # K-fold Utilities
     # ----------------------------------------------------------------
 
     def _createFolds(self, n: int, nFolds: int) -> np.ndarray:
-        """각 관측값의 폴드 할당 생성"""
+        """Generate fold assignments for each observation"""
         rng = np.random.RandomState(self.randomState)
         indices = np.arange(n)
         rng.shuffle(indices)
@@ -741,7 +741,7 @@ class RegularizationCV:
         foldIndices: np.ndarray,
         fold: int
     ) -> Tuple[np.ndarray, np.ndarray]:
-        """특정 폴드에 대한 train/val 인덱스 분할"""
+        """Split train/val indices for a specific fold"""
         valMask = foldIndices == fold
         trainIdx = np.where(~valMask)[0]
         valIdx = np.where(valMask)[0]
@@ -750,22 +750,22 @@ class RegularizationCV:
 
 class BestSubsetSelector:
     """
-    Best Subset Selection (완전 탐색)
+    Best Subset Selection (exhaustive search)
 
-    모든 변수 조합을 탐색하여 최적 조합 선택.
-    p가 작을 때만 실용적 (p <= 20 권장).
+    Search all variable combinations to find optimal subset.
+    Practical only for small p (p <= 20 recommended).
 
     Parameters
     ----------
     criterion : str
-        정보 기준: 'aic', 'bic', 'adjr2' (기본값: 'bic')
+        Information criterion: 'aic', 'bic', 'adjr2' (default: 'bic')
     maxSize : int, optional
-        최대 부분집합 크기. None이면 p
+        Maximum subset size. None defaults to p
     """
 
     def __init__(self, criterion: str = 'bic', maxSize: Optional[int] = None):
         if criterion not in ('aic', 'bic', 'adjr2'):
-            raise ValueError(f"criterion은 'aic', 'bic', 'adjr2' 중 하나: {criterion}")
+            raise ValueError(f"criterion must be one of 'aic', 'bic', 'adjr2': {criterion}")
         self.criterion = criterion
         self.maxSize = maxSize
 
@@ -776,16 +776,16 @@ class BestSubsetSelector:
         featureNames: Optional[List[str]] = None
     ) -> BestSubsetResult:
         """
-        완전 탐색으로 최적 변수 부분집합 선택
+        Select optimal variable subset via exhaustive search
 
         Parameters
         ----------
         X : np.ndarray, shape (n, p)
-            설계 행렬
+            Design matrix
         y : np.ndarray, shape (n,)
-            반응변수
+            Response variable
         featureNames : List[str], optional
-            변수명 목록
+            Variable name list
 
         Returns
         -------
@@ -801,8 +801,8 @@ class BestSubsetSelector:
 
         if p > 20:
             raise ValueError(
-                f"변수가 {p}개로 너무 많습니다 (p <= 20 권장). "
-                "StepwiseSelector 또는 RegularizationCV를 사용하세요."
+                f"Too many variables ({p}) (p <= 20 recommended). "
+                "Use StepwiseSelector or RegularizationCV instead."
             )
 
         bestCriterion = np.inf if self.criterion != 'adjr2' else -np.inf

@@ -1,13 +1,13 @@
 """
 Echo State Network (ESN) Forecaster
 
-Reservoir Computing 기반 비선형 시계열 예측 모델.
-랜덤 고정 reservoir + 학습 가능 출력 가중치(Ridge regression).
+Reservoir Computing-based nonlinear time series forecasting model.
+Random fixed reservoir + trainable output weights (Ridge regression).
 
-E037 실험 결과 → E041 스트레스 테스트 통과 → 엔진 통합.
-- 평균 순위 3.47 (1위): mstl(3.71), 4theta(3.62) 초과
+E037 experiment result -> E041 stress test passed -> engine integration.
+- Average rank 3.47 (1st): exceeds mstl(3.71), 4theta(3.62)
 - Safety 100%, Seed CV < 40%, Speed 11ms (n=1000)
-- 비선형 동역학 포착, 잔차 상관 0.13~0.66
+- Captures nonlinear dynamics, residual correlation 0.13~0.66
 """
 
 from typing import Tuple

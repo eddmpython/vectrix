@@ -1,4 +1,4 @@
-"""모델 저장/불러오기"""
+"""Model save/load"""
 import json
 import pickle
 import struct
@@ -10,14 +10,14 @@ FORMAT_VERSION = "1.0"
 
 
 class ModelPersistence:
-    """Vectrix 모델 영속화"""
+    """Vectrix model persistence"""
 
     @staticmethod
     def save(fxInstance, path: str, metadata: Optional[dict] = None):
         """
-        학습된 Vectrix 인스턴스를 .fxm 파일로 저장.
+        Save a fitted Vectrix instance to a .fxm file.
 
-        포맷: MAGIC(4) + metaLen(4) + metaJSON(N) + pickle(M)
+        Format: MAGIC(4) + metaLen(4) + metaJSON(N) + pickle(M)
         """
 
         meta = {
@@ -48,18 +48,18 @@ class ModelPersistence:
     @staticmethod
     def load(path: str):
         """
-        .fxm 파일에서 모델 복원.
+        Restore a model from a .fxm file.
 
         Returns
         -------
-        Vectrix 인스턴스 (predict 가능)
+        Vectrix instance (ready for predict)
         """
         from .vectrix import Vectrix
 
         with open(path, 'rb') as f:
             magic = f.read(4)
             if magic != MAGIC_BYTES:
-                raise ValueError("올바른 .fxm 파일이 아닙니다.")
+                raise ValueError("Not a valid .fxm file.")
 
             metaLen = struct.unpack('<I', f.read(4))[0]
             metaJson = f.read(metaLen).decode('utf-8')
@@ -76,11 +76,11 @@ class ModelPersistence:
 
     @staticmethod
     def info(path: str) -> str:
-        """모델 파일 정보 조회 (로드 없이)"""
+        """Query model file info (without loading)"""
         with open(path, 'rb') as f:
             magic = f.read(4)
             if magic != MAGIC_BYTES:
-                raise ValueError("올바른 .fxm 파일이 아닙니다.")
+                raise ValueError("Not a valid .fxm file.")
 
             metaLen = struct.unpack('<I', f.read(4))[0]
             metaJson = f.read(metaLen).decode('utf-8')
@@ -89,10 +89,10 @@ class ModelPersistence:
         lines = [
             f"Vectrix Model File v{meta.get('formatVersion', '?')}",
             f"  Vectrix: v{meta.get('vectrixVersion', '?')}",
-            f"  생성: {meta.get('createdAt', '?')}",
+            f"  Created: {meta.get('createdAt', '?')}",
         ]
         if 'bestModel' in meta:
-            lines.append(f"  모델: {meta['bestModel']}")
+            lines.append(f"  Model: {meta['bestModel']}")
         if meta.get('metadata'):
             for k, v in meta['metadata'].items():
                 lines.append(f"  {k}: {v}")

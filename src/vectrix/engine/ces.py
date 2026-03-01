@@ -1,15 +1,15 @@
 """
 Complex Exponential Smoothing (CES)
 
-Svetunkov (2023) 기반 복소수 지수평활법.
-기존 ETS의 확장으로, 복소수 평활 파라미터를 사용하여
-추세와 계절성을 동시에 모델링.
+Complex exponential smoothing based on Svetunkov (2023).
+An extension of ETS using complex smoothing parameters to
+simultaneously model trend and seasonality.
 
 Forms:
-- N (None): 단순 CES
-- S (Simple): 단순 계절 CES
-- P (Partial): 부분 계절 CES
-- F (Full): 전체 계절 CES
+- N (None): Simple CES
+- S (Simple): Simple seasonal CES
+- P (Partial): Partial seasonal CES
+- F (Full): Full seasonal CES
 """
 
 from typing import Tuple
@@ -75,8 +75,8 @@ class CESModel:
     """
     Complex Exponential Smoothing
 
-    복소수 평활 파라미터 (a0, a1)을 사용하여
-    시계열의 수준과 잠재적 성장을 모델링.
+    Uses complex smoothing parameters (a0, a1) to model
+    the level and latent growth of a time series.
     """
 
     def __init__(self, form: str = 'N', period: int = 1):
@@ -86,7 +86,7 @@ class CESModel:
         form : str
             'N' (None), 'S' (Simple), 'P' (Partial), 'F' (Full)
         period : int
-            계절 주기
+            Seasonal period
         """
         self.form = form.upper()
         self.period = max(1, period)
@@ -193,7 +193,7 @@ class AutoCES:
     """
     Automatic CES model selection
 
-    N, S, P, F 4가지 form을 시도하고 AICc로 최적 선택.
+    Tries all 4 forms (N, S, P, F) and selects the best by AICc.
     """
 
     FORMS = ['N', 'S', 'P', 'F']

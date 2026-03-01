@@ -1,13 +1,13 @@
 """
 ARIMAX: ARIMA with Exogenous Variables
 
-ARIMA 모델에 외생변수(exogenous regressors)를 추가.
+Adds exogenous regressors to the ARIMA model.
 y_t = β'X_t + ARIMA(p,d,q) noise
 
-구현:
-1. 외생 회귀로 y에서 X의 영향 제거
-2. 잔차에 ARIMA 적용
-3. 예측 시 X_future + ARIMA 예측 결합
+Implementation:
+1. Remove X's effect from y via exogenous regression
+2. Apply ARIMA to the residuals
+3. Combine X_future + ARIMA forecast for prediction
 """
 
 from typing import Optional, Tuple
@@ -39,9 +39,9 @@ class ARIMAXModel:
         Parameters
         ----------
         y : np.ndarray
-            시계열 [n]
+            Time series [n]
         X : np.ndarray
-            외생변수 행렬 [n, p]
+            Exogenous variable matrix [n, p]
         """
         n = len(y)
         if X.ndim == 1:
@@ -69,9 +69,9 @@ class ARIMAXModel:
         Parameters
         ----------
         steps : int
-            예측 기간
+            Forecast horizon
         XFuture : np.ndarray, optional
-            미래 외생변수 [steps, p]. None이면 0으로 가정.
+            Future exogenous variables [steps, p]. Assumed zero if None.
         """
         if not self.fitted:
             raise ValueError("Model not fitted.")
@@ -94,9 +94,9 @@ class ARIMAXModel:
 
 class AutoARIMAX:
     """
-    Auto ARIMAX: 자동 order 선택 + 외생변수
+    Auto ARIMAX: Automatic order selection + exogenous variables
 
-    AutoARIMA로 최적 order를 찾고 외생변수 회귀와 결합.
+    Finds the optimal order via AutoARIMA and combines with exogenous regression.
     """
 
     def __init__(self, maxP: int = 3, maxD: int = 2, maxQ: int = 3):

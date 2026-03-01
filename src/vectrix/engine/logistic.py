@@ -1,11 +1,11 @@
 """
-로지스틱 성장 모델 (Saturating Growth)
+Logistic Growth Model (Saturating Growth)
 
-Prophet의 핵심 기능인 포화 성장 모델을 순수 numpy/scipy로 구현
-- LogisticGrowthModel: 기본 로지스틱 곡선 피팅 및 예측
-- SaturatingTrendModel: 포화 추세 + 계절성 결합
+Pure numpy/scipy implementation of Prophet's core saturating growth model
+- LogisticGrowthModel: Basic logistic curve fitting and forecasting
+- SaturatingTrendModel: Saturating trend + seasonality combination
 
-참조: Taylor & Letham (2018) "Forecasting at Scale"
+Reference: Taylor & Letham (2018) "Forecasting at Scale"
 """
 
 from typing import Optional, Tuple
@@ -15,21 +15,21 @@ from scipy.optimize import curve_fit
 
 
 def _logisticCurve(x, cap, floor, k, m):
-    """로지스틱 함수: floor + (cap - floor) / (1 + exp(-k*(x - m)))"""
+    """Logistic function: floor + (cap - floor) / (1 + exp(-k*(x - m)))"""
     return floor + (cap - floor) / (1.0 + np.exp(-k * (x - m)))
 
 
 class LogisticGrowthModel:
-    """로지스틱 성장 모델 (포화 성장)"""
+    """Logistic growth model (saturating growth)"""
 
     def __init__(self, cap: Optional[float] = None, floor: float = 0.0):
         """
         Parameters
         ----------
         cap : float or None
-            포화 상한. None이면 자동 추정 (max(y) * 1.2)
+            Saturation cap. If None, auto-estimated as max(y) * 1.2
         floor : float
-            포화 하한
+            Saturation floor
         """
         self.cap = cap
         self.floor = floor
@@ -43,17 +43,17 @@ class LogisticGrowthModel:
 
     def fit(self, y: np.ndarray) -> 'LogisticGrowthModel':
         """
-        로지스틱 곡선 피팅
+        Fit logistic curve
 
         Parameters
         ----------
         y : np.ndarray
-            시계열 데이터
+            Time series data
 
         Returns
         -------
         LogisticGrowthModel
-            학습된 모델
+            Fitted model
         """
         y = np.asarray(y, dtype=np.float64)
         n = len(y)
@@ -106,20 +106,20 @@ class LogisticGrowthModel:
 
     def predict(self, steps: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
-        예측 + 신뢰구간
+        Forecast with confidence intervals
 
         Parameters
         ----------
         steps : int
-            예측 기간
+            Forecast horizon
 
         Returns
         -------
         Tuple[np.ndarray, np.ndarray, np.ndarray]
-            (예측값, lower95, upper95)
+            (predictions, lower95, upper95)
         """
         if not self.fitted:
-            raise ValueError("모델이 학습되지 않았습니다. fit()을 먼저 호출하세요.")
+            raise ValueError("Model has not been fitted. Call fit() first.")
 
         if steps <= 0:
             return np.array([]), np.array([]), np.array([])
@@ -140,7 +140,7 @@ class LogisticGrowthModel:
         return predictions, lower95, upper95
 
     def _fallbackFit(self, y: np.ndarray):
-        """데이터 부족 시 단순 피팅"""
+        """Simple fitting when data is insufficient"""
         n = len(y)
         if n == 0:
             self.fittedCap = 1.0
@@ -163,7 +163,7 @@ class LogisticGrowthModel:
 
 
 class SaturatingTrendModel:
-    """포화 추세 + 계절성 결합 모델"""
+    """Saturating trend + seasonality combination model"""
 
     def __init__(
         self,
@@ -175,11 +175,11 @@ class SaturatingTrendModel:
         Parameters
         ----------
         cap : float or None
-            포화 상한. None이면 자동 추정
+            Saturation cap. If None, auto-estimated
         floor : float
-            포화 하한
+            Saturation floor
         period : int
-            계절 주기 (1이면 계절성 없음)
+            Seasonal period (1 means no seasonality)
         """
         self.cap = cap
         self.floor = floor
@@ -191,17 +191,17 @@ class SaturatingTrendModel:
 
     def fit(self, y: np.ndarray) -> 'SaturatingTrendModel':
         """
-        비계절화 -> 로지스틱 피팅 -> 계절성 저장
+        Deseasonalize -> logistic fitting -> store seasonality
 
         Parameters
         ----------
         y : np.ndarray
-            시계열 데이터
+            Time series data
 
         Returns
         -------
         SaturatingTrendModel
-            학습된 모델
+            Fitted model
         """
         y = np.asarray(y, dtype=np.float64)
         n = len(y)
@@ -220,20 +220,20 @@ class SaturatingTrendModel:
 
     def predict(self, steps: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
-        예측 with 계절성 복원
+        Forecast with seasonality restoration
 
         Parameters
         ----------
         steps : int
-            예측 기간
+            Forecast horizon
 
         Returns
         -------
         Tuple[np.ndarray, np.ndarray, np.ndarray]
-            (예측값, lower95, upper95)
+            (predictions, lower95, upper95)
         """
         if not self.fitted:
-            raise ValueError("모델이 학습되지 않았습니다. fit()을 먼저 호출하세요.")
+            raise ValueError("Model has not been fitted. Call fit() first.")
 
         if steps <= 0:
             return np.array([]), np.array([]), np.array([])
@@ -252,17 +252,17 @@ class SaturatingTrendModel:
 
     def _deseasonalize(self, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
-        고전적 계절 분해 (가법 모델)
+        Classical seasonal decomposition (additive model)
 
         Parameters
         ----------
         y : np.ndarray
-            원본 시계열
+            Original time series
 
         Returns
         -------
         Tuple[np.ndarray, np.ndarray]
-            (비계절화된 시계열, 계절 지수 배열)
+            (deseasonalized time series, seasonal index array)
         """
         n = len(y)
         m = self.period

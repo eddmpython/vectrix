@@ -5,6 +5,39 @@ All notable changes to Vectrix will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.4] - 2026-03-02
+
+Quality & internationalization release — full English docstring conversion, 573 tests (+186), improved model selection with DOT/CES defaults.
+
+### Changed
+
+**English Docstring Conversion**
+- Complete Korean→English conversion across all 60+ source modules
+- All docstrings, error messages, comments, and user-facing strings now in English
+- API Reference documentation (mkdocstrings) now renders correctly in English
+- Korean column detection keywords (`'날짜', '일자', '일시'`) preserved for Korean DataFrame auto-detection
+
+**Model Selection Improvement**
+- DOT (Dynamic Optimized Theta) and AutoCES now included as default model candidates
+- M4-validated: DOT OWA 0.905 (#18 level), AutoCES OWA 0.927 — both top-performing general-purpose models
+- Hourly data: DTSF + MSTL prioritized for multi-seasonal pattern capture
+- Fallback models upgraded from four_theta/esn to dot/auto_ces
+
+### Added
+
+**Test Coverage Expansion (387 → 573, +48%)**
+- `test_new_models.py`: 45 tests for DTSF, ESN, 4Theta (pattern matching, nonlinear, M4-style holdout)
+- `test_business.py`: 45 tests for anomaly detection, backtesting, metrics, what-if, reports, HTML reports
+- `test_infrastructure.py`: 43 tests for flat defense, hierarchy reconciliation, batch, persistence, TSFrame, AutoAnalyzer
+- `test_engine_utils.py`: 53 tests for ARIMAX, cross-validation, decomposition, diagnostics, periodic drop, comparison, imputation
+
+### Fixed
+
+- Test assertions updated for English error messages (pipeline, holiday names)
+- FlatPredictionType enum comments translated
+
+[0.0.4]: https://github.com/eddmpython/vectrix/compare/v0.0.3...v0.0.4
+
 ## [0.0.3] - 2026-02-28
 
 Performance release — Rust-accelerated core loops (vectrix-core), built-in sample datasets, and pandas 2.x compatibility fixes.

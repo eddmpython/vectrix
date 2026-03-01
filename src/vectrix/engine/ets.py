@@ -1,18 +1,18 @@
 """
-ETS (Error-Trend-Seasonal) 모델 자체 구현
+ETS (Error-Trend-Seasonal) Model Implementation
 
-지수평활법 계열:
+Exponential Smoothing family:
 - Simple Exponential Smoothing (N,N)
 - Holt's Linear (A,N), (M,N)
 - Holt-Winters (A,A), (A,M), (M,A), (M,M)
-- Damped 변형들
+- Damped variants
 
-Hyndman-Khandakar 스타일 자동 모델 선택:
-- Stepwise 탐색 (4개 시드 → 이웃 탐색)
-- 올바른 multiplicative error 로그우도
-- 수치 안정성 보장
+Hyndman-Khandakar style automatic model selection:
+- Stepwise search (4 seed models -> neighbor search)
+- Correct multiplicative error log-likelihood
+- Numerical stability guaranteed
 
-Numba로 최적화된 순수 구현
+Pure implementation optimized with Numba
 """
 
 from typing import List, Optional, Tuple
@@ -52,7 +52,7 @@ def _etsFilterJIT(
     trendType: int,
     seasonalType: int
 ) -> tuple:
-    """Numba JIT 최적화된 ETS 상태공간 필터"""
+    """Numba JIT optimized ETS state-space filter"""
     n = len(y)
     fitted = np.zeros(n)
     residuals = np.zeros(n)
@@ -144,9 +144,9 @@ def _etsFilterJIT(
 
 class ETSModel:
     """
-    자체 구현 ETS 모델
+    ETS Model Implementation
 
-    모델 표기: ETS(Error, Trend, Seasonal)
+    Model notation: ETS(Error, Trend, Seasonal)
     - Error: A(Additive), M(Multiplicative)
     - Trend: N(None), A(Additive), Ad(Additive Damped), M(Multiplicative), Md(Multiplicative Damped)
     - Seasonal: N(None), A(Additive), M(Multiplicative)
@@ -170,9 +170,9 @@ class ETSModel:
         seasonalType : str
             'N' (None), 'A' (Additive), 'M' (Multiplicative)
         period : int
-            계절 주기
+            Seasonal period
         damped : bool
-            감쇠 추세 사용 여부
+            Whether to use damped trend
         """
         self.errorType = errorType
         self.trendType = trendType
@@ -194,14 +194,14 @@ class ETSModel:
 
     def fit(self, y: np.ndarray, optimize: bool = True) -> 'ETSModel':
         """
-        모델 학습
+        Fit the model
 
         Parameters
         ----------
         y : np.ndarray
-            시계열 데이터
+            Time series data
         optimize : bool
-            파라미터 최적화 여부
+            Whether to optimize parameters
         """
         n = len(y)
         m = self.period
@@ -223,20 +223,20 @@ class ETSModel:
 
     def predict(self, steps: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
-        예측
+        Forecast
 
         Parameters
         ----------
         steps : int
-            예측 기간
+            Forecast horizon
 
         Returns
         -------
         Tuple[np.ndarray, np.ndarray, np.ndarray]
-            (예측값, lower95, upper95)
+            (predictions, lower95, upper95)
         """
         if not self.fitted:
-            raise ValueError("모델이 학습되지 않았습니다.")
+            raise ValueError("Model has not been fitted.")
 
         predictions = np.zeros(steps)
         m = self.period
@@ -293,7 +293,7 @@ class ETSModel:
         return predictions, lower95, upper95
 
     def _initializeState(self, y: np.ndarray):
-        """초기 상태값 설정"""
+        """Initialize state values"""
         n = len(y)
         m = self.period
 
@@ -332,7 +332,7 @@ class ETSModel:
                 self.seasonal = np.ones(m)
 
     def _optimizeParameters(self, y: np.ndarray):
-        """scipy로 파라미터 최적화"""
+        """Optimize parameters with scipy"""
         bounds = [(0.001, 0.999)]
 
         if self.trendType != 'N':
@@ -366,9 +366,9 @@ class ETSModel:
 
     def _computeSSE(self, y: np.ndarray, params: np.ndarray) -> float:
         """
-        Sum of Squared Errors 계산
+        Compute Sum of Squared Errors
 
-        수치 안정성을 위해 잔차를 데이터 표준편차로 스케일링 후 제곱
+        Scales residuals by data standard deviation for numerical stability
         """
         self._setParams(params)
 
@@ -383,7 +383,7 @@ class ETSModel:
             return np.inf
 
     def _setParams(self, params: np.ndarray):
-        """파라미터 설정"""
+        """Set parameters"""
         idx = 0
         self.alpha = params[idx]
         idx += 1
@@ -400,12 +400,12 @@ class ETSModel:
             self.phi = params[idx]
 
     def _fitWithParams(self, y: np.ndarray):
-        """현재 파라미터로 학습"""
+        """Fit with current parameters"""
         fitted, residuals = self._filter(y)
         self.residuals = residuals
 
     def _filter(self, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-        """상태공간 필터링 (Rust > Numba JIT > Pure Python)"""
+        """State-space filtering (Rust > Numba JIT > Pure Python)"""
         errorInt = 0 if self.errorType == 'A' else 1
         trendMap = {'N': 0, 'A': 1, 'Ad': 2, 'M': 3}
         trendKey = self.trendType + ('d' if self.damped else '')
@@ -438,7 +438,7 @@ class ETSModel:
         return fitted, residuals
 
     def _simpleFit(self, y: np.ndarray):
-        """간단한 학습 (데이터 부족시)"""
+        """Simple fit (when data is insufficient)"""
         self.level = np.mean(y)
         self.trend = 0.0 if self.trendType == 'N' else (y[-1] - y[0]) / max(len(y) - 1, 1)
         self.seasonal = np.zeros(self.period)
@@ -447,18 +447,18 @@ class ETSModel:
 
 class AutoETS:
     """
-    자동 ETS 모델 선택
+    Automatic ETS Model Selection
 
-    Hyndman-Khandakar 스타일 stepwise 탐색:
-    - 4개 시드 모델에서 출발
-    - 최적 시드의 이웃(한 성분만 변경) 탐색
-    - 개선이 없을 때까지 반복
-    - AICc 기준 최적 모델 선택
+    Hyndman-Khandakar style stepwise search:
+    - Start from 4 seed models
+    - Search neighbors of the best seed (change one component at a time)
+    - Repeat until no improvement
+    - Select optimal model based on AICc
 
     Error: {A, M}
-    Trend: {N, A, Ad}  (M/Md는 안정성 문제로 제외)
+    Trend: {N, A, Ad}  (M/Md excluded due to stability issues)
     Seasonal: {N, A, M}
-    유효 조합: 최대 18개 (데이터 조건에 따라 일부 제외)
+    Valid combinations: up to 18 (some excluded based on data conditions)
     """
 
     SEED_MODELS = [
@@ -494,9 +494,9 @@ class AutoETS:
         Parameters
         ----------
         period : int
-            계절 주기
+            Seasonal period
         exhaustive : bool
-            True면 전체 18개 모델 탐색, False면 stepwise 탐색
+            If True, search all 18 models; if False, use stepwise search
         """
         self.period = period
         self.exhaustive = exhaustive
@@ -512,10 +512,10 @@ class AutoETS:
         y: np.ndarray
     ) -> bool:
         """
-        모델 유효성 검사
+        Model validity check
 
-        Multiplicative error/seasonal은 모든 y > 0 일 때만 허용
-        계절 모델은 충분한 데이터 필요
+        Multiplicative error/seasonal allowed only when all y > 0
+        Seasonal models require sufficient data
         """
         n = len(y)
         hasNonPositive = np.any(y <= 0)
@@ -538,12 +538,12 @@ class AutoETS:
         seasonal: str
     ) -> List[Tuple[str, str, str]]:
         """
-        현재 모델의 이웃 모델 생성 (한 성분만 변경)
+        Generate neighbor models (change one component at a time)
 
         Returns
         -------
         List[Tuple[str, str, str]]
-            이웃 모델 목록
+            List of neighbor models
         """
         errorOptions = ['A', 'M']
         trendOptions = ['N', 'A', 'Ad']
@@ -573,12 +573,12 @@ class AutoETS:
         y: np.ndarray
     ) -> Optional[Tuple[ETSModel, float]]:
         """
-        단일 모델 평가
+        Evaluate a single model
 
         Returns
         -------
         Optional[Tuple[ETSModel, float]]
-            (학습된 모델, AICc) 또는 실패 시 None
+            (fitted model, AICc) or None on failure
         """
         modelKey = (error, trend, seasonal)
         if modelKey in self.allResults:
@@ -616,22 +616,22 @@ class AutoETS:
 
     def fit(self, y: np.ndarray) -> ETSModel:
         """
-        최적 ETS 모델 자동 선택 및 학습
+        Automatic optimal ETS model selection and fitting
 
-        Stepwise 알고리즘:
-        1. 4개 시드 모델 평가
-        2. 최적 시드에서 이웃 탐색
-        3. 개선이 없을 때까지 반복
+        Stepwise algorithm:
+        1. Evaluate 4 seed models
+        2. Search neighbors of the best seed
+        3. Repeat until no improvement
 
         Parameters
         ----------
         y : np.ndarray
-            시계열 데이터
+            Time series data
 
         Returns
         -------
         ETSModel
-            최적 모델
+            Optimal model
         """
         self.allResults = {}
         self.bestModel = None
@@ -643,7 +643,7 @@ class AutoETS:
         return self._fitStepwise(y)
 
     def _fitStepwise(self, y: np.ndarray) -> ETSModel:
-        """Hyndman-Khandakar stepwise 탐색"""
+        """Hyndman-Khandakar stepwise search"""
         bestError = None
         bestTrend = None
         bestSeasonal = None
@@ -682,7 +682,7 @@ class AutoETS:
         return self.bestModel
 
     def _fitExhaustive(self, y: np.ndarray) -> ETSModel:
-        """전체 모델 탐색"""
+        """Exhaustive model search"""
         for error, trend, seasonal in self.FULL_MODELS:
             result = self._evaluateModel(error, trend, seasonal, y)
             if result is not None:
@@ -697,19 +697,18 @@ class AutoETS:
         return self.bestModel
 
     def _fallback(self, y: np.ndarray) -> ETSModel:
-        """모든 모델 실패 시 폴백"""
+        """Fallback when all models fail"""
         self.bestModel = ETSModel(period=self.period)
         self.bestModel.fit(y, optimize=False)
         return self.bestModel
 
     def _computeAICc(self, y: np.ndarray, model: ETSModel) -> float:
         """
-        AICc 계산
+        Compute AICc
 
         Additive error: logL = -n/2 * log(SSE/n)
         Multiplicative error: logL = -n/2 * log(SSE_rel/n) - sum(log|y|)
-          여기서 SSE_rel = sum((e_t / yhat_t)^2 * yhat_t^2) 대신
-          상대 오차 기반 로그우도를 사용
+          Uses relative error based log-likelihood
 
         AIC = -2*logL + 2*k
         AICc = AIC + 2*k*(k+1)/(n-k-1)
@@ -758,7 +757,7 @@ class AutoETS:
         return aicc
 
     def predict(self, steps: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """예측"""
+        """Forecast"""
         if self.bestModel is None:
-            raise ValueError("모델이 학습되지 않았습니다.")
+            raise ValueError("Model has not been fitted.")
         return self.bestModel.predict(steps)

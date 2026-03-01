@@ -1,13 +1,14 @@
 """
 Regime-Aware Adaptive Forecasting & Self-Healing Forecast
 
-HMM 기반 시계열 레짐(국면) 감지 및 레짐별 적응 예측 시스템.
-실시간 예측 오차 모니터링 및 자동 교정 (Self-Healing Forecast).
-제약 조건 인식 예측 후처리 (Constraint-Aware Forecasting).
-시계열 DNA 분석 (Forecast DNA Fingerprinting).
+HMM-based time series regime detection and regime-specific adaptive forecasting system.
+Real-time forecast error monitoring and automatic correction (Self-Healing Forecast).
+Constraint-aware forecast post-processing (Constraint-Aware Forecasting).
+Time series DNA analysis (Forecast DNA Fingerprinting).
 
-시계열의 "레짐"을 실시간 감지하고, 레짐별로 최적의 예측 모델을
-자동 전환하여 전이 확률 가중 앙상블 예측을 생성한다.
+Detects time series "regimes" in real-time and automatically switches to
+the optimal forecast model per regime, generating transition probability
+weighted ensemble forecasts.
 
 Usage:
     >>> from vectrix.adaptive import RegimeDetector, RegimeAwareForecaster

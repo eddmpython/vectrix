@@ -2,9 +2,9 @@
 TBATS: Trigonometric seasonality, Box-Cox transformation,
        ARMA errors, Trend and Seasonal components
 
-De Livera et al. (2011) 기반.
-복잡한 다중 계절성 (예: 시간 데이터의 일별+주별+연별)을 처리.
-Fourier 급수로 계절성을 표현하여 상태 공간 폭발을 방지.
+Based on De Livera et al. (2011).
+Handles complex multiple seasonalities (e.g., daily+weekly+yearly in hourly data).
+Represents seasonality via Fourier series to prevent state space explosion.
 """
 
 from typing import List, Optional, Tuple
@@ -77,8 +77,8 @@ class TBATS:
     """
     TBATS Model
 
-    각 계절 주기에 Fourier 항을 사용하여
-    상태 공간 크기를 제어하면서 다중 계절성 처리.
+    Uses Fourier terms for each seasonal period to handle
+    multiple seasonalities while controlling state space size.
     """
 
     def __init__(
@@ -311,7 +311,7 @@ class AutoTBATS:
     """
     Automatic TBATS model selection
 
-    trend/damping/boxcox 조합을 시도하여 최적 선택.
+    Tries trend/damping/boxcox combinations and selects the best.
     """
 
     def __init__(self, periods: Optional[List[int]] = None):

@@ -1,13 +1,13 @@
 """
-이벤트/공휴일 효과 모듈
+Event/Holiday Effect Module
 
-시계열 예측에 공휴일 및 이벤트 효과를 반영:
-- 한국 공휴일 기본 내장 (양력/음력 기반)
-- 사용자 정의 이벤트 추가
-- 이벤트 전후 효과 범위(window) 설정
-- 각 이벤트의 효과 크기 추정 (회귀 기반)
+Incorporates holiday and event effects into time series forecasting:
+- Built-in Korean holidays (solar/lunar calendar based)
+- User-defined custom event support
+- Pre/post event effect window configuration
+- Event effect size estimation (regression based)
 
-순수 numpy/scipy만 사용 (extractBatch 제외)
+Pure numpy/scipy only (except extractBatch)
 """
 
 from datetime import date, datetime, timedelta
@@ -71,69 +71,69 @@ def _nthWeekdayOfMonth(year: int, month: int, weekday: int, n: int) -> date:
         return firstDay + timedelta(days=offset + 7 * (n - 1))
 
 
-# ─── 한국 공휴일 정의 ─────────────────────────────────────────────────────
+# ─── Korean Holiday Definitions ───────────────────────────────────────────
 
 _KR_FIXED_HOLIDAYS = [
-    (1, 1, '신정'),
-    (3, 1, '삼일절'),
-    (5, 5, '어린이날'),
-    (6, 6, '현충일'),
-    (8, 15, '광복절'),
-    (10, 3, '개천절'),
-    (10, 9, '한글날'),
-    (12, 25, '성탄절'),
+    (1, 1, 'New Year'),
+    (3, 1, 'Independence Movement Day'),
+    (5, 5, "Children's Day"),
+    (6, 6, 'Memorial Day'),
+    (8, 15, 'Liberation Day'),
+    (10, 3, 'National Foundation Day'),
+    (10, 9, 'Hangul Day'),
+    (12, 25, 'Christmas'),
 ]
 
-# 음력 기반 공휴일의 대략적 양력 범위
-# (실제 날짜는 매년 다르므로, 범위로 처리)
-# 설날: 음력 1/1 전후 → 대략 양력 1월 중순 ~ 2월 중순
-# 추석: 음력 8/15 전후 → 대략 양력 9월 초 ~ 10월 초
+# Approximate solar date ranges for lunar-based holidays
+# (Actual dates vary each year, so handled as ranges)
+# Seollal: Lunar 1/1 vicinity -> approx. mid-Jan to mid-Feb in solar calendar
+# Chuseok: Lunar 8/15 vicinity -> approx. early Sep to early Oct in solar calendar
 _KR_LUNAR_HOLIDAYS = [
     {
-        'name': '설날',
-        'monthRange': (1, 2),  # 1~2월 사이
-        'dayRange': (15, 28),  # 대략적 범위
-        'duration': 3,         # 연휴 일수
+        'name': 'Seollal',
+        'monthRange': (1, 2),
+        'dayRange': (15, 28),
+        'duration': 3,
     },
     {
-        'name': '추석',
+        'name': 'Chuseok',
         'monthRange': (9, 10),
         'dayRange': (1, 15),
         'duration': 3,
     },
 ]
 
-# 연도별 설날/추석 실제 양력 날짜 (정확한 계산이 어려우므로 주요 연도 매핑)
+# Actual solar dates for Seollal/Chuseok by year (mapped since exact lunar calculation is complex)
 _KR_LUNAR_DATES = {
-    2020: {'설날': (1, 25), '추석': (10, 1)},
-    2021: {'설날': (2, 12), '추석': (9, 21)},
-    2022: {'설날': (2, 1), '추석': (9, 10)},
-    2023: {'설날': (1, 22), '추석': (9, 29)},
-    2024: {'설날': (2, 10), '추석': (9, 17)},
-    2025: {'설날': (1, 29), '추석': (10, 6)},
-    2026: {'설날': (2, 17), '추석': (9, 25)},
-    2027: {'설날': (2, 7), '추석': (9, 15)},
-    2028: {'설날': (1, 27), '추석': (10, 3)},
-    2029: {'설날': (2, 13), '추석': (9, 22)},
-    2030: {'설날': (2, 3), '추석': (9, 12)},
+    2020: {'Seollal': (1, 25), 'Chuseok': (10, 1)},
+    2021: {'Seollal': (2, 12), 'Chuseok': (9, 21)},
+    2022: {'Seollal': (2, 1), 'Chuseok': (9, 10)},
+    2023: {'Seollal': (1, 22), 'Chuseok': (9, 29)},
+    2024: {'Seollal': (2, 10), 'Chuseok': (9, 17)},
+    2025: {'Seollal': (1, 29), 'Chuseok': (10, 6)},
+    2026: {'Seollal': (2, 17), 'Chuseok': (9, 25)},
+    2027: {'Seollal': (2, 7), 'Chuseok': (9, 15)},
+    2028: {'Seollal': (1, 27), 'Chuseok': (10, 3)},
+    2029: {'Seollal': (2, 13), 'Chuseok': (9, 22)},
+    2030: {'Seollal': (2, 3), 'Chuseok': (9, 12)},
 }
 
 
 class EventEffect:
     """
-    이벤트/공휴일 효과 모델
+    Event/Holiday Effect Model
 
-    시계열 예측에 공휴일 및 사용자 정의 이벤트의 효과를 반영.
-    이벤트 전후 효과 범위를 설정하여 점진적 영향을 모델링.
+    Incorporates holiday and user-defined event effects into time series forecasting.
+    Models gradual impact by configuring pre/post event effect windows.
 
     Parameters
     ----------
     holidays : str
-        사용할 공휴일 세트 ('kr': 한국, 'us': 미국, 'jp': 일본, 'cn': 중국, 'none': 없음)
+        Holiday set to use ('kr': Korea, 'us': US, 'jp': Japan, 'cn': China, 'none': none)
     customEvents : List[Dict], optional
-        사용자 정의 이벤트 목록.
-        각 이벤트는 {'name': str, 'dates': List[str], 'priorWindow': int, 'postWindow': int}
-        dates 형식: 'YYYY-MM-DD' 또는 'MM-DD' (매년 반복)
+        List of user-defined events.
+        Each event: {'name': str, 'dates': List[str], 'priorWindow': int, 'postWindow': int}
+        Date format: 'YYYY-MM-DD' or 'MM-DD' (recurring annually)
 
     Examples
     --------
@@ -165,7 +165,7 @@ class EventEffect:
             self._registerCustomEvent(event)
 
     def _registerKoreanHolidays(self):
-        """한국 공휴일을 이벤트 레지스트리에 등록"""
+        """Register Korean holidays in the event registry"""
         for month, day, name in _KR_FIXED_HOLIDAYS:
             self._eventRegistry[name] = {
                 'type': 'fixed',
@@ -175,7 +175,7 @@ class EventEffect:
                 'postWindow': 1,
             }
 
-        # 음력 공휴일
+        # Lunar holidays
         for lunarHoliday in _KR_LUNAR_HOLIDAYS:
             self._eventRegistry[lunarHoliday['name']] = {
                 'type': 'lunar',
@@ -226,7 +226,7 @@ class EventEffect:
             }
 
     def _registerCustomEvent(self, event: Dict):
-        """사용자 정의 이벤트 등록"""
+        """Register a user-defined custom event"""
         name = event.get('name', 'custom_event')
         self._eventRegistry[name] = {
             'type': 'custom',
@@ -237,21 +237,21 @@ class EventEffect:
 
     def getKoreanHolidays(self, year: int) -> List[Dict]:
         """
-        특정 연도의 한국 공휴일 목록 반환
+        Return Korean holiday list for a specific year
 
         Parameters
         ----------
         year : int
-            연도
+            Year
 
         Returns
         -------
         List[Dict]
-            공휴일 목록. 각 항목: {'name': str, 'date': str, 'type': str}
+            Holiday list. Each item: {'name': str, 'date': str, 'type': str}
         """
         holidays = []
 
-        # 양력 공휴일
+        # Solar calendar holidays
         for month, day, name in _KR_FIXED_HOLIDAYS:
             try:
                 d = date(year, month, day)
@@ -263,7 +263,7 @@ class EventEffect:
             except ValueError:
                 continue
 
-        # 음력 공휴일 (매핑 테이블에서 조회)
+        # Lunar holidays (lookup from mapping table)
         if year in _KR_LUNAR_DATES:
             for name, (month, day) in _KR_LUNAR_DATES[year].items():
                 duration = 3
@@ -271,24 +271,24 @@ class EventEffect:
                     try:
                         d = date(year, month, day) + timedelta(days=offset)
                         holidays.append({
-                            'name': f'{name} ({"당일" if offset == 0 else ("전날" if offset < 0 else "다음날")})',
+                            'name': f'{name} ({"day of" if offset == 0 else ("day before" if offset < 0 else "day after")})',
                             'date': d.isoformat(),
                             'type': 'lunar',
                         })
                     except ValueError:
                         continue
         else:
-            # 매핑이 없으면 범위 기반 대략적 날짜
+            # If no mapping exists, use approximate range-based dates
             for lunarHoliday in _KR_LUNAR_HOLIDAYS:
                 name = lunarHoliday['name']
                 mStart, mEnd = lunarHoliday['monthRange']
-                # 범위의 중앙 날짜를 대략적으로 사용
+                # Use approximate midpoint of the range
                 midMonth = (mStart + mEnd) // 2 if mStart != mEnd else mStart
                 midDay = 15
                 try:
                     d = date(year, midMonth, midDay)
                     holidays.append({
-                        'name': f'{name} (추정)',
+                        'name': f'{name} (estimated)',
                         'date': d.isoformat(),
                         'type': 'lunar_estimated',
                     })
@@ -299,17 +299,17 @@ class EventEffect:
 
     def getHolidays(self, year: int) -> List[Dict]:
         """
-        현재 설정된 국가의 공휴일 목록 반환
+        Return holiday list for the currently configured country
 
         Parameters
         ----------
         year : int
-            연도
+            Year
 
         Returns
         -------
         List[Dict]
-            공휴일 목록. 각 항목: {'name': str, 'date': str, 'type': str}
+            Holiday list. Each item: {'name': str, 'date': str, 'type': str}
         """
         if self.holidays == 'kr':
             return self.getKoreanHolidays(year)
@@ -346,21 +346,21 @@ class EventEffect:
         effects: Dict,
     ) -> np.ndarray:
         """
-        추정된 이벤트 효과를 예측값에 적용
+        Apply estimated event effects to forecast values
 
         Parameters
         ----------
         predictions : np.ndarray
-            원본 예측값 배열
+            Original prediction array
         futureDates : np.ndarray
-            예측 기간의 날짜 배열 (datetime64 또는 문자열)
+            Date array for the forecast period (datetime64 or string)
         effects : Dict
-            estimateEffects()의 반환값
+            Return value from estimateEffects()
 
         Returns
         -------
         np.ndarray
-            이벤트 효과가 반영된 예측값
+            Predictions with event effects applied
         """
         predictions = np.asarray(predictions, dtype=np.float64).copy()
         features = self.getEventFeatures(futureDates)
@@ -379,22 +379,22 @@ class EventEffect:
         periods: Optional[int] = None
     ) -> np.ndarray:
         """
-        날짜 배열에 대한 이벤트 특성 행렬 생성
+        Generate event feature matrix for a date array
 
         Parameters
         ----------
         dates : np.ndarray
-            날짜 배열 (datetime64 또는 문자열)
+            Date array (datetime64 or string)
         periods : int, optional
-            미래 기간 수 (예측용). None이면 dates 길이만큼만.
+            Number of future periods (for forecasting). If None, uses length of dates.
 
         Returns
         -------
         np.ndarray
-            이벤트 특성 행렬 (n_dates, n_events)
-            각 열은 하나의 이벤트에 대한 효과 (0~1 범위)
+            Event feature matrix (n_dates, n_events)
+            Each column represents the effect of one event (range 0~1)
         """
-        # 날짜를 datetime 객체로 변환
+        # Convert dates to datetime objects
         parsedDates = self._parseDates(dates)
         n = len(parsedDates)
 
@@ -424,9 +424,9 @@ class EventEffect:
         postWindow: int
     ) -> float:
         """
-        특정 날짜에 대한 이벤트 효과 계산
+        Compute event effect for a specific date
 
-        이벤트 당일 = 1.0, 전후 기간은 거리에 따라 감소 (선형).
+        Event day = 1.0, pre/post periods decay linearly with distance.
         """
         eventType = eventInfo['type']
 
@@ -447,7 +447,7 @@ class EventEffect:
         priorWindow: int,
         postWindow: int
     ) -> float:
-        """양력 고정 공휴일의 효과"""
+        """Effect of a fixed solar calendar holiday"""
         try:
             holidayDate = date(dt.year, eventInfo['month'], eventInfo['day'])
         except ValueError:
@@ -458,10 +458,10 @@ class EventEffect:
         if diff == 0:
             return 1.0
         elif -priorWindow <= diff < 0:
-            # 이벤트 전: 가까울수록 효과 큼
+            # Pre-event: closer means larger effect
             return 1.0 - abs(diff) / (priorWindow + 1)
         elif 0 < diff <= postWindow:
-            # 이벤트 후: 가까울수록 효과 큼
+            # Post-event: closer means larger effect
             return 1.0 - diff / (postWindow + 1)
         return 0.0
 
@@ -493,10 +493,10 @@ class EventEffect:
         priorWindow: int,
         postWindow: int
     ) -> float:
-        """음력 기반 공휴일의 효과"""
+        """Effect of a lunar calendar based holiday"""
         year = dt.year
 
-        # 정확한 날짜가 매핑 테이블에 있으면 사용
+        # Use exact date if available in the mapping table
         for lunarH in _KR_LUNAR_HOLIDAYS:
             if (eventInfo.get('monthRange') == lunarH['monthRange'] and
                     eventInfo.get('dayRange') == lunarH['dayRange']):
@@ -513,14 +513,14 @@ class EventEffect:
                 return 0.0
 
             duration = eventInfo.get('duration', 3)
-            # 연휴 기간 (-1일 ~ +1일 for 3일 연휴)
+            # Holiday period (-1 day ~ +1 day for 3-day holiday)
             for offset in range(-(duration // 2), (duration + 1) // 2):
                 checkDate = holidayDate + timedelta(days=offset)
                 diff = (dt - checkDate).days
                 if diff == 0:
                     return 1.0
 
-            # 전후 윈도우
+            # Pre/post windows
             startDate = holidayDate - timedelta(days=duration // 2)
             endDate = holidayDate + timedelta(days=(duration + 1) // 2 - 1)
             diffToStart = (dt - startDate).days
@@ -531,11 +531,11 @@ class EventEffect:
             elif 0 < diffFromEnd <= postWindow:
                 return 1.0 - diffFromEnd / (postWindow + 1)
         else:
-            # 매핑 없으면 범위 기반 대략적 매칭
+            # Approximate range-based matching if no mapping exists
             mStart, mEnd = eventInfo['monthRange']
             dStart, dEnd = eventInfo['dayRange']
             if mStart <= dt.month <= mEnd and dStart <= dt.day <= dEnd:
-                return 0.5  # 불확실하므로 낮은 효과
+                return 0.5  # Low effect due to uncertainty
         return 0.0
 
     def _customEventEffect(
@@ -545,7 +545,7 @@ class EventEffect:
         priorWindow: int,
         postWindow: int
     ) -> float:
-        """사용자 정의 이벤트의 효과"""
+        """Effect of a user-defined custom event"""
         eventDates = eventInfo.get('dates', [])
 
         for eventDateStr in eventDates:
@@ -566,16 +566,16 @@ class EventEffect:
         return 0.0
 
     def _parseEventDate(self, dateStr: str, defaultYear: int) -> date:
-        """이벤트 날짜 문자열 파싱"""
+        """Parse event date string"""
         parts = dateStr.split('-')
         if len(parts) == 3:
             return date(int(parts[0]), int(parts[1]), int(parts[2]))
         elif len(parts) == 2:
             return date(defaultYear, int(parts[0]), int(parts[1]))
-        raise ValueError(f"날짜 형식 오류: {dateStr}")
+        raise ValueError(f"Invalid date format: {dateStr}")
 
     def _parseDates(self, dates: np.ndarray) -> List[date]:
-        """날짜 배열을 date 객체 리스트로 변환"""
+        """Convert date array to list of date objects"""
         parsed = []
         for d in dates:
             try:
@@ -588,10 +588,10 @@ class EventEffect:
                     parts = d.split('-')
                     parsed.append(date(int(parts[0]), int(parts[1]), int(parts[2])))
                 else:
-                    # 숫자면 타임스탬프로 간주
+                    # If numeric, treat as timestamp
                     parsed.append(datetime.fromtimestamp(float(d)).date())
             except Exception:
-                # 파싱 실패 시 에포크 시작으로 대체
+                # Fallback to epoch start on parse failure
                 parsed.append(date(1970, 1, 1))
         return parsed
 
@@ -601,32 +601,32 @@ class EventEffect:
         dates: np.ndarray
     ) -> Dict:
         """
-        각 이벤트의 효과 크기 추정
+        Estimate effect size of each event
 
-        이벤트 특성 행렬과 시계열 데이터를 사용하여
-        최소제곱 회귀로 각 이벤트의 효과 계수를 추정.
+        Uses event feature matrix and time series data to estimate
+        each event's effect coefficient via least squares regression.
 
         Parameters
         ----------
         y : np.ndarray
-            시계열 데이터
+            Time series data
         dates : np.ndarray
-            날짜 배열
+            Date array
 
         Returns
         -------
         Dict
-            각 이벤트의 효과 추정치.
+            Effect estimates for each event.
             {
                 'eventName': {
-                    'coefficient': float,  # 효과 크기
-                    'significance': float, # 통계적 유의성 (t-stat)
-                    'nOccurrences': int,   # 이벤트 발생 횟수
+                    'coefficient': float,  # Effect size
+                    'significance': float, # Statistical significance (t-stat)
+                    'nOccurrences': int,   # Number of event occurrences
                 },
                 ...
                 '_summary': {
-                    'totalEventEffect': float,  # 전체 이벤트 효과 비율
-                    'rSquared': float,           # 이벤트 모델의 설명력
+                    'totalEventEffect': float,  # Overall event effect ratio
+                    'rSquared': float,           # Explanatory power of event model
                 }
             }
         """
@@ -637,7 +637,7 @@ class EventEffect:
 
         if n != features.shape[0]:
             raise ValueError(
-                f"시계열 길이({n})와 날짜 수({features.shape[0]})가 일치하지 않습니다."
+                f"Time series length ({n}) does not match date count ({features.shape[0]})."
             )
 
         eventNames = list(self._eventRegistry.keys())
@@ -647,24 +647,24 @@ class EventEffect:
         result = {}
 
         try:
-            # 절편 포함 설계 행렬
+            # Design matrix with intercept
             X = np.column_stack([np.ones(n), features])
 
-            # 최소제곱 해 (정규방정식)
+            # Least squares solution (normal equations)
             XtX = X.T @ X
-            # 정칙화 (Ridge)
+            # Regularization (Ridge)
             XtX += 1e-8 * np.eye(XtX.shape[0])
             Xty = X.T @ y
             beta = np.linalg.solve(XtX, Xty)
 
-            # 잔차 및 통계
+            # Residuals and statistics
             yHat = X @ beta
             residuals = y - yHat
             sse = np.sum(residuals ** 2)
             sst = np.sum((y - np.mean(y)) ** 2)
             rSquared = 1 - sse / max(sst, 1e-10) if sst > 0 else 0.0
 
-            # 표준오차
+            # Standard errors
             df = max(n - X.shape[1], 1)
             mse = sse / df
             try:
@@ -673,9 +673,9 @@ class EventEffect:
             except np.linalg.LinAlgError:
                 seBeta = np.ones(X.shape[1]) * 1e10
 
-            # 각 이벤트 결과
+            # Per-event results
             for i, name in enumerate(eventNames):
-                coeff = beta[i + 1]  # +1: 절편 스킵
+                coeff = beta[i + 1]  # +1: skip intercept
                 se = max(seBeta[i + 1], 1e-10)
                 tStat = coeff / se
                 nOccurrences = int(np.sum(features[:, i] > 0))
@@ -686,7 +686,7 @@ class EventEffect:
                     'nOccurrences': nOccurrences,
                 }
 
-            # 이벤트 효과 비율
+            # Event effect ratio
             eventContribution = np.sum(features @ beta[1:])
             totalSignal = np.sum(np.abs(y - np.mean(y)))
             eventRatio = abs(eventContribution) / max(totalSignal, 1e-10)
@@ -697,7 +697,7 @@ class EventEffect:
             }
 
         except Exception:
-            # fallback: 단순 평균 비교
+            # fallback: simple mean comparison
             for i, name in enumerate(eventNames):
                 mask = features[:, i] > 0
                 if np.any(mask) and np.any(~mask):
@@ -723,19 +723,19 @@ class EventEffect:
 
     def addEvent(self, event: Dict):
         """
-        이벤트 추가
+        Add an event
 
         Parameters
         ----------
         event : Dict
-            이벤트 정보. 필수: 'name', 'dates'.
-            선택: 'priorWindow' (기본 1), 'postWindow' (기본 1).
+            Event information. Required: 'name', 'dates'.
+            Optional: 'priorWindow' (default 1), 'postWindow' (default 1).
         """
         self.customEvents.append(event)
         self._registerCustomEvent(event)
 
     def listEvents(self) -> List[str]:
-        """등록된 모든 이벤트 이름 반환"""
+        """Return all registered event names"""
         return list(self._eventRegistry.keys())
 
     def getEventCalendar(
@@ -744,19 +744,19 @@ class EventEffect:
         endDate: str
     ) -> List[Dict]:
         """
-        기간 내 이벤트 캘린더 생성
+        Generate event calendar within a date range
 
         Parameters
         ----------
         startDate : str
-            시작일 (YYYY-MM-DD)
+            Start date (YYYY-MM-DD)
         endDate : str
-            종료일 (YYYY-MM-DD)
+            End date (YYYY-MM-DD)
 
         Returns
         -------
         List[Dict]
-            기간 내 이벤트 목록
+            List of events within the date range
         """
         try:
             start = date.fromisoformat(startDate)
@@ -778,7 +778,7 @@ class EventEffect:
                     if start <= hDate <= end:
                         calendar.append(h)
 
-        # 사용자 정의 이벤트
+        # User-defined events
         for event in self.customEvents:
             name = event.get('name', 'custom')
             for dateStr in event.get('dates', []):

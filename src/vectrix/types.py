@@ -1,5 +1,5 @@
 """
-ChaniCast 핵심 데이터 타입 정의
+Core data type definitions for Vectrix.
 """
 
 from dataclasses import dataclass, field
@@ -10,15 +10,15 @@ import numpy as np
 
 
 class FlatPredictionType(Enum):
-    """일직선 예측 유형"""
+    """Flat prediction types."""
     NONE = "none"
-    HORIZONTAL = "horizontal"      # 수평 일직선: ────────
-    DIAGONAL = "diagonal"          # 대각선 일직선: ╱╱╱╱╱╱
-    MEAN_REVERSION = "mean_reversion"  # 평균 수렴: ∿→───
+    HORIZONTAL = "horizontal"      # Flat horizontal line: ────────
+    DIAGONAL = "diagonal"          # Flat diagonal line: ╱╱╱╱╱╱
+    MEAN_REVERSION = "mean_reversion"  # Mean reversion: ∿→───
 
 
 class RiskLevel(Enum):
-    """위험도 수준"""
+    """Risk level classification."""
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -26,7 +26,7 @@ class RiskLevel(Enum):
 
 
 class Frequency(Enum):
-    """데이터 주기"""
+    """Data frequency."""
     DAILY = "D"
     WEEKLY = "W"
     MONTHLY = "M"
@@ -38,157 +38,152 @@ class Frequency(Enum):
 
 @dataclass
 class DataCharacteristics:
-    """데이터 특성 분석 결과"""
+    """Data characteristics analysis result."""
 
-    # 기본 정보
+    # Basic info
     length: int = 0
     frequency: Frequency = Frequency.UNKNOWN
     period: int = 1
     dateRange: Tuple[str, str] = ("", "")
 
-    # 추세 분석
+    # Trend analysis
     hasTrend: bool = False
     trendDirection: str = "none"  # "up", "down", "none"
     trendStrength: float = 0.0    # 0.0 ~ 1.0
 
-    # 계절성 분석
+    # Seasonality analysis
     hasSeasonality: bool = False
     seasonalStrength: float = 0.0
     seasonalPeriods: List[int] = field(default_factory=list)
     hasMultipleSeasonality: bool = False
 
-    # 정상성
+    # Stationarity
     isStationary: bool = False
 
-    # 변동성
+    # Volatility
     volatility: float = 0.0
     volatilityLevel: str = "normal"  # "low", "normal", "high"
 
-    # 품질
+    # Quality
     missingRatio: float = 0.0
     outlierCount: int = 0
     outlierRatio: float = 0.0
 
-    # 예측 가능성
+    # Predictability
     predictabilityScore: float = 0.0  # 0 ~ 100
 
 
 @dataclass
 class FlatRiskAssessment:
-    """일직선 예측 위험도 평가 결과"""
+    """Flat prediction risk assessment result."""
 
-    # 종합 위험도
+    # Overall risk
     riskScore: float = 0.0  # 0.0 ~ 1.0
     riskLevel: RiskLevel = RiskLevel.LOW
 
-    # 개별 위험 요소
+    # Individual risk factors
     riskFactors: Dict[str, bool] = field(default_factory=dict)
-    # - lowVariance: 변동성 부족
-    # - weakSeasonality: 계절성 약함
-    # - noTrend: 추세 없음
-    # - shortData: 데이터 부족
-    # - highNoise: 노이즈 과다
 
-    # 권장 전략
+    # Recommended strategy
     recommendedStrategy: str = "standard"
     recommendedModels: List[str] = field(default_factory=list)
 
-    # 경고 메시지
+    # Warning messages
     warnings: List[str] = field(default_factory=list)
 
 
 @dataclass
 class FlatPredictionInfo:
-    """일직선 예측 감지 정보"""
+    """Flat prediction detection info."""
 
     isFlat: bool = False
     flatType: FlatPredictionType = FlatPredictionType.NONE
 
-    # 감지 지표
+    # Detection metrics
     predictionStd: float = 0.0
     originalStd: float = 0.0
     stdRatio: float = 0.0
     varianceRatio: float = 0.0
 
-    # 보정 정보
+    # Correction info
     correctionApplied: bool = False
     correctionMethod: str = ""
     correctionStrength: float = 0.0
 
-    # 메시지
+    # Messages
     message: str = ""
     suggestion: str = ""
 
 
 @dataclass
 class ModelResult:
-    """개별 모델 예측 결과"""
+    """Individual model forecast result."""
 
     modelId: str = ""
     modelName: str = ""
 
-    # 예측값
+    # Predictions
     predictions: np.ndarray = field(default_factory=lambda: np.array([]))
     lower95: np.ndarray = field(default_factory=lambda: np.array([]))
     upper95: np.ndarray = field(default_factory=lambda: np.array([]))
 
-    # 평가 지표
+    # Evaluation metrics
     mape: float = float('inf')
     rmse: float = float('inf')
     mae: float = float('inf')
     smape: float = float('inf')
 
-    # 일직선 정보
+    # Flat prediction info
     flatInfo: Optional[FlatPredictionInfo] = None
 
-    # 메타데이터
+    # Metadata
     trainingTime: float = 0.0
     isValid: bool = True
 
 
 @dataclass
 class ForecastResult:
-    """최종 예측 결과"""
+    """Final forecast result."""
 
     success: bool = False
 
-    # 예측값
+    # Predictions
     predictions: np.ndarray = field(default_factory=lambda: np.array([]))
     dates: List[str] = field(default_factory=list)
     lower95: np.ndarray = field(default_factory=lambda: np.array([]))
     upper95: np.ndarray = field(default_factory=lambda: np.array([]))
 
-    # 선택된 모델
+    # Selected model
     bestModelId: str = ""
     bestModelName: str = ""
 
-    # 모든 모델 결과
+    # All model results
     allModelResults: Dict[str, ModelResult] = field(default_factory=dict)
 
-    # 데이터 특성
+    # Data characteristics
     characteristics: Optional[DataCharacteristics] = None
 
-    # 일직선 위험도
+    # Flat prediction risk
     flatRisk: Optional[FlatRiskAssessment] = None
 
-    # 일직선 감지/보정 정보
+    # Flat detection/correction info
     flatInfo: Optional[FlatPredictionInfo] = None
 
-    # 해석
+    # Interpretation
     interpretation: Dict[str, Any] = field(default_factory=dict)
 
-    # 경고
+    # Warnings
     warnings: List[str] = field(default_factory=list)
 
-    # 에러
+    # Error
     error: Optional[str] = None
 
     def hasWarning(self) -> bool:
-        """경고가 있는지 확인"""
+        """Check if there are any warnings."""
         return len(self.warnings) > 0 or (self.flatInfo and self.flatInfo.isFlat)
 
     def getSummary(self) -> Dict[str, Any]:
-        """결과 요약 반환"""
+        """Return a summary dict of the result."""
         return {
             'success': self.success,
             'bestModel': self.bestModelName,
@@ -200,160 +195,159 @@ class ForecastResult:
         }
 
 
-# 모델 정보 상수
 MODEL_INFO = {
     'seasonal_naive': {
         'name': 'Seasonal Naive',
-        'description': '지난 시즌 같은 시점 값 사용. 계절 패턴 무조건 반복.',
+        'description': 'Repeats values from the same point in the last season.',
         'flatResistance': 0.95,
-        'bestFor': ['강한 계절성', '일직선 위험 높을 때'],
+        'bestFor': ['strong seasonality', 'high flat risk'],
         'minData': 14
     },
     'snaive_drift': {
         'name': 'Seasonal Naive + Drift',
-        'description': '계절 패턴 반복 + 추세 반영',
+        'description': 'Seasonal pattern repetition with trend adjustment.',
         'flatResistance': 0.90,
-        'bestFor': ['계절성 + 추세', '일직선 위험 높을 때'],
+        'bestFor': ['seasonality + trend', 'high flat risk'],
         'minData': 14
     },
     'mstl': {
         'name': 'MSTL',
-        'description': '다중 계절성 분해 (LOESS) + ARIMA',
+        'description': 'Multiple seasonal decomposition (LOESS) + ARIMA.',
         'flatResistance': 0.85,
-        'bestFor': ['다중 계절성', '복잡한 패턴'],
+        'bestFor': ['multiple seasonality', 'complex patterns'],
         'minData': 50
     },
     'holt_winters': {
         'name': 'Holt-Winters',
-        'description': '삼중 지수평활 (수준 + 추세 + 계절)',
+        'description': 'Triple exponential smoothing (level + trend + season).',
         'flatResistance': 0.80,
-        'bestFor': ['계절성 데이터', '중기 예측'],
+        'bestFor': ['seasonal data', 'medium-term forecasting'],
         'minData': 24
     },
     'theta': {
         'name': 'Theta',
-        'description': 'M3 Competition 우승 모델. Theta 분해.',
+        'description': 'M3 Competition winner. Theta decomposition.',
         'flatResistance': 0.75,
-        'bestFor': ['범용', '빠른 예측'],
+        'bestFor': ['general purpose', 'fast forecasting'],
         'minData': 10
     },
     'auto_arima': {
         'name': 'AutoARIMA',
-        'description': '자동 ARIMA. AICc 기준 최적 파라미터.',
+        'description': 'Automatic ARIMA. AICc-based optimal parameter selection.',
         'flatResistance': 0.60,
-        'bestFor': ['정상성 데이터', '추세 예측'],
+        'bestFor': ['stationary data', 'trend forecasting'],
         'minData': 30
     },
     'auto_ets': {
         'name': 'AutoETS',
-        'description': '자동 지수평활. 30가지 조합 자동 선택.',
+        'description': 'Automatic exponential smoothing. 30 model combinations.',
         'flatResistance': 0.55,
-        'bestFor': ['안정적 패턴', '단기 예측'],
+        'bestFor': ['stable patterns', 'short-term forecasting'],
         'minData': 20
     },
     'ensemble': {
         'name': 'Variability-Preserving Ensemble',
-        'description': '변동성 보존 앙상블. 상위 모델 결합.',
+        'description': 'Variability-preserving ensemble of top models.',
         'flatResistance': 0.85,
-        'bestFor': ['불확실한 패턴', '안정적 예측'],
+        'bestFor': ['uncertain patterns', 'stable forecasting'],
         'minData': 30
     },
     'naive': {
         'name': 'Naive',
-        'description': '마지막 관측값을 반복. 가장 단순한 벤치마크.',
+        'description': 'Repeats last observation. Simplest benchmark.',
         'flatResistance': 0.10,
-        'bestFor': ['벤치마크', 'Random Walk 데이터'],
+        'bestFor': ['benchmark', 'random walk data'],
         'minData': 2
     },
     'mean': {
         'name': 'Mean',
-        'description': '과거 평균값으로 예측. 정상 시계열 벤치마크.',
+        'description': 'Historical mean forecast. Stationary benchmark.',
         'flatResistance': 0.05,
-        'bestFor': ['벤치마크', '정상 시계열'],
+        'bestFor': ['benchmark', 'stationary series'],
         'minData': 2
     },
     'rwd': {
         'name': 'Random Walk with Drift',
-        'description': '마지막 값 + 평균 추세. 추세 있는 벤치마크.',
+        'description': 'Last value + average trend. Trending benchmark.',
         'flatResistance': 0.60,
-        'bestFor': ['추세 데이터', '벤치마크'],
+        'bestFor': ['trending data', 'benchmark'],
         'minData': 5
     },
     'window_avg': {
         'name': 'Window Average',
-        'description': '최근 윈도우 평균으로 예측.',
+        'description': 'Recent window average forecast.',
         'flatResistance': 0.15,
-        'bestFor': ['벤치마크', '안정적 데이터'],
+        'bestFor': ['benchmark', 'stable data'],
         'minData': 5
     },
     'auto_ces': {
         'name': 'AutoCES',
-        'description': '복소수 지수평활법. N/S/P/F 자동 선택.',
+        'description': 'Complex exponential smoothing. Auto N/S/P/F selection.',
         'flatResistance': 0.65,
-        'bestFor': ['비선형 패턴', '복잡한 계절성'],
+        'bestFor': ['nonlinear patterns', 'complex seasonality'],
         'minData': 20
     },
     'croston': {
         'name': 'Croston (Auto)',
-        'description': '간헐적 수요 예측. Classic/SBA/TSB 자동 선택.',
+        'description': 'Intermittent demand forecasting. Auto Classic/SBA/TSB.',
         'flatResistance': 0.30,
-        'bestFor': ['간헐적 수요', '0이 많은 시계열'],
+        'bestFor': ['intermittent demand', 'zero-inflated series'],
         'minData': 10
     },
     'dot': {
         'name': 'Dynamic Optimized Theta',
-        'description': 'Theta+alpha+drift 동시 L-BFGS-B 최적화.',
+        'description': 'Joint Theta+alpha+drift L-BFGS-B optimization.',
         'flatResistance': 0.80,
-        'bestFor': ['추세 데이터', '범용'],
+        'bestFor': ['trending data', 'general purpose'],
         'minData': 10
     },
     'tbats': {
         'name': 'TBATS',
-        'description': 'Trigonometric Seasonal, Box-Cox, ARMA, Trend. 복잡한 다중 계절성.',
+        'description': 'Trigonometric Seasonal, Box-Cox, ARMA, Trend, Damping.',
         'flatResistance': 0.85,
-        'bestFor': ['다중 계절성', '시간별 데이터', '복잡한 패턴'],
+        'bestFor': ['multiple seasonality', 'hourly data', 'complex patterns'],
         'minData': 30
     },
     'garch': {
         'name': 'GARCH(1,1)',
-        'description': '조건부 분산 모델. 금융 변동성 예측.',
+        'description': 'Conditional variance model for financial volatility.',
         'flatResistance': 0.50,
-        'bestFor': ['금융 데이터', '변동성 예측', '수익률'],
+        'bestFor': ['financial data', 'volatility forecasting', 'returns'],
         'minData': 50
     },
     'egarch': {
         'name': 'EGARCH',
-        'description': '비대칭 변동성 모델. 레버리지 효과.',
+        'description': 'Asymmetric volatility model with leverage effect.',
         'flatResistance': 0.50,
-        'bestFor': ['금융 데이터', '비대칭 변동성'],
+        'bestFor': ['financial data', 'asymmetric volatility'],
         'minData': 50
     },
     'gjr_garch': {
         'name': 'GJR-GARCH',
-        'description': '임계 비대칭 GARCH. 음의 충격 반응.',
+        'description': 'Threshold asymmetric GARCH for negative shock response.',
         'flatResistance': 0.50,
-        'bestFor': ['금융 데이터', '비대칭 변동성'],
+        'bestFor': ['financial data', 'asymmetric volatility'],
         'minData': 50
     },
     'four_theta': {
         'name': '4Theta Ensemble',
-        'description': '4개 Theta line 가중 결합. 안정성 1위, 범용 최강.',
+        'description': 'Weighted combination of 4 theta lines. Top stability.',
         'flatResistance': 0.80,
-        'bestFor': ['범용', '추세 데이터', '안정적 예측'],
+        'bestFor': ['general purpose', 'trending data', 'stable forecasting'],
         'minData': 10
     },
     'esn': {
         'name': 'Echo State Network',
-        'description': 'Reservoir Computing 비선형 예측. 정확도 1위.',
+        'description': 'Reservoir Computing nonlinear forecasting. Top accuracy.',
         'flatResistance': 0.70,
-        'bestFor': ['비선형 패턴', '레짐 전환', '변동성 높은 데이터'],
+        'bestFor': ['nonlinear patterns', 'regime switching', 'high volatility'],
         'minData': 20
     },
     'dtsf': {
         'name': 'Dynamic Time Scan',
-        'description': '비모수 패턴 매칭 예측. 앙상블 다양성 최고.',
+        'description': 'Non-parametric pattern matching. Best ensemble diversity.',
         'flatResistance': 0.65,
-        'bestFor': ['반복 패턴', '시간별 데이터', '계절성 데이터'],
+        'bestFor': ['repeating patterns', 'hourly data', 'seasonal data'],
         'minData': 30
     }
 }

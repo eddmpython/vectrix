@@ -1,12 +1,12 @@
 """
 Croston's Method for Intermittent Demand Forecasting
 
-간헐적 수요 데이터 (0이 많은 시계열)를 위한 전문 모델.
+Specialized model for intermittent demand data (time series with many zeros).
 
 Variants:
-- Classic: Croston (1972) — 수요크기와 수요간격을 별도 SES
-- SBA: Syntetos-Boylan Approximation — 편향 보정
-- TSB: Teunter-Syntetos-Babai — 수요 확률 직접 추정
+- Classic: Croston (1972) — separate SES for demand size and demand interval
+- SBA: Syntetos-Boylan Approximation — bias correction
+- TSB: Teunter-Syntetos-Babai — direct demand probability estimation
 """
 
 from typing import Tuple
@@ -18,10 +18,10 @@ class CrostonClassic:
     """
     Croston's Classic Method
 
-    비영 수요 발생 시:
-    - z_t: 수요 크기 SES 업데이트
-    - p_t: 수요 간격 SES 업데이트
-    예측: z_t / p_t
+    On non-zero demand occurrence:
+    - z_t: SES update for demand size
+    - p_t: SES update for demand interval
+    Forecast: z_t / p_t
     """
 
     def __init__(self, alpha: float = 0.1):
@@ -84,7 +84,7 @@ class CrostonSBA:
     """
     Syntetos-Boylan Approximation
 
-    Croston Classic의 편향 보정:
+    Bias correction of Croston Classic:
     forecast = (1 - alpha/2) * z/p
     """
 
@@ -119,10 +119,10 @@ class CrostonTSB:
     """
     Teunter-Syntetos-Babai Method
 
-    수요 확률 d_t를 직접 추정:
-    - d_t: 수요 발생 확률 SES
-    - z_t: 수요 크기 SES (발생 시만)
-    예측: d_t * z_t
+    Directly estimates demand probability d_t:
+    - d_t: SES for demand occurrence probability
+    - z_t: SES for demand size (only on occurrence)
+    Forecast: d_t * z_t
     """
 
     def __init__(self, alpha: float = 0.1, beta: float = 0.1):
@@ -173,7 +173,7 @@ class AutoCroston:
     """
     Automatic Croston variant selection
 
-    데이터 특성에 따라 Classic/SBA/TSB 중 최적 선택.
+    Selects the optimal variant among Classic/SBA/TSB based on data characteristics.
     """
 
     def __init__(self, alpha: float = 0.1):

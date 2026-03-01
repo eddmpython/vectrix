@@ -1,14 +1,14 @@
 """
 Dynamic Optimized Theta (DOT)
 
-Fiorucci et al. (2016) 기반.
-기존 Theta 모델을 확장하여 theta, alpha, drift를
-동시에 L-BFGS-B로 최적화.
+Based on Fiorucci et al. (2016).
+Extends the Theta model by simultaneously optimizing
+theta, alpha, and drift via L-BFGS-B.
 
-기존 ThetaModel 대비 장점:
-- theta 값을 연속 최적화 (그리드 서치 아님)
-- drift 파라미터 추가로 추세 조정 가능
-- 더 넓은 탐색 공간
+Advantages over ThetaModel:
+- Continuous optimization of theta (not grid search)
+- Drift parameter enables trend adjustment
+- Broader search space
 """
 
 from typing import Tuple
@@ -94,8 +94,8 @@ class DynamicOptimizedTheta:
     """
     Dynamic Optimized Theta Model
 
-    theta, alpha, drift를 동시에 최적화하여
-    기존 Theta/OptimizedTheta 대비 더 정확한 예측.
+    Simultaneously optimizes theta, alpha, and drift for
+    more accurate forecasts compared to Theta/OptimizedTheta.
     """
 
     def __init__(self, period: int = 1):

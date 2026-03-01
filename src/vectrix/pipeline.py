@@ -1,8 +1,8 @@
 """
-시계열 예측 파이프라인
+Time Series Forecast Pipeline
 
-전처리 → 예측 → 후처리를 체이닝하는 파이프라인 시스템.
-sklearn의 Pipeline 패턴을 시계열 예측에 맞게 확장.
+A pipeline system that chains preprocessing -> forecasting -> postprocessing.
+Extends the sklearn Pipeline pattern for time series forecasting.
 
 Examples
 --------
@@ -22,20 +22,20 @@ import numpy as np
 
 class BaseTransformer:
     """
-    시계열 변환기 기본 클래스
+    Base class for time series transformers
 
-    모든 전처리/후처리 변환기의 부모 클래스.
-    fit → transform → inverseTransform 인터페이스를 제공.
+    Parent class for all pre/post-processing transformers.
+    Provides fit -> transform -> inverseTransform interface.
     """
 
     def fit(self, y: np.ndarray) -> 'BaseTransformer':
         """
-        변환기 학습
+        Fit the transformer
 
         Parameters
         ----------
         y : np.ndarray
-            시계열 데이터
+            Time series data
 
         Returns
         -------
@@ -45,64 +45,64 @@ class BaseTransformer:
 
     def transform(self, y: np.ndarray) -> np.ndarray:
         """
-        순방향 변환
+        Forward transform
 
         Parameters
         ----------
         y : np.ndarray
-            입력 데이터
+            Input data
 
         Returns
         -------
         np.ndarray
-            변환된 데이터
+            Transformed data
         """
         return y
 
     def inverseTransform(self, y: np.ndarray) -> np.ndarray:
         """
-        역변환
+        Inverse transform
 
         Parameters
         ----------
         y : np.ndarray
-            변환된 데이터
+            Transformed data
 
         Returns
         -------
         np.ndarray
-            원래 스케일의 데이터
+            Data in original scale
         """
         return y
 
     def fitTransform(self, y: np.ndarray) -> np.ndarray:
         """
-        학습 후 변환을 한 번에 수행
+        Fit and transform in a single step
 
         Parameters
         ----------
         y : np.ndarray
-            시계열 데이터
+            Time series data
 
         Returns
         -------
         np.ndarray
-            변환된 데이터
+            Transformed data
         """
         return self.fit(y).transform(y)
 
 
 class Differencer(BaseTransformer):
     """
-    차분 변환기
+    Differencing Transformer
 
-    시계열을 d차 차분하여 정상성을 확보.
-    역변환 시 원래 수준으로 복원.
+    Applies d-th order differencing to achieve stationarity.
+    Restores original level on inverse transform.
 
     Parameters
     ----------
     d : int
-        차분 차수 (기본: 1)
+        Differencing order (default: 1)
     """
 
     def __init__(self, d: int = 1):
@@ -136,15 +136,15 @@ class Differencer(BaseTransformer):
 
 class LogTransformer(BaseTransformer):
     """
-    로그 변환기
+    Log Transformer
 
-    양수 데이터에 log(1 + y) 변환 적용.
-    음수가 포함된 경우 shift를 자동 적용.
+    Applies log(1 + y) transform to positive data.
+    Automatically applies a shift if negative values are present.
 
     Parameters
     ----------
     shift : float, optional
-        데이터에 더할 상수. None이면 자동 계산.
+        Constant to add to data. If None, auto-computed.
     """
 
     def __init__(self, shift: Optional[float] = None):
@@ -171,14 +171,14 @@ class LogTransformer(BaseTransformer):
 
 class BoxCoxTransformer(BaseTransformer):
     """
-    Box-Cox 변환기
+    Box-Cox Transformer
 
-    최적 lambda를 자동 추정하여 정규성 향상.
+    Automatically estimates optimal lambda to improve normality.
 
     Parameters
     ----------
     lmbda : float, optional
-        Box-Cox 파라미터. None이면 자동 추정.
+        Box-Cox parameter. If None, auto-estimated.
     """
 
     def __init__(self, lmbda: Optional[float] = None):
@@ -224,14 +224,14 @@ class BoxCoxTransformer(BaseTransformer):
 
 class Scaler(BaseTransformer):
     """
-    스케일링 변환기
+    Scaling Transformer
 
-    Z-score (표준화) 또는 MinMax 정규화.
+    Z-score (standardization) or MinMax normalization.
 
     Parameters
     ----------
     method : str
-        스케일링 방법 ('zscore' 또는 'minmax')
+        Scaling method ('zscore' or 'minmax')
     """
 
     def __init__(self, method: str = 'zscore'):
@@ -269,15 +269,15 @@ class Scaler(BaseTransformer):
 
 class Deseasonalizer(BaseTransformer):
     """
-    계절성 제거 변환기
+    Deseasonalizer Transformer
 
-    시계열에서 계절 성분을 분리하여 제거.
-    역변환 시 계절 패턴을 다시 추가.
+    Separates and removes seasonal component from the time series.
+    Adds seasonal pattern back on inverse transform.
 
     Parameters
     ----------
     period : int
-        계절 주기
+        Seasonal period
     """
 
     def __init__(self, period: int = 7):
@@ -315,9 +315,9 @@ class Deseasonalizer(BaseTransformer):
 
 class Detrend(BaseTransformer):
     """
-    추세 제거 변환기
+    Detrend Transformer
 
-    선형 추세를 제거하고 역변환 시 복원.
+    Removes linear trend and restores it on inverse transform.
     """
 
     def __init__(self):
@@ -347,14 +347,14 @@ class Detrend(BaseTransformer):
 
 class OutlierClipper(BaseTransformer):
     """
-    이상치 클리핑 변환기
+    Outlier Clipping Transformer
 
-    IQR 기반으로 이상치를 경계값으로 클리핑.
+    Clips outliers to boundary values based on IQR.
 
     Parameters
     ----------
     factor : float
-        IQR 배수 (기본: 3.0)
+        IQR multiplier (default: 3.0)
     """
 
     def __init__(self, factor: float = 3.0):
@@ -384,12 +384,12 @@ class OutlierClipper(BaseTransformer):
 
 class MissingValueImputer(BaseTransformer):
     """
-    결측치 보간 변환기
+    Missing Value Imputer Transformer
 
     Parameters
     ----------
     method : str
-        보간 방법 ('linear', 'mean', 'ffill')
+        Imputation method ('linear', 'mean', 'ffill')
     """
 
     def __init__(self, method: str = 'linear'):
@@ -432,17 +432,17 @@ class MissingValueImputer(BaseTransformer):
 
 class ForecastPipeline:
     """
-    시계열 예측 파이프라인
+    Time Series Forecast Pipeline
 
-    전처리 변환기들과 예측 모델을 체이닝.
-    fit → predict 흐름에서 자동으로 변환/역변환 수행.
+    Chains preprocessing transformers with a forecast model.
+    Automatically applies transform/inverse-transform in the fit -> predict flow.
 
     Parameters
     ----------
     steps : List[Tuple[str, object]]
-        (이름, 변환기 또는 모델) 튜플의 리스트.
-        마지막 스텝이 predict 메서드를 가지면 예측 모델로 취급.
-        그 외 스텝은 BaseTransformer 인터페이스를 따라야 함.
+        List of (name, transformer or model) tuples.
+        If the last step has a predict method, it is treated as a forecast model.
+        All other steps must follow the BaseTransformer interface.
 
     Examples
     --------
@@ -463,10 +463,10 @@ class ForecastPipeline:
 
     def _validateSteps(self, steps: List[Tuple[str, Any]]):
         if len(steps) < 1:
-            raise ValueError("파이프라인에 최소 1개 스텝이 필요합니다.")
+            raise ValueError("Pipeline requires at least 1 step.")
         names = [name for name, _ in steps]
         if len(set(names)) != len(names):
-            raise ValueError("스텝 이름이 중복되었습니다.")
+            raise ValueError("Step names must be unique.")
 
     @property
     def _transformers(self) -> List[Tuple[str, BaseTransformer]]:
@@ -486,14 +486,14 @@ class ForecastPipeline:
 
     def fit(self, y: np.ndarray, **kwargs) -> 'ForecastPipeline':
         """
-        전체 파이프라인 학습
+        Fit the entire pipeline
 
         Parameters
         ----------
         y : np.ndarray
-            시계열 데이터
+            Time series data
         **kwargs
-            예측 모델에 전달할 추가 인자
+            Additional arguments passed to the forecast model
 
         Returns
         -------
@@ -521,26 +521,26 @@ class ForecastPipeline:
         **kwargs
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
-        예측 수행 (역변환 자동 적용)
+        Generate predictions (with automatic inverse transform)
 
         Parameters
         ----------
         steps : int
-            예측 스텝 수
+            Number of forecast steps
         **kwargs
-            예측 모델에 전달할 추가 인자
+            Additional arguments passed to the forecast model
 
         Returns
         -------
         predictions, lower, upper : np.ndarray
-            역변환된 예측값, 하한, 상한
+            Inverse-transformed predictions, lower bounds, upper bounds
         """
         if not self.fitted:
-            raise ValueError("파이프라인이 학습되지 않았습니다. fit()을 먼저 호출하세요.")
+            raise ValueError("Pipeline has not been fitted. Call fit() first.")
 
         forecaster = self._forecaster
         if forecaster is None:
-            raise ValueError("파이프라인에 예측 모델이 없습니다.")
+            raise ValueError("Pipeline has no forecast model.")
 
         result = forecaster.predict(steps, **kwargs)
 
@@ -567,17 +567,17 @@ class ForecastPipeline:
 
     def transform(self, y: np.ndarray) -> np.ndarray:
         """
-        전처리만 수행 (예측 없이)
+        Apply preprocessing only (without forecasting)
 
         Parameters
         ----------
         y : np.ndarray
-            입력 데이터
+            Input data
 
         Returns
         -------
         np.ndarray
-            변환된 데이터
+            Transformed data
         """
         y = np.asarray(y, dtype=np.float64).ravel()
         current = y.copy()
@@ -587,17 +587,17 @@ class ForecastPipeline:
 
     def inverseTransform(self, y: np.ndarray) -> np.ndarray:
         """
-        역변환만 수행
+        Apply inverse transform only
 
         Parameters
         ----------
         y : np.ndarray
-            변환된 데이터
+            Transformed data
 
         Returns
         -------
         np.ndarray
-            원래 스케일의 데이터
+            Data in original scale
         """
         y = np.asarray(y, dtype=np.float64).ravel()
         current = y.copy()
@@ -607,31 +607,31 @@ class ForecastPipeline:
 
     def getStep(self, name: str) -> Any:
         """
-        이름으로 스텝 조회
+        Retrieve a step by name
 
         Parameters
         ----------
         name : str
-            스텝 이름
+            Step name
 
         Returns
         -------
         object
-            해당 변환기 또는 모델
+            The transformer or model
         """
         for stepName, step in self.steps:
             if stepName == name:
                 return step
-        raise KeyError(f"스텝 '{name}'을 찾을 수 없습니다.")
+        raise KeyError(f"Step '{name}' not found.")
 
     def getParams(self) -> Dict[str, Any]:
         """
-        전체 파이프라인 파라미터 조회
+        Retrieve all pipeline parameters
 
         Returns
         -------
         Dict
-            {stepName__paramName: value} 형태의 딕셔너리
+            Dictionary in {stepName__paramName: value} format
         """
         params = {}
         for name, step in self.steps:
@@ -643,7 +643,7 @@ class ForecastPipeline:
 
     def listSteps(self) -> List[str]:
         """
-        등록된 스텝 이름 목록
+        List of registered step names
 
         Returns
         -------

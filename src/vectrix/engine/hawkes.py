@@ -1,9 +1,9 @@
 """
 Hawkes Process for Intermittent Demand Forecasting
 
-호크스 과정 기반 간헐적 수요 예측.
-수요 발생이 후속 수요를 촉발하는 자기흥분(self-exciting) 효과를 모델링.
-기존 Croston/SBA 대비 군집적 수요 패턴에 강점.
+Hawkes process-based intermittent demand forecasting.
+Models the self-exciting effect where demand occurrences trigger subsequent demand.
+Outperforms Croston/SBA on clustered demand patterns.
 """
 
 from typing import Dict, Optional, Tuple
@@ -23,9 +23,9 @@ STABILITY_MARGIN = 0.999
 
 class HawkesIntermittentDemand:
     """
-    호크스 과정 기반 간헐적 수요 예측.
-    수요 발생이 후속 수요를 촉발하는 자기흥분(self-exciting) 효과를 모델링.
-    기존 Croston/SBA 대비 군집적 수요 패턴에 강점.
+    Hawkes process-based intermittent demand forecasting.
+    Models the self-exciting effect where demand occurrences trigger subsequent demand.
+    Outperforms Croston/SBA on clustered demand patterns.
     """
 
     def __init__(
@@ -49,7 +49,7 @@ class HawkesIntermittentDemand:
         self._y: Optional[np.ndarray] = None
 
     def fit(self, y: np.ndarray) -> 'HawkesIntermittentDemand':
-        """MLE로 호크스 과정 파라미터와 수요 크기 분포를 동시 추정."""
+        """Jointly estimate Hawkes process parameters and demand size distribution via MLE."""
         y = np.asarray(y, dtype=np.float64)
         self._y = y.copy()
         self._T = float(len(y))
@@ -70,7 +70,7 @@ class HawkesIntermittentDemand:
         return self
 
     def predict(self, steps: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """Monte Carlo 시뮬레이션 기반 예측."""
+        """Monte Carlo simulation-based forecasting."""
         if not self._fitted:
             raise ValueError("Model not fitted.")
 
@@ -85,7 +85,7 @@ class HawkesIntermittentDemand:
         return predictions, lower, upper
 
     def getIntensityProfile(self) -> Dict:
-        """시계열 전체의 강도 함수 프로필을 반환."""
+        """Return the intensity function profile over the entire time series."""
         if not self._fitted or self._eventTimes is None:
             return {
                 'burstiness': 0.0,

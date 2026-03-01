@@ -251,14 +251,14 @@ class TestForecastPipeline:
             pipe.getStep('missing')
 
     def test_duplicateNamesRaises(self):
-        with pytest.raises(ValueError, match="중복"):
+        with pytest.raises(ValueError, match="unique"):
             ForecastPipeline([
                 ('scale', Scaler()),
                 ('scale', Scaler()),
             ])
 
     def test_emptyPipelineRaises(self):
-        with pytest.raises(ValueError, match="최소"):
+        with pytest.raises(ValueError, match="at least"):
             ForecastPipeline([])
 
     def test_unfittedPredictRaises(self):
@@ -266,7 +266,7 @@ class TestForecastPipeline:
             ('scale', Scaler()),
             ('forecast', _DummyForecaster()),
         ])
-        with pytest.raises(ValueError, match="학습되지"):
+        with pytest.raises(ValueError, match="not been fitted"):
             pipe.predict(5)
 
     def test_listSteps(self):

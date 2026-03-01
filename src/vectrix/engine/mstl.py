@@ -1,8 +1,8 @@
 """
 MSTL (Multiple Seasonal-Trend decomposition using LOESS)
 
-다중 계절성 분해 모델
-E006 실험 결과: 57.8% 정확도 개선 달성
+Multiple seasonality decomposition model
+E006 experiment result: 57.8% accuracy improvement achieved
 """
 
 from typing import Dict, List, Optional, Tuple
@@ -15,14 +15,14 @@ from .turbo import TurboCore
 
 class MSTL:
     """
-    다중 계절성 분해 모델
+    Multiple Seasonality Decomposition Model
 
-    여러 계절 주기(예: 주간 7, 연간 365)를 동시에 분해하고
-    잔차에 ARIMA를 적용하여 예측
+    Simultaneously decomposes multiple seasonal periods (e.g., weekly 7, yearly 365)
+    and applies ARIMA to residuals for forecasting
 
-    E006 실험 결과:
-    - 현재 방식 대비 57.8% MAPE 개선 (15.46% → 6.53%)
-    - 다중 계절성 데이터에서 특히 효과적
+    E006 experiment result:
+    - 57.8% MAPE improvement over baseline (15.46% -> 6.53%)
+    - Particularly effective on multi-seasonal data
     """
 
     def __init__(self, periods: Optional[List[int]] = None, autoDetect: bool = True):
@@ -30,10 +30,10 @@ class MSTL:
         Parameters
         ----------
         periods : List[int], optional
-            계절 주기 리스트 (예: [7, 365])
-            None이면 자동 감지
+            List of seasonal periods (e.g., [7, 365])
+            Auto-detected if None
         autoDetect : bool
-            True면 periods가 None일 때 자동으로 계절 주기 감지
+            If True, auto-detect seasonal periods when periods is None
         """
         self.periods = sorted(periods) if periods else None
         self.autoDetect = autoDetect
@@ -47,12 +47,12 @@ class MSTL:
 
     def fit(self, y: np.ndarray) -> 'MSTL':
         """
-        모델 학습
+        Fit the model
 
         Parameters
         ----------
         y : np.ndarray
-            시계열 데이터
+            Time series data
 
         Returns
         -------
@@ -69,7 +69,6 @@ class MSTL:
 
         self._decompose(y)
 
-        # 경량 AR(1) — 잔차에는 AutoARIMA 불필요 (10x 속도 향상)
         self.arimaModel = ARIMAModel(order=(1, 0, 0))
         self.arimaModel.fit(self.residual)
 
@@ -78,20 +77,20 @@ class MSTL:
 
     def predict(self, steps: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
-        예측
+        Forecast
 
         Parameters
         ----------
         steps : int
-            예측 스텝 수
+            Number of forecast steps
 
         Returns
         -------
         Tuple[np.ndarray, np.ndarray, np.ndarray]
-            (예측값, 하한, 상한)
+            (predictions, lower, upper)
         """
         if not self.fitted:
-            raise ValueError("모델이 학습되지 않았습니다. fit()을 먼저 호출하세요.")
+            raise ValueError("Model has not been fitted. Call fit() first.")
 
         residPred, residLower, residUpper = self.arimaModel.predict(steps)
 
@@ -123,17 +122,17 @@ class MSTL:
 
     def _detectPeriods(self, y: np.ndarray) -> List[int]:
         """
-        ACF 기반 계절 주기 자동 감지
+        Auto-detect seasonal periods based on ACF
 
         Parameters
         ----------
         y : np.ndarray
-            시계열 데이터
+            Time series data
 
         Returns
         -------
         List[int]
-            감지된 주기 리스트 (강도 순, 최대 2개)
+            Detected periods list (sorted by strength, max 2)
         """
         n = len(y)
         candidatePeriods = [7, 14, 30, 90, 365]
@@ -154,9 +153,9 @@ class MSTL:
 
     def _decompose(self, y: np.ndarray):
         """
-        다중 계절성 분해
+        Multiple seasonality decomposition
 
-        각 주기에 대해 순차적으로 계절 성분 추출
+        Sequentially extract seasonal components for each period
         """
         n = len(y)
         residual = y.copy()
@@ -180,19 +179,19 @@ class MSTL:
 
     def _extractSeasonal(self, y: np.ndarray, period: int) -> np.ndarray:
         """
-        계절 성분 추출
+        Extract seasonal component
 
         Parameters
         ----------
         y : np.ndarray
-            시계열 데이터
+            Time series data
         period : int
-            계절 주기
+            Seasonal period
 
         Returns
         -------
         np.ndarray
-            계절 성분
+            Seasonal component
         """
         n = len(y)
         seasonal = np.zeros(n)
@@ -210,12 +209,11 @@ class MSTL:
         return seasonal
 
     def _movingAverage(self, y: np.ndarray, window: int) -> np.ndarray:
-        """이동 평균 — O(n) cumsum 방식"""
+        """Moving average - O(n) cumsum method"""
         n = len(y)
         result = np.zeros(n)
         halfWin = window // 2
 
-        # cumsum 기반 O(n) 이동평균
         cumsum = np.concatenate(([0.0], np.cumsum(y)))
 
         for i in range(n):
@@ -227,12 +225,12 @@ class MSTL:
 
     def _estimateTrendSlope(self) -> float:
         """
-        추세 기울기 추정
+        Estimate trend slope
 
         Returns
         -------
         float
-            추세 기울기
+            Trend slope
         """
         if self.trend is None or len(self.trend) < 10:
             return 0.0
@@ -244,9 +242,9 @@ class MSTL:
 
 class AutoMSTL:
     """
-    자동 MSTL 모델 선택
+    Automatic MSTL Model Selection
 
-    데이터 특성을 분석하여 최적의 MSTL 설정 자동 선택
+    Analyzes data characteristics to automatically select optimal MSTL settings
     """
 
     def __init__(self):
@@ -256,17 +254,17 @@ class AutoMSTL:
 
     def fit(self, y: np.ndarray) -> MSTL:
         """
-        자동으로 최적 MSTL 모델 학습
+        Automatically fit the optimal MSTL model
 
         Parameters
         ----------
         y : np.ndarray
-            시계열 데이터
+            Time series data
 
         Returns
         -------
         MSTL
-            학습된 모델
+            Fitted model
         """
         self.detectedPeriods = self._analyzePeriods(y)
         self.hasMultipleSeasonality = len(self.detectedPeriods) > 1
@@ -277,24 +275,24 @@ class AutoMSTL:
         return self.model
 
     def predict(self, steps: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """예측"""
+        """Forecast"""
         if self.model is None:
-            raise ValueError("모델이 학습되지 않았습니다.")
+            raise ValueError("Model has not been fitted.")
         return self.model.predict(steps)
 
     def _analyzePeriods(self, y: np.ndarray) -> List[int]:
         """
-        데이터 분석으로 계절 주기 감지
+        Detect seasonal periods through data analysis
 
         Parameters
         ----------
         y : np.ndarray
-            시계열 데이터
+            Time series data
 
         Returns
         -------
         List[int]
-            감지된 주기 리스트
+            Detected periods list
         """
         n = len(y)
         candidatePeriods = [7, 14, 30, 60, 90, 180, 365]
@@ -324,19 +322,19 @@ class AutoMSTL:
 
     def _measureSeasonalStrength(self, y: np.ndarray, period: int) -> float:
         """
-        계절성 강도 측정
+        Measure seasonal strength
 
         Parameters
         ----------
         y : np.ndarray
-            시계열 데이터
+            Time series data
         period : int
-            계절 주기
+            Seasonal period
 
         Returns
         -------
         float
-            계절성 강도 (0~1)
+            Seasonal strength (0 to 1)
         """
         n = len(y)
         if n < period * 2:

@@ -18,20 +18,20 @@ import pandas as pd
 
 def _autoDetectColumns(df: pd.DataFrame) -> Tuple[Optional[str], Optional[str]]:
     """
-    DataFrame에서 자동으로 날짜/값 컬럼 감지
+    Auto-detect date and value columns from a DataFrame.
 
-    날짜: datetime 타입 또는 이름에 'date', 'time', 'dt', '날짜' 포함
-    값: 첫 번째 숫자 컬럼 (날짜 제외)
+    Date: datetime dtype or column name containing 'date', 'time', 'dt'.
+    Value: first numeric column (excluding date).
 
     Parameters
     ----------
     df : pd.DataFrame
-        입력 데이터프레임
+        Input DataFrame.
 
     Returns
     -------
     Tuple[Optional[str], Optional[str]]
-        (dateCol, valueCol) 튜플. 감지 실패 시 None.
+        (dateCol, valueCol) tuple. None if detection fails.
     """
     dateCol = None
     valueCol = None
@@ -69,28 +69,28 @@ def _prepareData(
     date: Optional[str],
     value: Optional[str]
 ) -> Tuple[pd.DataFrame, str, str]:
-    """다양한 입력을 (DataFrame, dateCol, valueCol) 형태로 통일"""
+    """Normalize various input types into (DataFrame, dateCol, valueCol)."""
     if isinstance(data, str):
         try:
             df = pd.read_csv(data)
         except FileNotFoundError:
             raise ValueError(
-                f"파일을 찾을 수 없습니다: '{data}'\n"
-                "파일 경로를 확인해주세요. 현재 디렉터리 기준 상대 경로 또는 절대 경로를 사용하세요."
+                f"File not found: '{data}'\n"
+                "Please check the file path. Use a relative or absolute path."
             )
         except Exception as e:
             raise ValueError(
-                f"CSV 파일을 읽는 중 오류가 발생했습니다: '{data}'\n"
-                f"오류 내용: {e}\n"
-                "올바른 CSV 파일인지 확인해주세요."
+                f"Error reading CSV file: '{data}'\n"
+                f"Details: {e}\n"
+                "Please verify the file is a valid CSV."
             )
 
     elif isinstance(data, (list, tuple, np.ndarray)):
         values = np.asarray(data, dtype=np.float64).ravel()
         if len(values) == 0:
             raise ValueError(
-                "빈 데이터가 전달되었습니다.\n"
-                "최소 10개 이상의 데이터를 입력해주세요."
+                "Empty data provided.\n"
+                "Please provide at least 10 data points."
             )
         nPoints = len(values)
         fakeDates = pd.date_range(end=pd.Timestamp.today().normalize(), periods=nPoints, freq='D')
@@ -107,8 +107,8 @@ def _prepareData(
         values = data.values.astype(np.float64).ravel()
         if len(values) == 0:
             raise ValueError(
-                "빈 Series가 전달되었습니다.\n"
-                "최소 10개 이상의 데이터를 입력해주세요."
+                "Empty Series provided.\n"
+                "Please provide at least 10 data points."
             )
         if isinstance(data.index, pd.DatetimeIndex):
             fakeDates = data.index
@@ -129,9 +129,9 @@ def _prepareData(
             df = pd.DataFrame(data)
         except Exception as e:
             raise ValueError(
-                f"dict를 DataFrame으로 변환할 수 없습니다.\n"
-                f"오류 내용: {e}\n"
-                "dict는 {'컬럼명': [값, ...]} 형태로 전달해주세요."
+                f"Cannot convert dict to DataFrame.\n"
+                f"Details: {e}\n"
+                "Dict should be in {{'column': [values, ...]}} format."
             )
 
     elif isinstance(data, pd.DataFrame):
@@ -139,8 +139,8 @@ def _prepareData(
 
     else:
         raise ValueError(
-            f"지원하지 않는 데이터 타입: {type(data).__name__}\n"
-            "지원: str(CSV경로), DataFrame, Series, ndarray, list, tuple, dict"
+            f"Unsupported data type: {type(data).__name__}\n"
+            "Supported: str (CSV path), DataFrame, Series, ndarray, list, tuple, dict"
         )
 
     if date is None or value is None:
@@ -152,28 +152,28 @@ def _prepareData(
 
     if date is None:
         raise ValueError(
-            "날짜 컬럼을 자동으로 감지하지 못했습니다.\n"
-            "date='컬럼명' 파라미터로 직접 지정해주세요.\n"
-            f"사용 가능한 컬럼: {list(df.columns)}"
+            "Could not auto-detect date column.\n"
+            "Please specify with date='column_name'.\n"
+            f"Available columns: {list(df.columns)}"
         )
 
     if value is None:
         raise ValueError(
-            "값 컬럼을 자동으로 감지하지 못했습니다.\n"
-            "value='컬럼명' 파라미터로 직접 지정해주세요.\n"
-            f"사용 가능한 컬럼: {list(df.columns)}"
+            "Could not auto-detect value column.\n"
+            "Please specify with value='column_name'.\n"
+            f"Available columns: {list(df.columns)}"
         )
 
     if date not in df.columns:
         raise ValueError(
-            f"'{date}' 컬럼이 데이터에 없습니다.\n"
-            f"사용 가능한 컬럼: {list(df.columns)}"
+            f"Column '{date}' not found in data.\n"
+            f"Available columns: {list(df.columns)}"
         )
 
     if value not in df.columns:
         raise ValueError(
-            f"'{value}' 컬럼이 데이터에 없습니다.\n"
-            f"사용 가능한 컬럼: {list(df.columns)}"
+            f"Column '{value}' not found in data.\n"
+            f"Available columns: {list(df.columns)}"
         )
 
     if not pd.api.types.is_datetime64_any_dtype(df[date]):
@@ -181,8 +181,8 @@ def _prepareData(
             df[date] = pd.to_datetime(df[date])
         except Exception:
             raise ValueError(
-                f"'{date}' 컬럼을 날짜로 변환할 수 없습니다.\n"
-                "날짜 형식을 확인해주세요 (예: '2024-01-01', '2024/01/01')."
+                f"Cannot convert column '{date}' to datetime.\n"
+                "Please check the date format (e.g., '2024-01-01', '2024/01/01')."
             )
 
     if not pd.api.types.is_numeric_dtype(df[value]):
@@ -190,8 +190,8 @@ def _prepareData(
             df[value] = pd.to_numeric(df[value], errors='coerce')
         except Exception:
             raise ValueError(
-                f"'{value}' 컬럼을 숫자로 변환할 수 없습니다.\n"
-                "숫자 데이터인지 확인해주세요."
+                f"Cannot convert column '{value}' to numeric.\n"
+                "Please verify it contains numeric data."
             )
 
     return df, date, value
@@ -200,20 +200,20 @@ def _prepareData(
 
 def _parseFormula(formula: str, data: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray, List[str]]:
     """
-    "y ~ x1 + x2 + x3" 형식 파싱
+    Parse an R-style formula string "y ~ x1 + x2 + x3".
 
-    지원:
-    - "y ~ x1 + x2"  기본
-    - "y ~ ."         모든 다른 컬럼
-    - "y ~ x1 * x2"  교호작용 (x1 + x2 + x1:x2)
-    - "y ~ x1 + I(x2**2)"  다항식
+    Supported syntax:
+    - "y ~ x1 + x2"        basic
+    - "y ~ ."              all other columns
+    - "y ~ x1 * x2"       interaction (x1 + x2 + x1:x2)
+    - "y ~ x1 + I(x2**2)" polynomial
 
     Parameters
     ----------
     formula : str
-        R-style formula 문자열
+        R-style formula string.
     data : pd.DataFrame
-        데이터프레임
+        Input DataFrame.
 
     Returns
     -------
@@ -223,14 +223,14 @@ def _parseFormula(formula: str, data: pd.DataFrame) -> Tuple[np.ndarray, np.ndar
     Raises
     ------
     ValueError
-        formula 형식이 잘못된 경우
+        If the formula format is invalid.
     """
     parts = formula.split('~')
     if len(parts) != 2:
         raise ValueError(
-            f"formula 형식이 잘못되었습니다: '{formula}'\n"
-            "올바른 형식: 'y ~ x1 + x2 + x3'\n"
-            "  - 'y ~ .'  는 y 이외 모든 컬럼을 의미합니다."
+            f"Invalid formula format: '{formula}'\n"
+            "Correct format: 'y ~ x1 + x2 + x3'\n"
+            "  - 'y ~ .' means all columns except y."
         )
 
     yName = parts[0].strip()
@@ -238,8 +238,8 @@ def _parseFormula(formula: str, data: pd.DataFrame) -> Tuple[np.ndarray, np.ndar
 
     if yName not in data.columns:
         raise ValueError(
-            f"종속변수 '{yName}'이 데이터에 없습니다.\n"
-            f"사용 가능한 컬럼: {list(data.columns)}"
+            f"Dependent variable '{yName}' not found in data.\n"
+            f"Available columns: {list(data.columns)}"
         )
 
     y = data[yName].values.astype(np.float64)
@@ -248,8 +248,8 @@ def _parseFormula(formula: str, data: pd.DataFrame) -> Tuple[np.ndarray, np.ndar
         xCols = [c for c in data.columns if c != yName and pd.api.types.is_numeric_dtype(data[c])]
         if not xCols:
             raise ValueError(
-                f"'{yName}' 이외에 숫자형 컬럼이 없습니다.\n"
-                f"사용 가능한 컬럼: {list(data.columns)}"
+                f"No numeric columns found except '{yName}'.\n"
+                f"Available columns: {list(data.columns)}"
             )
         X = data[xCols].values.astype(np.float64)
         return y, X, xCols
@@ -302,8 +302,8 @@ def _parseFormula(formula: str, data: pd.DataFrame) -> Tuple[np.ndarray, np.ndar
                         power = float(powerStr.strip())
                     except ValueError:
                         raise ValueError(
-                            f"다항식 표현을 해석할 수 없습니다: '{term}'\n"
-                            "올바른 형식: I(x**2) 또는 I(x^2)"
+                            f"Cannot parse polynomial expression: '{term}'\n"
+                            "Correct format: I(x**2) or I(x^2)"
                         )
                     if varName in data.columns:
                         featureNames.append(f"I({varName}**{int(power)})")
@@ -312,8 +312,8 @@ def _parseFormula(formula: str, data: pd.DataFrame) -> Tuple[np.ndarray, np.ndar
                         )
                     else:
                         raise ValueError(
-                            f"변수 '{varName}'이 데이터에 없습니다.\n"
-                            f"사용 가능한 컬럼: {list(data.columns)}"
+                            f"Variable '{varName}' not found in data.\n"
+                            f"Available columns: {list(data.columns)}"
                         )
                     break
             else:
@@ -327,15 +327,15 @@ def _parseFormula(formula: str, data: pd.DataFrame) -> Tuple[np.ndarray, np.ndar
             featureArrays.append(data[term].values.astype(np.float64))
         else:
             raise ValueError(
-                f"변수 '{term}'이 데이터에 없습니다.\n"
-                f"사용 가능한 컬럼: {list(data.columns)}\n"
-                "팁: 다항식은 I(x**2) 형태로, 교호작용은 x1 * x2 형태로 입력하세요."
+                f"Variable '{term}' not found in data.\n"
+                f"Available columns: {list(data.columns)}\n"
+                "Tip: Use I(x**2) for polynomials and x1 * x2 for interactions."
             )
 
     if not featureArrays:
         raise ValueError(
-            f"formula에서 유효한 독립변수를 찾지 못했습니다: '{formula}'\n"
-            "최소 하나 이상의 독립변수를 지정해주세요."
+            f"No valid independent variables found in formula: '{formula}'\n"
+            "Please specify at least one independent variable."
         )
 
     X = np.column_stack(featureArrays)
@@ -344,17 +344,17 @@ def _parseFormula(formula: str, data: pd.DataFrame) -> Tuple[np.ndarray, np.ndar
 
 def _splitTerms(rhs: str) -> List[str]:
     """
-    '+' 기준으로 항을 분리하되, 괄호 안의 '+'는 무시
+    Split terms by '+' while ignoring '+' inside parentheses.
 
     Parameters
     ----------
     rhs : str
-        formula의 우변 문자열
+        Right-hand side of the formula string.
 
     Returns
     -------
     List[str]
-        분리된 항 목록
+        List of split terms.
     """
     terms = []
     current = []
@@ -379,20 +379,20 @@ def _splitTerms(rhs: str) -> List[str]:
 
 class EasyForecastResult:
     """
-    예측 결과 래퍼 - 초보자 친화적
+    Beginner-friendly forecast result wrapper.
 
     Attributes
     ----------
     predictions : np.ndarray
-        예측값 배열
+        Forecast values array.
     dates : list
-        예측 날짜 문자열 목록
+        List of forecast date strings.
     lower : np.ndarray
-        95% 하한 신뢰구간
+        95% lower confidence interval.
     upper : np.ndarray
-        95% 상한 신뢰구간
+        95% upper confidence interval.
     model : str
-        선택된 최적 모델 이름
+        Selected best model name.
     """
 
     def __init__(self, forecastResult, df=None, historicalValues=None):
@@ -406,44 +406,44 @@ class EasyForecastResult:
 
     def summary(self) -> str:
         """
-        간단한 텍스트 요약
+        Generate a text summary of the forecast result.
 
         Returns
         -------
         str
-            예측 결과 요약 문자열
+            Formatted summary string.
         """
         nSteps = len(self.predictions)
         lines = []
         lines.append("=" * 50)
-        lines.append("        Vectrix 예측 결과 요약")
+        lines.append("        Vectrix Forecast Summary")
         lines.append("=" * 50)
-        lines.append(f"  선택 모델: {self.model}")
-        lines.append(f"  예측 기간: {nSteps}일")
+        lines.append(f"  Model: {self.model}")
+        lines.append(f"  Horizon: {nSteps} steps")
 
         if nSteps > 0:
-            lines.append(f"  예측 시작: {self.dates[0]}")
-            lines.append(f"  예측 종료: {self.dates[-1]}")
-            lines.append(f"  예측 평균: {np.mean(self.predictions):.2f}")
-            lines.append(f"  예측 최소: {np.min(self.predictions):.2f}")
-            lines.append(f"  예측 최대: {np.max(self.predictions):.2f}")
+            lines.append(f"  Start: {self.dates[0]}")
+            lines.append(f"  End: {self.dates[-1]}")
+            lines.append(f"  Mean: {np.mean(self.predictions):.2f}")
+            lines.append(f"  Min: {np.min(self.predictions):.2f}")
+            lines.append(f"  Max: {np.max(self.predictions):.2f}")
 
         rawResult = self._raw
         if rawResult.warnings:
             lines.append("")
-            lines.append("  [경고]")
+            lines.append("  [Warnings]")
             for w in rawResult.warnings:
                 lines.append(f"    - {w}")
 
         if rawResult.allModelResults:
             lines.append("")
-            lines.append("  [모델 비교]")
+            lines.append("  [Model Comparison]")
             sortedModels = sorted(
                 rawResult.allModelResults.values(),
                 key=lambda m: m.mape
             )
             for m in sortedModels[:5]:
-                flatMark = " (일직선)" if m.flatInfo and m.flatInfo.isFlat else ""
+                flatMark = " (flat)" if m.flatInfo and m.flatInfo.isFlat else ""
                 lines.append(f"    {m.modelName}: MAPE={m.mape:.2f}%{flatMark}")
 
         lines.append("=" * 50)
@@ -451,12 +451,12 @@ class EasyForecastResult:
 
     def to_dataframe(self) -> pd.DataFrame:
         """
-        예측을 DataFrame으로 변환
+        Convert forecast to a DataFrame.
 
         Returns
         -------
         pd.DataFrame
-            columns: date, prediction, lower95, upper95
+            Columns: date, prediction, lower95, upper95.
         """
         return pd.DataFrame({
             'date': self.dates,
@@ -515,13 +515,13 @@ class EasyForecastResult:
         }
 
     def plot(self, figsize=(12, 5), showHistory=True, showCI=True, title=None):
-        """matplotlib 시각화 (선택적 의존성)."""
+        """Plot forecast with matplotlib (optional dependency)."""
         try:
             import matplotlib.pyplot as plt
         except ImportError:
             raise ImportError(
-                "시각화에 matplotlib가 필요합니다.\n"
-                "설치: pip install matplotlib"
+                "matplotlib is required for plotting.\n"
+                "Install: pip install matplotlib"
             )
 
         fig, ax = plt.subplots(figsize=figsize)
@@ -529,13 +529,13 @@ class EasyForecastResult:
         if showHistory and self._historicalValues is not None:
             nHist = len(self._historicalValues)
             ax.plot(range(nHist), self._historicalValues,
-                    color='#2c3e50', linewidth=1.5, label='실측')
+                    color='#2c3e50', linewidth=1.5, label='Actual')
         else:
             nHist = 0
 
         forecastX = range(nHist, nHist + len(self.predictions))
         ax.plot(forecastX, self.predictions,
-                color='#e74c3c', linewidth=2, label=f'예측 ({self.model})')
+                color='#e74c3c', linewidth=2, label=f'Forecast ({self.model})')
 
         if showCI:
             ax.fill_between(forecastX, self.lower, self.upper,
@@ -550,12 +550,12 @@ class EasyForecastResult:
         return fig
 
     def to_csv(self, path, **kwargs):
-        """결과를 CSV로 저장."""
+        """Save results to a CSV file."""
         self.to_dataframe().to_csv(path, index=False, **kwargs)
         return self
 
     def to_json(self, path=None, **kwargs):
-        """결과를 JSON 문자열로 반환하거나 파일로 저장."""
+        """Return results as JSON string or save to file."""
         import json
         data = {
             'model': self.model,
@@ -571,12 +571,12 @@ class EasyForecastResult:
         return jsonStr
 
     def save(self, path):
-        """결과를 JSON으로 저장 (.to_json의 편의 래퍼)."""
+        """Save results to JSON (convenience wrapper for .to_json)."""
         self.to_json(path)
         return self
 
     def describe(self):
-        """pandas .describe() 스타일 요약."""
+        """Pandas .describe()-style summary statistics."""
         return pd.DataFrame({
             'forecast': pd.Series(self.predictions).describe(),
             'lower95': pd.Series(self.lower).describe(),
@@ -586,20 +586,20 @@ class EasyForecastResult:
 
 class EasyAnalysisResult:
     """
-    분석 결과 래퍼 - 초보자 친화적
+    Beginner-friendly analysis result wrapper.
 
     Attributes
     ----------
     dna : DNAProfile
-        시계열 DNA 프로파일 (difficulty, category, recommendedModels 등)
+        Time series DNA profile (difficulty, category, recommendedModels, etc.)
     changepoints : list
-        변경점 인덱스 목록
+        List of changepoint indices.
     anomalies : list
-        이상치 인덱스 목록
+        List of anomaly indices.
     features : dict
-        추출된 통계적 특성 딕셔너리
+        Extracted statistical features dictionary.
     characteristics : DataCharacteristics
-        데이터 특성 분석 결과
+        Data characteristics analysis result.
     """
 
     def __init__(self, dna, changepoints, anomalies, features, characteristics):
@@ -611,64 +611,64 @@ class EasyAnalysisResult:
 
     def summary(self) -> str:
         """
-        분석 결과 한국어 텍스트 요약
+        Generate a text summary of the analysis result.
 
         Returns
         -------
         str
-            분석 결과 요약 문자열
+            Formatted analysis summary string.
         """
         lines = []
         lines.append("=" * 55)
-        lines.append("        Vectrix 시계열 분석 보고서")
+        lines.append("        Vectrix Time Series Analysis Report")
         lines.append("=" * 55)
 
         if self.dna and self.dna.summary:
             lines.append("")
-            lines.append("  [DNA 분석]")
+            lines.append("  [DNA Analysis]")
             lines.append(f"    {self.dna.summary}")
-            lines.append(f"    카테고리: {self.dna.category}")
-            lines.append(f"    예측 난이도: {self.dna.difficulty} ({self.dna.difficultyScore:.1f}/100)")
-            lines.append(f"    지문(fingerprint): {self.dna.fingerprint}")
+            lines.append(f"    Category: {self.dna.category}")
+            lines.append(f"    Forecast Difficulty: {self.dna.difficulty} ({self.dna.difficultyScore:.1f}/100)")
+            lines.append(f"    Fingerprint: {self.dna.fingerprint}")
             if self.dna.recommendedModels:
-                lines.append(f"    추천 모델: {', '.join(self.dna.recommendedModels[:3])}")
+                lines.append(f"    Recommended Models: {', '.join(self.dna.recommendedModels[:3])}")
 
         lines.append("")
-        lines.append("  [변경점 감지]")
+        lines.append("  [Changepoint Detection]")
         if self.changepoints is not None and len(self.changepoints) > 0:
-            lines.append(f"    발견된 변경점: {len(self.changepoints)}개")
-            lines.append(f"    위치: {list(self.changepoints[:10])}")
+            lines.append(f"    Changepoints found: {len(self.changepoints)}")
+            lines.append(f"    Locations: {list(self.changepoints[:10])}")
         else:
-            lines.append("    변경점이 발견되지 않았습니다.")
+            lines.append("    No changepoints detected.")
 
         lines.append("")
-        lines.append("  [이상치 감지]")
+        lines.append("  [Anomaly Detection]")
         if self.anomalies is not None and len(self.anomalies) > 0:
-            lines.append(f"    이상치: {len(self.anomalies)}개")
-            lines.append(f"    위치: {list(self.anomalies[:10])}")
+            lines.append(f"    Anomalies: {len(self.anomalies)}")
+            lines.append(f"    Locations: {list(self.anomalies[:10])}")
         else:
-            lines.append("    이상치가 발견되지 않았습니다.")
+            lines.append("    No anomalies detected.")
 
         if self.characteristics:
             c = self.characteristics
             lines.append("")
-            lines.append("  [데이터 특성]")
-            lines.append(f"    데이터 길이: {c.length}개")
-            lines.append(f"    주기: {c.period}")
+            lines.append("  [Data Characteristics]")
+            lines.append(f"    Length: {c.length}")
+            lines.append(f"    Period: {c.period}")
             freqStr = c.frequency.value if hasattr(c.frequency, 'value') else str(c.frequency)
-            lines.append(f"    빈도: {freqStr}")
+            lines.append(f"    Frequency: {freqStr}")
 
             if c.hasTrend:
-                lines.append(f"    추세: {c.trendDirection} (강도: {c.trendStrength:.2f})")
+                lines.append(f"    Trend: {c.trendDirection} (strength: {c.trendStrength:.2f})")
             else:
-                lines.append("    추세: 없음")
+                lines.append("    Trend: none")
 
             if c.hasSeasonality:
-                lines.append(f"    계절성: 있음 (강도: {c.seasonalStrength:.2f})")
+                lines.append(f"    Seasonality: present (strength: {c.seasonalStrength:.2f})")
             else:
-                lines.append("    계절성: 없음")
+                lines.append("    Seasonality: none")
 
-            lines.append(f"    예측 가능성: {c.predictabilityScore:.1f}/100")
+            lines.append(f"    Predictability: {c.predictabilityScore:.1f}/100")
 
         lines.append("=" * 55)
         return "\n".join(lines)
@@ -685,20 +685,20 @@ class EasyAnalysisResult:
 
 class EasyRegressionResult:
     """
-    회귀분석 결과 래퍼 - 초보자 친화적
+    Beginner-friendly regression result wrapper.
 
     Attributes
     ----------
     coefficients : np.ndarray
-        회귀계수 배열 (절편 포함)
+        Regression coefficients (including intercept).
     pvalues : np.ndarray
-        각 계수의 p-value
+        P-values for each coefficient.
     r_squared : float
-        결정계수 (R-squared)
+        R-squared (coefficient of determination).
     adj_r_squared : float
-        수정 결정계수
+        Adjusted R-squared.
     f_stat : float
-        F-통계량
+        F-statistic.
     """
 
     def __init__(self, result, diagnosticResult=None):
@@ -713,26 +713,26 @@ class EasyRegressionResult:
 
     def summary(self) -> str:
         """
-        회귀분석 결과 요약 (statsmodels 스타일)
+        Regression result summary (statsmodels-style).
 
         Returns
         -------
         str
-            포맷된 요약 문자열
+            Formatted summary string.
         """
         return self._result.summary()
 
     def diagnose(self) -> str:
         """
-        회귀 진단 실행 및 결과 출력
+        Run regression diagnostics and return results.
 
-        VIF, 등분산성, 정규성, 자기상관, 영향점 분석을 모두 한 번에 수행.
-        이미 진단을 실행한 경우 캐시된 결과를 반환합니다.
+        Performs VIF, homoscedasticity, normality, autocorrelation, and
+        influence analysis all at once. Returns cached results if already run.
 
         Returns
         -------
         str
-            진단 결과 요약 문자열
+            Diagnostic summary string.
         """
         if self._diagResult is not None:
             return self._diagResult.summary()
@@ -751,8 +751,8 @@ class EasyRegressionResult:
                 X = Xa[:, 1:] if Xa.shape[1] > 1 else Xa
             else:
                 return (
-                    "진단을 실행하려면 회귀분석 시 내부 데이터가 필요합니다.\n"
-                    "regress() 함수를 통해 분석한 결과에서만 diagnose()를 사용할 수 있습니다."
+                    "Internal data required for diagnostics.\n"
+                    "diagnose() is only available on results from the regress() function."
                 )
 
             y = result.fittedValues + result.residuals
@@ -767,25 +767,25 @@ class EasyRegressionResult:
             return self._diagResult.summary()
 
         except Exception as e:
-            return f"진단 실행 중 오류 발생: {e}"
+            return f"Error during diagnostics: {e}"
 
     def predict(self, X, interval: str = 'prediction', alpha: float = 0.05) -> pd.DataFrame:
         """
-        새 데이터에 대한 예측 + 구간을 DataFrame으로 반환
+        Predict on new data with optional intervals.
 
         Parameters
         ----------
         X : array-like
-            새로운 독립변수 데이터 (절편 미포함)
+            New independent variable data (without intercept).
         interval : str
-            'prediction' (예측구간) 또는 'confidence' (신뢰구간) 또는 'none'
+            'prediction', 'confidence', or 'none'.
         alpha : float
-            유의수준 (기본값: 0.05 -> 95% 구간)
+            Significance level (default: 0.05 for 95% intervals).
 
         Returns
         -------
         pd.DataFrame
-            columns: prediction, lower, upper (interval이 'none'이면 prediction만)
+            Columns: prediction, lower, upper (only prediction if interval='none').
         """
         X = np.asarray(X, dtype=np.float64)
         if X.ndim == 1:
@@ -801,8 +801,8 @@ class EasyRegressionResult:
                 yPred = X @ self.coefficients
             else:
                 raise ValueError(
-                    f"입력 차원 불일치: X의 열 수({X.shape[1]})가 "
-                    f"모델 변수 수({len(self.coefficients) - 1})와 맞지 않습니다."
+                    f"Dimension mismatch: X has {X.shape[1]} columns but "
+                    f"model expects {len(self.coefficients) - 1} features."
                 )
             lower, upper = None, None
 
@@ -835,24 +835,24 @@ def forecast(
     verbose: bool = False
 ) -> EasyForecastResult:
     """
-    한 줄 예측
+    One-line forecasting.
 
     Parameters
     ----------
     data : str, DataFrame, ndarray, or list
-        - str: CSV 파일 경로
+        - str: CSV file path
         - DataFrame: pandas DataFrame
-        - ndarray/list: 값 배열 (날짜 자동 생성)
+        - ndarray/list: value array (dates auto-generated)
     date : str, optional
-        날짜 컬럼명 (DataFrame일 때). None이면 자동 감지
+        Date column name (for DataFrame). Auto-detected if None.
     value : str, optional
-        값 컬럼명. None이면 자동 감지 (숫자 컬럼)
+        Value column name. Auto-detected if None.
     steps : int
-        예측 기간 (기본값: 30)
+        Forecast horizon (default: 30).
     frequency : str
-        'auto', 'D', 'W', 'M', 'H' 등 (현재 미사용, 자동 감지)
+        'auto', 'D', 'W', 'M', 'H', etc. (currently unused, auto-detected).
     verbose : bool
-        진행 상황 출력
+        Print progress messages.
 
     Returns
     -------
@@ -862,7 +862,7 @@ def forecast(
     Raises
     ------
     ValueError
-        데이터를 해석할 수 없거나 필수 컬럼이 없는 경우
+        If data cannot be parsed or required columns are missing.
 
     Examples
     --------
@@ -877,18 +877,18 @@ def forecast(
     nRows = len(df)
     if nRows < 10:
         raise ValueError(
-            f"데이터가 너무 짧습니다: {nRows}개 (최소 10개 필요)\n"
-            "시계열 예측에는 최소 10개 이상의 데이터가 필요합니다."
+            f"Data too short: {nRows} points (minimum 10 required).\n"
+            "Time series forecasting requires at least 10 data points."
         )
 
     fx = Vectrix(verbose=verbose)
     rawResult = fx.forecast(df, dateCol=dateCol, valueCol=valueCol, steps=steps)
 
     if not rawResult.success:
-        errorMsg = rawResult.error or "알 수 없는 오류"
+        errorMsg = rawResult.error or "Unknown error"
         raise RuntimeError(
-            f"예측에 실패했습니다: {errorMsg}\n"
-            "데이터를 확인하거나, verbose=True로 설정하여 자세한 정보를 확인해보세요."
+            f"Forecast failed: {errorMsg}\n"
+            "Check your data or set verbose=True for details."
         )
 
     histValues = df[valueCol].values.astype(np.float64)
@@ -903,18 +903,18 @@ def analyze(
     period: int = None
 ) -> EasyAnalysisResult:
     """
-    한 줄 시계열 분석 (DNA + 변경점 + 이상치 + 특성)
+    One-line time series analysis (DNA + changepoints + anomalies + features).
 
     Parameters
     ----------
     data : str, DataFrame, ndarray, or list
-        입력 데이터 (forecast와 동일한 형식)
+        Input data (same formats as forecast).
     date : str, optional
-        날짜 컬럼명
+        Date column name.
     value : str, optional
-        값 컬럼명
+        Value column name.
     period : int, optional
-        계절 주기. None이면 자동 감지
+        Seasonal period. Auto-detected if None.
 
     Returns
     -------
@@ -996,27 +996,27 @@ def regress(
     summary: bool = True
 ) -> EasyRegressionResult:
     """
-    한 줄 회귀분석 (statsmodels 수준)
+    One-line regression analysis (statsmodels-level).
 
-    두 가지 방식으로 사용할 수 있습니다:
+    Two usage modes:
 
-    1. 직접 입력: regress(y, X)
-    2. Formula 방식: regress(data=df, formula="sales ~ ads + price")
+    1. Direct input: regress(y, X)
+    2. Formula mode: regress(data=df, formula="sales ~ ads + price")
 
     Parameters
     ----------
     y : array-like or None
-        종속변수 (직접 입력 방식)
+        Dependent variable (direct input mode).
     X : array-like or None
-        독립변수 행렬 (직접 입력 방식)
+        Independent variable matrix (direct input mode).
     data : pd.DataFrame or None
-        formula 방식에서 사용할 데이터프레임
+        DataFrame for formula mode.
     formula : str or None
-        R-style formula 문자열 (예: "y ~ x1 + x2")
+        R-style formula string (e.g., "y ~ x1 + x2").
     method : str
-        'ols', 'ridge', 'lasso', 'huber', 'quantile'
+        'ols', 'ridge', 'lasso', 'huber', 'quantile'.
     summary : bool
-        True이면 결과 summary를 자동 출력
+        If True, auto-print summary.
 
     Returns
     -------
@@ -1026,13 +1026,13 @@ def regress(
     Raises
     ------
     ValueError
-        입력 파라미터가 잘못된 경우
+        If input parameters are invalid.
 
     Examples
     --------
     >>> result = regress(y, X)
     >>> result = regress(data=df, formula="sales ~ ads + price + season")
-    >>> result.diagnose()   # VIF, 등분산성, 정규성 모두 한 번에
+    >>> result.diagnose()   # VIF, homoscedasticity, normality all at once
     """
     from .regression import (
         HuberRegressor,
@@ -1060,25 +1060,25 @@ def regress(
 
     else:
         raise ValueError(
-            "다음 중 하나의 방식으로 입력해주세요:\n"
-            "  1. regress(y, X) - y와 X를 직접 입력\n"
-            "  2. regress(data=df, formula='y ~ x1 + x2') - formula 방식\n"
+            "Please use one of the following modes:\n"
+            "  1. regress(y, X) - direct input\n"
+            "  2. regress(data=df, formula='y ~ x1 + x2') - formula mode\n"
             "\n"
-            "예시:\n"
+            "Examples:\n"
             "  result = regress(y_array, X_array)\n"
             "  result = regress(data=my_df, formula='sales ~ ads + price')"
         )
 
     if len(yArr) != XArr.shape[0]:
         raise ValueError(
-            f"y와 X의 행 수가 일치하지 않습니다: y={len(yArr)}, X={XArr.shape[0]}\n"
-            "y의 길이와 X의 행 수를 맞춰주세요."
+            f"Row count mismatch: y={len(yArr)}, X={XArr.shape[0]}.\n"
+            "y length and X row count must match."
         )
 
     if len(yArr) < XArr.shape[1] + 2:
         raise ValueError(
-            f"데이터가 너무 적습니다: 관측치 {len(yArr)}개, 변수 {XArr.shape[1]}개\n"
-            f"최소 {XArr.shape[1] + 2}개 이상의 관측치가 필요합니다."
+            f"Insufficient data: {len(yArr)} observations, {XArr.shape[1]} variables.\n"
+            f"At least {XArr.shape[1] + 2} observations required."
         )
 
     validMask = np.isfinite(yArr)
@@ -1091,8 +1091,8 @@ def regress(
         XArr = XArr[validMask]
         if len(yArr) < XArr.shape[1] + 2:
             raise ValueError(
-                f"결측치 제거 후 데이터가 부족합니다: {len(yArr)}개 남음\n"
-                f"원본에서 {nDropped}개의 결측치가 제거되었습니다."
+                f"Insufficient data after removing missing values: {len(yArr)} remaining.\n"
+                f"{nDropped} missing values were removed from the original data."
             )
 
     methodLower = method.lower()
@@ -1127,8 +1127,8 @@ def regress(
 
     else:
         raise ValueError(
-            f"지원하지 않는 method입니다: '{method}'\n"
-            "다음 중 하나를 사용해주세요: 'ols', 'ridge', 'lasso', 'huber', 'quantile'"
+            f"Unsupported method: '{method}'.\n"
+            "Supported: 'ols', 'ridge', 'lasso', 'huber', 'quantile'."
         )
 
     easyResult = EasyRegressionResult(regressionResult)
@@ -1148,30 +1148,30 @@ def quick_report(
     steps: int = 30
 ) -> Dict[str, Any]:
     """
-    한 줄 종합 보고서 (분석 + 예측 + 진단)
+    One-line comprehensive report (analysis + forecast + diagnostics).
 
-    분석과 예측을 한꺼번에 실행하고, 결과를 딕셔너리로 반환합니다.
+    Runs analysis and forecasting together and returns results as a dict.
 
     Parameters
     ----------
     data : str, DataFrame, ndarray, or list
-        입력 데이터
+        Input data.
     date : str, optional
-        날짜 컬럼명
+        Date column name.
     value : str, optional
-        값 컬럼명
+        Value column name.
     steps : int
-        예측 기간 (기본값: 30)
+        Forecast horizon (default: 30).
 
     Returns
     -------
     Dict with keys:
         'forecast' : EasyForecastResult
-            예측 결과
+            Forecast result.
         'analysis' : EasyAnalysisResult
-            분석 결과 (DNA, 변경점, 이상치)
+            Analysis result (DNA, changepoints, anomalies).
         'summary' : str
-            텍스트 요약
+            Text summary.
 
     Examples
     --------
@@ -1185,52 +1185,38 @@ def quick_report(
 
     summaryLines = []
     summaryLines.append("=" * 60)
-    summaryLines.append("          Vectrix 종합 보고서")
+    summaryLines.append("          Vectrix Comprehensive Report")
     summaryLines.append("=" * 60)
 
     if analysisResult.dna:
         dna = analysisResult.dna
-        catNames = {
-            'trending': '추세형',
-            'seasonal': '계절형',
-            'stationary': '안정형',
-            'intermittent': '간헐형',
-            'volatile': '변동형',
-            'complex': '복합형'
-        }
-        diffNames = {
-            'easy': '쉬움',
-            'medium': '보통',
-            'hard': '어려움',
-            'very_hard': '매우 어려움'
-        }
-        catName = catNames.get(dna.category, dna.category)
-        diffName = diffNames.get(dna.difficulty, dna.difficulty)
+        catName = dna.category
+        diffName = dna.difficulty
 
         summaryLines.append("")
-        summaryLines.append(f"  시계열 유형: {catName}")
-        summaryLines.append(f"  예측 난이도: {diffName} ({dna.difficultyScore:.1f}/100)")
+        summaryLines.append(f"  Series Type: {catName}")
+        summaryLines.append(f"  Forecast Difficulty: {diffName} ({dna.difficultyScore:.1f}/100)")
 
     if analysisResult.characteristics:
         c = analysisResult.characteristics
-        summaryLines.append(f"  데이터 길이: {c.length}개")
-        summaryLines.append(f"  감지된 주기: {c.period}")
+        summaryLines.append(f"  Data Length: {c.length}")
+        summaryLines.append(f"  Detected Period: {c.period}")
 
     nCp = len(analysisResult.changepoints) if analysisResult.changepoints is not None else 0
     nAn = len(analysisResult.anomalies) if analysisResult.anomalies is not None else 0
-    summaryLines.append(f"  변경점: {nCp}개")
-    summaryLines.append(f"  이상치: {nAn}개")
+    summaryLines.append(f"  Changepoints: {nCp}")
+    summaryLines.append(f"  Anomalies: {nAn}")
 
     summaryLines.append("")
-    summaryLines.append(f"  선택 모델: {forecastResult.model}")
-    summaryLines.append(f"  예측 기간: {steps}일")
+    summaryLines.append(f"  Selected Model: {forecastResult.model}")
+    summaryLines.append(f"  Forecast Horizon: {steps} steps")
     if len(forecastResult.predictions) > 0:
-        summaryLines.append(f"  예측 범위: {np.min(forecastResult.predictions):.2f} ~ "
+        summaryLines.append(f"  Forecast Range: {np.min(forecastResult.predictions):.2f} ~ "
                             f"{np.max(forecastResult.predictions):.2f}")
 
     if analysisResult.dna and analysisResult.dna.recommendedModels:
         summaryLines.append("")
-        summaryLines.append(f"  DNA 추천 모델: {', '.join(analysisResult.dna.recommendedModels[:3])}")
+        summaryLines.append(f"  DNA Recommended Models: {', '.join(analysisResult.dna.recommendedModels[:3])}")
 
     summaryLines.append("=" * 60)
 

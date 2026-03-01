@@ -18,8 +18,8 @@ class DirectReduction:
     """
     Direct Multi-step Forecasting
 
-    각 예측 시점 h에 대해 별도 모델 학습:
-    model_h: X_t → y_{t+h}
+    Train a separate model for each forecast horizon h:
+    model_h: X_t -> y_{t+h}
     """
 
     def __init__(self, modelFactory: Optional[Callable] = None, period: int = 7, maxLag: int = 14):
@@ -113,10 +113,10 @@ class RecursiveReduction:
     """
     Recursive Multi-step Forecasting
 
-    단일 모델을 반복 적용하여 다단계 예측:
-    1. model: X_t → y_{t+1}
-    2. y_{t+1}을 다음 입력에 추가
-    3. 반복
+    Apply a single model iteratively for multi-step prediction:
+    1. model: X_t -> y_{t+1}
+    2. Append y_{t+1} to the next input
+    3. Repeat
     """
 
     def __init__(self, modelFactory: Optional[Callable] = None, period: int = 7, maxLag: int = 14):

@@ -1,13 +1,13 @@
 """
 Global Forecaster
 
-여러 시계열에서 하나의 모델을 학습하여 공통 패턴 추출.
-Cross-learning: 시계열 간 지식 공유.
+Trains a single model across multiple time series to extract common patterns.
+Cross-learning: knowledge sharing between time series.
 
 Strategy:
-1. 모든 시계열에서 피처 추출
-2. 하나의 회귀 모델 학습
-3. 각 시계열에 대해 개별 예측
+1. Extract features from all time series
+2. Train a single regression model
+3. Generate individual forecasts for each series
 """
 
 from typing import Callable, Dict, Optional, Tuple
@@ -45,12 +45,12 @@ class GlobalForecaster:
 
     def fit(self, series: Dict[str, np.ndarray]) -> 'GlobalForecaster':
         """
-        여러 시계열을 동시에 학습
+        Fit on multiple time series simultaneously
 
         Parameters
         ----------
         series : Dict[str, np.ndarray]
-            시계열 딕셔너리 {이름: 데이터}
+            Time series dictionary {name: data}
         """
         self.seriesData = {k: v.copy() for k, v in series.items()}
 
@@ -93,12 +93,12 @@ class GlobalForecaster:
 
     def predict(self, steps: int) -> Dict[str, Tuple[np.ndarray, np.ndarray, np.ndarray]]:
         """
-        모든 시계열에 대해 예측
+        Forecast all time series
 
         Returns
         -------
         Dict[str, Tuple[np.ndarray, np.ndarray, np.ndarray]]
-            {이름: (예측, 하한, 상한)}
+            {name: (predictions, lower, upper)}
         """
         if not self.fitted:
             raise ValueError("Model not fitted.")

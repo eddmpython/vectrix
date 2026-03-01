@@ -1,9 +1,9 @@
 """
 Entropic Confidence Scoring
 
-정보 엔트로피 기반 예측 신뢰도 평가.
-부트스트랩 예측 경로의 엔트로피를 분석하여 불확실성의 "질"을 측정.
-단순 신뢰구간 너비가 아닌, 분포 구조(다봉성, 편향, 집중도)를 분석.
+Information entropy-based forecast confidence assessment.
+Analyzes entropy of bootstrap forecast paths to measure the "quality" of uncertainty.
+Examines distributional structure (multimodality, bias, concentration) rather than simple interval width.
 """
 
 from typing import Dict, List, Optional
@@ -28,7 +28,7 @@ SMOOTHING_KERNEL_SIZE = 3
 
 
 class EntropyResult:
-    """엔트로피 분석 결과를 담는 데이터 컨테이너."""
+    """Data container for entropy analysis results."""
 
     def __init__(self):
         self.stepEntropy: Optional[np.ndarray] = None
@@ -41,7 +41,7 @@ class EntropyResult:
         self.overallConfidence: float = 0.0
 
     def summary(self) -> Dict:
-        """분석 결과 요약."""
+        """Summary of analysis results."""
         result = {
             'overallConfidence': float(self.overallConfidence),
             'grade': self.grade(),
@@ -65,7 +65,7 @@ class EntropyResult:
         return result
 
     def grade(self) -> str:
-        """A/B/C/D/F 신뢰도 등급."""
+        """A/B/C/D/F confidence grade."""
         score = self.overallConfidence
         for g, threshold in GRADE_THRESHOLDS.items():
             if score > threshold:
@@ -75,9 +75,9 @@ class EntropyResult:
 
 class EntropicConfidenceScorer:
     """
-    정보 엔트로피 기반 예측 신뢰도 평가.
-    부트스트랩 예측 경로의 엔트로피를 분석하여
-    불확실성의 "질"을 측정.
+    Information entropy-based forecast confidence assessment.
+    Analyzes entropy of bootstrap forecast paths to measure
+    the "quality" of uncertainty.
     """
 
     def __init__(
@@ -93,7 +93,7 @@ class EntropicConfidenceScorer:
         self._y: Optional[np.ndarray] = None
 
     def analyze(self, y: np.ndarray, steps: int = 12) -> EntropyResult:
-        """부트스트랩 예측 경로를 생성하고 엔트로피 기반 신뢰도를 분석."""
+        """Generate bootstrap forecast paths and analyze entropy-based confidence."""
         y = np.asarray(y, dtype=np.float64)
         self._y = y.copy()
 
@@ -154,7 +154,7 @@ class EntropicConfidenceScorer:
         return result
 
     def extractScenarios(self, nScenarios: int = DEFAULT_N_SCENARIOS) -> List[Dict]:
-        """부트스트랩 경로를 K-means 클러스터링하여 대표 시나리오를 추출."""
+        """Extract representative scenarios by K-means clustering of bootstrap paths."""
         if self._result is None or self._result.bootstrapPaths is None:
             return []
 

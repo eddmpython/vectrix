@@ -12,10 +12,10 @@ import numpy as np
 
 
 class TimeSeriesImputer:
-    """시계열 결측값 처리"""
+    """Time series missing value handling"""
 
     def impute(self, y: np.ndarray, method: str = 'auto', period: int = 1) -> np.ndarray:
-        """결측값 보간"""
+        """Missing value imputation"""
         y = np.asarray(y, dtype=np.float64).copy()
 
         if len(y) == 0:
@@ -41,7 +41,7 @@ class TimeSeriesImputer:
             raise ValueError(f"Unknown method: {method}")
 
     def _autoImpute(self, y: np.ndarray, period: int) -> np.ndarray:
-        """자동 보간 전략 선택"""
+        """Automatic imputation strategy selection"""
         y = y.copy()
 
         if period > 1 and len(y) >= 2 * period:
@@ -65,7 +65,7 @@ class TimeSeriesImputer:
         return y
 
     def linearInterpolate(self, y: np.ndarray) -> np.ndarray:
-        """선형 보간 (interior NaN)"""
+        """Linear interpolation (interior NaN)"""
         y = np.asarray(y, dtype=np.float64).copy()
 
         if len(y) == 0:
@@ -95,7 +95,7 @@ class TimeSeriesImputer:
         return y
 
     def seasonalInterpolate(self, y: np.ndarray, period: int) -> np.ndarray:
-        """계절 패턴 기반 보간"""
+        """Seasonal pattern-based interpolation"""
         y = np.asarray(y, dtype=np.float64).copy()
         period = max(1, period)
 
@@ -164,7 +164,7 @@ class TimeSeriesImputer:
         return y
 
     def detectMissing(self, y: np.ndarray) -> Dict[str, Any]:
-        """결측 패턴 분석"""
+        """Missing pattern analysis"""
         y = np.asarray(y, dtype=np.float64)
 
         n = len(y)

@@ -1,12 +1,12 @@
 """
-ARIMA 모델 자체 구현
+ARIMA Model Implementation
 
-ARIMA(p, d, q) × (P, D, Q)[m]
-- AR: 자기회귀
-- I: 차분 (적분)
-- MA: 이동평균
+ARIMA(p, d, q) x (P, D, Q)[m]
+- AR: Autoregressive
+- I: Integrated (Differencing)
+- MA: Moving Average
 
-Yule-Walker, CSS, MLE 등 다양한 추정 방법 구현
+Implements various estimation methods including Yule-Walker, CSS, and MLE
 """
 
 from typing import Optional, Tuple
@@ -36,7 +36,7 @@ from .turbo import TurboCore
 
 @jit(nopython=True, cache=True)
 def _cssObjectiveNumba(y: np.ndarray, arCoefs: np.ndarray, maCoefs: np.ndarray) -> float:
-    """Numba 최적화된 CSS 목적함수"""
+    """Numba-optimized CSS objective function"""
     n = len(y)
     p = len(arCoefs)
     q = len(maCoefs)
@@ -69,7 +69,7 @@ def _seasonalCSSObjectiveNumba(
     smaCoefs: np.ndarray,
     m: int
 ) -> float:
-    """Numba 최적화된 계절 ARIMA CSS 목적함수"""
+    """Numba-optimized seasonal ARIMA CSS objective function"""
     n = len(y)
     p = len(arCoefs)
     q = len(maCoefs)
@@ -106,7 +106,7 @@ def _seasonalCSSObjectiveNumba(
 
 
 def _checkStationarity(arCoefs: np.ndarray) -> np.ndarray:
-    """AR 계수의 정상성 검증 및 보정"""
+    """Verify and correct stationarity of AR coefficients"""
     if len(arCoefs) == 0:
         return arCoefs
 
@@ -132,7 +132,7 @@ def _checkStationarity(arCoefs: np.ndarray) -> np.ndarray:
 
 
 def _checkInvertibility(maCoefs: np.ndarray) -> np.ndarray:
-    """MA 계수의 역변환 가능성 검증 및 보정"""
+    """Verify and correct invertibility of MA coefficients"""
     if len(maCoefs) == 0:
         return maCoefs
 
@@ -159,7 +159,7 @@ def _checkInvertibility(maCoefs: np.ndarray) -> np.ndarray:
 
 class ARIMAModel:
     """
-    자체 구현 ARIMA 모델
+    ARIMA Model Implementation
 
     ARIMA(p, d, q) with optional seasonal component
     """
@@ -198,12 +198,12 @@ class ARIMAModel:
 
     def fit(self, y: np.ndarray) -> 'ARIMAModel':
         """
-        모델 학습
+        Fit the model
 
         Parameters
         ----------
         y : np.ndarray
-            시계열 데이터
+            Time series data
         """
         self.origData = y.copy()
         n = len(y)
@@ -259,20 +259,20 @@ class ARIMAModel:
 
     def predict(self, steps: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
-        예측
+        Forecast
 
         Parameters
         ----------
         steps : int
-            예측 기간
+            Forecast horizon
 
         Returns
         -------
         Tuple[np.ndarray, np.ndarray, np.ndarray]
-            (예측값, lower95, upper95)
+            (predictions, lower95, upper95)
         """
         if not self.fitted:
-            raise ValueError("모델이 학습되지 않았습니다.")
+            raise ValueError("Model has not been fitted.")
 
         diffPred = self._predictDiff(steps)
 
@@ -298,7 +298,7 @@ class ARIMAModel:
         return predictions, lower95, upper95
 
     def _difference(self, y: np.ndarray) -> np.ndarray:
-        """차분 적용"""
+        """Apply differencing"""
         result = y.copy()
 
         for _ in range(self.d):
@@ -311,7 +311,7 @@ class ARIMAModel:
         return result
 
     def _inverseDifference(self, pred: np.ndarray) -> np.ndarray:
-        """역차분"""
+        """Inverse differencing"""
         result = pred.copy()
         orig = self.origData
 
@@ -336,7 +336,7 @@ class ARIMAModel:
 
     def _estimateAR(self, y: np.ndarray, p: int) -> np.ndarray:
         """
-        AR 계수 추정 (Yule-Walker)
+        AR coefficient estimation (Yule-Walker)
         """
         acf = TurboCore.acf(y, p)
 
@@ -361,7 +361,7 @@ class ARIMAModel:
 
     def _estimateMA(self, residuals: np.ndarray, q: int) -> np.ndarray:
         """
-        MA 계수 추정 (Innovation Algorithm - Brockwell & Davis)
+        MA coefficient estimation (Innovation Algorithm - Brockwell & Davis)
 
         Input: autocovariance gamma(0), gamma(1), ..., gamma(q)
         Output: theta = [theta_{q,0}, theta_{q,1}, ..., theta_{q,q-1}]
@@ -410,7 +410,7 @@ class ARIMAModel:
 
     def _estimateSAR(self, y: np.ndarray) -> np.ndarray:
         """
-        계절 AR 계수 추정 (Yule-Walker on seasonal lags)
+        Seasonal AR coefficient estimation (Yule-Walker on seasonal lags)
         """
         bigP = self.P
         m = self.m
@@ -441,7 +441,7 @@ class ARIMAModel:
 
     def _estimateSMA(self, residuals: np.ndarray) -> np.ndarray:
         """
-        계절 MA 계수 추정 (Innovation Algorithm on seasonal residuals)
+        Seasonal MA coefficient estimation (Innovation Algorithm on seasonal residuals)
         """
         bigQ = self.Q
         m = self.m
@@ -490,7 +490,7 @@ class ARIMAModel:
         return result
 
     def _computeSeasonalARResiduals(self, y: np.ndarray) -> np.ndarray:
-        """계절 AR 잔차 계산"""
+        """Compute seasonal AR residuals"""
         n = len(y)
         bigP = self.P
         m = self.m
@@ -523,7 +523,7 @@ class ARIMAModel:
         return y[p:] - predictions
 
     def _computeResiduals(self, y: np.ndarray) -> np.ndarray:
-        """ARMA 잔차 계산"""
+        """Compute ARMA residuals"""
         n = len(y)
         p = len(self.arCoefs) if self.arCoefs is not None else 0
         q = len(self.maCoefs) if self.maCoefs is not None else 0
@@ -558,7 +558,7 @@ class ARIMAModel:
         return residuals[maxLag:]
 
     def _optimizeCSS(self, y: np.ndarray):
-        """CSS (Conditional Sum of Squares) 최적화 - Numba 가속"""
+        """CSS (Conditional Sum of Squares) optimization - Numba accelerated"""
         p = len(self.arCoefs) if self.arCoefs is not None else 0
         q = len(self.maCoefs) if self.maCoefs is not None else 0
         bigP = len(self.sarCoefs) if self.sarCoefs is not None else 0
@@ -632,7 +632,7 @@ class ARIMAModel:
             pass
 
     def _predictDiff(self, steps: int) -> np.ndarray:
-        """차분된 공간에서 예측"""
+        """Forecast in differenced space"""
         y = self.diffData
         n = len(y)
         p = len(self.arCoefs) if self.arCoefs is not None else 0
@@ -674,7 +674,7 @@ class ARIMAModel:
         return extended[n:]
 
     def _computePsiWeights(self, steps: int) -> np.ndarray:
-        """MA(inf) 표현의 psi 가중치"""
+        """Psi weights of the MA(infinity) representation"""
         p = len(self.arCoefs) if self.arCoefs is not None else 0
         q = len(self.maCoefs) if self.maCoefs is not None else 0
 
@@ -695,7 +695,7 @@ class ARIMAModel:
         return psi
 
     def _simpleFit(self, y: np.ndarray):
-        """간단한 학습 (데이터 부족시)"""
+        """Simple fit (when data is insufficient)"""
         self.arCoefs = np.array([0.5]) if self.p > 0 else np.array([])
         self.maCoefs = np.array([0.3]) if self.q > 0 else np.array([])
         self.sarCoefs = np.array([0.3]) if self.P > 0 else np.array([])
@@ -706,10 +706,10 @@ class ARIMAModel:
 
 class AutoARIMA:
     """
-    자동 ARIMA 모델 선택
+    Automatic ARIMA Model Selection
 
-    AICc 기준으로 최적 (p, d, q) 자동 선택
-    계절성 ARIMA 지원
+    Automatically selects the optimal (p, d, q) based on AICc
+    Supports seasonal ARIMA
     """
 
     def __init__(
@@ -731,17 +731,17 @@ class AutoARIMA:
 
     def fit(self, y: np.ndarray) -> ARIMAModel:
         """
-        최적 ARIMA 자동 선택
+        Automatic optimal ARIMA selection
 
         Parameters
         ----------
         y : np.ndarray
-            시계열 데이터
+            Time series data
 
         Returns
         -------
         ARIMAModel
-            최적 모델
+            Optimal model
         """
         n = len(y)
 
@@ -796,7 +796,7 @@ class AutoARIMA:
         return self.bestModel
 
     def _fitSeasonalCandidates(self, y: np.ndarray, d: int):
-        """계절 ARIMA 후보 모델 평가"""
+        """Evaluate seasonal ARIMA candidate models"""
         n = len(y)
         m = self.seasonalPeriod
 
@@ -856,7 +856,7 @@ class AutoARIMA:
                     continue
 
     def _hasSeasonality(self, y: np.ndarray, period: int) -> bool:
-        """계절성 여부 검사"""
+        """Check for seasonality"""
         if len(y) < period * 2:
             return False
 
@@ -864,7 +864,7 @@ class AutoARIMA:
         return abs(acf[period]) > 0.3
 
     def _determineDifferencingOrder(self, y: np.ndarray) -> int:
-        """KPSS/ADF 기반 차분 차수 결정"""
+        """Determine differencing order based on KPSS/ADF"""
         adfStat = TurboCore.adfStatistic(y)
 
         if adfStat < -2.86:
@@ -884,7 +884,7 @@ class AutoARIMA:
         model: ARIMAModel,
         p: int, d: int, q: int
     ) -> float:
-        """AICc 계산"""
+        """Compute AICc"""
         n = len(y) - d
 
         if model.residuals is None or len(model.residuals) == 0:
@@ -908,7 +908,7 @@ class AutoARIMA:
         return aicc
 
     def predict(self, steps: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """예측"""
+        """Forecast"""
         if self.bestModel is None:
-            raise ValueError("모델이 학습되지 않았습니다.")
+            raise ValueError("Model has not been fitted.")
         return self.bestModel.predict(steps)

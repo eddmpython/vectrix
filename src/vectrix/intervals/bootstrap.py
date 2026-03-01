@@ -13,9 +13,9 @@ class BootstrapInterval:
     """
     Residual Bootstrap Prediction Intervals
 
-    1. 모델 학습, 잔차 계산
-    2. 잔차를 재표본하여 부트스트랩 미래 경로 생성
-    3. 경로들의 분위수로 신뢰구간 계산
+    1. Fit model and compute residuals
+    2. Resample residuals to generate bootstrap future paths
+    3. Compute prediction intervals from path quantiles
     """
 
     def __init__(
@@ -39,11 +39,11 @@ class BootstrapInterval:
         Parameters
         ----------
         y : np.ndarray
-            시계열 데이터
+            Time series data
         modelFactory : Callable
-            모델 생성 팩토리
+            Model factory
         steps : int
-            예측 horizon
+            Forecast horizon
         """
         n = len(y)
         trainSize = int(n * 0.8)

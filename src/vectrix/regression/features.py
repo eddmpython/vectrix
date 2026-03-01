@@ -1,7 +1,7 @@
 """
 Time Series Feature Engineering
 
-시계열 데이터에서 회귀 모델용 피처를 자동 생성:
+Automatic feature generation for regression models from time series data:
 - Lag features: y_{t-1}, y_{t-2}, ...
 - Rolling features: rolling mean, rolling std
 - Calendar features: day-of-week, month, etc.
@@ -14,7 +14,7 @@ import numpy as np
 
 
 class LagFeatures:
-    """Lag feature 생성기"""
+    """Lag feature generator"""
 
     def __init__(self, lags: Optional[List[int]] = None, maxLag: int = 7):
         self.lags = lags or list(range(1, maxLag + 1))
@@ -43,7 +43,7 @@ class LagFeatures:
         return X, target
 
     def transformLast(self, y: np.ndarray) -> np.ndarray:
-        """마지막 시점의 lag features"""
+        """Lag features for the last time point"""
         features = np.zeros(len(self.lags))
         n = len(y)
         for j, lag in enumerate(self.lags):
@@ -53,7 +53,7 @@ class LagFeatures:
 
 
 class RollingFeatures:
-    """Rolling statistics feature 생성기"""
+    """Rolling statistics feature generator"""
 
     def __init__(self, windows: Optional[List[int]] = None):
         self.windows = windows or [7, 14, 30]
@@ -79,7 +79,7 @@ class RollingFeatures:
         return X
 
     def transformLast(self, y: np.ndarray) -> np.ndarray:
-        """마지막 시점의 rolling features"""
+        """Rolling features for the last time point"""
         features = np.zeros(len(self.windows) * 2)
         n = len(y)
         for j, w in enumerate(self.windows):
@@ -90,7 +90,7 @@ class RollingFeatures:
 
 
 class CalendarFeatures:
-    """Calendar feature 생성기 (index 기반)"""
+    """Calendar feature generator (index-based)"""
 
     def __init__(self, period: int = 7):
         self.period = period
@@ -109,14 +109,14 @@ class CalendarFeatures:
         return X
 
     def transformSingle(self, idx: int) -> np.ndarray:
-        """단일 시점의 calendar features"""
+        """Calendar features for a single time point"""
         features = np.zeros(self.period)
         features[idx % self.period] = 1.0
         return features
 
 
 class FourierFeatures:
-    """Fourier term feature 생성기"""
+    """Fourier term feature generator"""
 
     def __init__(self, period: int = 7, nTerms: int = 3):
         self.period = period
@@ -139,7 +139,7 @@ class FourierFeatures:
         return X
 
     def transformSingle(self, idx: int) -> np.ndarray:
-        """단일 시점의 fourier features"""
+        """Fourier features for a single time point"""
         features = np.zeros(self.nTerms * 2)
         for k in range(self.nTerms):
             freq = 2 * np.pi * (k + 1) / self.period
@@ -157,22 +157,22 @@ def autoFeatureEngineering(
     useCalendar: bool = False
 ) -> Tuple[np.ndarray, np.ndarray, Dict]:
     """
-    자동 피처 엔지니어링
+    Automatic feature engineering
 
     Parameters
     ----------
     y : np.ndarray
-        시계열 데이터
+        Time series data
     period : int
-        계절 주기
+        Seasonal period
     maxLag : int
-        최대 lag
+        Maximum lag
     rollingWindows : List[int], optional
-        롤링 윈도우 크기들
+        Rolling window sizes
     useFourier : bool
-        Fourier 항 사용 여부
+        Whether to use Fourier terms
     useCalendar : bool
-        Calendar 항 사용 여부
+        Whether to use Calendar terms
 
     Returns
     -------

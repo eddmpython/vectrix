@@ -1,18 +1,18 @@
 """
 Regression Diagnostics
 
-잔차 진단, 검정, 영향점 분석:
+Residual diagnostics, tests, and influence analysis:
 - VIF (Variance Inflation Factor)
-- Durbin-Watson 통계량
-- Breusch-Pagan 검정 (등분산성)
-- White 검정 (등분산성)
-- Jarque-Bera 검정 (정규성)
-- Goldfeld-Quandt 검정 (등분산성)
+- Durbin-Watson statistic
+- Breusch-Pagan test (homoscedasticity)
+- White test (homoscedasticity)
+- Jarque-Bera test (normality)
+- Goldfeld-Quandt test (homoscedasticity)
 - Cook's Distance
 - Leverage (Hat values)
 - DFFITS / DFBETAS
-- Omnibus 검정
-- 진단 플롯용 데이터
+- Omnibus test
+- Diagnostic plot data
 
 Pure numpy/scipy implementation (no sklearn dependency).
 """
@@ -26,47 +26,47 @@ from scipy import stats
 
 @dataclass
 class DiagnosticResult:
-    """진단 결과 종합"""
+    """Comprehensive diagnostic results"""
 
-    # 등분산성
+    # Homoscedasticity
     breuschPagan: Dict[str, float] = field(default_factory=dict)
     white: Dict[str, float] = field(default_factory=dict)
     goldfeldQuandt: Dict[str, float] = field(default_factory=dict)
 
-    # 정규성
+    # Normality
     jarqueBera: Dict[str, float] = field(default_factory=dict)
     shapiroWilk: Dict[str, float] = field(default_factory=dict)
     omnibus: Dict[str, float] = field(default_factory=dict)
 
-    # 자기상관
+    # Autocorrelation
     durbinWatson: float = 0.0
     ljungBox: Dict[str, float] = field(default_factory=dict)
 
-    # 다중공선성
+    # Multicollinearity
     vif: np.ndarray = field(default_factory=lambda: np.array([]))
     conditionNumber: float = 0.0
 
-    # 영향점
+    # Influential observations
     cooksDistance: np.ndarray = field(default_factory=lambda: np.array([]))
     leverage: np.ndarray = field(default_factory=lambda: np.array([]))
     dffits: np.ndarray = field(default_factory=lambda: np.array([]))
     dfbetas: np.ndarray = field(default_factory=lambda: np.array([]))
 
-    # 진단 플롯 데이터
+    # Diagnostic plot data
     plotData: Dict[str, Dict] = field(default_factory=dict)
 
-    # 종합 판단
+    # Overall assessment
     issues: List[str] = field(default_factory=list)
 
     def summary(self) -> str:
-        """진단 결과 텍스트 요약"""
+        """Text summary of diagnostic results"""
         lines = []
         lines.append("=" * 60)
-        lines.append("         회귀분석 진단 결과 요약")
+        lines.append("         Regression Diagnostic Summary")
         lines.append("=" * 60)
 
-        # 등분산성 검정
-        lines.append("\n[ 등분산성 검정 ]")
+        # Homoscedasticity tests
+        lines.append("\n[ Homoscedasticity Tests ]")
         if self.breuschPagan:
             bp = self.breuschPagan
             sig = "***" if bp.get('pValue', 1) < 0.01 else "**" if bp.get('pValue', 1) < 0.05 else ""
@@ -83,8 +83,8 @@ class DiagnosticResult:
             lines.append(f"  Goldfeld-Quandt: F={gq.get('statistic', 0):.4f}, "
                          f"p={gq.get('pValue', 0):.4f} {sig}")
 
-        # 정규성 검정
-        lines.append("\n[ 정규성 검정 ]")
+        # Normality tests
+        lines.append("\n[ Normality Tests ]")
         if self.jarqueBera:
             jb = self.jarqueBera
             sig = "***" if jb.get('pValue', 1) < 0.01 else "**" if jb.get('pValue', 1) < 0.05 else ""
@@ -103,57 +103,57 @@ class DiagnosticResult:
             lines.append(f"  Omnibus:      K2={om.get('statistic', 0):.4f}, "
                          f"p={om.get('pValue', 0):.4f} {sig}")
 
-        # 자기상관
-        lines.append("\n[ 자기상관 검정 ]")
+        # Autocorrelation
+        lines.append("\n[ Autocorrelation Tests ]")
         lines.append(f"  Durbin-Watson: {self.durbinWatson:.4f}")
         if self.durbinWatson < 1.5:
-            lines.append("    → 양의 자기상관 의심")
+            lines.append("    -> Positive autocorrelation suspected")
         elif self.durbinWatson > 2.5:
-            lines.append("    → 음의 자기상관 의심")
+            lines.append("    -> Negative autocorrelation suspected")
         else:
-            lines.append("    → 자기상관 없음 (정상)")
+            lines.append("    -> No autocorrelation (normal)")
         if self.ljungBox:
             lb = self.ljungBox
             sig = "***" if lb.get('pValue', 1) < 0.01 else "**" if lb.get('pValue', 1) < 0.05 else ""
             lines.append(f"  Ljung-Box (lag 1): Q={lb.get('statistic', 0):.4f}, "
                          f"p={lb.get('pValue', 0):.4f} {sig}")
 
-        # 다중공선성
-        lines.append("\n[ 다중공선성 ]")
+        # Multicollinearity
+        lines.append("\n[ Multicollinearity ]")
         if len(self.vif) > 0:
             maxVif = np.max(self.vif)
-            lines.append(f"  VIF 최대값: {maxVif:.2f}")
+            lines.append(f"  Max VIF: {maxVif:.2f}")
             highVifIdx = np.where(self.vif > 10)[0]
             if len(highVifIdx) > 0:
-                lines.append(f"  VIF > 10 변수 인덱스: {highVifIdx.tolist()}")
+                lines.append(f"  VIF > 10 variable indices: {highVifIdx.tolist()}")
             else:
-                lines.append("  VIF > 10 변수: 없음 (양호)")
+                lines.append("  VIF > 10 variables: None (good)")
         lines.append(f"  Condition Number: {self.conditionNumber:.2f}")
 
-        # 영향점
-        lines.append("\n[ 영향점 분석 ]")
+        # Influential observations
+        lines.append("\n[ Influence Analysis ]")
         if len(self.cooksDistance) > 0:
             n = len(self.cooksDistance)
             threshold = 4.0 / n
             nInfluential = np.sum(self.cooksDistance > threshold)
-            lines.append(f"  Cook's D > 4/n 관측값: {nInfluential}개")
+            lines.append(f"  Cook's D > 4/n observations: {nInfluential}")
             if nInfluential > 0:
                 topIdx = np.argsort(self.cooksDistance)[-min(5, nInfluential):][::-1]
-                lines.append(f"  상위 영향점 인덱스: {topIdx.tolist()}")
+                lines.append(f"  Top influential indices: {topIdx.tolist()}")
         if len(self.leverage) > 0:
             n = len(self.leverage)
             p = self.dfbetas.shape[1] if len(self.dfbetas.shape) == 2 else 1
             levThreshold = 2.0 * p / n
             nHighLev = np.sum(self.leverage > levThreshold)
-            lines.append(f"  High Leverage (> 2p/n) 관측값: {nHighLev}개")
+            lines.append(f"  High Leverage (> 2p/n) observations: {nHighLev}")
 
-        # 종합 판단
+        # Overall assessment
         if self.issues:
-            lines.append("\n[ 발견된 문제점 ]")
+            lines.append("\n[ Issues Found ]")
             for i, issue in enumerate(self.issues, 1):
                 lines.append(f"  {i}. {issue}")
         else:
-            lines.append("\n[ 결론: 주요 문제 없음 ]")
+            lines.append("\n[ Conclusion: No major issues found ]")
 
         lines.append("=" * 60)
         return "\n".join(lines)
@@ -161,13 +161,13 @@ class DiagnosticResult:
 
 class RegressionDiagnostics:
     """
-    회귀분석 잔차 진단
+    Regression residual diagnostics
 
     Usage:
         >>> diag = RegressionDiagnostics()
         >>> result = diag.diagnose(X, y, residuals, hatMatrix, beta, fittedValues)
         >>> print(result.summary())
-        >>> result.vif  # VIF 값들
+        >>> result.vif  # VIF values
     """
 
     def diagnose(
@@ -180,66 +180,66 @@ class RegressionDiagnostics:
         fittedValues: np.ndarray
     ) -> DiagnosticResult:
         """
-        종합 진단 수행
+        Perform comprehensive diagnostics
 
         Parameters
         ----------
         X : np.ndarray, shape (n, p)
-            설계 행렬 (intercept 미포함)
+            Design matrix (without intercept)
         y : np.ndarray, shape (n,)
-            반응변수
+            Response variable
         residuals : np.ndarray, shape (n,)
-            잔차 (y - yHat)
+            Residuals (y - yHat)
         hatMatrix : np.ndarray, shape (n, n)
-            햇 행렬 H = X(X'X)^{-1}X'
+            Hat matrix H = X(X'X)^{-1}X'
         beta : np.ndarray, shape (k,)
-            회귀계수 (intercept 포함 시 k = p+1)
+            Regression coefficients (k = p+1 if intercept is included)
         fittedValues : np.ndarray, shape (n,)
-            적합값 (yHat)
+            Fitted values (yHat)
 
         Returns
         -------
         DiagnosticResult
         """
         n, p = X.shape
-        k = len(beta)  # intercept 포함 변수 수
+        k = len(beta)  # number of variables including intercept
 
-        # 잔차 분산 추정
+        # Residual variance estimation
         sigma2 = np.sum(residuals ** 2) / max(n - k, 1)
 
-        # leverage (hat matrix 대각)
+        # leverage (hat matrix diagonal)
         leverage = hatMatrix if hatMatrix.ndim == 1 else np.diag(hatMatrix)
 
-        # 표준화 잔차
+        # Standardized residuals
         stdResiduals = self._standardizedResiduals(residuals, sigma2, leverage)
 
-        # --- 등분산성 검정 ---
+        # --- Homoscedasticity tests ---
         bpResult = self._breuschPagan(X, residuals)
         whiteResult = self._whiteTest(X, residuals)
         gqResult = self._goldfeldQuandt(X, y, k)
 
-        # --- 정규성 검정 ---
+        # --- Normality tests ---
         jbResult = self._jarqueBera(residuals)
         swResult = self._shapiroWilk(residuals)
         omnibusResult = self._omnibus(residuals)
 
-        # --- 자기상관 ---
+        # --- Autocorrelation ---
         dwStat = self._durbinWatson(residuals)
         lbResult = self._ljungBox(residuals, lag=1)
 
-        # --- 다중공선성 ---
+        # --- Multicollinearity ---
         vifValues = self._computeVIF(X)
         condNum = self._conditionNumber(X)
 
-        # --- 영향점 ---
+        # --- Influential observations ---
         cooksD = self._cooksDistance(residuals, leverage, k, sigma2)
         dffitsValues = self._computeDFFITS(residuals, leverage, k, sigma2)
         dfbetasValues = self._computeDFBETAS(X, residuals, hatMatrix, sigma2)
 
-        # --- 진단 플롯 데이터 ---
+        # --- Diagnostic plot data ---
         plotData = self._computePlotData(fittedValues, residuals, stdResiduals, leverage, cooksD)
 
-        # --- 종합 판단 ---
+        # --- Overall assessment ---
         issues = self._identifyIssues(
             bpResult, whiteResult, gqResult,
             jbResult, swResult, omnibusResult,
@@ -268,7 +268,7 @@ class RegressionDiagnostics:
         )
 
     # ----------------------------------------------------------------
-    # 표준화 잔차
+    # Standardized Residuals
     # ----------------------------------------------------------------
 
     def _standardizedResiduals(
@@ -278,7 +278,7 @@ class RegressionDiagnostics:
         leverage: np.ndarray
     ) -> np.ndarray:
         """
-        내적 스튜던트화 잔차: r_i = e_i / (s * sqrt(1 - h_ii))
+        Internally studentized residuals: r_i = e_i / (s * sqrt(1 - h_ii))
         """
         s = np.sqrt(max(sigma2, 1e-15))
         denom = s * np.sqrt(np.maximum(1.0 - leverage, 1e-15))
@@ -290,12 +290,12 @@ class RegressionDiagnostics:
 
     def _computeVIF(self, X: np.ndarray) -> np.ndarray:
         """
-        각 변수 j에 대해:
-        1. X_j를 나머지 변수에 대해 회귀
-        2. R_j^2 계산
+        For each variable j:
+        1. Regress X_j on the remaining variables
+        2. Compute R_j^2
         3. VIF_j = 1 / (1 - R_j^2)
 
-        VIF > 10이면 심각한 다중공선성
+        VIF > 10 indicates severe multicollinearity
         """
         n, p = X.shape
         vifValues = np.zeros(p)
@@ -305,13 +305,13 @@ class RegressionDiagnostics:
             return vifValues
 
         for j in range(p):
-            # j번째 변수를 종속변수로, 나머지를 독립변수로
+            # j-th variable as dependent, rest as independent
             mask = np.ones(p, dtype=bool)
             mask[j] = False
             Xj = X[:, j]
             Xrest = X[:, mask]
 
-            # intercept 추가
+            # Add intercept
             Xa = np.column_stack([np.ones(n), Xrest])
 
             try:
@@ -321,11 +321,11 @@ class RegressionDiagnostics:
                 ssRes = np.sum((Xj - fitted) ** 2)
 
                 if ssTot < 1e-15:
-                    # 변수가 상수인 경우
+                    # Variable is constant
                     vifValues[j] = np.inf
                 else:
                     r2 = 1.0 - ssRes / ssTot
-                    r2 = min(r2, 1.0 - 1e-15)  # 1에 너무 가까우면 보호
+                    r2 = min(r2, 1.0 - 1e-15)  # Guard against being too close to 1
                     vifValues[j] = 1.0 / (1.0 - r2)
             except np.linalg.LinAlgError:
                 vifValues[j] = np.inf
@@ -338,8 +338,8 @@ class RegressionDiagnostics:
 
     def _conditionNumber(self, X: np.ndarray) -> float:
         """
-        설계 행렬의 조건수 (intercept 포함)
-        condition number > 30이면 다중공선성 의심
+        Condition number of design matrix (with intercept)
+        condition number > 30 suggests multicollinearity
         """
         n = X.shape[0]
         Xa = np.column_stack([np.ones(n), X])
@@ -357,9 +357,9 @@ class RegressionDiagnostics:
 
     def _durbinWatson(self, residuals: np.ndarray) -> float:
         """
-        Durbin-Watson 통계량
+        Durbin-Watson statistic
         DW = sum((e_t - e_{t-1})^2) / sum(e_t^2)
-        DW ~ 2이면 자기상관 없음, DW < 2 양의 자기상관, DW > 2 음의 자기상관
+        DW ~ 2: no autocorrelation, DW < 2: positive autocorrelation, DW > 2: negative autocorrelation
         """
         diff = np.diff(residuals)
         ssResid = np.sum(residuals ** 2)
@@ -368,12 +368,12 @@ class RegressionDiagnostics:
         return float(np.sum(diff ** 2) / ssResid)
 
     # ----------------------------------------------------------------
-    # Ljung-Box 검정
+    # Ljung-Box Test
     # ----------------------------------------------------------------
 
     def _ljungBox(self, residuals: np.ndarray, lag: int = 1) -> Dict[str, float]:
         """
-        Ljung-Box 검정 (자기상관 검정)
+        Ljung-Box test (autocorrelation test)
         Q = n(n+2) * sum_{k=1}^{m} (r_k^2 / (n-k))
         Q ~ chi2(m)
         """
@@ -399,17 +399,17 @@ class RegressionDiagnostics:
         return {'statistic': float(qStat), 'pValue': float(pValue)}
 
     # ----------------------------------------------------------------
-    # Breusch-Pagan 검정
+    # Breusch-Pagan Test
     # ----------------------------------------------------------------
 
     def _breuschPagan(self, X: np.ndarray, residuals: np.ndarray) -> Dict[str, float]:
         """
-        H0: 등분산 (homoscedasticity)
-        1. e^2를 X에 대해 보조회귀
+        H0: homoscedasticity
+        1. Auxiliary regression of e^2 on X
         2. LM = n * R^2 of auxiliary regression
         3. LM ~ chi2(p)
 
-        추가로 F-statistic도 계산
+        Also computes F-statistic
         """
         n, p = X.shape
 
@@ -418,7 +418,7 @@ class RegressionDiagnostics:
 
         eSq = residuals ** 2
 
-        # 보조회귀: e^2 ~ 1 + X
+        # Auxiliary regression: e^2 ~ 1 + X
         Xa = np.column_stack([np.ones(n), X])
         try:
             betaAux = np.linalg.lstsq(Xa, eSq, rcond=None)[0]
@@ -457,34 +457,34 @@ class RegressionDiagnostics:
         }
 
     # ----------------------------------------------------------------
-    # White 검정
+    # White Test
     # ----------------------------------------------------------------
 
     def _whiteTest(self, X: np.ndarray, residuals: np.ndarray) -> Dict[str, float]:
         """
-        H0: 등분산
-        1. e^2 ~ X + X^2 + X_i*X_j (교차항) 보조회귀
+        H0: homoscedasticity
+        1. Auxiliary regression e^2 ~ X + X^2 + X_i*X_j (cross terms)
         2. nR^2 ~ chi2(q)
         """
         n, p = X.shape
         eSq = residuals ** 2
 
-        # 보조회귀 설계행렬: 1 + X + X^2 + 교차항
+        # Auxiliary design matrix: 1 + X + X^2 + cross terms
         auxParts = [np.ones((n, 1)), X]
 
-        # 제곱항
+        # Squared terms
         auxParts.append(X ** 2)
 
-        # 교차항
+        # Cross terms
         for i in range(p):
             for j in range(i + 1, p):
                 auxParts.append((X[:, i] * X[:, j]).reshape(-1, 1))
 
         Xa = np.hstack(auxParts)
-        q = Xa.shape[1] - 1  # intercept 제외
+        q = Xa.shape[1] - 1  # Excluding intercept
 
         if n <= q + 1:
-            # 자유도 부족 시
+            # Insufficient degrees of freedom
             return {'statistic': 0.0, 'pValue': 1.0}
 
         try:
@@ -506,7 +506,7 @@ class RegressionDiagnostics:
         return {'statistic': float(lm), 'pValue': float(pValue)}
 
     # ----------------------------------------------------------------
-    # Goldfeld-Quandt 검정
+    # Goldfeld-Quandt Test
     # ----------------------------------------------------------------
 
     def _goldfeldQuandt(
@@ -517,15 +517,15 @@ class RegressionDiagnostics:
         dropFraction: float = 0.2
     ) -> Dict[str, float]:
         """
-        H0: 등분산
-        1. X의 첫번째 열 기준 정렬
-        2. 가운데 dropFraction 비율의 관측값 제거
-        3. 상위/하위 그룹 각각 OLS
+        H0: homoscedasticity
+        1. Sort by first column of X
+        2. Drop middle dropFraction of observations
+        3. OLS on upper/lower groups separately
         4. F = SSR2 / SSR1 ~ F(df2, df1)
         """
         n, p = X.shape
 
-        # 정렬 (첫 번째 독립변수 기준)
+        # Sort by first independent variable
         sortIdx = np.argsort(X[:, 0])
         Xs = X[sortIdx]
         ys = y[sortIdx]
@@ -536,14 +536,14 @@ class RegressionDiagnostics:
         if nGroup <= k + 1:
             return {'statistic': 0.0, 'pValue': 1.0}
 
-        # 하위 그룹
+        # Lower group
         X1 = Xs[:nGroup]
         y1 = ys[:nGroup]
-        # 상위 그룹
+        # Upper group
         X2 = Xs[n - nGroup:]
         y2 = ys[n - nGroup:]
 
-        # 각 그룹에 OLS
+        # OLS on each group
         def _ssr(Xg, yg):
             Xa = np.column_stack([np.ones(len(yg)), Xg])
             try:
@@ -568,12 +568,12 @@ class RegressionDiagnostics:
         return {'statistic': float(fStat), 'pValue': float(pValue)}
 
     # ----------------------------------------------------------------
-    # Jarque-Bera 검정
+    # Jarque-Bera Test
     # ----------------------------------------------------------------
 
     def _jarqueBera(self, residuals: np.ndarray) -> Dict[str, float]:
         """
-        H0: 잔차가 정규분포를 따름
+        H0: Residuals follow a normal distribution
         JB = (n/6) * (S^2 + (K-3)^2 / 4)
         JB ~ chi2(2)
         """
@@ -604,20 +604,20 @@ class RegressionDiagnostics:
         }
 
     # ----------------------------------------------------------------
-    # Shapiro-Wilk 검정
+    # Shapiro-Wilk Test
     # ----------------------------------------------------------------
 
     def _shapiroWilk(self, residuals: np.ndarray) -> Dict[str, float]:
         """
-        Shapiro-Wilk 검정 (scipy 활용)
-        H0: 잔차가 정규분포를 따름
-        n <= 5000에서 유효
+        Shapiro-Wilk test (using scipy)
+        H0: Residuals follow a normal distribution
+        Valid for n <= 5000
         """
         n = len(residuals)
         if n < 3:
             return {'statistic': 0.0, 'pValue': 1.0}
 
-        # Shapiro-Wilk는 n > 5000이면 scipy가 경고 → 서브샘플링
+        # Shapiro-Wilk warns for n > 5000 in scipy -> subsampling
         sample = residuals
         if n > 5000:
             rng = np.random.RandomState(42)
@@ -632,19 +632,19 @@ class RegressionDiagnostics:
         return {'statistic': float(stat), 'pValue': float(pValue)}
 
     # ----------------------------------------------------------------
-    # Omnibus 검정 (D'Agostino-Pearson)
+    # Omnibus Test (D'Agostino-Pearson)
     # ----------------------------------------------------------------
 
     def _omnibus(self, residuals: np.ndarray) -> Dict[str, float]:
         """
-        D'Agostino-Pearson Omnibus 검정
-        H0: 잔차가 정규분포를 따름
-        왜도(skewness)와 첨도(kurtosis) 동시 검정
+        D'Agostino-Pearson Omnibus test
+        H0: Residuals follow a normal distribution
+        Joint test of skewness and kurtosis
         K^2 = Z_s^2 + Z_k^2 ~ chi2(2)
         """
         n = len(residuals)
         if n < 8:
-            # scipy의 normaltest는 n >= 8 필요
+            # scipy normaltest requires n >= 8
             return {'statistic': 0.0, 'pValue': 1.0}
 
         try:
@@ -667,7 +667,7 @@ class RegressionDiagnostics:
     ) -> np.ndarray:
         """
         D_i = (e_i^2 / (k * s^2)) * (h_ii / (1 - h_ii)^2)
-        D_i > 4/n이면 영향점
+        D_i > 4/n indicates influential observation
         """
         if sigma2 < 1e-15 or k < 1:
             return np.zeros(len(residuals))
@@ -689,7 +689,7 @@ class RegressionDiagnostics:
     ) -> np.ndarray:
         """
         DFFITS_i = e_i / (s * sqrt(1-h_ii)) * sqrt(h_ii / (1-h_ii))
-        기준: |DFFITS| > 2 * sqrt(k/n)
+        Threshold: |DFFITS| > 2 * sqrt(k/n)
         """
         n = len(residuals)
         if sigma2 < 1e-15:
@@ -698,7 +698,7 @@ class RegressionDiagnostics:
         s = np.sqrt(sigma2)
         hii = np.clip(leverage, 0, 1.0 - 1e-10)
 
-        # 내적 스튜던트화 잔차
+        # Internally studentized residuals
         stdRes = residuals / (s * np.sqrt(1.0 - hii))
 
         dffitsValues = stdRes * np.sqrt(hii / (1.0 - hii))
@@ -717,14 +717,14 @@ class RegressionDiagnostics:
     ) -> np.ndarray:
         """
         DFBETAS_{j,i} = (beta_j - beta_j(-i)) / (s(-i) * sqrt(c_jj))
-        간편 공식: DFBETAS = (X'X)^{-1} X' diag(e_i/(1-h_ii)) / s_i
+        Simplified formula: DFBETAS = (X'X)^{-1} X' diag(e_i/(1-h_ii)) / s_i
 
-        근사 계산 (computationally efficient):
+        Approximate computation (computationally efficient):
         DFBETAS_{j,i} = (c_j' x_i * e_i) / (s * (1 - h_ii) * sqrt(c_jj))
-        여기서 c_j는 (X'X)^{-1}의 j번째 열
+        where c_j is the j-th column of (X'X)^{-1}
         """
         n, p = X.shape
-        k = p + 1  # intercept 포함
+        k = p + 1  # Including intercept
 
         Xa = np.column_stack([np.ones(n), X])
 
@@ -736,8 +736,8 @@ class RegressionDiagnostics:
         s = np.sqrt(max(sigma2, 1e-15))
         hii = np.clip(hatMatrix if hatMatrix.ndim == 1 else np.diag(hatMatrix), 0, 1.0 - 1e-10)
 
-        # DFBETAS 근사: (XtXinv @ x_i) * e_i / (s * (1 - h_ii))
-        # 각 관측값별 계산
+        # DFBETAS approximation: (XtXinv @ x_i) * e_i / (s * (1 - h_ii))
+        # Compute per observation
         dfbetasMatrix = np.zeros((n, k))
         sqrtCjj = np.sqrt(np.diag(XtXinv))
         sqrtCjj = np.where(sqrtCjj < 1e-15, 1.0, sqrtCjj)
@@ -753,7 +753,7 @@ class RegressionDiagnostics:
         return dfbetasMatrix
 
     # ----------------------------------------------------------------
-    # 진단 플롯 데이터
+    # Diagnostic Plot Data
     # ----------------------------------------------------------------
 
     def _computePlotData(
@@ -765,7 +765,7 @@ class RegressionDiagnostics:
         cooksD: np.ndarray
     ) -> Dict[str, Dict]:
         """
-        4대 진단 플롯 데이터:
+        Four diagnostic plot datasets:
         1. residualsVsFitted: {'x': fitted, 'y': residuals}
         2. normalQQ: {'theoretical': quantiles, 'sample': sorted_std_resid}
         3. scaleLocation: {'x': fitted, 'y': sqrt(abs(std_resid))}
@@ -810,7 +810,7 @@ class RegressionDiagnostics:
         }
 
     # ----------------------------------------------------------------
-    # 종합 판단
+    # Overall Assessment
     # ----------------------------------------------------------------
 
     def _identifyIssues(
@@ -830,23 +830,23 @@ class RegressionDiagnostics:
         n: int,
         k: int
     ) -> List[str]:
-        """발견된 문제점 목록 생성"""
+        """Generate list of identified issues"""
         issues = []
         alpha = 0.05
 
-        # 등분산성
+        # Homoscedasticity
         if bpResult.get('pValue', 1) < alpha:
             issues.append(
-                f"이분산성 의심 (Breusch-Pagan p={bpResult['pValue']:.4f}). "
-                "WLS 또는 HC 표준오차를 사용하세요."
+                f"Heteroscedasticity suspected (Breusch-Pagan p={bpResult['pValue']:.4f}). "
+                "Consider using WLS or HC standard errors."
             )
         if whiteResult.get('pValue', 1) < alpha:
             issues.append(
-                f"이분산성 의심 (White p={whiteResult['pValue']:.4f}). "
-                "비선형 이분산 패턴이 있을 수 있습니다."
+                f"Heteroscedasticity suspected (White p={whiteResult['pValue']:.4f}). "
+                "Nonlinear heteroscedastic patterns may be present."
             )
 
-        # 정규성
+        # Normality
         normFail = 0
         if jbResult.get('pValue', 1) < alpha:
             normFail += 1
@@ -856,39 +856,39 @@ class RegressionDiagnostics:
             normFail += 1
         if normFail >= 2:
             issues.append(
-                "잔차 비정규성 의심 (정규성 검정 2개 이상 기각). "
-                "변환(log, Box-Cox) 또는 강건 회귀를 고려하세요."
+                "Residual non-normality suspected (2 or more normality tests rejected). "
+                "Consider transformations (log, Box-Cox) or robust regression."
             )
 
-        # 자기상관
+        # Autocorrelation
         if dwStat < 1.5:
             issues.append(
-                f"양의 자기상관 의심 (DW={dwStat:.4f}). "
-                "Newey-West 표준오차 또는 Cochrane-Orcutt 보정을 사용하세요."
+                f"Positive autocorrelation suspected (DW={dwStat:.4f}). "
+                "Consider Newey-West standard errors or Cochrane-Orcutt correction."
             )
         elif dwStat > 2.5:
             issues.append(
-                f"음의 자기상관 의심 (DW={dwStat:.4f}). "
-                "모형 설정을 재검토하세요."
+                f"Negative autocorrelation suspected (DW={dwStat:.4f}). "
+                "Review the model specification."
             )
         if lbResult.get('pValue', 1) < alpha:
             issues.append(
-                f"자기상관 존재 (Ljung-Box p={lbResult['pValue']:.4f})."
+                f"Autocorrelation present (Ljung-Box p={lbResult['pValue']:.4f})."
             )
 
-        # 다중공선성
+        # Multicollinearity
         if len(vifValues) > 0 and np.any(vifValues > 10):
             highVifIdx = np.where(vifValues > 10)[0]
             issues.append(
-                f"심각한 다중공선성 (VIF > 10: 변수 인덱스 {highVifIdx.tolist()}). "
-                "변수 제거 또는 릿지 회귀를 고려하세요."
+                f"Severe multicollinearity (VIF > 10: variable indices {highVifIdx.tolist()}). "
+                "Consider removing variables or using ridge regression."
             )
         if condNum > 30:
             issues.append(
-                f"높은 조건수 (CN={condNum:.1f}). 다중공선성 의심."
+                f"High condition number (CN={condNum:.1f}). Multicollinearity suspected."
             )
 
-        # 영향점
+        # Influential observations
         if len(cooksD) > 0:
             threshold = 4.0 / n
             nInfluential = np.sum(cooksD > threshold)
@@ -896,8 +896,8 @@ class RegressionDiagnostics:
                 ratio = nInfluential / n
                 if ratio > 0.05:
                     issues.append(
-                        f"영향점 다수 발견 (Cook's D > 4/n: {nInfluential}개, {ratio:.1%}). "
-                        "이상치 검토 또는 강건 회귀를 고려하세요."
+                        f"Many influential points found (Cook's D > 4/n: {nInfluential}, {ratio:.1%}). "
+                        "Consider reviewing outliers or using robust regression."
                     )
 
         return issues

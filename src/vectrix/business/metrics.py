@@ -1,12 +1,12 @@
 """
 Business Metrics
 
-실무에서 사용하는 비즈니스 관점 예측 지표:
-- Bias: 예측 편향 (과대/과소 예측)
-- Tracking Signal: 편향 누적 신호
-- WAPE: 가중 절대 퍼센트 오차
-- Value-Weighted Accuracy: 금액 가중 정확도
-- Fill Rate Impact: 재고 충족률 영향
+Business-oriented forecast metrics for practical use:
+- Bias: Forecast bias (over/under prediction)
+- Tracking Signal: Cumulative bias signal
+- WAPE: Weighted Absolute Percentage Error
+- Value-Weighted Accuracy: Value-weighted accuracy
+- Fill Rate Impact: Inventory fill rate impact
 """
 
 from typing import Any, Dict, Optional
@@ -16,7 +16,7 @@ import numpy as np
 
 class BusinessMetrics:
     """
-    비즈니스 지표 계산기
+    Business metrics calculator
 
     Usage:
         >>> metrics = BusinessMetrics()
@@ -30,16 +30,16 @@ class BusinessMetrics:
         values: Optional[np.ndarray] = None
     ) -> Dict[str, Any]:
         """
-        전체 비즈니스 지표 계산
+        Calculate all business metrics
 
         Parameters
         ----------
         actual : np.ndarray
-            실제값
+            Actual values
         predicted : np.ndarray
-            예측값
+            Predicted values
         values : np.ndarray, optional
-            금액/가치 가중치 (value-weighted metrics용)
+            Monetary/value weights (for value-weighted metrics)
         """
         n = min(len(actual), len(predicted))
         actual = actual[:n]

@@ -1,14 +1,14 @@
 """
-예측 모델 잔차 진단
+Forecast Model Residual Diagnostics
 
-Ljung-Box, Jarque-Bera, ARCH 검정 등
-예측 모델 잔차가 백색잡음인지 검증
+Ljung-Box, Jarque-Bera, ARCH tests, etc.
+Verifies whether forecast model residuals are white noise
 
-시계열 예측 모델의 잔차 품질을 평가하여
-모델이 데이터의 구조를 충분히 포착했는지 판단.
-잔차가 백색잡음이 아니면 모델 개선이 필요함을 시사.
+Evaluates the quality of time series forecast model residuals
+to determine if the model adequately captures data structure.
+Non-white-noise residuals suggest model improvement is needed.
 
-참조:
+References:
 - Ljung & Box (1978)
 - Jarque & Bera (1987)
 - Engle (1982) ARCH test
@@ -24,7 +24,7 @@ from scipy.stats import chi2
 
 @dataclass
 class ForecastDiagnosticsResult:
-    """예측 잔차 진단 결과"""
+    """Forecast residual diagnostics result"""
 
     isWhiteNoise: bool = True
     ljungBoxStat: float = 0.0
@@ -43,69 +43,69 @@ class ForecastDiagnosticsResult:
     issues: List[str] = field(default_factory=list)
 
     def summary(self) -> str:
-        """진단 요약"""
+        """Diagnostics summary"""
         lines = []
         lines.append("=" * 60)
-        lines.append("       예측 모델 잔차 진단 결과 요약")
+        lines.append("       Forecast Model Residual Diagnostics Summary")
         lines.append("=" * 60)
 
-        lines.append("\n[ Ljung-Box 자기상관 검정 ]")
+        lines.append("\n[ Ljung-Box Autocorrelation Test ]")
         lbStatus = "PASS" if self.isWhiteNoise else "FAIL"
         sig = self._significance(self.ljungBoxPvalue)
         lines.append(f"  Q({self.ljungBoxLag}) = {self.ljungBoxStat:.4f}, "
                      f"p = {self.ljungBoxPvalue:.4f} {sig}")
-        lines.append(f"  판정: {lbStatus}")
+        lines.append(f"  Result: {lbStatus}")
         if self.isWhiteNoise:
-            lines.append("  해석: 잔차에 유의한 자기상관 없음 (백색잡음)")
+            lines.append("  Interpretation: No significant autocorrelation in residuals (white noise)")
         else:
-            lines.append("  해석: 잔차에 자기상관 존재 → 모델이 시계열 구조를 충분히 포착하지 못함")
+            lines.append("  Interpretation: Autocorrelation present in residuals -> Model does not fully capture time series structure")
 
-        lines.append("\n[ Jarque-Bera 정규성 검정 ]")
+        lines.append("\n[ Jarque-Bera Normality Test ]")
         jbStatus = "PASS" if self.isNormal else "FAIL"
         sig = self._significance(self.jarqueBeraPvalue)
         lines.append(f"  JB = {self.jarqueBeraStat:.4f}, "
                      f"p = {self.jarqueBeraPvalue:.4f} {sig}")
-        lines.append(f"  왜도(Skewness) = {self.skewness:.4f}, "
-                     f"첨도(Kurtosis) = {self.kurtosis:.4f}")
-        lines.append(f"  판정: {jbStatus}")
+        lines.append(f"  Skewness = {self.skewness:.4f}, "
+                     f"Kurtosis = {self.kurtosis:.4f}")
+        lines.append(f"  Result: {jbStatus}")
         if self.isNormal:
-            lines.append("  해석: 잔차가 정규분포를 따름 → 예측 구간 신뢰 가능")
+            lines.append("  Interpretation: Residuals follow normal distribution -> Prediction intervals are reliable")
         else:
-            lines.append("  해석: 잔차 비정규 → 예측 구간의 커버리지가 부정확할 수 있음")
+            lines.append("  Interpretation: Non-normal residuals -> Prediction interval coverage may be inaccurate")
 
-        lines.append("\n[ ARCH 이분산성 검정 ]")
+        lines.append("\n[ ARCH Heteroscedasticity Test ]")
         archStatus = "PASS" if not self.hasHeteroscedasticity else "FAIL"
         sig = self._significance(self.archPvalue)
         lines.append(f"  ARCH LM = {self.archStat:.4f}, "
                      f"p = {self.archPvalue:.4f} {sig}")
-        lines.append(f"  판정: {archStatus}")
+        lines.append(f"  Result: {archStatus}")
         if not self.hasHeteroscedasticity:
-            lines.append("  해석: 잔차 분산이 일정 (등분산)")
+            lines.append("  Interpretation: Residual variance is constant (homoscedastic)")
         else:
-            lines.append("  해석: 잔차에 조건부 이분산 존재 → GARCH 모델 고려")
+            lines.append("  Interpretation: Conditional heteroscedasticity present in residuals -> Consider GARCH model")
 
-        lines.append("\n[ Durbin-Watson 통계량 ]")
+        lines.append("\n[ Durbin-Watson Statistic ]")
         lines.append(f"  DW = {self.durbinWatson:.4f}")
         if self.durbinWatson < 1.5:
-            lines.append("  해석: 양의 자기상관 의심 (DW < 1.5)")
+            lines.append("  Interpretation: Suspected positive autocorrelation (DW < 1.5)")
         elif self.durbinWatson > 2.5:
-            lines.append("  해석: 음의 자기상관 의심 (DW > 2.5)")
+            lines.append("  Interpretation: Suspected negative autocorrelation (DW > 2.5)")
         else:
-            lines.append("  해석: 1차 자기상관 없음 (정상)")
+            lines.append("  Interpretation: No first-order autocorrelation (normal)")
 
         if self.issues:
-            lines.append("\n[ 발견된 문제점 ]")
+            lines.append("\n[ Issues Found ]")
             for i, issue in enumerate(self.issues, 1):
                 lines.append(f"  {i}. {issue}")
         else:
-            lines.append("\n[ 결론: 잔차가 백색잡음 조건을 만족 ]")
+            lines.append("\n[ Conclusion: Residuals satisfy white noise conditions ]")
 
         lines.append("=" * 60)
         return "\n".join(lines)
 
     @staticmethod
     def _significance(pValue: float) -> str:
-        """p-value 유의성 표시"""
+        """p-value significance indicator"""
         if pValue < 0.001:
             return "***"
         if pValue < 0.01:
@@ -117,11 +117,11 @@ class ForecastDiagnosticsResult:
 
 class ForecastDiagnostics:
     """
-    예측 모델 잔차 진단
+    Forecast Model Residual Diagnostics
 
-    시계열 예측 모델의 잔차가 백색잡음(white noise)인지
-    종합적으로 검증. 잔차에 남아있는 패턴이 있으면
-    모델 개선이 필요함을 의미.
+    Comprehensively verifies whether time series forecast model
+    residuals are white noise. Remaining patterns in residuals
+    indicate that model improvement is needed.
 
     Usage:
         >>> diag = ForecastDiagnostics()
@@ -137,16 +137,16 @@ class ForecastDiagnostics:
         alpha: float = 0.05
     ) -> ForecastDiagnosticsResult:
         """
-        종합 잔차 진단
+        Comprehensive residual diagnostics
 
         Parameters
         ----------
         residuals : np.ndarray
-            예측 모델의 잔차 (1차원)
+            Forecast model residuals (1-dimensional)
         period : int
-            계절 주기 (비계절이면 1)
+            Seasonal period (1 if non-seasonal)
         alpha : float
-            유의수준 (기본 0.05)
+            Significance level (default 0.05)
 
         Returns
         -------
@@ -157,7 +157,7 @@ class ForecastDiagnostics:
 
         if n < 4:
             return ForecastDiagnosticsResult(
-                issues=["잔차 수가 너무 적어 진단 불가 (n < 4)"]
+                issues=["Too few residuals for diagnostics (n < 4)"]
             )
 
         residualStd = np.std(residuals)
@@ -167,7 +167,7 @@ class ForecastDiagnostics:
                 isNormal=True,
                 hasHeteroscedasticity=False,
                 durbinWatson=2.0,
-                issues=["잔차가 상수 (분산 = 0). 완벽 적합 또는 데이터 오류 확인 필요"]
+                issues=["Residuals are constant (variance = 0). Check for perfect fit or data error"]
             )
 
         maxLagLB = self._defaultLjungBoxLag(n, period)
@@ -220,19 +220,19 @@ class ForecastDiagnostics:
         maxLag: Optional[int] = None
     ) -> tuple:
         """
-        Ljung-Box Q 검정 (잔차 자기상관 검정)
+        Ljung-Box Q test (residual autocorrelation test)
 
         Parameters
         ----------
         residuals : np.ndarray
-            잔차 배열
+            Residual array
         maxLag : int, optional
-            최대 시차. None이면 min(10, n//5) 사용
+            Maximum lag. If None, uses min(10, n//5)
 
         Returns
         -------
         tuple
-            (Q 통계량, p-value)
+            (Q statistic, p-value)
         """
         residuals = np.asarray(residuals, dtype=np.float64).ravel()
         n = len(residuals)
@@ -263,17 +263,17 @@ class ForecastDiagnostics:
 
     def jarqueBeraTest(self, residuals: np.ndarray) -> tuple:
         """
-        Jarque-Bera 정규성 검정
+        Jarque-Bera normality test
 
         Parameters
         ----------
         residuals : np.ndarray
-            잔차 배열
+            Residual array
 
         Returns
         -------
         tuple
-            (JB 통계량, p-value, 왜도, 첨도)
+            (JB statistic, p-value, skewness, kurtosis)
         """
         residuals = np.asarray(residuals, dtype=np.float64).ravel()
         n = len(residuals)
@@ -300,23 +300,23 @@ class ForecastDiagnostics:
 
     def archTest(self, residuals: np.ndarray, lags: int = 5) -> tuple:
         """
-        ARCH 검정 (이분산성)
+        ARCH test (heteroscedasticity)
 
-        Engle (1982)의 ARCH LM 검정.
-        잔차 제곱을 자기 시차에 회귀하여
-        조건부 이분산이 존재하는지 검정.
+        Engle (1982) ARCH LM test.
+        Regresses squared residuals on their own lags
+        to test for conditional heteroscedasticity.
 
         Parameters
         ----------
         residuals : np.ndarray
-            잔차 배열
+            Residual array
         lags : int
-            ARCH 시차 수 (기본 5)
+            Number of ARCH lags (default 5)
 
         Returns
         -------
         tuple
-            (LM 통계량, p-value)
+            (LM statistic, p-value)
         """
         residuals = np.asarray(residuals, dtype=np.float64).ravel()
         n = len(residuals)
@@ -359,17 +359,17 @@ class ForecastDiagnostics:
 
     def durbinWatsonTest(self, residuals: np.ndarray) -> float:
         """
-        Durbin-Watson 검정 (1차 자기상관)
+        Durbin-Watson test (first-order autocorrelation)
 
         Parameters
         ----------
         residuals : np.ndarray
-            잔차 배열
+            Residual array
 
         Returns
         -------
         float
-            DW 통계량 (0~4 범위, 2에 가까울수록 자기상관 없음)
+            DW statistic (range 0~4, closer to 2 means no autocorrelation)
         """
         residuals = np.asarray(residuals, dtype=np.float64).ravel()
 
@@ -385,19 +385,19 @@ class ForecastDiagnostics:
 
     def acf(self, residuals: np.ndarray, maxLag: int = 20) -> np.ndarray:
         """
-        잔차 ACF 계산
+        Compute residual ACF
 
         Parameters
         ----------
         residuals : np.ndarray
-            잔차 배열
+            Residual array
         maxLag : int
-            최대 시차 (기본 20)
+            Maximum lag (default 20)
 
         Returns
         -------
         np.ndarray
-            시차 0부터 maxLag까지의 자기상관 값 (길이 maxLag+1)
+            Autocorrelation values from lag 0 to maxLag (length maxLag+1)
         """
         residuals = np.asarray(residuals, dtype=np.float64).ravel()
         n = len(residuals)
@@ -421,7 +421,7 @@ class ForecastDiagnostics:
         return acfValues
 
     def _defaultLjungBoxLag(self, n: int, period: int) -> int:
-        """Ljung-Box 검정의 기본 시차 결정"""
+        """Determine default lag for Ljung-Box test"""
         if period > 1:
             candidateLag = min(2 * period, n // 5)
         else:
@@ -446,14 +446,14 @@ class ForecastDiagnostics:
         period: int,
         alpha: float
     ) -> List[str]:
-        """발견된 문제점 목록 생성"""
+        """Generate list of identified issues"""
         issues = []
 
         if not isWhiteNoise:
             issues.append(
-                f"잔차 자기상관 존재 (Ljung-Box Q({lbLag})={lbStat:.2f}, "
+                f"Residual autocorrelation present (Ljung-Box Q({lbLag})={lbStat:.2f}, "
                 f"p={lbPvalue:.4f}). "
-                "ARIMA 차수를 높이거나 계절 성분을 추가하세요."
+                "Consider increasing ARIMA order or adding seasonal components."
             )
 
         if period > 1 and len(acfVals) > period:
@@ -461,42 +461,42 @@ class ForecastDiagnostics:
             bartlettBound = 1.96 / np.sqrt(n)
             if seasonalACF > bartlettBound:
                 issues.append(
-                    f"계절 자기상관 잔존 (ACF[{period}]={acfVals[period]:.4f}, "
-                    f"임계값=+/-{bartlettBound:.4f}). "
-                    "계절 차분 또는 계절 ARIMA 항을 추가하세요."
+                    f"Residual seasonal autocorrelation (ACF[{period}]={acfVals[period]:.4f}, "
+                    f"threshold=+/-{bartlettBound:.4f}). "
+                    "Consider seasonal differencing or adding seasonal ARIMA terms."
                 )
 
         if not isNormal:
             interpretation = []
             if abs(skew) > 1.0:
-                direction = "양" if skew > 0 else "음"
-                interpretation.append(f"강한 {direction}의 왜도({skew:.2f})")
+                direction = "positive" if skew > 0 else "negative"
+                interpretation.append(f"strong {direction} skewness({skew:.2f})")
             if kurt > 4.0:
-                interpretation.append(f"두꺼운 꼬리(첨도={kurt:.2f})")
+                interpretation.append(f"heavy tails(kurtosis={kurt:.2f})")
             elif kurt < 2.0:
-                interpretation.append(f"얇은 꼬리(첨도={kurt:.2f})")
-            detail = ", ".join(interpretation) if interpretation else "경미한 비정규"
+                interpretation.append(f"thin tails(kurtosis={kurt:.2f})")
+            detail = ", ".join(interpretation) if interpretation else "mild non-normality"
             issues.append(
-                f"잔차 비정규 (JB p={jbPvalue:.4f}, {detail}). "
-                "예측 구간의 커버리지가 부정확할 수 있습니다. "
-                "Box-Cox 변환 또는 비모수 예측 구간을 고려하세요."
+                f"Non-normal residuals (JB p={jbPvalue:.4f}, {detail}). "
+                "Prediction interval coverage may be inaccurate. "
+                "Consider Box-Cox transform or nonparametric prediction intervals."
             )
 
         if hasHeteroscedasticity:
             issues.append(
-                f"조건부 이분산 존재 (ARCH p={archPvalue:.4f}). "
-                "GARCH 모델 또는 변동성 조정 예측 구간을 고려하세요."
+                f"Conditional heteroscedasticity present (ARCH p={archPvalue:.4f}). "
+                "Consider GARCH model or volatility-adjusted prediction intervals."
             )
 
         if dwStat < 1.5:
             issues.append(
-                f"양의 1차 자기상관 의심 (DW={dwStat:.4f}). "
-                "AR(1) 항 추가를 고려하세요."
+                f"Suspected positive first-order autocorrelation (DW={dwStat:.4f}). "
+                "Consider adding an AR(1) term."
             )
         elif dwStat > 2.5:
             issues.append(
-                f"음의 1차 자기상관 의심 (DW={dwStat:.4f}). "
-                "과대차분(over-differencing) 여부를 확인하세요."
+                f"Suspected negative first-order autocorrelation (DW={dwStat:.4f}). "
+                "Check for over-differencing."
             )
 
         if len(acfVals) > 1:
@@ -505,8 +505,8 @@ class ForecastDiagnostics:
             expectedFalse = max(1, int(0.05 * (len(acfVals) - 1)))
             if nSignificant > 2 * expectedFalse:
                 issues.append(
-                    f"유의한 ACF 시차 {nSignificant}개 (기대값 ~{expectedFalse}개). "
-                    "잔차에 체계적 패턴이 남아있을 수 있습니다."
+                    f"{nSignificant} significant ACF lags (expected ~{expectedFalse}). "
+                    "Systematic patterns may remain in residuals."
                 )
 
         return issues

@@ -24,7 +24,7 @@ warnings.filterwarnings('ignore')
 
 from .analyzer import AutoAnalyzer
 
-# 자체 구현 엔진
+# Self-implemented engines
 from .engine import (
     ARIMAModel,
     AutoCES,
@@ -69,118 +69,117 @@ class Vectrix:
     Dependencies: numpy, pandas, scipy (required), numba (optional)
     """
 
-    VERSION = "0.0.3"
+    VERSION = "0.0.4"
 
-    # 자체 구현 모델 목록
     NATIVE_MODELS = {
         'auto_ets': {
             'name': 'AutoETS (Native)',
-            'description': '자체 구현 자동 지수평활법',
+            'description': 'Self-implemented automatic exponential smoothing.',
             'class': AutoETS
         },
         'auto_arima': {
             'name': 'AutoARIMA (Native)',
-            'description': '자체 구현 자동 ARIMA',
+            'description': 'Self-implemented automatic ARIMA.',
             'class': AutoARIMA
         },
         'theta': {
             'name': 'Theta (Native)',
-            'description': '자체 구현 Theta 모델',
+            'description': 'Self-implemented Theta model.',
             'class': OptimizedTheta
         },
         'ets_aan': {
             'name': 'ETS(A,A,N)',
-            'description': "자체 구현 Holt's Linear",
+            'description': "Holt's Linear (additive trend, no season).",
             'class': lambda period: ETSModel('A', 'A', 'N', period)
         },
         'ets_aaa': {
             'name': 'ETS(A,A,A)',
-            'description': '자체 구현 Holt-Winters Additive',
+            'description': 'Holt-Winters additive seasonality.',
             'class': lambda period: ETSModel('A', 'A', 'A', period)
         },
         'seasonal_naive': {
             'name': 'Seasonal Naive (Native)',
-            'description': '자체 구현 계절성 나이브',
-            'class': None  # 직접 구현
+            'description': 'Seasonal naive baseline.',
+            'class': None
         },
         'mstl': {
             'name': 'MSTL (Native)',
-            'description': '자체 구현 다중 계절 분해',
+            'description': 'Multiple seasonal decomposition.',
             'class': MSTLDecomposition
         },
         'auto_mstl': {
             'name': 'AutoMSTL (Native)',
-            'description': '자동 다중 계절성 분해 + ARIMA (E006 57.8% 개선)',
+            'description': 'Auto multiple seasonality decomposition + ARIMA.',
             'class': AutoMSTL
         },
         'naive': {
             'name': 'Naive',
-            'description': 'Random Walk — 마지막 값 반복',
+            'description': 'Random Walk — last value repetition.',
             'class': NaiveModel
         },
         'mean': {
             'name': 'Mean',
-            'description': '과거 평균값 예측',
+            'description': 'Historical mean forecast.',
             'class': MeanModel
         },
         'rwd': {
             'name': 'Random Walk with Drift',
-            'description': '마지막 값 + 평균 추세',
+            'description': 'Last value + average trend.',
             'class': RandomWalkDrift
         },
         'window_avg': {
             'name': 'Window Average',
-            'description': '최근 윈도우 평균 예측',
+            'description': 'Recent window average forecast.',
             'class': WindowAverage
         },
         'auto_ces': {
             'name': 'AutoCES (Native)',
-            'description': '복소수 지수평활법 자동 선택',
+            'description': 'Complex exponential smoothing auto selection.',
             'class': AutoCES
         },
         'croston': {
             'name': 'Croston (Auto)',
-            'description': '간헐적 수요 예측 자동 선택',
+            'description': 'Intermittent demand auto selection.',
             'class': AutoCroston
         },
         'dot': {
             'name': 'Dynamic Optimized Theta',
-            'description': 'Theta+alpha+drift 동시 최적화',
+            'description': 'Joint Theta+alpha+drift optimization.',
             'class': DynamicOptimizedTheta
         },
         'tbats': {
             'name': 'TBATS (Native)',
-            'description': 'Trigonometric 다중 계절성 모델',
+            'description': 'Trigonometric multiple seasonality model.',
             'class': AutoTBATS
         },
         'garch': {
             'name': 'GARCH(1,1)',
-            'description': '조건부 분산 모델 (금융 변동성)',
+            'description': 'Conditional variance model (financial volatility).',
             'class': GARCHModel
         },
         'egarch': {
             'name': 'EGARCH',
-            'description': '비대칭 변동성 모델',
+            'description': 'Asymmetric volatility model.',
             'class': EGARCHModel
         },
         'gjr_garch': {
             'name': 'GJR-GARCH',
-            'description': '임계 비대칭 GARCH',
+            'description': 'Threshold asymmetric GARCH.',
             'class': GJRGARCHModel
         },
         'four_theta': {
             'name': '4Theta Ensemble',
-            'description': '4개 Theta line 가중 결합 앙상블',
+            'description': 'Weighted 4 theta line ensemble.',
             'class': AdaptiveThetaEnsemble
         },
         'esn': {
             'name': 'Echo State Network',
-            'description': 'Reservoir Computing 비선형 예측',
+            'description': 'Reservoir Computing nonlinear forecasting.',
             'class': EchoStateForecaster
         },
         'dtsf': {
             'name': 'Dynamic Time Scan',
-            'description': '비모수 패턴 매칭 예측',
+            'description': 'Non-parametric pattern matching forecasting.',
             'class': DynamicTimeScanForecaster
         }
     }
@@ -195,7 +194,7 @@ class Vectrix:
         self.verbose = verbose
         self.nJobs = nJobs
 
-        # 컴포넌트
+        # Components
         self.analyzer = AutoAnalyzer()
         self.flatDiagnostic = FlatRiskDiagnostic()
         self.flatDetector = FlatPredictionDetector()
@@ -203,18 +202,18 @@ class Vectrix:
         self.modelSelector = AdaptiveModelSelector()
         self.ensemble = VariabilityPreservingEnsemble()
 
-        # 상태
+        # State
         self.characteristics: Optional[DataCharacteristics] = None
         self.flatRisk: Optional[FlatRiskAssessment] = None
         self.modelResults: Dict[str, ModelResult] = {}
         self.dropDetector: Optional[PeriodicDropDetector] = None
 
-        # 콜백
+        # Callbacks
         self.onProgress: Optional[Callable] = None
 
         if verbose:
             from .engine.turbo import isNumbaAvailable
-            numbaStatus = "✓ Numba 활성화" if isNumbaAvailable() else "✗ Numba 없음 (순수 Python)"
+            numbaStatus = "✓ Numba enabled" if isNumbaAvailable() else "✗ Numba not found (pure Python)"
             print(f"[Vectrix v{self.VERSION}] {numbaStatus}")
 
     def setProgressCallback(self, callback: Callable):
@@ -229,11 +228,10 @@ class Vectrix:
         trainRatio: float = 0.8
     ) -> ForecastResult:
         """
-        시계열 예측 (완전 자체 구현)
+        Time series forecasting (fully self-implemented).
         """
         try:
-            # 1. 데이터 준비
-            self._progress('데이터 준비 중...')
+            self._progress('Preparing data...')
             workDf = self._prepareData(df, dateCol, valueCol)
             values = workDf[valueCol].values.astype(np.float64)
             n = len(values)
@@ -241,46 +239,40 @@ class Vectrix:
             if n < 10:
                 return ForecastResult(
                     success=False,
-                    error=f'데이터 부족: {n}개 (최소 10개 필요)'
+                    error=f'Insufficient data: {n} points (minimum 10 required)'
                 )
 
-            # 2. 데이터 분석
-            self._progress('데이터 특성 분석 중...')
+            self._progress('Analyzing data characteristics...')
             self.characteristics = self.analyzer.analyze(workDf, dateCol, valueCol)
             period = self.characteristics.period
 
-            # 3. 정기 드롭 패턴 감지 (E009 결과: 61.3% 개선)
-            self._progress('정기 드롭 패턴 감지 중...')
+            self._progress('Detecting periodic drop patterns...')
             self.dropDetector = PeriodicDropDetector(minDropRatio=0.8, minDropDuration=3)
             hasPeriodicDrop = self.dropDetector.detect(values)
 
             if hasPeriodicDrop and self.verbose:
-                print(f"[드롭 감지] 주기: {self.dropDetector.dropPeriod}일, "
-                      f"지속: {self.dropDetector.dropDuration}일, "
-                      f"비율: {self.dropDetector.dropRatio:.2f}")
+                print(f"[Drop detected] Period: {self.dropDetector.dropPeriod}, "
+                      f"Duration: {self.dropDetector.dropDuration}, "
+                      f"Ratio: {self.dropDetector.dropRatio:.2f}")
 
-            # 4. 일직선 위험도 진단
-            self._progress('일직선 예측 위험도 진단 중...')
+            self._progress('Diagnosing flat prediction risk...')
             self.flatDiagnostic.period = period
             self.flatRisk = self.flatDiagnostic.diagnose(values, self.characteristics)
 
             if self.verbose:
                 self._printRiskAssessment()
 
-            # 5. 모델 선택
-            self._progress('모델 선택 중...')
+            self._progress('Selecting models...')
             selectedModels = self._selectNativeModels()
 
             if self.verbose:
-                print(f"선택된 모델: {selectedModels}")
-
-            # 6. 학습/테스트 분할
+                print(f"Selected models: {selectedModels}")
             splitIdx = int(n * trainRatio)
             trainData = values[:splitIdx]
             testData = values[splitIdx:]
             testSteps = len(testData)
 
-            # 드롭 패턴 감지되면 학습 데이터에서 드롭 제거
+            # Remove drops from training data if periodic drop detected
             trainDataForModel = trainData
             trainDropDetector = None
             if hasPeriodicDrop:
@@ -291,10 +283,9 @@ class Vectrix:
                 trainDropDetector.dropRatio = self.dropDetector.dropRatio
                 trainDataForModel = trainDropDetector.removeDrops(trainData)
                 if self.verbose:
-                    print("[드롭 감지] 학습 데이터에서 드롭 구간 보간 처리")
+                    print("[Drop detected] Drop sections interpolated in training data")
 
-            # 7. 모델 평가
-            self._progress('모델 학습 중...')
+            self._progress('Training models...')
             self.modelResults = self._evaluateNativeModels(
                 selectedModels, trainDataForModel, testData, testSteps, period,
                 applyDropPattern=hasPeriodicDrop, trainLength=len(trainData)
@@ -303,18 +294,17 @@ class Vectrix:
             if not self.modelResults:
                 return ForecastResult(
                     success=False,
-                    error='모든 모델 평가 실패'
+                    error='All model evaluations failed'
                 )
 
-            # 8. 최종 예측
-            self._progress('예측 생성 중...')
+            self._progress('Generating forecasts...')
             valuesForModel = self.dropDetector.removeDrops(values) if hasPeriodicDrop else values
             result = self._generateFinalPrediction(
                 valuesForModel, steps, workDf, dateCol, period,
                 applyDropPattern=hasPeriodicDrop, originalLength=n
             )
 
-            self._progress('완료!')
+            self._progress('Done!')
             return result
 
         except Exception as e:
@@ -324,21 +314,24 @@ class Vectrix:
             return ForecastResult(success=False, error=str(e))
 
     def _selectNativeModels(self) -> List[str]:
-        """자체 모델 선택"""
+        """Select native models based on data characteristics."""
         riskLevel = self.flatRisk.riskLevel if self.flatRisk else RiskLevel.LOW
         n = self.characteristics.length if self.characteristics else 100
         period = self.characteristics.period if self.characteristics else 7
         hasMultiSeason = self.characteristics.hasMultipleSeasonality if self.characteristics else False
         seasonalStrength = self.characteristics.seasonalStrength if self.characteristics else 0.0
+        freq = self.characteristics.frequency.value if self.characteristics else 'D'
 
-        if (hasMultiSeason or seasonalStrength > 0.4) and n >= 60:
-            models = ['four_theta', 'auto_mstl', 'esn', 'dtsf']
+        if freq == 'H' and n >= 100:
+            models = ['dot', 'auto_ces', 'dtsf', 'auto_mstl', 'esn']
+        elif (hasMultiSeason or seasonalStrength > 0.4) and n >= 60:
+            models = ['dot', 'auto_ces', 'four_theta', 'auto_mstl', 'dtsf']
         elif riskLevel in [RiskLevel.CRITICAL, RiskLevel.HIGH]:
-            models = ['four_theta', 'seasonal_naive', 'ets_aaa', 'esn']
+            models = ['dot', 'four_theta', 'seasonal_naive', 'ets_aaa', 'esn']
         elif riskLevel == RiskLevel.MEDIUM:
-            models = ['four_theta', 'esn', 'auto_ets', 'dtsf']
+            models = ['dot', 'auto_ces', 'four_theta', 'esn', 'dtsf']
         else:
-            models = ['four_theta', 'esn', 'auto_ets', 'auto_arima']
+            models = ['dot', 'auto_ces', 'four_theta', 'auto_ets', 'auto_arima']
 
         if n < 30:
             models = [m for m in models if m not in ['auto_arima', 'dtsf']]
@@ -346,7 +339,7 @@ class Vectrix:
             models = [m for m in models if m not in ['ets_aaa', 'mstl', 'auto_mstl']]
 
         if not models:
-            models = ['four_theta', 'esn']
+            models = ['dot', 'auto_ces']
 
         return models
 
@@ -360,7 +353,7 @@ class Vectrix:
         applyDropPattern: bool = False,
         trainLength: int = 0
     ) -> Dict[str, ModelResult]:
-        """자체 모델 평가 (병렬)"""
+        """Evaluate native models (parallel)."""
         results = {}
         totalModels = len(modelIds)
         self._fittedModels = {}
@@ -410,20 +403,20 @@ class Vectrix:
         if nWorkers <= 1:
             for i, modelId in enumerate(modelIds):
                 try:
-                    self._progress(f'{self.NATIVE_MODELS.get(modelId, {}).get("name", modelId)} 학습 중...')
+                    self._progress(f'Training {self.NATIVE_MODELS.get(modelId, {}).get("name", modelId)}...')
                     mid, result, fittedModel = evaluateSingle(modelId)
                     results[mid] = result
                     if fittedModel is not None:
                         self._fittedModels[mid] = fittedModel
-                    self._progress(f'{result.modelName} 완료 ({i+1}/{totalModels})')
+                    self._progress(f'{result.modelName} done ({i+1}/{totalModels})')
                     if self.verbose:
                         flatMark = "⚠️" if result.flatInfo and result.flatInfo.isFlat else "✓"
                         print(f"  {flatMark} {modelId}: MAPE={result.mape:.2f}%")
                 except Exception as e:
                     if self.verbose:
-                        print(f"  ✗ {modelId} 오류: {str(e)[:50]}")
+                        print(f"  ✗ {modelId} error: {str(e)[:50]}")
         else:
-            self._progress(f'{totalModels}개 모델 병렬 학습 중...')
+            self._progress(f'Training {totalModels} models in parallel...')
             with ThreadPoolExecutor(max_workers=nWorkers) as executor:
                 futureMap = {
                     executor.submit(evaluateSingle, mid): mid for mid in modelIds
@@ -437,13 +430,13 @@ class Vectrix:
                         results[mid] = result
                         if fittedModel is not None:
                             self._fittedModels[mid] = fittedModel
-                        self._progress(f'{result.modelName} 완료 ({completed}/{totalModels})')
+                        self._progress(f'{result.modelName} done ({completed}/{totalModels})')
                         if self.verbose:
                             flatMark = "⚠️" if result.flatInfo and result.flatInfo.isFlat else "✓"
                             print(f"  {flatMark} {modelId}: MAPE={result.mape:.2f}%")
                     except Exception as e:
                         if self.verbose:
-                            print(f"  ✗ {modelId} 오류: {str(e)[:50]}")
+                            print(f"  ✗ {modelId} error: {str(e)[:50]}")
 
         return results
 
@@ -454,7 +447,7 @@ class Vectrix:
         steps: int,
         period: int
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, Any]:
-        """자체 모델로 학습 및 예측 (모델 객체도 반환)"""
+        """Fit and predict with a native model (also returns the fitted model object)."""
 
         if modelId == 'auto_ets':
             model = AutoETS(period=period)
@@ -598,7 +591,7 @@ class Vectrix:
         steps: int,
         period: int
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """자체 모델로 학습 및 예측"""
+        """Fit and predict with a native model."""
         pred, lo, hi, _ = self._fitAndPredictNativeWithCache(
             modelId, trainData, steps, period
         )
@@ -610,7 +603,7 @@ class Vectrix:
         steps: int,
         period: int
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """자체 구현 Seasonal Naive"""
+        """Self-implemented Seasonal Naive."""
         n = len(values)
 
         if n < period:
@@ -631,16 +624,15 @@ class Vectrix:
         steps: int,
         period: int
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """캐시된 모델의 파라미터를 재사용하여 전체 데이터로 빠르게 재학습"""
+        """Re-fit on full data using cached model parameters for speed."""
         cachedModel = getattr(self, '_fittedModels', {}).get(modelId)
 
         if cachedModel is None:
-            # 캐시 없으면 새로 학습
+            # No cache, fit from scratch
             return self._fitAndPredictNative(modelId, allValues, steps, period)
 
         try:
             if modelId == 'auto_ets' and hasattr(cachedModel, 'bestModel') and cachedModel.bestModel is not None:
-                # 최적 ETS 구조 재사용 (파라미터 최적화 건너뜀)
                 bm = cachedModel.bestModel
                 model = ETSModel(
                     errorType=bm.errorType, trendType=bm.trendType,
@@ -653,20 +645,20 @@ class Vectrix:
                 return model.predict(steps)
 
             elif modelId == 'auto_arima' and hasattr(cachedModel, 'bestOrder') and cachedModel.bestOrder is not None:
-                # 최적 ARIMA order 재사용
+                # Reuse optimal ARIMA order
                 model = ARIMAModel(order=cachedModel.bestOrder)
                 model.fit(allValues)
                 return model.predict(steps)
 
             elif modelId == 'theta' and hasattr(cachedModel, 'bestTheta'):
-                # 최적 theta 재사용 (6개 시도 건너뜀)
+                # Reuse optimal theta value
                 from .engine.theta import ThetaModel
                 model = ThetaModel(theta=cachedModel.bestTheta, period=period)
                 model.fit(allValues)
                 return model.predict(steps)
 
             elif modelId in ('ets_aan', 'ets_aaa'):
-                # 최적화된 파라미터 재사용
+                # Reuse optimized parameters
                 bm = cachedModel
                 model = ETSModel(
                     errorType=bm.errorType, trendType=bm.trendType,
@@ -679,14 +671,14 @@ class Vectrix:
                 return model.predict(steps)
 
             elif modelId == 'auto_mstl':
-                # MSTL: 감지된 주기 재사용
+                # MSTL: reuse detected periods
                 if hasattr(cachedModel, 'detectedPeriods'):
                     from .engine.mstl import MSTL as MSTLEngine
                     model = MSTLEngine(periods=cachedModel.detectedPeriods, autoDetect=False)
                     model.fit(allValues)
                     return model.predict(steps)
 
-            # 기타 모델이나 실패 시 새로 학습
+            # Other models or cache miss — train from scratch
             return self._fitAndPredictNative(modelId, allValues, steps, period)
 
         except Exception:
@@ -702,22 +694,22 @@ class Vectrix:
         applyDropPattern: bool = False,
         originalLength: int = 0
     ) -> ForecastResult:
-        """최종 예측 생성 - 캐시된 모델 파라미터로 빠르게 전체 데이터 재학습"""
+        """Generate final prediction — fast refit on full data using cached model parameters."""
         warnings = list(self.flatRisk.warnings) if self.flatRisk else []
 
         if applyDropPattern and self.dropDetector and self.dropDetector.hasPeriodicDrop():
             warnings.append(
-                f"정기 드롭 패턴 감지: {self.dropDetector.dropPeriod}일 주기, "
-                f"{self.dropDetector.dropDuration}일 지속 (E009 적용)"
+                f"Periodic drop pattern detected: {self.dropDetector.dropPeriod}-day cycle, "
+                f"{self.dropDetector.dropDuration}-day duration (E009 applied)"
             )
 
-        # 유효한 모델 필터링 (일직선 아닌 모델만)
+        # Filter valid models (exclude flat predictions)
         validModels = [
             mid for mid, res in self.modelResults.items()
             if res.isValid and (not res.flatInfo or not res.flatInfo.isFlat)
         ]
 
-        # MAPE 기준 최적 모델 선택
+        # Select best model by MAPE
         if validModels:
             bestModelId = min(
                 validModels,
@@ -732,18 +724,18 @@ class Vectrix:
         bestResult = self.modelResults[bestModelId]
         bestModelName = bestResult.modelName
 
-        # 캐시된 파라미터로 빠르게 재학습 (최적화 건너뜀)
+        # Fast refit using cached parameters (skip optimization)
         predictions, lower95, upper95 = self._refitModelOnFullData(
             bestModelId, allValues, steps, period
         )
 
-        # E009: 드롭 패턴 재적용
+        # E009: reapply drop pattern
         if applyDropPattern and self.dropDetector and self.dropDetector.hasPeriodicDrop():
             predictions = self.dropDetector.applyDropPatternSmart(predictions, originalLength)
             lower95 = self.dropDetector.applyDropPatternSmart(lower95, originalLength)
             upper95 = self.dropDetector.applyDropPatternSmart(upper95, originalLength)
 
-        # 앙상블 (캐시된 모델로 빠르게)
+        # Ensemble (fast refit with cached models)
         if len(validModels) >= 2:
             try:
                 modelPredictions = {}
@@ -751,7 +743,7 @@ class Vectrix:
                     pred, _, _ = self._refitModelOnFullData(mid, allValues, steps, period)
                     modelPredictions[mid] = pred
 
-                # 가중 앙상블
+                # Weighted ensemble
                 weights = []
                 for mid in modelPredictions.keys():
                     mape = self.modelResults[mid].mape
@@ -770,7 +762,7 @@ class Vectrix:
                 if abs(ensembleStd - origStd) < abs(singleStd - origStd):
                     predictions = ensemblePred
                     bestModelId = 'ensemble'
-                    bestModelName = '변동성 보존 앙상블 (Native)'
+                    bestModelName = 'Variability-Preserving Ensemble (Native)'
 
                     if applyDropPattern and self.dropDetector and self.dropDetector.hasPeriodicDrop():
                         predictions = self.dropDetector.applyDropPatternSmart(predictions, originalLength)
@@ -786,7 +778,7 @@ class Vectrix:
             except Exception:
                 pass
 
-        # 일직선 감지 및 보정
+        # Flat prediction detection and correction
         dropApplied = False
         if applyDropPattern and self.dropDetector and self.dropDetector.hasPeriodicDrop():
             willOccur, _ = self.dropDetector.willDropOccurInPrediction(originalLength, steps)
@@ -799,7 +791,7 @@ class Vectrix:
             )
             warnings.append(flatInfo.message)
 
-        # 날짜 생성
+        # Generate future dates
         lastDate = pd.to_datetime(df[dateCol].iloc[-1])
         freq = self.characteristics.frequency.value if self.characteristics else 'D'
         _FREQ_MAP = {'M': 'ME', 'Q': 'QE', 'Y': 'YE', 'H': 'h'}
@@ -824,7 +816,7 @@ class Vectrix:
         )
 
     def _prepareData(self, df: pd.DataFrame, dateCol: str, valueCol: str) -> pd.DataFrame:
-        """데이터 전처리"""
+        """Data preprocessing."""
         workDf = df.copy()
         workDf[dateCol] = pd.to_datetime(workDf[dateCol])
         workDf = workDf.sort_values(dateCol).reset_index(drop=True)
@@ -836,11 +828,11 @@ class Vectrix:
         return workDf
 
     def _generateInterpretation(self) -> Dict[str, Any]:
-        """해석 생성"""
+        """Generate interpretation summary."""
         c = self.characteristics
         return {
-            'engine': 'Vectrix (100% 자체 구현)',
-            'dataQuality': '양호' if c.predictabilityScore >= 60 else '보통' if c.predictabilityScore >= 40 else '주의 필요',
+            'engine': 'Vectrix (100% self-implemented)',
+            'dataQuality': 'Good' if c.predictabilityScore >= 60 else 'Fair' if c.predictabilityScore >= 40 else 'Caution',
             'predictability': c.predictabilityScore,
             'dependencies': ['numpy', 'numba (optional)', 'scipy.optimize', 'pandas']
         }
@@ -854,11 +846,11 @@ class Vectrix:
     def _printRiskAssessment(self):
         r = self.flatRisk
         print("\n" + "=" * 50)
-        print("일직선 예측 위험도 평가")
+        print("Flat Prediction Risk Assessment")
         print("=" * 50)
-        print(f"위험 점수: {r.riskScore:.2f}")
-        print(f"위험 수준: {r.riskLevel.value}")
-        print(f"권장 모델: {r.recommendedModels}")
+        print(f"Risk Score: {r.riskScore:.2f}")
+        print(f"Risk Level: {r.riskLevel.value}")
+        print(f"Recommended Models: {r.recommendedModels}")
         print("=" * 50 + "\n")
 
     def analyze(
@@ -868,7 +860,7 @@ class Vectrix:
         valueCol: str
     ) -> Dict[str, Any]:
         """
-        데이터 분석만 수행 (예측 없이)
+        Run data analysis only (no forecasting).
 
         Returns
         -------

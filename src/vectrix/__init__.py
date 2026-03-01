@@ -69,7 +69,7 @@ from .types import (
 )
 from .vectrix import Vectrix
 
-__version__ = "0.0.3"
+__version__ = "0.0.4"
 __all__ = [
     "Vectrix",
     "ForecastResult",
@@ -96,7 +96,7 @@ __all__ = [
     "ConstraintAwareForecaster",
     "Constraint",
     "ForecastDNA",
-    # v3.0 - Easy API (초보자 간편 인터페이스)
+    # v3.0 - Easy API
     "forecast",
     "analyze",
     "regress",

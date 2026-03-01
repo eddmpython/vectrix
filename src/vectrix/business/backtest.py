@@ -15,7 +15,7 @@ from ..engine.turbo import TurboCore
 
 @dataclass
 class BacktestFold:
-    """백테스트 폴드 결과"""
+    """Backtest fold result"""
     fold: int = 0
     trainSize: int = 0
     testSize: int = 0
@@ -30,7 +30,7 @@ class BacktestFold:
 
 @dataclass
 class BacktestResult:
-    """백테스트 종합 결과"""
+    """Backtest aggregate result"""
     nFolds: int = 0
     avgMAPE: float = 0.0
     avgRMSE: float = 0.0
@@ -45,7 +45,7 @@ class BacktestResult:
 
 class Backtester:
     """
-    시계열 백테스터
+    Time series backtester
 
     Usage:
         >>> bt = Backtester(nFolds=5, horizon=30)
@@ -72,14 +72,14 @@ class Backtester:
         modelFactory: Callable
     ) -> BacktestResult:
         """
-        백테스트 실행
+        Run backtest
 
         Parameters
         ----------
         y : np.ndarray
-            전체 시계열
+            Full time series
         modelFactory : Callable
-            모델 생성 함수 (fit/predict 메서드 필수)
+            Model factory function (must have fit/predict methods)
         """
         n = len(y)
         needed = self.minTrainSize + self.horizon
@@ -156,13 +156,13 @@ class Backtester:
     def summary(self, result: BacktestResult, locale: str = 'ko') -> str:
         if locale == 'ko':
             lines = [
-                f"백테스트 결과 ({result.nFolds}개 폴드)",
-                f"  평균 MAPE: {result.avgMAPE:.2f}% (±{result.mapeStd:.2f}%)",
-                f"  평균 RMSE: {result.avgRMSE:.2f}",
-                f"  평균 MAE: {result.avgMAE:.2f}",
-                f"  평균 편향: {result.avgBias:.2f}",
-                f"  최고 폴드: #{result.bestFold} (MAPE {result.folds[result.bestFold].mape:.2f}%)" if result.folds else "",
-                f"  최악 폴드: #{result.worstFold} (MAPE {result.folds[result.worstFold].mape:.2f}%)" if result.folds else "",
+                f"Backtest Results ({result.nFolds} folds)",
+                f"  Avg MAPE: {result.avgMAPE:.2f}% (+-{result.mapeStd:.2f}%)",
+                f"  Avg RMSE: {result.avgRMSE:.2f}",
+                f"  Avg MAE: {result.avgMAE:.2f}",
+                f"  Avg Bias: {result.avgBias:.2f}",
+                f"  Best fold: #{result.bestFold} (MAPE {result.folds[result.bestFold].mape:.2f}%)" if result.folds else "",
+                f"  Worst fold: #{result.worstFold} (MAPE {result.folds[result.worstFold].mape:.2f}%)" if result.folds else "",
             ]
         else:
             lines = [

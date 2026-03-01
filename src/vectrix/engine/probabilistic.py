@@ -12,7 +12,7 @@ from scipy.stats import norm
 
 
 class ProbabilisticForecaster:
-    """확률적 예측 (분위수, CRPS)"""
+    """Probabilistic forecasting (quantiles, CRPS)"""
 
     QUANTILES = [0.1, 0.2, 0.25, 0.3, 0.4, 0.5, 0.6, 0.7, 0.75, 0.8, 0.9]
 
@@ -23,7 +23,7 @@ class ProbabilisticForecaster:
         steps: int,
         quantiles: Optional[List[float]] = None,
     ) -> Dict[float, np.ndarray]:
-        """잔차 분포 기반 분위수 예측"""
+        """Quantile forecast based on residual distribution"""
         if quantiles is None:
             quantiles = self.QUANTILES
 
@@ -56,7 +56,7 @@ class ProbabilisticForecaster:
         nBoot: int = 200,
         quantiles: Optional[List[float]] = None,
     ) -> Dict[float, np.ndarray]:
-        """부트스트랩 기반 분위수 예측"""
+        """Bootstrap-based quantile forecast"""
         if quantiles is None:
             quantiles = self.QUANTILES
 
@@ -127,7 +127,7 @@ class ProbabilisticForecaster:
         predictedMeans: np.ndarray,
         predictedStds: np.ndarray,
     ) -> np.ndarray:
-        """배열 CRPS"""
+        """Array CRPS"""
         actuals = np.asarray(actuals, dtype=np.float64)
         predictedMeans = np.asarray(predictedMeans, dtype=np.float64)
         predictedStds = np.asarray(predictedStds, dtype=np.float64)
@@ -148,7 +148,7 @@ class ProbabilisticForecaster:
         predicted: float,
         quantile: float,
     ) -> float:
-        """핀볼 손실 (Pinball Loss)"""
+        """Pinball Loss"""
         if not np.isfinite(actual) or not np.isfinite(predicted):
             return np.nan
 
@@ -162,7 +162,7 @@ class ProbabilisticForecaster:
         upper: float,
         alpha: float = 0.05,
     ) -> float:
-        """윙클러 점수"""
+        """Winkler Score"""
         if not np.isfinite(actual) or not np.isfinite(lower) or not np.isfinite(upper):
             return np.nan
 

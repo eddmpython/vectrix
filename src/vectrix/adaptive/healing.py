@@ -1,14 +1,14 @@
 """
 Self-Healing Forecast
 
-예측이 생성된 후 실제 데이터가 도착하면, 예측 오차를 실시간으로
-모니터링하고 자동으로 교정하는 '살아있는 예측' 시스템.
+After forecasts are generated and actual data arrives, this system monitors
+forecast errors in real-time and automatically corrects them - a 'living forecast' system.
 
-핵심 알고리즘:
-- CUSUM (Cumulative Sum): 체계적 편향(bias) 감지
-- EWMA (Exponentially Weighted Moving Average): 최근 오차 추세 추적
-- Adaptive Conformal Correction: 분포 가정 없는 예측 교정
-- 온라인 잔차 학습 + 예측 업데이트
+Core algorithms:
+- CUSUM (Cumulative Sum): Detects systematic bias
+- EWMA (Exponentially Weighted Moving Average): Tracks recent error trends
+- Adaptive Conformal Correction: Distribution-free forecast correction
+- Online residual learning + forecast update
 
 Usage:
     >>> from vectrix.adaptive.healing import SelfHealingForecast
@@ -25,16 +25,16 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 
 # ---------------------------------------------------------------------------
-# 데이터 클래스
+# Data Classes
 # ---------------------------------------------------------------------------
 
 @dataclass
 class HealingStatus:
     """
-    Self-Healing 예측의 현재 상태 스냅샷
+    Snapshot of the current Self-Healing forecast state
 
-    observe() 호출 시마다 반환되며, 예측의 건강 상태,
-    드리프트 감지 결과, 교정 적용 여부 등을 포함한다.
+    Returned on each observe() call, containing forecast health status,
+    drift detection results, and correction application status.
     """
     health: str                         # 'healthy', 'degrading', 'critical', 'healed'
     healthScore: float                  # 0-100
@@ -44,29 +44,29 @@ class HealingStatus:
     driftDirection: Optional[str]       # 'upward_bias', 'downward_bias', None
     driftMagnitude: float
     correctionApplied: bool
-    biasEstimate: float                 # 추정 편향
-    mape: float                         # 현재까지의 MAPE
-    mae: float                          # 현재까지의 MAE
+    biasEstimate: float                 # Estimated bias
+    mape: float                         # Current MAPE
+    mae: float                          # Current MAE
     refitRecommended: bool
     refitReason: Optional[str]
-    message: str                        # 사람이 읽을 수 있는 상태 메시지
+    message: str                        # Human-readable status message
 
 
 @dataclass
 class HealingReport:
     """
-    Self-Healing 예측의 전체 치유 과정 보고서
+    Full healing process report for Self-Healing forecast
 
-    getReport() 호출 시 반환되며, 전체 치유 과정의 요약,
-    교정 전후 MAPE 비교, 드리프트 이벤트 목록 등을 포함한다.
+    Returned by getReport(), containing summary of the entire healing process,
+    before/after MAPE comparison, drift event list, etc.
     """
     overallHealth: str
     healthScore: float
     totalObserved: int
     totalCorrected: int
-    originalMape: float                 # 교정 전 MAPE
-    healedMape: float                   # 교정 후 MAPE
-    improvementPct: float               # 개선 비율
+    originalMape: float                 # Pre-correction MAPE
+    healedMape: float                   # Post-correction MAPE
+    improvementPct: float               # Improvement ratio
     corrections: List[Dict] = field(default_factory=list)
     healingLog: List[str] = field(default_factory=list)
     driftEvents: List[Dict] = field(default_factory=list)
@@ -81,38 +81,38 @@ class HealingReport:
 
 class SelfHealingForecast:
     """
-    자가 치유 예측 시스템
+    Self-healing forecast system
 
-    예측이 생성된 후 실제 데이터가 순차적으로 도착하면,
-    예측 오차를 실시간으로 모니터링하고 자동으로 교정한다.
+    When actual data arrives sequentially after forecasts are generated,
+    monitors forecast errors in real-time and automatically corrects them.
 
-    기능:
-    1. 실시간 예측 오차 모니터링
-    2. CUSUM + EWMA 기반 드리프트 감지
-    3. Adaptive Conformal Prediction 기반 자동 교정
-    4. 온라인 잔차 학습 + 예측 업데이트
-    5. 자동 재학습 트리거 판단
+    Features:
+    1. Real-time forecast error monitoring
+    2. CUSUM + EWMA based drift detection
+    3. Adaptive Conformal Prediction based automatic correction
+    4. Online residual learning + forecast update
+    5. Automatic refit trigger determination
 
     Parameters
     ----------
     predictions : np.ndarray
-        원래 예측값 (길이 H)
+        Original predictions (length H)
     lower95 : np.ndarray
-        원래 95% 하한 (길이 H)
+        Original 95% lower bound (length H)
     upper95 : np.ndarray
-        원래 95% 상한 (길이 H)
+        Original 95% upper bound (length H)
     historicalData : np.ndarray
-        학습에 사용된 과거 데이터
+        Historical data used for training
     period : int
-        계절 주기 (기본값 7)
+        Seasonal period (default 7)
     healingMode : str
-        교정 강도. 'conservative', 'adaptive', 'aggressive' 중 택 1
+        Correction intensity. One of 'conservative', 'adaptive', 'aggressive'
 
     Usage:
         >>> healer = SelfHealingForecast(original_forecast, lower, upper, data)
-        >>> healer.observe(actual_values)      # 실제 데이터 도착
-        >>> updated = healer.getUpdatedForecast()  # 교정된 예측
-        >>> healer.getStatus()                 # 드리프트 감지, 경보, 건강 상태
+        >>> healer.observe(actual_values)      # Actual data arrives
+        >>> updated = healer.getUpdatedForecast()  # Corrected forecast
+        >>> healer.getStatus()                 # Drift detection, alerts, health status
     """
 
     _VALID_MODES = ('conservative', 'adaptive', 'aggressive')
@@ -127,7 +127,7 @@ class SelfHealingForecast:
         healingMode: str = 'adaptive',
     ):
         # ------------------------------------------------------------------
-        # 입력 검증
+        # Input validation
         # ------------------------------------------------------------------
         predictions = np.asarray(predictions, dtype=np.float64)
         lower95 = np.asarray(lower95, dtype=np.float64)
@@ -135,26 +135,26 @@ class SelfHealingForecast:
         historicalData = np.asarray(historicalData, dtype=np.float64)
 
         if predictions.ndim != 1 or lower95.ndim != 1 or upper95.ndim != 1:
-            raise ValueError("predictions, lower95, upper95는 1차원 배열이어야 합니다.")
+            raise ValueError("predictions, lower95, upper95 must be 1-dimensional arrays.")
         if len(predictions) == 0:
-            raise ValueError("predictions가 비어있습니다.")
+            raise ValueError("predictions is empty.")
         if len(predictions) != len(lower95) or len(predictions) != len(upper95):
             raise ValueError(
-                "predictions, lower95, upper95의 길이가 같아야 합니다. "
-                f"받은 길이: {len(predictions)}, {len(lower95)}, {len(upper95)}"
+                "predictions, lower95, upper95 must have the same length. "
+                f"Received lengths: {len(predictions)}, {len(lower95)}, {len(upper95)}"
             )
         if historicalData.ndim != 1 or len(historicalData) < 2:
-            raise ValueError("historicalData는 길이 2 이상의 1차원 배열이어야 합니다.")
+            raise ValueError("historicalData must be a 1-dimensional array with length >= 2.")
         if period < 1:
-            raise ValueError(f"period는 1 이상이어야 합니다. 받은 값: {period}")
+            raise ValueError(f"period must be at least 1. Received: {period}")
         if healingMode not in self._VALID_MODES:
             raise ValueError(
-                f"healingMode는 {self._VALID_MODES} 중 하나여야 합니다. "
-                f"받은 값: '{healingMode}'"
+                f"healingMode must be one of {self._VALID_MODES}. "
+                f"Received: '{healingMode}'"
             )
 
         # ------------------------------------------------------------------
-        # 원래 예측 저장 (불변)
+        # Store original forecasts (immutable)
         # ------------------------------------------------------------------
         self.originalPredictions = predictions.copy()
         self.currentPredictions = predictions.copy()
@@ -168,32 +168,32 @@ class SelfHealingForecast:
         self.totalSteps = len(predictions)
 
         # ------------------------------------------------------------------
-        # 참조 통계량 (과거 데이터 기반)
+        # Reference statistics (based on historical data)
         # ------------------------------------------------------------------
         self._referenceStd = float(np.std(historicalData))
         if self._referenceStd < 1e-10:
-            # 데이터가 거의 상수인 경우 fallback
+            # Fallback when data is nearly constant
             self._referenceStd = float(np.mean(np.abs(historicalData))) * 0.01 + 1e-6
         self._referenceMean = float(np.mean(historicalData))
 
-        # 초기 예측 구간 평균 너비 (참조용)
+        # Initial mean forecast interval width (for reference)
         self._originalMeanWidth = float(np.mean(upper95 - lower95))
 
         # ------------------------------------------------------------------
-        # 관측 데이터 추적
+        # Observed data tracking
         # ------------------------------------------------------------------
         self.observedValues: List[float] = []
         self.observedCount: int = 0
 
         # ------------------------------------------------------------------
-        # 오차 추적
+        # Error tracking
         # ------------------------------------------------------------------
-        self.errors: List[float] = []            # actual - prediction (부호 있음)
+        self.errors: List[float] = []            # actual - prediction (signed)
         self.absErrors: List[float] = []         # |actual - prediction|
-        self.signedBias: List[float] = []        # 누적 편향 추적용
+        self.signedBias: List[float] = []        # Cumulative bias tracking
 
         # ------------------------------------------------------------------
-        # 드리프트 감지 (CUSUM + EWMA)
+        # Drift detection (CUSUM + EWMA)
         # ------------------------------------------------------------------
         self.cusumPos: float = 0.0
         self.cusumNeg: float = 0.0
@@ -205,13 +205,13 @@ class SelfHealingForecast:
         self._driftEvents: List[Dict] = []
 
         # ------------------------------------------------------------------
-        # 교정 이력
+        # Correction history
         # ------------------------------------------------------------------
         self.corrections: List[Dict] = []
         self.healingLog: List[str] = []
 
         # ------------------------------------------------------------------
-        # 건강 상태
+        # Health status
         # ------------------------------------------------------------------
         self.health: str = 'healthy'
         self.healthScore: float = 100.0
@@ -219,38 +219,38 @@ class SelfHealingForecast:
         self.refitReason: Optional[str] = None
         self.refitRecommendedAt: Optional[int] = None
 
-        # 초기 로그
+        # Initial log
         self.healingLog.append(
-            f"[init] SelfHealingForecast 생성: "
+            f"[init] SelfHealingForecast created: "
             f"steps={self.totalSteps}, mode={healingMode}, "
             f"refStd={self._referenceStd:.4f}"
         )
 
     # ======================================================================
-    # 공개 API
+    # Public API
     # ======================================================================
 
     def observe(self, actuals: np.ndarray) -> HealingStatus:
         """
-        실제 데이터를 관측하고 예측을 자동 업데이트
+        Observe actual data and automatically update forecast
 
-        새로 도착한 실제 관측값을 1개 또는 여러 개 입력하면,
-        내부적으로 오차 분석 -> 드리프트 감지 -> 교정을 수행한다.
+        When new actual observations (one or multiple) arrive, internally
+        performs error analysis -> drift detection -> correction.
 
         Parameters
         ----------
         actuals : np.ndarray
-            새로 도착한 실제 관측값. 스칼라 또는 1차원 배열.
+            Newly arrived actual observations. Scalar or 1-dimensional array.
 
         Returns
         -------
         HealingStatus
-            현재 치유 상태 스냅샷
+            Current healing status snapshot
 
         Raises
         ------
         ValueError
-            관측값이 예측 범위를 초과하는 경우
+            When observations exceed forecast range
         """
         actuals = np.atleast_1d(np.asarray(actuals, dtype=np.float64)).ravel()
 
@@ -260,7 +260,7 @@ class SelfHealingForecast:
         remaining = self.totalSteps - self.observedCount
         if len(actuals) > remaining:
             raise ValueError(
-                f"관측값 {len(actuals)}개가 남은 예측 스텝 {remaining}개를 초과합니다."
+                f"{len(actuals)} observations exceed {remaining} remaining forecast steps."
             )
 
         correctionApplied = False
@@ -269,7 +269,7 @@ class SelfHealingForecast:
             idx = self.observedCount
             predicted = self.originalPredictions[idx]
 
-            # 1. 오차 계산 (actual - predicted: 양수 = 과소예측)
+            # 1. Compute error (actual - predicted: positive = under-prediction)
             error = float(actual - predicted)
             absError = abs(error)
 
@@ -277,52 +277,52 @@ class SelfHealingForecast:
             self.errors.append(error)
             self.absErrors.append(absError)
 
-            # 누적 편향 추적
+            # Cumulative bias tracking
             cumBias = float(np.mean(self.errors))
             self.signedBias.append(cumBias)
 
-            # 2. CUSUM 업데이트
+            # 2. CUSUM update
             self._updateCUSUM(error)
 
-            # 3. EWMA 업데이트
+            # 3. EWMA update
             self._updateEWMA(error)
 
             self.observedCount += 1
 
-            # 4. 건강 상태 평가
+            # 4. Health status evaluation
             self._evaluateHealth()
 
-            # 5. 로그 기록
+            # 5. Log entry
             self.healingLog.append(
                 f"[step {idx}] actual={actual:.4f}, pred={predicted:.4f}, "
                 f"error={error:.4f}, health={self.health}({self.healthScore:.1f})"
             )
 
-        # 6. 교정 적용 (최소 2개 관측 이후)
+        # 6. Apply correction (after at least 2 observations)
         if self.observedCount >= 2:
             self._applyCorrection()
             correctionApplied = True
 
-        # 7. 재학습 권장 여부 판단
+        # 7. Evaluate refit recommendation
         self._evaluateRefitNeed()
 
         return self._buildStatus(correctionApplied)
 
     def getUpdatedForecast(self) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
-        교정된 예측값, 하한, 상한 반환
+        Return corrected predictions, lower bound, and upper bound
 
         Returns
         -------
         Tuple[np.ndarray, np.ndarray, np.ndarray]
-            (predictions, lower95, upper95) - 각각 길이 H 배열.
-            관측된 스텝은 실제값으로, 나머지는 교정된 예측으로 채워진다.
+            (predictions, lower95, upper95) - each array of length H.
+            Observed steps are filled with actual values, rest with corrected forecasts.
         """
         preds = self.currentPredictions.copy()
         lower = self.currentLower.copy()
         upper = self.currentUpper.copy()
 
-        # 이미 관측된 스텝은 실제값으로 덮어쓰기
+        # Overwrite observed steps with actual values
         for i, val in enumerate(self.observedValues):
             preds[i] = val
             lower[i] = val
@@ -332,41 +332,39 @@ class SelfHealingForecast:
 
     def getStatus(self) -> HealingStatus:
         """
-        현재 상태 스냅샷 반환
+        Return current status snapshot
 
         Returns
         -------
         HealingStatus
-            현재 치유 상태
+            Current healing status
         """
         return self._buildStatus(correctionApplied=len(self.corrections) > 0)
 
     def getReport(self) -> HealingReport:
         """
-        전체 치유 과정 보고서 생성
+        Generate full healing process report
 
         Returns
         -------
         HealingReport
-            치유 과정 요약, 교정 전후 비교, 드리프트 이벤트 등
+            Healing process summary, before/after comparison, drift events, etc.
         """
-        # 교정 전 MAPE (원래 예측 vs 실제)
+        # Pre-correction MAPE (original prediction vs actual)
         originalMape = self._computeMape(
             self.originalPredictions[:self.observedCount],
             np.array(self.observedValues)
         )
 
-        # 교정 후 MAPE (교정된 예측 vs 실제)
-        # 단, 교정은 '이후' 스텝에 적용되므로 직접적 비교는 제한적.
-        # 여기서는 현재까지의 교정 효과를 estimated로 계산
-        healedMape = originalMape  # 기본값
+        # Post-correction MAPE (corrected prediction vs actual)
+        # Note: corrections apply to 'future' steps, so direct comparison is limited.
+        # Here we compute estimated correction effect
+        healedMape = originalMape  # Default
 
         if len(self.corrections) > 0 and self.observedCount > 0:
-            # 각 교정 스텝에서 corrected prediction과 actual 비교
+            # Compare corrected prediction with actual at each correction step
             healedErrors = []
             for i, actual in enumerate(self.observedValues):
-                # i번째 관측 직전의 currentPrediction을 사용
-                # (교정이 이전 관측들 기반으로 i번째 스텝을 수정했을 수 있음)
                 correctedPred = self.currentPredictions[i]
                 if abs(actual) > 1e-10:
                     healedErrors.append(abs(correctedPred - actual) / abs(actual))
@@ -374,7 +372,7 @@ class SelfHealingForecast:
                     healedErrors.append(abs(correctedPred - actual))
             healedMape = float(np.mean(healedErrors) * 100) if healedErrors else originalMape
 
-        # 개선율
+        # Improvement rate
         if originalMape > 1e-10:
             improvementPct = max(0.0, (originalMape - healedMape) / originalMape * 100)
         else:
@@ -400,8 +398,8 @@ class SelfHealingForecast:
 
     def reset(self) -> None:
         """
-        관측 데이터 및 교정 이력 초기화.
-        원래 예측값은 유지한다.
+        Reset observed data and correction history.
+        Original predictions are preserved.
         """
         self.currentPredictions = self.originalPredictions.copy()
         self.currentLower = self.originalLower.copy()
@@ -430,24 +428,24 @@ class SelfHealingForecast:
         self.refitReason = None
         self.refitRecommendedAt = None
 
-        self.healingLog.append("[reset] SelfHealingForecast 상태 초기화 완료")
+        self.healingLog.append("[reset] SelfHealingForecast state reset complete")
 
     # ======================================================================
-    # 드리프트 감지
+    # Drift Detection
     # ======================================================================
 
     def _updateCUSUM(self, error: float) -> None:
         """
-        양방향 CUSUM으로 체계적 편향 감지
+        Bidirectional CUSUM for systematic bias detection
 
         S_pos = max(0, S_pos + (error - k))
         S_neg = max(0, S_neg + (-error - k))
 
-        k = 0.5 * sigma  (슬랙 파라미터: 작은 변동 무시)
-        h = 5.0 * sigma  (임계값: 이를 넘으면 드리프트)
+        k = 0.5 * sigma  (slack parameter: ignore small variations)
+        h = 5.0 * sigma  (threshold: drift detected when exceeded)
 
-        error > 0 이 지속 -> cusumPos 증가 -> 예측이 과소 (downward_bias)
-        error < 0 이 지속 -> cusumNeg 증가 -> 예측이 과대 (upward_bias)
+        Persistent error > 0 -> cusumPos rises -> under-prediction (downward_bias)
+        Persistent error < 0 -> cusumNeg rises -> over-prediction (upward_bias)
         """
         k = 0.5 * self._referenceStd
         h = 5.0 * self._referenceStd
@@ -459,20 +457,20 @@ class SelfHealingForecast:
 
         if self.cusumPos > h:
             self.driftDetected = True
-            self.driftDirection = 'downward_bias'   # 실제 > 예측
+            self.driftDirection = 'downward_bias'   # actual > predicted
             self.driftMagnitude = self.cusumPos / max(self.observedCount, 1)
         elif self.cusumNeg > h:
             self.driftDetected = True
-            self.driftDirection = 'upward_bias'     # 예측 > 실제
+            self.driftDirection = 'upward_bias'     # predicted > actual
             self.driftMagnitude = self.cusumNeg / max(self.observedCount, 1)
         else:
-            # 아직 임계값 미만이면 드리프트 해제 가능
+            # Below threshold: drift can be cleared
             if self.cusumPos < h * 0.3 and self.cusumNeg < h * 0.3:
                 self.driftDetected = False
                 self.driftDirection = None
                 self.driftMagnitude = 0.0
 
-        # 새 드리프트 이벤트 기록
+        # Record new drift event
         if self.driftDetected and not prevDrift:
             event = {
                 'step': self.observedCount,
@@ -483,18 +481,18 @@ class SelfHealingForecast:
             }
             self._driftEvents.append(event)
             self.healingLog.append(
-                f"[drift] 드리프트 감지 at step {self.observedCount}: "
+                f"[drift] Drift detected at step {self.observedCount}: "
                 f"{self.driftDirection}, magnitude={self.driftMagnitude:.4f}"
             )
 
     def _updateEWMA(self, error: float) -> None:
         """
-        EWMA로 최근 오차 추세 추적
+        EWMA for tracking recent error trends
 
         E_t = lambda * error + (1 - lambda) * E_{t-1}
 
-        EWMA는 최근 오차에 가중치를 두어 추세 변화를
-        CUSUM보다 빠르게 감지한다.
+        EWMA weights recent errors more heavily, detecting trend changes
+        faster than CUSUM.
         """
         self.ewmaError = (
             self.ewmaLambda * error
@@ -502,19 +500,19 @@ class SelfHealingForecast:
         )
 
     # ======================================================================
-    # 건강 상태 평가
+    # Health Status Evaluation
     # ======================================================================
 
     def _evaluateHealth(self) -> None:
         """
-        예측 건강 상태를 0-100 점수로 평가
+        Evaluate forecast health status on a 0-100 score
 
-        점수 기준:
-        - 100-80: healthy  (오차 정상 범위)
-        - 80-50:  degrading (오차 증가 추세 또는 경미한 편향)
-        - 50-0:   critical  (체계적 편향 또는 큰 오차)
+        Score criteria:
+        - 100-80: healthy  (errors within normal range)
+        - 80-50:  degrading (increasing error trend or mild bias)
+        - 50-0:   critical  (systematic bias or large errors)
 
-        드리프트 감지 + 교정 적용 후 오차가 줄면 'healed'로 전환
+        Transitions to 'healed' if errors improve after drift detection + correction
         """
         if self.observedCount == 0:
             self.health = 'healthy'
@@ -523,24 +521,24 @@ class SelfHealingForecast:
 
         score = 100.0
 
-        # --- (1) MAE 기반 감점 ---
+        # --- (1) MAE-based deduction ---
         mae = float(np.mean(self.absErrors))
         maeRatio = mae / max(self._referenceStd, 1e-10)
-        # maeRatio가 1이면 오차가 참조 표준편차 수준 -> 적당
-        # maeRatio > 2이면 큰 오차
+        # maeRatio of 1 means error is at reference std level -> moderate
+        # maeRatio > 2 means large error
         maeDeduction = min(40.0, maeRatio * 20.0)
         score -= maeDeduction
 
-        # --- (2) 편향 기반 감점 ---
+        # --- (2) Bias-based deduction ---
         meanBias = abs(float(np.mean(self.errors)))
         biasRatio = meanBias / max(self._referenceStd, 1e-10)
         biasDeduction = min(30.0, biasRatio * 15.0)
         score -= biasDeduction
 
-        # --- (3) 오차 추세 감점 ---
+        # --- (3) Error trend deduction ---
         if len(self.absErrors) >= 3:
             recentErrors = self.absErrors[-min(5, len(self.absErrors)):]
-            # 오차가 증가하는 추세면 감점
+            # Deduct if error is trending upward
             if len(recentErrors) >= 3:
                 xVals = np.arange(len(recentErrors), dtype=np.float64)
                 slope = np.polyfit(xVals, recentErrors, 1)[0]
@@ -548,20 +546,20 @@ class SelfHealingForecast:
                     trendDeduction = min(15.0, slope / max(self._referenceStd, 1e-10) * 10.0)
                     score -= trendDeduction
 
-        # --- (4) EWMA 편향 감점 ---
+        # --- (4) EWMA bias deduction ---
         ewmaRatio = abs(self.ewmaError) / max(self._referenceStd, 1e-10)
         ewmaDeduction = min(15.0, ewmaRatio * 10.0)
         score -= ewmaDeduction
 
-        # --- (5) 드리프트 감지 시 추가 감점 ---
+        # --- (5) Additional deduction on drift detection ---
         if self.driftDetected:
             score -= 10.0
 
-        # 점수 범위 제한
+        # Score range limit
         score = max(0.0, min(100.0, score))
         self.healthScore = score
 
-        # 건강 상태 결정
+        # Health status determination
         if score >= 80:
             self.health = 'healthy'
         elif score >= 50:
@@ -569,7 +567,7 @@ class SelfHealingForecast:
         else:
             self.health = 'critical'
 
-        # 교정 후 오차가 개선되었으면 'healed'
+        # Transition to 'healed' if errors improved after correction
         if len(self.corrections) > 0 and self.observedCount >= 3:
             recentAbsErrors = self.absErrors[-min(3, len(self.absErrors)):]
             earlyAbsErrors = self.absErrors[:min(3, len(self.absErrors))]
@@ -578,37 +576,37 @@ class SelfHealingForecast:
 
     def _evaluateRefitNeed(self) -> None:
         """
-        재학습 권장 여부 판단
+        Determine whether refit is recommended
 
-        재학습 권장 기준:
-        - healthScore < 50 (5단계 이상 관측 후)
-        - 드리프트 감지 + 교정으로도 개선 안 됨
-        - 현재 MAPE > 초기 기대치 * 2
+        Refit recommendation criteria:
+        - healthScore < 50 (after 5+ observations)
+        - Drift detected + correction did not improve
+        - Current MAPE > initial expectation * 2
         """
         if self.refitRecommended:
-            return  # 이미 권장됨
+            return  # Already recommended
 
         if self.observedCount < 5:
-            return  # 판단하기엔 데이터 부족
+            return  # Insufficient data for judgment
 
         reasons = []
 
-        # 기준 1: 건강 점수 저조
+        # Criterion 1: Low health score
         if self.healthScore < 50:
-            reasons.append(f"건강점수 {self.healthScore:.1f} < 50")
+            reasons.append(f"Health score {self.healthScore:.1f} < 50")
 
-        # 기준 2: 드리프트 + 교정 실패
+        # Criterion 2: Drift + correction failure
         if self.driftDetected and len(self.corrections) >= 2:
             recentErrors = self.absErrors[-3:]
             if np.mean(recentErrors) > self._referenceStd * 2:
                 reasons.append(
-                    f"드리프트 감지 후 교정에도 오차 큼 "
-                    f"(최근 MAE={np.mean(recentErrors):.4f})"
+                    f"Errors remain large after drift detection and correction "
+                    f"(recent MAE={np.mean(recentErrors):.4f})"
                 )
 
-        # 기준 3: MAPE 과다
+        # Criterion 3: Excessive MAPE
         currentMape = self._computeCurrentMape()
-        if currentMape > 30.0:  # 30% 이상
+        if currentMape > 30.0:  # Over 30%
             reasons.append(f"MAPE {currentMape:.1f}% > 30%")
 
         if reasons:
@@ -616,22 +614,22 @@ class SelfHealingForecast:
             self.refitReason = "; ".join(reasons)
             self.refitRecommendedAt = self.observedCount
             self.healingLog.append(
-                f"[refit] 재학습 권장 at step {self.observedCount}: {self.refitReason}"
+                f"[refit] Refit recommended at step {self.observedCount}: {self.refitReason}"
             )
 
     # ======================================================================
-    # 교정 알고리즘
+    # Correction Algorithm
     # ======================================================================
 
     def _applyCorrection(self) -> None:
         """
-        관측된 오차 패턴을 기반으로 남은 예측 교정
+        Correct remaining forecasts based on observed error patterns
 
-        교정 전략:
-        1. 편향 보정: 체계적 편향 감지 시 예측 시프트
-        2. 추세 보정: 오차에 추세가 있으면 선형 보정
-        3. 계절 보정: 오차에 주기적 패턴이 있으면 반영
-        4. 변동성 보정: 신뢰구간 너비 조정
+        Correction strategies:
+        1. Bias correction: shift forecast when systematic bias detected
+        2. Trend correction: linear correction if errors show a trend
+        3. Seasonal correction: reflect periodic patterns in errors
+        4. Volatility correction: adjust confidence interval width
         """
         remainingSteps = self.totalSteps - self.observedCount
         if remainingSteps <= 0:
@@ -640,13 +638,13 @@ class SelfHealingForecast:
         errors = np.array(self.errors, dtype=np.float64)
 
         # ------------------------------------------------------------------
-        # 1. 편향 보정
+        # 1. Bias correction
         # ------------------------------------------------------------------
         meanError = float(np.mean(errors))
-        biasCorrection = meanError  # 양수 = 과소예측 -> 위로 시프트
+        biasCorrection = meanError  # Positive = under-prediction -> shift up
 
         # ------------------------------------------------------------------
-        # 2. 추세 보정 (오차에 선형 추세가 있는 경우)
+        # 2. Trend correction (if errors show linear trend)
         # ------------------------------------------------------------------
         errorTrend = 0.0
         if len(errors) >= 3:
@@ -655,21 +653,21 @@ class SelfHealingForecast:
             errorTrend = float(coeffs[0])
 
         # ------------------------------------------------------------------
-        # 3. 계절 보정 (오차에 주기적 패턴이 있는 경우)
+        # 3. Seasonal correction (if errors show periodic patterns)
         # ------------------------------------------------------------------
         seasonalCorrection = np.zeros(remainingSteps)
         if len(errors) >= self.period * 2 and self.period > 1:
-            # 오차의 계절 패턴 추출
+            # Extract seasonal pattern from errors
             seasonalPattern = np.zeros(self.period)
             counts = np.zeros(self.period)
             for i, e in enumerate(errors):
                 phase = i % self.period
                 seasonalPattern[phase] += e
                 counts[phase] += 1
-            # 안전한 나눗셈
+            # Safe division
             mask = counts > 0
             seasonalPattern[mask] /= counts[mask]
-            # 평균 제거 (편향은 biasCorrection에서 처리)
+            # Remove mean (bias handled by biasCorrection)
             seasonalPattern -= np.mean(seasonalPattern)
 
             for h in range(remainingSteps):
@@ -677,34 +675,34 @@ class SelfHealingForecast:
                 seasonalCorrection[h] = seasonalPattern[futurePhase]
 
         # ------------------------------------------------------------------
-        # 4. 교정 적용 (감쇠 적용 - 먼 미래일수록 불확실)
+        # 4. Apply correction (with decay - more distant future = more uncertain)
         # ------------------------------------------------------------------
         for h in range(remainingSteps):
             stepIdx = self.observedCount + h
             decay = self._getDecayFactor(h, remainingSteps)
 
-            # 기본 교정: 편향 + 추세 외삽 + 계절
+            # Base correction: bias + trend extrapolation + seasonal
             trendComponent = errorTrend * (self.observedCount + h)
             correction = (biasCorrection + trendComponent + seasonalCorrection[h]) * decay
 
-            # healingMode별 교정 강도 조절
+            # Adjust correction intensity by healingMode
             if self.healingMode == 'conservative':
                 correction *= 0.5
             elif self.healingMode == 'aggressive':
                 correction *= 1.5
-            # 'adaptive'는 1.0 (기본)
+            # 'adaptive' is 1.0 (default)
 
             self.currentPredictions[stepIdx] = (
                 self.originalPredictions[stepIdx] + correction
             )
 
         # ------------------------------------------------------------------
-        # 5. 신뢰구간 업데이트
+        # 5. Confidence interval update
         # ------------------------------------------------------------------
         observedStd = float(np.std(errors)) if len(errors) > 1 else self._referenceStd
         widthRatio = observedStd / max(self._referenceStd, 1e-10)
 
-        # 구간 너비는 넓어지기만 함 (보수적)
+        # Interval width only widens (conservative)
         widthRatio = max(widthRatio, 1.0)
 
         for h in range(remainingSteps):
@@ -712,7 +710,7 @@ class SelfHealingForecast:
             originalWidth = self.originalUpper[stepIdx] - self.originalLower[stepIdx]
             newWidth = originalWidth * widthRatio
 
-            # 먼 미래일수록 추가 불확실성 부여
+            # Additional uncertainty for more distant future
             horizonFactor = 1.0 + 0.05 * h
             newWidth *= horizonFactor
 
@@ -721,7 +719,7 @@ class SelfHealingForecast:
             self.currentUpper[stepIdx] = center + newWidth / 2.0
 
         # ------------------------------------------------------------------
-        # 6. 교정 이력 기록
+        # 6. Record correction history
         # ------------------------------------------------------------------
         self.corrections.append({
             'step': self.observedCount,
@@ -734,55 +732,55 @@ class SelfHealingForecast:
 
     def _getDecayFactor(self, horizonStep: int, totalRemaining: int) -> float:
         """
-        미래 스텝에 대한 교정 감쇠 계수
+        Correction decay factor for future steps
 
-        가까운 미래는 교정 효과가 크고,
-        먼 미래는 교정 효과가 줄어든다 (지수 감쇠).
+        Near-future corrections have stronger effect,
+        far-future corrections have diminishing effect (exponential decay).
 
         Parameters
         ----------
         horizonStep : int
-            교정 대상 스텝 (0부터 시작)
+            Target correction step (starting from 0)
         totalRemaining : int
-            남은 전체 스텝 수
+            Total remaining steps
 
         Returns
         -------
         float
-            0.0 ~ 1.0 감쇠 계수
+            Decay factor 0.0 ~ 1.0
         """
         if totalRemaining <= 1:
             return 1.0
 
-        # 지수 감쇠: exp(-rate * h)
-        # rate는 전체 남은 스텝에 따라 조정
-        # 목표: 마지막 스텝에서 약 0.3 수준
+        # Exponential decay: exp(-rate * h)
+        # Rate adjusted based on total remaining steps
+        # Target: approximately 0.3 at the last step
         rate = -np.log(0.3) / max(totalRemaining - 1, 1)
         decay = float(np.exp(-rate * horizonStep))
 
-        # healingMode에 따른 감쇠 조정
+        # Decay adjustment by healingMode
         if self.healingMode == 'aggressive':
-            # 감쇠를 느리게 (교정 효과 오래 유지)
+            # Slower decay (correction effect persists longer)
             decay = decay ** 0.7
         elif self.healingMode == 'conservative':
-            # 감쇠를 빠르게 (교정 효과 빠르게 소멸)
+            # Faster decay (correction effect diminishes quickly)
             decay = decay ** 1.5
 
         return max(0.0, min(1.0, decay))
 
     # ======================================================================
-    # 유틸리티
+    # Utilities
     # ======================================================================
 
     def _computeMape(self, predicted: np.ndarray, actual: np.ndarray) -> float:
-        """MAPE 계산 (0이 아닌 값만 사용)"""
+        """Compute MAPE (using only non-zero values)"""
         mask = np.abs(actual) > 1e-10
         if not np.any(mask):
             return 0.0
         return float(np.mean(np.abs((actual[mask] - predicted[mask]) / actual[mask])) * 100)
 
     def _computeCurrentMape(self) -> float:
-        """현재까지 관측된 데이터 기준 MAPE"""
+        """MAPE based on data observed so far"""
         if self.observedCount == 0:
             return 0.0
         predicted = self.originalPredictions[:self.observedCount]
@@ -790,19 +788,19 @@ class SelfHealingForecast:
         return self._computeMape(predicted, actual)
 
     def _computeCurrentMae(self) -> float:
-        """현재까지 관측된 데이터 기준 MAE"""
+        """MAE based on data observed so far"""
         if self.observedCount == 0:
             return 0.0
         return float(np.mean(self.absErrors))
 
     def _buildStatus(self, correctionApplied: bool) -> HealingStatus:
-        """HealingStatus 객체 생성"""
+        """Build HealingStatus object"""
         remaining = self.totalSteps - self.observedCount
         biasEstimate = float(np.mean(self.errors)) if self.errors else 0.0
         currentMape = self._computeCurrentMape()
         currentMae = self._computeCurrentMae()
 
-        # 사람이 읽을 수 있는 메시지 생성
+        # Generate human-readable message
         message = self._buildStatusMessage(
             currentMape, currentMae, biasEstimate, remaining
         )
@@ -831,48 +829,48 @@ class SelfHealingForecast:
         bias: float,
         remaining: int,
     ) -> str:
-        """사람이 읽을 수 있는 상태 메시지 생성"""
+        """Generate human-readable status message"""
         parts = []
 
-        # 건강 상태
+        # Health status
         healthLabels = {
-            'healthy': '정상',
-            'degrading': '저하 중',
-            'critical': '위험',
-            'healed': '치유됨',
+            'healthy': 'Healthy',
+            'degrading': 'Degrading',
+            'critical': 'Critical',
+            'healed': 'Healed',
         }
-        parts.append(f"상태: {healthLabels.get(self.health, self.health)} "
-                      f"(점수 {self.healthScore:.0f}/100)")
+        parts.append(f"Status: {healthLabels.get(self.health, self.health)} "
+                      f"(score {self.healthScore:.0f}/100)")
 
-        # 관측 진행률
-        parts.append(f"관측: {self.observedCount}/{self.totalSteps}")
+        # Observation progress
+        parts.append(f"Observed: {self.observedCount}/{self.totalSteps}")
 
-        # 오차 정보
+        # Error info
         if self.observedCount > 0:
             parts.append(f"MAPE: {mape:.1f}%, MAE: {mae:.4f}")
 
-        # 편향 정보
+        # Bias info
         if abs(bias) > self._referenceStd * 0.5:
-            direction = "과소예측" if bias > 0 else "과대예측"
-            parts.append(f"편향: {direction} ({bias:+.4f})")
+            direction = "under-prediction" if bias > 0 else "over-prediction"
+            parts.append(f"Bias: {direction} ({bias:+.4f})")
 
-        # 드리프트
+        # Drift
         if self.driftDetected:
             driftLabels = {
-                'upward_bias': '상향 편향',
-                'downward_bias': '하향 편향',
+                'upward_bias': 'upward bias',
+                'downward_bias': 'downward bias',
             }
             label = driftLabels.get(self.driftDirection, self.driftDirection or '')
-            parts.append(f"드리프트: {label} 감지")
+            parts.append(f"Drift: {label} detected")
 
-        # 재학습 권장
+        # Refit recommendation
         if self.refitRecommended:
-            parts.append(f"재학습 권장: {self.refitReason}")
+            parts.append(f"Refit recommended: {self.refitReason}")
 
         return " | ".join(parts)
 
     # ======================================================================
-    # 표현
+    # Representation
     # ======================================================================
 
     def __repr__(self) -> str:

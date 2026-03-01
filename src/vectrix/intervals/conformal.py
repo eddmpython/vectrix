@@ -17,7 +17,7 @@ class ConformalInterval:
     """
     Conformal Prediction Intervals
 
-    주어진 모델의 예측에 분포 가정 없이 유효한 신뢰구간을 부여.
+    Provides distribution-free valid prediction intervals for a given model's forecasts.
     """
 
     def __init__(
@@ -32,9 +32,9 @@ class ConformalInterval:
         method : str
             'split' or 'jackknife'
         coverageLevel : float
-            목표 커버리지 (0.95 = 95%)
+            Target coverage (0.95 = 95%)
         calibrationRatio : float
-            calibration set 비율 (split method 전용)
+            Calibration set ratio (split method only)
         """
         self.method = method
         self.coverageLevel = coverageLevel
@@ -53,11 +53,11 @@ class ConformalInterval:
         Parameters
         ----------
         y : np.ndarray
-            전체 시계열 데이터
+            Full time series data
         modelFactory : Callable
-            모델 생성 팩토리 함수
+            Model factory function
         steps : int
-            예측 horizon
+            Forecast horizon
         """
         if self.method == 'split':
             self._calibrateSplit(y, modelFactory, steps)

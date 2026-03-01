@@ -1,7 +1,7 @@
 """
 TSFrame: Time-Series-Aware DataFrame
 
-pandas DataFrame 래퍼로, 시계열 분석에 특화된 메서드 제공.
+A pandas DataFrame wrapper providing methods specialized for time series analysis.
 """
 
 from typing import Any, Dict, Optional, Tuple
@@ -71,26 +71,26 @@ class TSFrame:
         seed: int = 42
     ) -> 'TSFrame':
         """
-        테스트용 시계열 데이터 자동 생성
+        Auto-generate time series data for testing
 
         Parameters
         ----------
         n : int
-            데이터 개수
+            Number of data points
         freq : str
-            주기 ('D', 'W', 'M', 'H')
+            Frequency ('D', 'W', 'M', 'H')
         startDate : str
-            시작일
+            Start date
         trend : float
-            추세 기울기
+            Trend slope
         seasonalAmplitude : float
-            계절 진폭
+            Seasonal amplitude
         seasonalPeriod : int
-            계절 주기
+            Seasonal period
         noiseStd : float
-            노이즈 표준편차
+            Noise standard deviation
         seed : int
-            랜덤 시드
+            Random seed
         """
         np.random.seed(seed)
         dates = pd.date_range(start=startDate, periods=n, freq=freq)
@@ -147,7 +147,7 @@ class TSFrame:
 
     def forecast(self, steps: int = 30, **kwargs) -> Any:
         """
-        Vectrix로 예측
+        Forecast with Vectrix
 
         Returns
         -------
@@ -159,7 +159,7 @@ class TSFrame:
 
     def decompose(self, period: Optional[int] = None) -> Dict[str, np.ndarray]:
         """
-        시계열 분해 (추세 + 계절성 + 잔차)
+        Time series decomposition (trend + seasonality + residual)
         """
         from ..business.explain import ForecastExplainer
         explainer = ForecastExplainer()
@@ -167,7 +167,7 @@ class TSFrame:
         return explainer._decompose(self.values, p)
 
     def detectAnomalies(self, method: str = 'auto', threshold: float = 3.0) -> Any:
-        """이상치 탐지"""
+        """Anomaly detection"""
         from ..business.anomaly import AnomalyDetector
         detector = AnomalyDetector()
         return detector.detect(self.values, method=method, threshold=threshold, period=self.period)
@@ -194,12 +194,12 @@ class TSFrame:
 
     def resample(self, rule: str, agg: str = 'mean') -> 'TSFrame':
         """
-        리샘플링
+        Resampling
 
         Parameters
         ----------
         rule : str
-            'W' (주간), 'M' (월간), 'Q' (분기), etc.
+            'W' (weekly), 'M' (monthly), 'Q' (quarterly), etc.
         agg : str
             'mean', 'sum', 'last', 'first'
         """
@@ -219,7 +219,7 @@ class TSFrame:
 
     def fillMissing(self, method: str = 'interpolate') -> 'TSFrame':
         """
-        결측치 처리
+        Missing value handling
 
         Parameters
         ----------
@@ -242,14 +242,14 @@ class TSFrame:
         return TSFrame(df, self.dateCol, self.valueCol, self.freq)
 
     def diff(self, periods: int = 1) -> 'TSFrame':
-        """차분"""
+        """Differencing"""
         df = self._df.copy()
         df[self.valueCol] = df[self.valueCol].diff(periods)
         df = df.dropna().reset_index(drop=True)
         return TSFrame(df, self.dateCol, self.valueCol, self.freq)
 
     def rollingMean(self, window: int = 7) -> 'TSFrame':
-        """이동평균"""
+        """Rolling mean"""
         df = self._df.copy()
         df[self.valueCol] = df[self.valueCol].rolling(window=window, min_periods=1).mean()
         return TSFrame(df, self.dateCol, self.valueCol, self.freq)

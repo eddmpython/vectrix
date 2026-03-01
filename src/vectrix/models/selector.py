@@ -1,7 +1,7 @@
 """
-Level 2: 적응형 모델 선택기
+Level 2: Adaptive model selector
 
-일직선 예측 위험도와 데이터 특성에 따라 최적의 모델을 선택합니다.
+Selects optimal models based on flat prediction risk and data characteristics.
 """
 
 from typing import Any, Dict, List, Optional
@@ -11,31 +11,29 @@ from ..types import MODEL_INFO, DataCharacteristics, FlatRiskAssessment, RiskLev
 
 class AdaptiveModelSelector:
     """
-    적응형 모델 선택기
+    Adaptive model selector
 
-    일직선 예측 위험도가 높으면 Seasonal Naive 등 계절성 강제 모델을 우선 선택하고,
-    위험도가 낮으면 Auto 모델들을 사용합니다.
+    Prioritizes seasonal-forcing models (e.g. Seasonal Naive) when flat prediction
+    risk is high, and uses Auto models when risk is low.
     """
 
-    # 모델별 일직선 저항력
     FLAT_RESISTANCE = {
-        'seasonal_naive': 0.95,   # 무조건 계절 패턴 반복
-        'snaive_drift': 0.90,     # 계절 패턴 + 드리프트
-        'mstl': 0.85,             # 다중 계절 분해
-        'holt_winters': 0.80,     # 삼중 지수평활
-        'theta': 0.75,            # Theta 분해
-        'prophet': 0.70,          # 계절성 강제 모델링
-        'auto_arima': 0.60,       # ARIMA (계절성에 따라 다름)
-        'auto_ets': 0.55,         # ETS (A,N,N 위험)
-        'auto_theta': 0.70,       # AutoTheta
-        'auto_ces': 0.65,         # AutoCES
-        'naive': 0.10,            # 가장 위험
-        'mean': 0.05,             # 가장 위험
-        'rwd': 0.60,              # 추세 있으면 양호
-        'window_avg': 0.15,       # 대부분 수평
+        'seasonal_naive': 0.95,
+        'snaive_drift': 0.90,
+        'mstl': 0.85,
+        'holt_winters': 0.80,
+        'theta': 0.75,
+        'prophet': 0.70,
+        'auto_arima': 0.60,
+        'auto_ets': 0.55,
+        'auto_theta': 0.70,
+        'auto_ces': 0.65,
+        'naive': 0.10,
+        'mean': 0.05,
+        'rwd': 0.60,
+        'window_avg': 0.15,
     }
 
-    # 모델별 최소 데이터 요구량
     MIN_DATA = {
         'seasonal_naive': 14,
         'snaive_drift': 14,
@@ -63,26 +61,26 @@ class AdaptiveModelSelector:
         maxModels: int = 5
     ) -> List[str]:
         """
-        위험도 기반 모델 선택
+        Risk-based model selection
 
         Parameters
         ----------
         flatRisk : FlatRiskAssessment
-            일직선 예측 위험도 평가 결과
+            Flat prediction risk assessment result
         characteristics : DataCharacteristics
-            데이터 특성
+            Data characteristics
         maxModels : int
-            최대 모델 수
+            Maximum number of models
 
         Returns
         -------
         List[str]
-            선택된 모델 ID 목록
+            List of selected model IDs
         """
         dataLength = characteristics.length
         riskLevel = flatRisk.riskLevel
 
-        # 위험도 레벨에 따른 기본 모델 집합
+        # Base model set by risk level
         if riskLevel == RiskLevel.CRITICAL:
             candidates = self._getCriticalModels()
         elif riskLevel == RiskLevel.HIGH:
@@ -92,53 +90,53 @@ class AdaptiveModelSelector:
         else:
             candidates = self._getLowRiskModels()
 
-        # 데이터 길이로 필터링
+        # Filter by data length
         validModels = [
             m for m in candidates
             if dataLength >= self.MIN_DATA.get(m, 10)
         ]
 
-        # 계절성에 따른 조정
+        # Adjust by seasonality
         if characteristics.hasSeasonality:
             validModels = self._prioritizeSeasonalModels(validModels)
         else:
-            # 계절성 없으면 계절성 강제 모델 제외
+            # Exclude seasonal-forcing models if no seasonality
             validModels = [
                 m for m in validModels
                 if m not in ['seasonal_naive', 'snaive_drift']
             ]
 
-        # 폴백
+        # Fallback
         if not validModels:
             validModels = ['theta'] if dataLength >= 10 else ['naive']
 
         return validModels[:maxModels]
 
     def _getCriticalModels(self) -> List[str]:
-        """위험도 Critical: 계절성 강제 모델만"""
+        """Critical risk: seasonal-forcing models only"""
         return ['seasonal_naive', 'snaive_drift', 'mstl']
 
     def _getHighRiskModels(self) -> List[str]:
-        """위험도 High: 계절성 우선"""
+        """High risk: seasonal models prioritized"""
         return ['seasonal_naive', 'snaive_drift', 'mstl', 'theta', 'holt_winters']
 
     def _getMediumRiskModels(self) -> List[str]:
-        """위험도 Medium: 균형"""
+        """Medium risk: balanced"""
         return ['mstl', 'holt_winters', 'theta', 'auto_arima', 'auto_theta']
 
     def _getLowRiskModels(self) -> List[str]:
-        """위험도 Low: 표준 Auto 모델"""
+        """Low risk: standard Auto models"""
         return ['auto_arima', 'auto_ets', 'auto_theta', 'theta', 'mstl']
 
     def _prioritizeSeasonalModels(self, models: List[str]) -> List[str]:
-        """계절성 있을 때 계절성 모델 우선"""
+        """Prioritize seasonal models when seasonality is present"""
         seasonalModels = ['mstl', 'seasonal_naive', 'snaive_drift', 'holt_winters']
         otherModels = [m for m in models if m not in seasonalModels]
         prioritized = [m for m in seasonalModels if m in models] + otherModels
         return prioritized
 
     def getModelInfo(self, modelId: str) -> Dict[str, Any]:
-        """모델 정보 반환"""
+        """Return model information"""
         return MODEL_INFO.get(modelId, {
             'name': modelId,
             'description': '',
@@ -148,7 +146,7 @@ class AdaptiveModelSelector:
         })
 
     def rankByFlatResistance(self, models: List[str]) -> List[str]:
-        """일직선 저항력 순으로 정렬"""
+        """Sort by flat resistance score"""
         return sorted(
             models,
             key=lambda m: self.FLAT_RESISTANCE.get(m, 0.5),
@@ -161,12 +159,12 @@ class AdaptiveModelSelector:
         characteristics: DataCharacteristics
     ) -> Dict[str, Any]:
         """
-        모델 추천 상세 정보
+        Detailed model recommendation
 
         Returns
         -------
         Dict
-            추천 모델 목록과 이유
+            Recommended model list with reasons
         """
         models = self.selectModels(flatRisk, characteristics)
 
@@ -196,33 +194,33 @@ class AdaptiveModelSelector:
         riskLevel: RiskLevel,
         characteristics: DataCharacteristics
     ) -> str:
-        """추천 이유 생성"""
+        """Generate recommendation reason"""
         reasons = {
-            'seasonal_naive': '계절 패턴을 강제로 반복하여 일직선 방지',
-            'snaive_drift': '계절 패턴 + 추세 반영으로 안정적 예측',
-            'mstl': '다중 계절성 분해로 복잡한 패턴 포착',
-            'holt_winters': '수준/추세/계절성 분리 모델링',
-            'theta': 'M3 Competition 우승 모델, 범용적 성능',
-            'auto_arima': '자동 파라미터 튜닝으로 최적 ARIMA',
-            'auto_ets': '30가지 조합 중 자동 최적 선택',
-            'auto_theta': '자동 Theta 분해',
-            'prophet': '이상치에 강건하고 휴일 효과 반영'
+            'seasonal_naive': 'Prevents flat predictions by forcing seasonal pattern repetition',
+            'snaive_drift': 'Stable forecasts with seasonal pattern + trend',
+            'mstl': 'Captures complex patterns via multiple seasonal decomposition',
+            'holt_winters': 'Separates level/trend/seasonality modeling',
+            'theta': 'M3 Competition winner, general-purpose performance',
+            'auto_arima': 'Optimal ARIMA via automatic parameter tuning',
+            'auto_ets': 'Automatic best selection among 30 combinations',
+            'auto_theta': 'Automatic Theta decomposition',
+            'prophet': 'Robust to outliers with holiday effects'
         }
 
-        baseReason = reasons.get(modelId, '범용 모델')
+        baseReason = reasons.get(modelId, 'General-purpose model')
 
         if riskLevel in [RiskLevel.HIGH, RiskLevel.CRITICAL]:
             if self.FLAT_RESISTANCE.get(modelId, 0) >= 0.8:
-                baseReason += ' (일직선 위험 대응)'
+                baseReason += ' (flat prediction risk mitigation)'
 
         return baseReason
 
     def _getStrategyWarning(self, riskLevel: RiskLevel) -> Optional[str]:
-        """전략 경고 메시지"""
+        """Strategy warning message"""
         if riskLevel == RiskLevel.CRITICAL:
-            return '⚠️ 일직선 예측 위험이 매우 높습니다. 계절성 강제 모델만 사용됩니다.'
+            return 'Flat prediction risk is very high. Only seasonal-forcing models will be used.'
         elif riskLevel == RiskLevel.HIGH:
-            return '⚠️ 일직선 예측 위험이 높습니다. 계절성 모델이 우선됩니다.'
+            return 'Flat prediction risk is high. Seasonal models will be prioritized.'
         elif riskLevel == RiskLevel.MEDIUM:
-            return '일직선 예측 가능성이 있습니다. 결과를 주의 깊게 확인하세요.'
+            return 'Flat prediction is possible. Review results carefully.'
         return None

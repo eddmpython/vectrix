@@ -2,10 +2,10 @@
 Anomaly Detection for Time Series
 
 Multiple methods:
-- Z-score: 표준편차 기반
-- IQR: 사분위범위 기반
-- Seasonal Residual: 계절 분해 잔차 기반
-- Rolling: 이동 윈도우 기반
+- Z-score: Standard deviation based
+- IQR: Interquartile range based
+- Seasonal Residual: Seasonal decomposition residual based
+- Rolling: Rolling window based
 """
 
 from dataclasses import dataclass, field
@@ -16,7 +16,7 @@ import numpy as np
 
 @dataclass
 class AnomalyResult:
-    """이상치 탐지 결과"""
+    """Anomaly detection result"""
     indices: np.ndarray = field(default_factory=lambda: np.array([], dtype=int))
     scores: np.ndarray = field(default_factory=lambda: np.array([]))
     method: str = ""
@@ -28,7 +28,7 @@ class AnomalyResult:
 
 class AnomalyDetector:
     """
-    시계열 이상치 탐지기
+    Time series anomaly detector
 
     Usage:
         >>> detector = AnomalyDetector()
@@ -43,18 +43,18 @@ class AnomalyDetector:
         period: int = 1
     ) -> AnomalyResult:
         """
-        이상치 탐지
+        Detect anomalies
 
         Parameters
         ----------
         y : np.ndarray
-            시계열 데이터
+            Time series data
         method : str
             'zscore', 'iqr', 'seasonal', 'rolling', 'auto'
         threshold : float
-            탐지 임계값
+            Detection threshold
         period : int
-            계절 주기 (seasonal method 전용)
+            Seasonal period (for seasonal method only)
         """
         if method == 'auto':
             return self._autoDetect(y, threshold, period)

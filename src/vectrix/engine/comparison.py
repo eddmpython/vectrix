@@ -1,13 +1,13 @@
 """
-모델 비교 도구
+Model Comparison Tools
 
-예측 모델 간 통계적 비교를 위한 검정:
-- Diebold-Mariano 검정: 두 모델의 예측 정확도 비교
-- Giacomini-White 검정: 조건부 예측능력 검정
-- 예측 포함 검정: Harvey-Leybourne-Newbold
-- 모델 비교 테이블: 다중 모델 비교 및 순위
+Statistical tests for comparing forecast models:
+- Diebold-Mariano test: Compare predictive accuracy of two models
+- Giacomini-White test: Conditional predictive ability test
+- Forecast encompassing test: Harvey-Leybourne-Newbold
+- Model comparison table: Multi-model comparison and ranking
 
-참조:
+References:
 - Diebold & Mariano (1995)
 - Giacomini & White (2006)
 - Harvey, Leybourne & Newbold (1997)
@@ -20,7 +20,7 @@ from scipy.stats import t as t_dist
 
 
 class ModelComparison:
-    """모델 비교 도구"""
+    """Model comparison tools"""
 
     @staticmethod
     def dieboldMariano(
@@ -30,18 +30,18 @@ class ModelComparison:
         alternative: str = 'two_sided'
     ) -> Dict[str, Any]:
         """
-        Diebold-Mariano 검정
+        Diebold-Mariano test
 
-        두 예측 모델의 예측 정확도가 통계적으로 유의하게 다른지 검정
+        Tests whether the predictive accuracy of two forecast models is statistically significantly different
 
         Parameters
         ----------
         errors1 : np.ndarray
-            모델 1의 예측 오차
+            Forecast errors from model 1
         errors2 : np.ndarray
-            모델 2의 예측 오차
+            Forecast errors from model 2
         horizon : int
-            예측 호라이즌 (Newey-West bandwidth = horizon - 1)
+            Forecast horizon (Newey-West bandwidth = horizon - 1)
         alternative : str
             'two_sided', 'less', 'greater'
 
@@ -55,13 +55,13 @@ class ModelComparison:
 
         n = len(errors1)
         if n != len(errors2):
-            raise ValueError("오차 배열의 길이가 동일해야 합니다.")
+            raise ValueError("Error arrays must have the same length.")
 
         if n < 3:
             return {
                 'statistic': 0.0,
                 'pValue': 1.0,
-                'conclusion': '데이터 부족 (n < 3)'
+                'conclusion': 'Insufficient data (n < 3)'
             }
 
         dt = errors1 ** 2 - errors2 ** 2
@@ -82,7 +82,7 @@ class ModelComparison:
             return {
                 'statistic': 0.0,
                 'pValue': 1.0,
-                'conclusion': '분산 추정 불가 (HAC 분산 <= 0)'
+                'conclusion': 'Variance estimation failed (HAC variance <= 0)'
             }
 
         seDBar = np.sqrt(hacVar)
@@ -108,11 +108,11 @@ class ModelComparison:
 
         if pValue < 0.05:
             if dmStat > 0:
-                conclusion = f'모델 2가 유의하게 우수 (p={pValue:.4f}) {significance}'
+                conclusion = f'Model 2 significantly better (p={pValue:.4f}) {significance}'
             else:
-                conclusion = f'모델 1이 유의하게 우수 (p={pValue:.4f}) {significance}'
+                conclusion = f'Model 1 significantly better (p={pValue:.4f}) {significance}'
         else:
-            conclusion = f'유의한 차이 없음 (p={pValue:.4f}) {significance}'.strip()
+            conclusion = f'No significant difference (p={pValue:.4f}) {significance}'.strip()
 
         return {
             'statistic': float(dmStat),
@@ -126,16 +126,16 @@ class ModelComparison:
         modelNames: Optional[List[str]] = None
     ) -> Dict[str, Any]:
         """
-        모델 비교 테이블
+        Model comparison table
 
-        여러 모델의 오차를 비교하고 순위를 매김
+        Compare errors across multiple models and rank them
 
         Parameters
         ----------
         modelErrors : Dict[str, np.ndarray]
-            모델명 -> 오차 배열 딕셔너리
+            Model name -> error array dictionary
         modelNames : List[str] or None
-            모델 순서 지정 (None이면 딕셔너리 키 순서)
+            Model ordering (None uses dictionary key order)
 
         Returns
         -------
@@ -204,7 +204,7 @@ class ModelComparison:
                     pairwiseTests[f'{name1} vs {name2}'] = {
                         'statistic': 0.0,
                         'pValue': 1.0,
-                        'conclusion': '데이터 부족'
+                        'conclusion': 'Insufficient data'
                     }
                     continue
 
@@ -226,16 +226,16 @@ class ModelComparison:
         instruments: Optional[np.ndarray] = None
     ) -> Dict[str, Any]:
         """
-        Giacomini-White 조건부 예측능력 검정
+        Giacomini-White conditional predictive ability test
 
         Parameters
         ----------
         errors1 : np.ndarray
-            모델 1의 예측 오차
+            Forecast errors from model 1
         errors2 : np.ndarray
-            모델 2의 예측 오차
+            Forecast errors from model 2
         instruments : np.ndarray or None
-            도구변수 행렬. None이면 상수항만 사용 (비조건부 검정)
+            Instrument variable matrix. If None, uses constant only (unconditional test)
 
         Returns
         -------
@@ -247,13 +247,13 @@ class ModelComparison:
 
         n = len(errors1)
         if n != len(errors2):
-            raise ValueError("오차 배열의 길이가 동일해야 합니다.")
+            raise ValueError("Error arrays must have the same length.")
 
         if n < 5:
             return {
                 'statistic': 0.0,
                 'pValue': 1.0,
-                'conclusion': '데이터 부족 (n < 5)'
+                'conclusion': 'Insufficient data (n < 5)'
             }
 
         dt = errors1 ** 2 - errors2 ** 2
@@ -265,7 +265,7 @@ class ModelComparison:
             if instruments.ndim == 1:
                 instruments = instruments.reshape(-1, 1)
             if len(instruments) != n:
-                raise ValueError("도구변수 행렬의 행 수가 오차 배열 길이와 동일해야 합니다.")
+                raise ValueError("Instrument matrix row count must match error array length.")
             Z = np.column_stack([np.ones(n), instruments])
 
         q = Z.shape[1]
@@ -274,7 +274,7 @@ class ModelComparison:
             return {
                 'statistic': 0.0,
                 'pValue': 1.0,
-                'conclusion': '도구변수 수 대비 데이터 부족'
+                'conclusion': 'Insufficient data relative to number of instruments'
             }
 
         Zd = Z * dt.reshape(-1, 1)
@@ -285,7 +285,7 @@ class ModelComparison:
             return {
                 'statistic': 0.0,
                 'pValue': 1.0,
-                'conclusion': '도구변수 행렬 특이 (singular)'
+                'conclusion': 'Instrument matrix is singular'
             }
 
         ZtZInv = np.linalg.inv(ZtZ)
@@ -304,7 +304,7 @@ class ModelComparison:
             return {
                 'statistic': 0.0,
                 'pValue': 1.0,
-                'conclusion': '공분산 행렬 특이 (singular)'
+                'conclusion': 'Covariance matrix is singular'
             }
 
         SInv = np.linalg.inv(S)
@@ -326,9 +326,9 @@ class ModelComparison:
             significance = ''
 
         if pValue < 0.05:
-            conclusion = f'조건부 예측능력에 유의한 차이 (p={pValue:.4f}) {significance}'
+            conclusion = f'Significant difference in conditional predictive ability (p={pValue:.4f}) {significance}'
         else:
-            conclusion = f'조건부 예측능력에 유의한 차이 없음 (p={pValue:.4f}) {significance}'.strip()
+            conclusion = f'No significant difference in conditional predictive ability (p={pValue:.4f}) {significance}'.strip()
 
         return {
             'statistic': gwStat,
@@ -342,17 +342,17 @@ class ModelComparison:
         errors2: np.ndarray
     ) -> Dict[str, Any]:
         """
-        Harvey-Leybourne-Newbold 예측 포함 검정
+        Harvey-Leybourne-Newbold forecast encompassing test
 
-        모델 1이 모델 2를 포함하는지 검정.
-        귀무가설: 모델 1이 모델 2를 포함 (모델 2가 추가 정보 없음)
+        Tests whether model 1 encompasses model 2.
+        Null hypothesis: Model 1 encompasses model 2 (model 2 provides no additional information)
 
         Parameters
         ----------
         errors1 : np.ndarray
-            모델 1의 예측 오차
+            Forecast errors from model 1
         errors2 : np.ndarray
-            모델 2의 예측 오차
+            Forecast errors from model 2
 
         Returns
         -------
@@ -364,13 +364,13 @@ class ModelComparison:
 
         n = len(errors1)
         if n != len(errors2):
-            raise ValueError("오차 배열의 길이가 동일해야 합니다.")
+            raise ValueError("Error arrays must have the same length.")
 
         if n < 4:
             return {
                 'statistic': 0.0,
                 'pValue': 1.0,
-                'conclusion': '데이터 부족 (n < 4)'
+                'conclusion': 'Insufficient data (n < 4)'
             }
 
         ct = errors1 * (errors1 - errors2)
@@ -382,7 +382,7 @@ class ModelComparison:
             return {
                 'statistic': 0.0,
                 'pValue': 1.0,
-                'conclusion': '분산이 0에 근접 (완전 동일 예측)'
+                'conclusion': 'Variance near zero (identical predictions)'
             }
 
         seCBar = np.sqrt(gamma0 / n)
@@ -402,13 +402,13 @@ class ModelComparison:
 
         if pValue < 0.05:
             conclusion = (
-                f'모델 1이 모델 2를 포함하지 않음 '
-                f'(모델 2가 추가 정보 제공, p={pValue:.4f}) {significance}'
+                f'Model 1 does not encompass model 2 '
+                f'(model 2 provides additional information, p={pValue:.4f}) {significance}'
             )
         else:
             conclusion = (
-                f'모델 1이 모델 2를 포함 '
-                f'(모델 2의 추가 기여 없음, p={pValue:.4f}) {significance}'.strip()
+                f'Model 1 encompasses model 2 '
+                f'(no additional contribution from model 2, p={pValue:.4f}) {significance}'.strip()
             )
 
         return {
