@@ -15,7 +15,8 @@ import numpy as np
 from scipy.optimize import minimize_scalar
 
 try:
-    from vectrix_core import ses_sse as _rustSesSSE, ses_filter as _rustSesFilter
+    from vectrix_core import ses_filter as _rustSesFilter
+    from vectrix_core import ses_sse as _rustSesSSE
     RUST_AVAILABLE = True
 except ImportError:
     RUST_AVAILABLE = False

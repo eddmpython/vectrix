@@ -18,7 +18,8 @@ import numpy as np
 from scipy.optimize import minimize
 
 try:
-    from vectrix_core import ces_nonseasonal_sse as _rustCesNonSeasonalSSE, ces_seasonal_sse as _rustCesSeasonalSSE
+    from vectrix_core import ces_nonseasonal_sse as _rustCesNonSeasonalSSE
+    from vectrix_core import ces_seasonal_sse as _rustCesSeasonalSSE
     RUST_AVAILABLE = True
 except ImportError:
     RUST_AVAILABLE = False

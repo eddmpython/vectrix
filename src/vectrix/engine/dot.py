@@ -17,7 +17,8 @@ import numpy as np
 from scipy.optimize import minimize
 
 try:
-    from vectrix_core import dot_objective as _rustDotObjective, dot_residuals as _rustDotResiduals
+    from vectrix_core import dot_objective as _rustDotObjective
+    from vectrix_core import dot_residuals as _rustDotResiduals
     RUST_AVAILABLE = True
 except ImportError:
     RUST_AVAILABLE = False
