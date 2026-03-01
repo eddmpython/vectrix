@@ -34,10 +34,12 @@
 }
 
 [data-md-color-scheme="default"] {
-  --md-primary-fg-color: #0e7490;
-  --md-primary-fg-color--light: #06b6d4;
-  --md-primary-fg-color--dark: #0c4a6e;
-  --md-accent-fg-color: #7c3aed;
+  --md-primary-fg-color: #ffffff;
+  --md-primary-fg-color--light: #f8fafc;
+  --md-primary-fg-color--dark: #f1f5f9;
+  --md-primary-bg-color: #0f172a;
+  --md-primary-bg-color--light: #334155;
+  --md-accent-fg-color: #0891b2;
 }
 
 .md-header {
@@ -49,6 +51,40 @@
 [data-md-color-scheme="default"] .md-header {
   background: #ffffff !important;
   border-bottom: 1px solid #e2e8f0;
+  color: #0f172a;
+}
+
+[data-md-color-scheme="default"] .md-header__title {
+  color: #0f172a;
+}
+
+[data-md-color-scheme="default"] .md-header__button,
+[data-md-color-scheme="default"] .md-header__topic,
+[data-md-color-scheme="default"] .md-header-nav__button {
+  color: #334155;
+}
+
+[data-md-color-scheme="default"] .md-header .md-logo,
+[data-md-color-scheme="default"] .md-header .md-logo img,
+[data-md-color-scheme="default"] .md-header .md-logo svg {
+  color: #0f172a;
+}
+
+[data-md-color-scheme="default"] .md-search__input {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+[data-md-color-scheme="default"] .md-search__input::placeholder {
+  color: #94a3b8;
+}
+
+[data-md-color-scheme="default"] .md-header .md-icon {
+  color: #475569;
+}
+
+[data-md-color-scheme="default"] .md-header__source {
+  color: #334155;
 }
 
 .md-tabs {
@@ -57,6 +93,16 @@
 
 [data-md-color-scheme="default"] .md-tabs {
   background: #f8fafc !important;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+[data-md-color-scheme="default"] .md-tabs__link {
+  color: #475569;
+}
+
+[data-md-color-scheme="default"] .md-tabs__link--active,
+[data-md-color-scheme="default"] .md-tabs__link:hover {
+  color: #0891b2 !important;
 }
 
 .md-tabs__link--active,
