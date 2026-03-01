@@ -18,6 +18,12 @@ import numpy as np
 from scipy.optimize import minimize
 
 try:
+    from vectrix_core import ces_nonseasonal_sse as _rustCesNonSeasonalSSE, ces_seasonal_sse as _rustCesSeasonalSSE
+    RUST_AVAILABLE = True
+except ImportError:
+    RUST_AVAILABLE = False
+
+try:
     from numba import jit
     NUMBA_AVAILABLE = True
 except ImportError:
@@ -29,7 +35,7 @@ except ImportError:
 
 
 @jit(nopython=True, cache=True)
-def _cesNonSeasonalSSE(y: np.ndarray, a0Real: float, a0Imag: float) -> float:
+def _cesNonSeasonalSSEPython(y: np.ndarray, a0Real: float, a0Imag: float) -> float:
     n = len(y)
     levelReal = y[0]
     levelImag = 0.0
@@ -48,8 +54,8 @@ def _cesNonSeasonalSSE(y: np.ndarray, a0Real: float, a0Imag: float) -> float:
 
 
 @jit(nopython=True, cache=True)
-def _cesSeasonalSSE(y: np.ndarray, a0Real: float, a0Imag: float, gamma: float,
-                    seasonalInit: np.ndarray, m: int) -> float:
+def _cesSeasonalSSEPython(y: np.ndarray, a0Real: float, a0Imag: float, gamma: float,
+                          seasonalInit: np.ndarray, m: int) -> float:
     n = len(y)
     levelReal = y[0] - seasonalInit[0]
     levelImag = 0.0
@@ -69,6 +75,18 @@ def _cesSeasonalSSE(y: np.ndarray, a0Real: float, a0Imag: float, gamma: float,
         seasonal[sidx] += gamma * error
 
     return sse
+
+
+def _cesNonSeasonalSSE(y, a0Real, a0Imag):
+    if RUST_AVAILABLE:
+        return _rustCesNonSeasonalSSE(y, a0Real, a0Imag)
+    return _cesNonSeasonalSSEPython(y, a0Real, a0Imag)
+
+
+def _cesSeasonalSSE(y, a0Real, a0Imag, gamma, seasonalInit, m):
+    if RUST_AVAILABLE:
+        return _rustCesSeasonalSSE(y, a0Real, a0Imag, gamma, seasonalInit, m)
+    return _cesSeasonalSSEPython(y, a0Real, a0Imag, gamma, seasonalInit, m)
 
 
 class CESModel:

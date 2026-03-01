@@ -14,8 +14,14 @@ from typing import Tuple
 import numpy as np
 from scipy.optimize import minimize_scalar
 
+try:
+    from vectrix_core import ses_sse as _rustSesSSE, ses_filter as _rustSesFilter
+    RUST_AVAILABLE = True
+except ImportError:
+    RUST_AVAILABLE = False
 
-def _sesFilter(y: np.ndarray, alpha: float) -> np.ndarray:
+
+def _sesFilterPython(y: np.ndarray, alpha: float) -> np.ndarray:
     n = len(y)
     result = np.zeros(n)
     result[0] = y[0]
@@ -24,7 +30,7 @@ def _sesFilter(y: np.ndarray, alpha: float) -> np.ndarray:
     return result
 
 
-def _sesSSE(y: np.ndarray, alpha: float) -> float:
+def _sesSSEPython(y: np.ndarray, alpha: float) -> float:
     n = len(y)
     level = y[0]
     sse = 0.0
@@ -33,6 +39,18 @@ def _sesSSE(y: np.ndarray, alpha: float) -> float:
         sse += error * error
         level = alpha * y[t] + (1.0 - alpha) * level
     return sse
+
+
+def _sesFilter(y, alpha):
+    if RUST_AVAILABLE:
+        return np.asarray(_rustSesFilter(y, alpha))
+    return _sesFilterPython(y, alpha)
+
+
+def _sesSSE(y, alpha):
+    if RUST_AVAILABLE:
+        return _rustSesSSE(y, alpha)
+    return _sesSSEPython(y, alpha)
 
 
 def _optimizeAlpha(y: np.ndarray) -> float:

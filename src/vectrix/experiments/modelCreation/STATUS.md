@@ -157,3 +157,27 @@
 ## 남은 대기 후보 (미실험)
 - KernelDensityForecaster
 - BayesianChangeForecaster
+
+## "세상에 없던 모델" 후보 (016~)
+
+013~015 실패에서 얻은 설계 원칙:
+1. 앙상블/가중치/후처리가 아니라 **예측 메커니즘 자체**가 달라야 함
+2. DOT/CES를 이기는 게 아니라 **DOT/CES가 못하는 걸 하는** 모델
+3. 기존 통계 모델 잔차 상관 0.73~1.0 → 비모수/비선형만이 진짜 다양성 제공
+4. 외부 제약 부과(RG, Lyapunov)는 역효과 → 데이터에서 직접 구조를 학습해야 함
+5. 단일 모델 품질 > 앙상블 모델 수
+
+### 후보 1: Topological Persistence Forecaster
+- **원리**: Persistent Homology(TDA)로 시계열의 위상 구조(루프, 구멍, 연결 성분) 추출 → 구조 변화 감지 → 구조별 국소 예측
+- **근거**: TDA를 시계열 분류/이상치에 쓴 연구는 있으나, 예측기로 직접 쓴 논문 없음
+- **기대**: 레짐 전환이 잦은 데이터에서 강점 가능
+
+### 후보 2: Causal Entropy Forecaster
+- **원리**: Transfer Entropy로 자기 과거→미래 인과 강도를 horizon별 측정 → 인과가 강한 lag에만 집중하는 비모수 예측기
+- **근거**: Transfer Entropy는 Granger Causality의 비모수 확장. 예측기 자체로 쓴 사례 없음
+- **기대**: 장기 의존성이 강한 데이터에서 lag 선택 자동화
+
+### 후보 3: Fractal Interpolation Forecaster
+- **원리**: IFS(Iterated Function System)로 시계열의 프랙탈 자기유사 구조 학습 → 자기유사성 기반 외삽
+- **근거**: 프랙탈 보간(Barnsley 1986)은 존재하나 예측기로 쓴 건 없음. 014 RGF에서 자기유사성 0.95+ 확인
+- **기대**: 긴 주기 반복 패턴(Yearly, Quarterly)에서 강점 가능

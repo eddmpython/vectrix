@@ -5,6 +5,22 @@ All notable changes to Vectrix will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.5] - 2026-03-02
+
+Performance release — Rust turbo acceleration extended to DOT, CES, and 4Theta models (vectrix-core 0.2.0).
+
+### Changed
+
+**Rust Turbo Mode Extended (vectrix-core 0.2.0)**
+- DOT (Dynamic Optimized Theta): 68ms → 2.8ms (24x faster) — `dot_objective`, `dot_residuals` Rust hot paths
+- AutoCES (Complex Exponential Smoothing): 118ms → 9.6ms (12x faster) — `ces_nonseasonal_sse`, `ces_seasonal_sse` Rust hot paths
+- 4Theta (Adaptive Theta Ensemble): 63ms → 5.6ms (11x faster) — wired existing `ses_sse`/`ses_filter` Rust functions
+- Total: 13 Rust-accelerated functions (was 9, added 4 new)
+- 3-tier fallback preserved: Rust > Numba JIT > Pure Python
+- All functions produce bit-identical results with Python reference implementations
+
+[0.0.5]: https://github.com/eddmpython/vectrix/compare/v0.0.4...v0.0.5
+
 ## [0.0.4] - 2026-03-02
 
 Quality & internationalization release — full English docstring conversion, 573 tests (+186), improved model selection with DOT/CES defaults.

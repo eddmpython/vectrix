@@ -497,6 +497,139 @@ fn batch_ets_filter(
     Ok(results)
 }
 
+#[pyfunction]
+fn dot_objective(
+    y: PyReadonlyArray1<f64>,
+    intercept: f64,
+    slope: f64,
+    theta: f64,
+    alpha: f64,
+    drift: f64,
+) -> PyResult<f64> {
+    let y = y.as_array();
+    let n = y.len();
+    if n < 2 {
+        return Ok(0.0);
+    }
+
+    let mut theta_line = vec![0.0f64; n];
+    for i in 0..n {
+        let linear = intercept + slope * (i as f64);
+        theta_line[i] = theta * y[i] + (1.0 - theta) * linear;
+    }
+
+    let mut level = theta_line[0];
+    let mut sse = 0.0f64;
+    for t in 1..n {
+        let trend_pred = intercept + slope * (t as f64);
+        let pred = (trend_pred + level + drift * (t as f64)) / 2.0;
+        let error = y[t] - pred;
+        sse += error * error;
+        level = alpha * theta_line[t] + (1.0 - alpha) * level;
+    }
+
+    Ok(sse)
+}
+
+#[pyfunction]
+fn dot_residuals(
+    py: Python<'_>,
+    y: PyReadonlyArray1<f64>,
+    intercept: f64,
+    slope: f64,
+    theta: f64,
+    alpha: f64,
+    drift: f64,
+) -> PyResult<(Py<PyArray1<f64>>, f64)> {
+    let y = y.as_array();
+    let n = y.len();
+    if n < 2 {
+        return Ok((Array1::<f64>::zeros(0).into_pyarray(py).into(), 0.0));
+    }
+
+    let mut theta_line = vec![0.0f64; n];
+    for i in 0..n {
+        let linear = intercept + slope * (i as f64);
+        theta_line[i] = theta * y[i] + (1.0 - theta) * linear;
+    }
+
+    let mut level = theta_line[0];
+    let mut residuals = Array1::<f64>::zeros(n - 1);
+    for t in 1..n {
+        let trend_pred = intercept + slope * (t as f64);
+        let pred = (trend_pred + level + drift * (t as f64)) / 2.0;
+        residuals[t - 1] = y[t] - pred;
+        level = alpha * theta_line[t] + (1.0 - alpha) * level;
+    }
+
+    Ok((residuals.into_pyarray(py).into(), level))
+}
+
+#[pyfunction]
+fn ces_nonseasonal_sse(
+    y: PyReadonlyArray1<f64>,
+    a0_real: f64,
+    a0_imag: f64,
+) -> PyResult<f64> {
+    let y = y.as_array();
+    let n = y.len();
+    if n < 2 {
+        return Ok(0.0);
+    }
+
+    let mut level_real = y[0];
+    let mut level_imag = 0.0f64;
+    let mut sse = 0.0f64;
+
+    for t in 1..n {
+        let forecast = level_real;
+        let error = y[t] - forecast;
+        sse += error * error;
+        let new_real = a0_real * y[t] + (1.0 - a0_real) * level_real + a0_imag * level_imag;
+        let new_imag = a0_imag * (y[t] - level_real) + (1.0 - a0_real) * level_imag;
+        level_real = new_real;
+        level_imag = new_imag;
+    }
+
+    Ok(sse)
+}
+
+#[pyfunction]
+fn ces_seasonal_sse(
+    y: PyReadonlyArray1<f64>,
+    a0_real: f64,
+    a0_imag: f64,
+    gamma: f64,
+    seasonal_init: PyReadonlyArray1<f64>,
+    m: usize,
+) -> PyResult<f64> {
+    let y = y.as_array();
+    let n = y.len();
+    if n < 2 || m == 0 {
+        return Ok(0.0);
+    }
+
+    let mut seasonal: Vec<f64> = seasonal_init.as_array().to_vec();
+    let mut level_real = y[0] - seasonal[0];
+    let mut level_imag = 0.0f64;
+    let mut sse = 0.0f64;
+
+    for t in 1..n {
+        let sidx = t % m;
+        let forecast = level_real + seasonal[sidx];
+        let error = y[t] - forecast;
+        sse += error * error;
+        let y_adj = y[t] - seasonal[sidx];
+        let new_real = a0_real * y_adj + (1.0 - a0_real) * level_real + a0_imag * level_imag;
+        let new_imag = a0_imag * (y_adj - level_real) + (1.0 - a0_real) * level_imag;
+        level_real = new_real;
+        level_imag = new_imag;
+        seasonal[sidx] += gamma * error;
+    }
+
+    Ok(sse)
+}
+
 #[pymodule]
 fn vectrix_core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(ets_filter, m)?)?;
@@ -508,5 +641,9 @@ fn vectrix_core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(ses_sse, m)?)?;
     m.add_function(wrap_pyfunction!(ses_filter, m)?)?;
     m.add_function(wrap_pyfunction!(batch_ets_filter, m)?)?;
+    m.add_function(wrap_pyfunction!(dot_objective, m)?)?;
+    m.add_function(wrap_pyfunction!(dot_residuals, m)?)?;
+    m.add_function(wrap_pyfunction!(ces_nonseasonal_sse, m)?)?;
+    m.add_function(wrap_pyfunction!(ces_seasonal_sse, m)?)?;
     Ok(())
 }

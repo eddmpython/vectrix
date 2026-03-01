@@ -69,6 +69,30 @@
     </div>
   </section>
 
+  <!-- Trusted by numbers -->
+  <section class="vx-section-alt">
+    <div class="vx-section-inner">
+      <div class="vx-numbers-grid">
+        <div class="vx-number-item">
+          <span class="vx-number-value">200K+</span>
+          <span class="vx-number-label">M3 & M4 대회에서 벤치마크된 시계열</span>
+        </div>
+        <div class="vx-number-item">
+          <span class="vx-number-value">65+</span>
+          <span class="vx-number-label">Forecast DNA 핑거프린팅이 추출하는 특성</span>
+        </div>
+        <div class="vx-number-item">
+          <span class="vx-number-value">0.696</span>
+          <span class="vx-number-label">M4 Hourly OWA — 대회 우승자급 정확도</span>
+        </div>
+        <div class="vx-number-item">
+          <span class="vx-number-value">&lt;5ms</span>
+          <span class="vx-number-label">Rust turbo 가속 ETS 모델 피팅</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Features -->
   <section class="vx-section vx-center">
     <span class="vx-section-label">기능</span>
@@ -119,51 +143,26 @@
         <h3>순수 파이썬</h3>
         <p>NumPy + SciPy + Pandas만 사용. 컴파일 불필요. 선택적 Rust turbo로 10배 속도.</p>
       </div>
-    </div>
-  </section>
-
-  <!-- Benchmarks -->
-  <section class="vx-section-alt">
-    <div class="vx-section-inner vx-center">
-      <span class="vx-section-label">성능</span>
-      <h2 class="vx-section-title">M3 & M4 Competition 벤치마크</h2>
-      <p class="vx-section-desc">
-        200,000+ 실제 시계열로 테스트. OWA &lt; 1.0은 Naive2 베이스라인 초과.
-      </p>
-      <div class="vx-bench-table-wrap">
-        <table class="vx-bench-table">
-          <thead>
-            <tr>
-              <th>대회</th>
-              <th>Yearly</th>
-              <th>Quarterly</th>
-              <th>Monthly</th>
-              <th>Weekly</th>
-              <th>Daily</th>
-              <th>Hourly</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>M3</td>
-              <td class="vx-bench-good">0.848</td>
-              <td class="vx-bench-good">0.825</td>
-              <td class="vx-bench-good">0.758</td>
-              <td>—</td>
-              <td>—</td>
-              <td class="vx-bench-good">0.819</td>
-            </tr>
-            <tr>
-              <td>M4</td>
-              <td class="vx-bench-good">0.974</td>
-              <td class="vx-bench-good">0.797</td>
-              <td class="vx-bench-good">0.987</td>
-              <td class="vx-bench-good">0.737</td>
-              <td class="vx-bench-warn">1.207</td>
-              <td class="vx-bench-warn">1.006</td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="vx-feature">
+        <div class="vx-feature-icon green">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <h3>확률적 예측</h3>
+        <p>파라메트릭 분포(가우시안, Student-t, 로그정규), 분위수 예측, Conformal 예측 구간, CRPS 스코어링.</p>
+      </div>
+      <div class="vx-feature">
+        <div class="vx-feature-icon amber">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>
+        </div>
+        <h3>R-스타일 회귀</h3>
+        <p>수식 인터페이스: <code>regress(df, "sales ~ ads + price")</code>. OLS, Ridge, Lasso, Huber, Quantile 전체 진단.</p>
+      </div>
+      <div class="vx-feature">
+        <div class="vx-feature-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <h3>비즈니스 인텔리전스</h3>
+        <p>이상치 탐지, What-if 시나리오, 백테스팅 프레임워크, 프로덕션 메트릭(WAPE, MASE, bias).</p>
       </div>
     </div>
   </section>
@@ -217,6 +216,416 @@
     </div>
   </section>
 
+  <!-- Model Catalog -->
+  <section class="vx-section vx-center">
+    <span class="vx-section-label">모델 카탈로그</span>
+    <h2 class="vx-section-title">30+ 모델, 하나의 통합 API</h2>
+    <p class="vx-section-desc">
+      모든 모델이 동일한 <code>fit → predict</code> 인터페이스를 공유합니다. Vectrix가 데이터에 최적인 모델을 자동 선택합니다.
+    </p>
+    <div class="vx-model-grid">
+      <div class="vx-model-category">
+        <div class="vx-model-category-header">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          지수 평활
+        </div>
+        <div class="vx-model-tags">
+          <span class="vx-tag">AutoETS</span>
+          <span class="vx-tag">Holt-Winters</span>
+          <span class="vx-tag">SES</span>
+          <span class="vx-tag">DES</span>
+          <span class="vx-tag">AutoCES</span>
+          <span class="vx-tag vx-tag-new">4Theta</span>
+        </div>
+      </div>
+      <div class="vx-model-category">
+        <div class="vx-model-category-header">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+          ARIMA 계열
+        </div>
+        <div class="vx-model-tags">
+          <span class="vx-tag">AutoARIMA</span>
+          <span class="vx-tag">ARIMAX</span>
+          <span class="vx-tag">SARIMA</span>
+        </div>
+      </div>
+      <div class="vx-model-category">
+        <div class="vx-model-category-header">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6m-7-7h6m6 0h6"/></svg>
+          분해
+        </div>
+        <div class="vx-model-tags">
+          <span class="vx-tag">AutoMSTL</span>
+          <span class="vx-tag">AutoTBATS</span>
+          <span class="vx-tag">Theta</span>
+          <span class="vx-tag">DOT</span>
+        </div>
+      </div>
+      <div class="vx-model-category">
+        <div class="vx-model-category-header">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+          비모수
+        </div>
+        <div class="vx-model-tags">
+          <span class="vx-tag vx-tag-new">DTSF</span>
+          <span class="vx-tag vx-tag-new">ESN</span>
+          <span class="vx-tag">Fourier</span>
+        </div>
+      </div>
+      <div class="vx-model-category">
+        <div class="vx-model-category-header">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+          변동성 & 특수
+        </div>
+        <div class="vx-model-tags">
+          <span class="vx-tag">GARCH</span>
+          <span class="vx-tag">AutoCroston</span>
+          <span class="vx-tag">ADIDA</span>
+          <span class="vx-tag">IMAPA</span>
+        </div>
+      </div>
+      <div class="vx-model-category">
+        <div class="vx-model-category-header">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h6v6H9z"/></svg>
+          ML & Foundation
+        </div>
+        <div class="vx-model-tags">
+          <span class="vx-tag">LightGBM</span>
+          <span class="vx-tag">XGBoost</span>
+          <span class="vx-tag">Chronos-2</span>
+          <span class="vx-tag">TimesFM</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Adaptive Intelligence Deep Dive -->
+  <section class="vx-section-alt">
+    <div class="vx-section-inner">
+      <div class="vx-split">
+        <div class="vx-split-text">
+          <span class="vx-section-label">적응형 지능</span>
+          <h2 class="vx-section-title">현실에 적응하는 예측</h2>
+          <p class="vx-section-desc" style="margin-bottom: 2rem;">
+            현실 데이터는 지저분합니다. 레짐이 변하고, 이상치가 나타나고, 비즈니스 규칙이 중요합니다. Vectrix가 모두 처리합니다.
+          </p>
+          <div class="vx-feature-list">
+            <div class="vx-feature-list-item">
+              <div class="vx-feature-list-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </div>
+              <div>
+                <strong>레짐 감지</strong>
+                <p>HMM 기반 자동 레짐 식별. 구조적 변화를 감지하고 모델 선택을 적응시킵니다.</p>
+              </div>
+            </div>
+            <div class="vx-feature-list-item">
+              <div class="vx-feature-list-icon green">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+              </div>
+              <div>
+                <strong>자가 치유 예측</strong>
+                <p>CUSUM + EWMA 모니터링. 예측이 드리프트하면 오차가 누적되기 전에 자동 보정합니다.</p>
+              </div>
+            </div>
+            <div class="vx-feature-list-item">
+              <div class="vx-feature-list-icon purple">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+              </div>
+              <div>
+                <strong>8가지 비즈니스 제약</strong>
+                <p>비음수, 범위 제한, 단조, 정수, 계절 하한/상한, 성장률 제한 등.</p>
+              </div>
+            </div>
+            <div class="vx-feature-list-item">
+              <div class="vx-feature-list-icon amber">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+              </div>
+              <div>
+                <strong>Forecast DNA 핑거프린팅</strong>
+                <p>65+ 특성: 추세 강도, 계절성 유형, 노이즈 비율, 허스트 지수, 수요 밀도 등. 모델링 전에 데이터를 파악합니다.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="vx-split-code">
+          <div class="vx-code-window">
+            <div class="vx-code-header">
+              <span class="vx-code-dot"></span><span class="vx-code-dot"></span><span class="vx-code-dot"></span>
+              <span class="vx-code-title">adaptive.py</span>
+            </div>
+            <div class="vx-code-body">
+              <span class="kw">from</span> <span class="var">vectrix</span> <span class="kw">import</span> <span class="fn">Vectrix</span><br><br>
+              <span class="var">vx</span> <span class="op">=</span> <span class="fn">Vectrix</span><span class="op">(</span><span class="var">data</span><span class="op">)</span><br><br>
+              <span class="cm"># 레짐 감지</span><br>
+              <span class="var">regimes</span> <span class="op">=</span> <span class="var">vx</span><span class="op">.</span><span class="fn">detectRegimes</span><span class="op">()</span><br><br>
+              <span class="cm"># 자가 치유 예측</span><br>
+              <span class="var">healed</span> <span class="op">=</span> <span class="var">vx</span><span class="op">.</span><span class="fn">healForecast</span><span class="op">(</span><br>
+              &nbsp;&nbsp;<span class="var">steps</span><span class="op">=</span><span class="num">12</span><span class="op">,</span><br>
+              &nbsp;&nbsp;<span class="var">actual</span><span class="op">=</span><span class="var">newData</span><br>
+              <span class="op">)</span><br><br>
+              <span class="cm"># 비즈니스 제약</span><br>
+              <span class="var">result</span> <span class="op">=</span> <span class="var">vx</span><span class="op">.</span><span class="fn">forecast</span><span class="op">(</span><br>
+              &nbsp;&nbsp;<span class="var">steps</span><span class="op">=</span><span class="num">12</span><span class="op">,</span><br>
+              &nbsp;&nbsp;<span class="var">constraints</span><span class="op">=[</span><br>
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">NonNegative</span><span class="op">(),</span><br>
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="fn">MaxGrowth</span><span class="op">(</span><span class="num">0.1</span><span class="op">)</span><br>
+              &nbsp;&nbsp;<span class="op">]</span><br>
+              <span class="op">)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Rust Turbo -->
+  <section class="vx-section vx-center">
+    <span class="vx-section-label">성능</span>
+    <h2 class="vx-section-title">Rust Turbo Mode</h2>
+    <p class="vx-section-desc">
+      선택적 Rust 가속 코어 루프. 모든 플랫폼 사전 빌드 wheel — Rust 컴파일러 불필요.
+    </p>
+    <div class="vx-speed-grid">
+      <div class="vx-speed-card">
+        <div class="vx-speed-header">AutoETS</div>
+        <div class="vx-speed-bar-container">
+          <div class="vx-speed-bar vx-speed-bar-python" style="width: 100%;">
+            <span>Python: 348ms</span>
+          </div>
+          <div class="vx-speed-bar vx-speed-bar-rust" style="width: 9.2%;">
+            <span>Rust: 32ms</span>
+          </div>
+        </div>
+        <div class="vx-speed-badge">10.8x 빠름</div>
+      </div>
+      <div class="vx-speed-card">
+        <div class="vx-speed-header">AutoARIMA</div>
+        <div class="vx-speed-bar-container">
+          <div class="vx-speed-bar vx-speed-bar-python" style="width: 100%;">
+            <span>Python: 285ms</span>
+          </div>
+          <div class="vx-speed-bar vx-speed-bar-rust" style="width: 17.9%;">
+            <span>Rust: 51ms</span>
+          </div>
+        </div>
+        <div class="vx-speed-badge">5.6x 빠름</div>
+      </div>
+      <div class="vx-speed-card">
+        <div class="vx-speed-header">Theta</div>
+        <div class="vx-speed-bar-container">
+          <div class="vx-speed-bar vx-speed-bar-python" style="width: 100%;">
+            <span>Python: 130ms</span>
+          </div>
+          <div class="vx-speed-bar vx-speed-bar-rust" style="width: 12.3%;">
+            <span>Rust: 16ms</span>
+          </div>
+        </div>
+        <div class="vx-speed-badge">8.1x 빠름</div>
+      </div>
+    </div>
+    <p style="margin-top: 1.5rem; color: var(--vx-text-dim); font-size: 0.85rem;">
+      <code>pip install "vectrix[turbo]"</code> — wheel 미제공 시 순수 파이썬으로 자동 대체.
+    </p>
+  </section>
+
+  <!-- Benchmarks -->
+  <section class="vx-section-alt">
+    <div class="vx-section-inner vx-center">
+      <span class="vx-section-label">벤치마크</span>
+      <h2 class="vx-section-title">M3 & M4 Competition 결과</h2>
+      <p class="vx-section-desc">
+        200,000+ 실제 시계열로 테스트. OWA &lt; 1.0은 Naive2 베이스라인 초과.
+      </p>
+      <div class="vx-bench-table-wrap">
+        <table class="vx-bench-table">
+          <thead>
+            <tr>
+              <th>대회</th>
+              <th>Yearly</th>
+              <th>Quarterly</th>
+              <th>Monthly</th>
+              <th>Weekly</th>
+              <th>Daily</th>
+              <th>Hourly</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>M3</td>
+              <td class="vx-bench-good">0.848</td>
+              <td class="vx-bench-good">0.825</td>
+              <td class="vx-bench-good">0.758</td>
+              <td>—</td>
+              <td>—</td>
+              <td class="vx-bench-good">0.819</td>
+            </tr>
+            <tr>
+              <td>M4</td>
+              <td class="vx-bench-good">0.974</td>
+              <td class="vx-bench-good">0.797</td>
+              <td class="vx-bench-good">0.987</td>
+              <td class="vx-bench-good">0.737</td>
+              <td class="vx-bench-warn">1.207</td>
+              <td class="vx-bench-warn">1.006</td>
+            </tr>
+            <tr>
+              <td>M4 앙상블</td>
+              <td class="vx-bench-good">0.879</td>
+              <td class="vx-bench-good">0.797</td>
+              <td class="vx-bench-good">0.927</td>
+              <td class="vx-bench-good">0.737</td>
+              <td class="vx-bench-warn">1.105</td>
+              <td class="vx-bench-good">0.696</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top: 0.75rem; font-size: 0.8rem; color: var(--vx-text-dim);">
+        M4 앙상블은 DOT + AutoCES + 4Theta + DTSF + ESN의 VX-Ensemble 사용. Hourly 0.696 OWA = 대회 우승자급.
+      </p>
+      <p style="margin-top: 1.5rem;">
+        <a href="../benchmarks/" class="vx-btn vx-btn-secondary" style="font-size: 0.85rem;">
+          전체 벤치마크 결과 보기 →
+        </a>
+      </p>
+    </div>
+  </section>
+
+  <!-- Pipeline -->
+  <section class="vx-section">
+    <div class="vx-split">
+      <div class="vx-split-code">
+        <div class="vx-code-window">
+          <div class="vx-code-header">
+            <span class="vx-code-dot"></span><span class="vx-code-dot"></span><span class="vx-code-dot"></span>
+            <span class="vx-code-title">pipeline.py</span>
+          </div>
+          <div class="vx-code-body">
+            <span class="kw">from</span> <span class="var">vectrix</span> <span class="kw">import</span> <span class="fn">Vectrix</span><br><br>
+            <span class="var">vx</span> <span class="op">=</span> <span class="fn">Vectrix</span><span class="op">(</span><span class="var">data</span><span class="op">)</span><br><br>
+            <span class="cm"># 전체 파이프라인</span><br>
+            <span class="var">pipe</span> <span class="op">=</span> <span class="var">vx</span><span class="op">.</span><span class="fn">pipeline</span><span class="op">([</span><br>
+            &nbsp;&nbsp;<span class="str">"log"</span><span class="op">,</span><br>
+            &nbsp;&nbsp;<span class="str">"deseasonalize"</span><span class="op">,</span><br>
+            &nbsp;&nbsp;<span class="str">"scale"</span><br>
+            <span class="op">])</span><br>
+            <span class="var">result</span> <span class="op">=</span> <span class="var">pipe</span><span class="op">.</span><span class="fn">forecast</span><span class="op">(</span><span class="num">12</span><span class="op">)</span><br><br>
+            <span class="cm"># 백테스팅</span><br>
+            <span class="var">bt</span> <span class="op">=</span> <span class="var">vx</span><span class="op">.</span><span class="fn">backtest</span><span class="op">(</span><br>
+            &nbsp;&nbsp;<span class="var">steps</span><span class="op">=</span><span class="num">12</span><span class="op">,</span><br>
+            &nbsp;&nbsp;<span class="var">windows</span><span class="op">=</span><span class="num">5</span><br>
+            <span class="op">)</span><br><br>
+            <span class="cm"># What-if 시나리오</span><br>
+            <span class="var">scenarios</span> <span class="op">=</span> <span class="var">vx</span><span class="op">.</span><span class="fn">whatIf</span><span class="op">(</span><br>
+            &nbsp;&nbsp;<span class="var">shocks</span><span class="op">=[</span><span class="num">-0.2</span><span class="op">,</span> <span class="num">0</span><span class="op">,</span> <span class="num">0.2</span><span class="op">]</span><br>
+            <span class="op">)</span>
+          </div>
+        </div>
+      </div>
+      <div class="vx-split-text">
+        <span class="vx-section-label">고급 기능</span>
+        <h2 class="vx-section-title">기본 예측을 넘어서</h2>
+        <p class="vx-section-desc" style="margin-bottom: 2rem;">
+          더 많은 제어가 필요할 때, Vectrix가 전체 도구를 제공합니다.
+        </p>
+        <div class="vx-feature-list">
+          <div class="vx-feature-list-item">
+            <div class="vx-feature-list-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M4 12h16"/><path d="M12 4v16"/></svg>
+            </div>
+            <div>
+              <strong>sklearn 스타일 파이프라인</strong>
+              <p>변환기(log, scale, deseasonalize) 체인 연결, 예측 시 자동 역변환. 완전 직렬화 가능.</p>
+            </div>
+          </div>
+          <div class="vx-feature-list-item">
+            <div class="vx-feature-list-icon green">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><polyline points="18 17 12 11 8 15 3 10"/></svg>
+            </div>
+            <div>
+              <strong>백테스팅 프레임워크</strong>
+              <p>슬라이딩 윈도우 교차 검증, 커스터마이즈 가능한 메트릭. 배포 전 모델 성능 파악.</p>
+            </div>
+          </div>
+          <div class="vx-feature-list-item">
+            <div class="vx-feature-list-icon purple">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            </div>
+            <div>
+              <strong>What-If 시나리오</strong>
+              <p>예측에 대한 충격 영향 시뮬레이션. 비즈니스 계획 및 스트레스 테스트에 최적.</p>
+            </div>
+          </div>
+          <div class="vx-feature-list-item">
+            <div class="vx-feature-list-icon amber">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M23 11h-6"/></svg>
+            </div>
+            <div>
+              <strong>다변량 (VAR/VECM)</strong>
+              <p>벡터 자기회귀, Granger 인과성, 충격 반응 함수, 공적분 검정.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Use Cases -->
+  <section class="vx-section-alt">
+    <div class="vx-section-inner vx-center">
+      <span class="vx-section-label">활용 사례</span>
+      <h2 class="vx-section-title">실무에 바로 적용</h2>
+      <p class="vx-section-desc">
+        수요 계획부터 금융 모델링까지 — Vectrix는 도메인에 맞게 적응합니다.
+      </p>
+      <div class="vx-usecase-grid">
+        <div class="vx-usecase">
+          <div class="vx-usecase-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+          </div>
+          <h4>유통 & 이커머스</h4>
+          <p>수요 예측, 재고 최적화, 계절 계획. 간헐적 수요 지원(Croston, ADIDA).</p>
+        </div>
+        <div class="vx-usecase">
+          <div class="vx-usecase-icon purple">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+          </div>
+          <h4>금융 & 트레이딩</h4>
+          <p>변동성 모델링(GARCH), 시장 레짐 감지, 신뢰 구간 기반 확률적 리스크 평가.</p>
+        </div>
+        <div class="vx-usecase">
+          <div class="vx-usecase-icon green">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          </div>
+          <h4>에너지 & 유틸리티</h4>
+          <p>다중 계절 패턴(시간/일/주) 부하 예측. MSTL과 TBATS가 복합 계절성 처리.</p>
+        </div>
+        <div class="vx-usecase">
+          <div class="vx-usecase-icon amber">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          </div>
+          <h4>헬스케어 & IoT</h4>
+          <p>환자 수 예측, 센서 데이터 예측, 드리프트 보정을 위한 자가 치유 이상치 탐지.</p>
+        </div>
+        <div class="vx-usecase">
+          <div class="vx-usecase-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          </div>
+          <h4>HR & 인력 관리</h4>
+          <p>인력 수요 예측, 이직 예측. 부서별 계획을 위한 계층적 조정.</p>
+        </div>
+        <div class="vx-usecase">
+          <div class="vx-usecase-icon purple">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <h4>SaaS & 프로덕트</h4>
+          <p>사용자 성장 모델링, 매출 예측, 이탈 예측. 비즈니스 제약이 현실적 성장 한계를 적용.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Install -->
   <section class="vx-section vx-center">
     <span class="vx-section-label">시작하기</span>
@@ -249,6 +658,133 @@
       </div>
       <div class="vx-install-detail">
         <strong>전체</strong> — 모든 의존성 포함 (Rust + ML + Foundation).
+      </div>
+    </div>
+  </section>
+
+  <!-- Comparison -->
+  <section class="vx-section-alt">
+    <div class="vx-section-inner vx-center">
+      <span class="vx-section-label">비교</span>
+      <h2 class="vx-section-title">Vectrix vs 경쟁 라이브러리</h2>
+      <p class="vx-section-desc">
+        프로덕션 예측에 특화된 기능을 제공합니다.
+      </p>
+      <div class="vx-bench-table-wrap">
+        <table class="vx-bench-table">
+          <thead>
+            <tr>
+              <th style="text-align: left;">기능</th>
+              <th>Vectrix</th>
+              <th>statsforecast</th>
+              <th>Prophet</th>
+              <th>Darts</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>제로 설정 예측</td>
+              <td class="vx-bench-good">Yes</td>
+              <td class="vx-bench-good">Yes</td>
+              <td>No</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td>순수 파이썬 (컴파일 의존성 없음)</td>
+              <td class="vx-bench-good">Yes</td>
+              <td>No</td>
+              <td>No</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td>30+ 통계 모델</td>
+              <td class="vx-bench-good">Yes</td>
+              <td class="vx-bench-good">Yes</td>
+              <td>No</td>
+              <td class="vx-bench-good">Yes</td>
+            </tr>
+            <tr>
+              <td>평탄 예측 방어</td>
+              <td class="vx-bench-good">Yes</td>
+              <td>No</td>
+              <td>No</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td>Forecast DNA 핑거프린팅</td>
+              <td class="vx-bench-good">Yes</td>
+              <td>No</td>
+              <td>No</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td>비즈니스 제약 (8종)</td>
+              <td class="vx-bench-good">Yes</td>
+              <td>No</td>
+              <td>No</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td>R-스타일 회귀</td>
+              <td class="vx-bench-good">Yes</td>
+              <td>No</td>
+              <td>No</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td>자가 치유 예측</td>
+              <td class="vx-bench-good">Yes</td>
+              <td>No</td>
+              <td>No</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td>Foundation model 래퍼</td>
+              <td class="vx-bench-good">Yes</td>
+              <td>No</td>
+              <td>No</td>
+              <td class="vx-bench-good">Yes</td>
+            </tr>
+            <tr>
+              <td>VAR / VECM 다변량</td>
+              <td class="vx-bench-good">Yes</td>
+              <td>No</td>
+              <td>No</td>
+              <td class="vx-bench-good">Yes</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Open Source -->
+  <section class="vx-section vx-center">
+    <span class="vx-section-label">오픈 소스</span>
+    <h2 class="vx-section-title">MIT 라이선스. 영원히 무료.</h2>
+    <p class="vx-section-desc">
+      개인 및 상업 프로젝트에서 자유롭게 사용하세요. 기여를 환영합니다.
+    </p>
+    <div class="vx-oss-grid">
+      <div class="vx-oss-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--vx-primary)" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        <strong>MIT 라이선스</strong>
+        <p>상업적 사용 제한 없음</p>
+      </div>
+      <div class="vx-oss-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--vx-accent)" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
+        <strong>GitHub</strong>
+        <p>Star, Fork, 기여하기</p>
+      </div>
+      <div class="vx-oss-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--vx-success)" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+        <strong>387개 테스트</strong>
+        <p>포괄적 테스트 커버리지</p>
+      </div>
+      <div class="vx-oss-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--vx-warning)" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+        <strong>완전한 문서</strong>
+        <p>API 레퍼런스, 가이드, 튜토리얼</p>
       </div>
     </div>
   </section>

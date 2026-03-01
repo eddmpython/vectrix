@@ -1,6 +1,6 @@
 [project]
 name = "vectrix"
-version = "0.0.4"
+version = "0.0.5"
 description = "Zero-config time series forecasting & analysis library. Pure numpy + scipy implementation with 30+ models, regression, and adaptive intelligence."
 readme = "README.md"
 license = {text = "MIT"}
@@ -58,7 +58,7 @@ foundation = [
 neural = [
     "neuralforecast>=1.7",
 ]
-turbo = ["vectrix-core>=0.1.0"]
+turbo = ["vectrix-core>=0.2.0"]
 dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",

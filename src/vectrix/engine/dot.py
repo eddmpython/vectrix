@@ -17,6 +17,12 @@ import numpy as np
 from scipy.optimize import minimize
 
 try:
+    from vectrix_core import dot_objective as _rustDotObjective, dot_residuals as _rustDotResiduals
+    RUST_AVAILABLE = True
+except ImportError:
+    RUST_AVAILABLE = False
+
+try:
     from numba import jit
     NUMBA_AVAILABLE = True
 except ImportError:
@@ -30,7 +36,7 @@ from .turbo import TurboCore
 
 
 @jit(nopython=True, cache=True)
-def _dotObjectiveJIT(
+def _dotObjectivePython(
     workData: np.ndarray,
     intercept: float,
     slope: float,
@@ -61,7 +67,7 @@ def _dotObjectiveJIT(
 
 
 @jit(nopython=True, cache=True)
-def _dotComputeResiduals(
+def _dotComputeResidualsPython(
     workData: np.ndarray,
     intercept: float,
     slope: float,
@@ -88,6 +94,18 @@ def _dotComputeResiduals(
         level = alpha * thetaLine[t] + (1.0 - alpha) * level
 
     return residuals, level
+
+
+def _dotObjectiveJIT(workData, intercept, slope, theta, alpha, drift):
+    if RUST_AVAILABLE:
+        return _rustDotObjective(workData, intercept, slope, theta, alpha, drift)
+    return _dotObjectivePython(workData, intercept, slope, theta, alpha, drift)
+
+
+def _dotComputeResiduals(workData, intercept, slope, theta, alpha, drift):
+    if RUST_AVAILABLE:
+        return _rustDotResiduals(workData, intercept, slope, theta, alpha, drift)
+    return _dotComputeResidualsPython(workData, intercept, slope, theta, alpha, drift)
 
 
 class DynamicOptimizedTheta:
