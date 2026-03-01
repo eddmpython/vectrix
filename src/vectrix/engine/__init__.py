@@ -16,11 +16,11 @@ from .decomposition import SeasonalDecomposition
 from .diagnostics import ForecastDiagnostics, ForecastDiagnosticsResult
 from .dot import DynamicOptimizedTheta
 from .dtsf import DynamicTimeScanForecaster
-from .esn import EchoStateForecaster
-from .fourTheta import AdaptiveThetaEnsemble
 from .entropic import EntropicConfidenceScorer, EntropyResult
+from .esn import EchoStateForecaster
 from .ets import ETSModel
 from .events import EventEffect
+from .fourTheta import AdaptiveThetaEnsemble
 from .garch import EGARCHModel, GARCHModel, GJRGARCHModel
 from .hawkes import HawkesIntermittentDemand
 from .impute import TimeSeriesImputer
