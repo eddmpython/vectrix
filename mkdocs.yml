@@ -101,6 +101,7 @@ nav:
     - Types: api/types.md
   - Benchmarks: benchmarks.md
   - Tutorials: tutorials/index.md
+  - Showcase: showcase/index.md
   - Changelog: changelog.md
 
 markdown_extensions:
