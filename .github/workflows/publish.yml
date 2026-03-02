@@ -65,6 +65,8 @@ jobs:
           args: --release --out dist -i python3.10 -i python3.11 -i python3.12 -i python3.13
           sccache: true
           manylinux: auto
+          before-script-linux: |
+            rm -rf /opt/python/cp314* /opt/python/pp* || true
 
       - name: Upload wheels
         uses: actions/upload-artifact@v4
