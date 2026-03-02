@@ -59,6 +59,17 @@ neural = [
     "neuralforecast>=1.7",
 ]
 mcp = ["mcp[cli]>=1.0"]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "ruff>=0.1.0",
+]
+docs = [
+    "mkdocs>=1.6",
+    "mkdocs-material>=9.5",
+    "mkdocstrings[python]>=0.24",
+    "mkdocs-static-i18n>=1.2",
+]
 all = ["vectrix[numba,ml,foundation,neural]"]
 
 [project.urls]
@@ -85,12 +96,6 @@ dev = [
     "ruff>=0.1.0",
     "marimo>=0.1.0",
     "matplotlib>=3.5.0",
-]
-docs = [
-    "mkdocs>=1.6",
-    "mkdocs-material>=9.5",
-    "mkdocstrings[python]>=0.24",
-    "mkdocs-static-i18n>=1.2",
 ]
 
 [tool.ruff]
