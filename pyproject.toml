@@ -58,7 +58,7 @@ foundation = [
 neural = [
     "neuralforecast>=1.7",
 ]
-turbo = ["vectrix-core>=0.2.0"]
+# turbo = ["vectrix-core>=0.2.0"]  # Enable after vectrix-core is published to PyPI
 dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
@@ -71,7 +71,7 @@ docs = [
     "mkdocstrings[python]>=0.24",
     "mkdocs-static-i18n>=1.2",
 ]
-all = ["vectrix[turbo,numba,ml,foundation,neural,dev,tutorials,docs]"]
+all = ["vectrix[numba,ml,foundation,neural,dev,tutorials,docs]"]
 
 [project.urls]
 Homepage = "https://github.com/eddmpython/vectrix"

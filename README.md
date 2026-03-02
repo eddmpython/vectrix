@@ -163,6 +163,8 @@ result.plot()
 | **Built-in regression** | R-style | ❌ | ❌ | ❌ |
 | **Sample datasets** | 7 built-in | ❌ | ❌ | ✅ |
 
+> **Comparison notes**: Dependencies counted as direct `pip install` requirements (not transitive). "Pure Python" means the core library runs without compiled extensions — Vectrix's optional Rust turbo (`vectrix[turbo]`) is a separate, opt-in wheel. statsforecast requires Numba JIT compilation; Prophet requires CmdStan (C++ compiler); Darts requires PyTorch. Feature comparison based on statsforecast 2.0+, Prophet 1.1+, Darts 0.31+.
+
 <br>
 
 ## ◈ Models

@@ -62,12 +62,38 @@ python benchmarks/runM4.py --all --n 50
 
 ## Reproducing Results
 
+### Environment
+
+| Item | Version / Spec |
+|------|----------------|
+| Python | 3.10+ |
+| Vectrix | 0.0.5 |
+| OS | Windows 11 / Ubuntu 22.04 / macOS 14+ |
+| CPU | Any modern x86_64 or ARM64 |
+| RAM | 8 GB minimum |
+| NumPy | 1.24+ |
+| SciPy | 1.10+ |
+| Pandas | 2.0+ |
+
+### Steps
+
 ```bash
 git clone https://github.com/eddmpython/vectrix.git
 cd vectrix
 pip install -e .
+
+# M3 Competition (first 100 series per category)
 python benchmarks/runM3.py --all --n 100
+
+# M4 Competition (first 100 series per frequency)
 python benchmarks/runM4.py --all --n 100
 ```
 
 Results are saved to `benchmarks/m3Results.csv` and `benchmarks/m4Results.csv`.
+
+### Notes
+
+- All models are **deterministic** (no random seed required). Given the same data and parameters, Vectrix produces identical results across runs.
+- The `--n 100` flag selects the first 100 series per category/frequency. Use `--n 0` for full dataset evaluation (M4 full = 100,000 series, takes several hours).
+- Benchmark scripts automatically download competition data from the `datasetsforecast` package.
+- Turbo mode (`vectrix[turbo]`) does not affect accuracy — only speed. Results are numerically identical with or without Rust acceleration.
