@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import { Button } from '$lib/components/ui/button';
 
 	const rows = [
@@ -51,7 +52,7 @@
 		<p class="mt-3 text-xs text-vx-text-dim">
 			M4 Ensemble uses VX-Ensemble with DOT + AutoCES + 4Theta + DTSF + ESN. Hourly 0.696 OWA = competition winner level.
 		</p>
-		<Button variant="secondary" size="sm" href="https://eddmpython.github.io/vectrix/docs/benchmarks/" class="mt-6">
+		<Button variant="secondary" size="sm" href="{base}/docs/benchmarks" class="mt-6">
 			View full benchmark results →
 		</Button>
 	</div>

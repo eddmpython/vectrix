@@ -20,19 +20,19 @@
 		</a>
 
 		<div class="hidden md:flex items-center gap-1">
-			<a href="https://eddmpython.github.io/vectrix/docs/getting-started/quickstart/"
+			<a href="{base}/docs/getting-started/quickstart"
 				class="px-3 py-2 text-sm text-vx-text-muted hover:text-vx-text transition-colors no-underline rounded-lg hover:bg-white/5">
 				Quickstart
 			</a>
-			<a href="https://eddmpython.github.io/vectrix/docs/api/easy/"
+			<a href="{base}/docs/api/easy"
 				class="px-3 py-2 text-sm text-vx-text-muted hover:text-vx-text transition-colors no-underline rounded-lg hover:bg-white/5">
 				API
 			</a>
-			<a href="https://eddmpython.github.io/vectrix/docs/guide/forecasting/"
+			<a href="{base}/docs/guide/forecasting"
 				class="px-3 py-2 text-sm text-vx-text-muted hover:text-vx-text transition-colors no-underline rounded-lg hover:bg-white/5">
 				Guide
 			</a>
-			<a href="https://eddmpython.github.io/vectrix/docs/benchmarks/"
+			<a href="{base}/docs/benchmarks"
 				class="px-3 py-2 text-sm text-vx-text-muted hover:text-vx-text transition-colors no-underline rounded-lg hover:bg-white/5">
 				Benchmarks
 			</a>
@@ -44,12 +44,12 @@
 				title="GitHub">
 				<Github class="w-4.5 h-4.5" />
 			</a>
-			<a href="https://eddmpython.github.io/vectrix/docs/" target="_blank" rel="noopener"
+			<a href="{base}/docs"
 				class="w-9 h-9 rounded-lg flex items-center justify-center text-vx-text-dim hover:text-vx-text hover:bg-white/5 transition-all no-underline"
 				title="Documentation">
 				<BookOpen class="w-4.5 h-4.5" />
 			</a>
-			<Button size="sm" href="https://eddmpython.github.io/vectrix/docs/getting-started/installation/">
+			<Button size="sm" href="{base}/docs/getting-started/installation">
 				<Download class="w-3.5 h-3.5" />
 				Install
 			</Button>

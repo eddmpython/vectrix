@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Button } from '$lib/components/ui/button';
 	import { Zap, Download, Play, Github } from 'lucide-svelte';
@@ -49,11 +50,11 @@
 		</div>
 
 		<div class="flex justify-center gap-3 mb-12 flex-wrap">
-			<Button href="https://eddmpython.github.io/vectrix/docs/getting-started/installation/">
+			<Button href="{base}/docs/getting-started/installation">
 				<Download class="w-4 h-4" />
 				Install
 			</Button>
-			<Button variant="secondary" href="https://eddmpython.github.io/vectrix/docs/getting-started/quickstart/">
+			<Button variant="secondary" href="{base}/docs/getting-started/quickstart">
 				<Play class="w-4 h-4" />
 				Quickstart
 			</Button>

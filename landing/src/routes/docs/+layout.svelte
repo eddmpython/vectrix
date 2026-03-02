@@ -68,7 +68,7 @@
 		<div class="vx-blog-header-inner">
 			<div class="vx-blog-header-left">
 				<a href="{base}/" class="vx-blog-logo">
-					<span class="vx-blog-logo-v">V</span>
+					<img src="{base}/icon-final.png" alt="Vectrix" width="24" height="24" class="vx-blog-logo-img" />
 					<span class="vx-blog-logo-text">Vectrix</span>
 				</a>
 				<span class="vx-blog-logo-divider">/</span>
@@ -218,12 +218,8 @@
 		font-size: 1.05rem;
 	}
 
-	.vx-blog-logo-v {
-		background: linear-gradient(135deg, #06b6d4, #8b5cf6);
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-		font-size: 1.3rem;
-		font-weight: 900;
+	.vx-blog-logo-img {
+		border-radius: 4px;
 	}
 
 	.vx-blog-logo-divider {

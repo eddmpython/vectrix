@@ -4,17 +4,17 @@
 
 	const footerLinks = {
 		Documentation: [
-			{ label: 'Installation', href: 'https://eddmpython.github.io/vectrix/docs/getting-started/installation/' },
-			{ label: 'Quickstart', href: 'https://eddmpython.github.io/vectrix/docs/getting-started/quickstart/' },
-			{ label: 'API Reference', href: 'https://eddmpython.github.io/vectrix/docs/api/easy/' },
-			{ label: 'User Guide', href: 'https://eddmpython.github.io/vectrix/docs/guide/forecasting/' },
-			{ label: 'Tutorials', href: 'https://eddmpython.github.io/vectrix/docs/tutorials/' }
+			{ label: 'Installation', href: `${base}/docs/getting-started/installation` },
+			{ label: 'Quickstart', href: `${base}/docs/getting-started/quickstart` },
+			{ label: 'API Reference', href: `${base}/docs/api/easy` },
+			{ label: 'User Guide', href: `${base}/docs/guide/forecasting` },
+			{ label: 'Tutorials', href: `${base}/docs/tutorials/quickstart` }
 		],
 		Project: [
 			{ label: 'GitHub', href: 'https://github.com/eddmpython/vectrix' },
 			{ label: 'PyPI', href: 'https://pypi.org/project/vectrix/' },
-			{ label: 'Changelog', href: 'https://eddmpython.github.io/vectrix/docs/changelog/' },
-			{ label: 'Benchmarks', href: 'https://eddmpython.github.io/vectrix/docs/benchmarks/' },
+			{ label: 'Changelog', href: `${base}/docs/changelog` },
+			{ label: 'Benchmarks', href: `${base}/docs/benchmarks` },
 			{ label: 'Issues', href: 'https://github.com/eddmpython/vectrix/issues' }
 		],
 		eddmpython: [
@@ -65,7 +65,9 @@
 					<h5 class="text-xs font-semibold uppercase tracking-wider text-vx-text-muted mb-4">{title}</h5>
 					<div class="flex flex-col gap-2">
 						{#each links as link}
-							<a href={link.href} target="_blank" rel="noopener"
+							<a href={link.href}
+								target={link.href.startsWith('http') ? '_blank' : undefined}
+								rel={link.href.startsWith('http') ? 'noopener' : undefined}
 								class="text-sm text-vx-text-dim hover:text-vx-primary transition-colors no-underline">
 								{link.label}
 							</a>
