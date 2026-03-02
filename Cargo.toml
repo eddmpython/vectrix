@@ -2,6 +2,7 @@
 name = "vectrix"
 version = "0.0.7"
 edition = "2021"
+license-file = "LICENSE"
 
 [lib]
 name = "_core"
