@@ -9,6 +9,7 @@
 
 import marimo
 
+__generated_with = "0.20.2"
 app = marimo.App(width="medium")
 
 
@@ -66,12 +67,12 @@ def showRatioSlider(ratioControl):
 @app.cell
 def createData(np, pd):
     np.random.seed(42)
-    n = 200
-    t = np.arange(n, dtype=np.float64)
-    values = 100 + 0.3 * t + 15 * np.sin(2 * np.pi * t / 7) + np.random.normal(0, 3, n)
+    _n = 200
+    _t = np.arange(_n, dtype=np.float64)
+    values = 100 + 0.3 * _t + 15 * np.sin(2 * np.pi * _t / 7) + np.random.normal(0, 3, _n)
 
     tsDf = pd.DataFrame({
-        "date": pd.date_range("2024-01-01", periods=n, freq="D"),
+        "date": pd.date_range("2024-01-01", periods=_n, freq="D"),
         "value": values,
     })
     return tsDf,
@@ -141,8 +142,8 @@ def section3(mo):
 
 @app.cell
 def showBestModel(mo, fcResult):
-    c = fcResult.characteristics
-    fr = fcResult.flatRisk
+    _c = fcResult.characteristics
+    _fr = fcResult.flatRisk
 
     mo.md(
         f"""
@@ -150,11 +151,11 @@ def showBestModel(mo, fcResult):
         |------|-----|
         | **최적 모델** | `{fcResult.bestModelName}` |
         | 예측 성공 | {fcResult.success} |
-        | 데이터 길이 | {c.length} |
-        | 감지된 주기 | {c.period} |
-        | 추세 | {c.trendDirection} (강도 {c.trendStrength:.2f}) |
-        | 계절성 강도 | {c.seasonalStrength:.2f} |
-        | Flat Risk | {fr.riskLevel.name} (점수 {fr.riskScore:.2f}) |
+        | 데이터 길이 | {_c.length} |
+        | 감지된 주기 | {_c.period} |
+        | 추세 | {_c.trendDirection} (강도 {_c.trendStrength:.2f}) |
+        | 계절성 강도 | {_c.seasonalStrength:.2f} |
+        | Flat Risk | {_fr.riskLevel.name} (점수 {_fr.riskScore:.2f}) |
         """
     )
     return
@@ -182,34 +183,34 @@ def section4(mo):
 
 @app.cell
 def showFlatDefense(mo, fcResult):
-    fr = fcResult.flatRisk
+    _fr = fcResult.flatRisk
 
-    factorStr = ""
-    for factor, active in fr.riskFactors.items():
-        if active:
-            factorStr += f"- {factor}\n"
-    if not factorStr:
-        factorStr = "- 없음"
+    _factorStr = ""
+    for _factor, _active in _fr.riskFactors.items():
+        if _active:
+            _factorStr += f"- {_factor}\n"
+    if not _factorStr:
+        _factorStr = "- 없음"
 
-    warningStr = ""
-    for w in (fr.warnings or []):
-        warningStr += f"- {w}\n"
-    if not warningStr:
-        warningStr = "- 없음"
+    _warningStr = ""
+    for _w in (_fr.warnings or []):
+        _warningStr += f"- {_w}\n"
+    if not _warningStr:
+        _warningStr = "- 없음"
 
     mo.md(
         f"""
         ### Flat Risk 분석
 
-        **위험 수준:** {fr.riskLevel.name} (점수: {fr.riskScore:.2f})
+        **위험 수준:** {_fr.riskLevel.name} (점수: {_fr.riskScore:.2f})
 
         **위험 요인:**
-        {factorStr}
+        {_factorStr}
 
-        **추천 전략:** {fr.recommendedStrategy}
+        **추천 전략:** {_fr.recommendedStrategy}
 
         **경고:**
-        {warningStr}
+        {_warningStr}
         """
     )
     return

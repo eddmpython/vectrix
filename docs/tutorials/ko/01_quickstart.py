@@ -3,20 +3,32 @@
 # dependencies = [
 #     "marimo",
 #     "vectrix",
-#     "matplotlib",
+#     "numpy",
+#     "pandas",
+#     "plotly",
 # ]
 # ///
 
 import marimo
 
+__generated_with = "0.12.0"
 app = marimo.App(width="medium")
+
+
+@app.cell
+def imports():
+    import marimo as mo
+    import numpy as np
+    import pandas as pd
+    from vectrix import forecast
+    return forecast, mo, np, pd
 
 
 @app.cell
 def header(mo):
     mo.md(
         """
-        # Vectrix Quickstart
+        # Vectrix 빠른 시작
 
         **3분 만에 첫 예측을 만들어보세요.**
 
@@ -29,14 +41,6 @@ def header(mo):
         """
     )
     return
-
-
-@app.cell
-def imports():
-    import numpy as np
-    import pandas as pd
-    from vectrix import forecast
-    return np, pd, forecast
 
 
 @app.cell
@@ -61,9 +65,8 @@ def forecastFromList(forecast):
         245, 268, 258, 280, 270, 295, 285, 310, 300, 325,
         180, 200, 215, 195, 220, 235, 210, 245, 230, 260,
     ]
-
     result = forecast(salesData, steps=10)
-    return result,
+    return (result,)
 
 
 @app.cell
@@ -83,15 +86,10 @@ def showResult(mo, result):
 
 
 @app.cell
-def showDataframe(mo, result):
-    df = result.to_dataframe()
-    mo.md("### 예측 결과 테이블")
-    return df,
-
-
-@app.cell
-def displayTable(mo, df):
-    return mo.ui.table(df)
+def showTable(mo, result):
+    _df = result.to_dataframe()
+    mo.ui.table(_df)
+    return
 
 
 @app.cell
@@ -108,21 +106,21 @@ def section2(mo):
 
 
 @app.cell
-def forecastFromDf(np, pd, forecast):
+def forecastFromDf(forecast, np, pd):
     np.random.seed(42)
-    n = 120
-    t = np.arange(n, dtype=np.float64)
-    trend = 100 + 0.5 * t
-    seasonal = 20 * np.sin(2 * np.pi * t / 12)
-    noise = np.random.normal(0, 5, n)
+    _n = 120
+    _t = np.arange(_n, dtype=np.float64)
+    _trend = 100 + 0.5 * _t
+    _seasonal = 20 * np.sin(2 * np.pi * _t / 12)
+    _noise = np.random.normal(0, 5, _n)
 
     monthlyDf = pd.DataFrame({
-        "date": pd.date_range("2015-01-01", periods=n, freq="MS"),
-        "sales": trend + seasonal + noise,
+        "date": pd.date_range("2015-01-01", periods=_n, freq="MS"),
+        "sales": _trend + _seasonal + _noise,
     })
 
     dfResult = forecast(monthlyDf, steps=12)
-    return monthlyDf, dfResult
+    return (dfResult, monthlyDf)
 
 
 @app.cell
@@ -134,7 +132,7 @@ def showDfResult(mo, dfResult):
         - 모델: `{dfResult.model}`
         - 12개월 예측 생성 완료
 
-        `.summary()` 로 전체 요약을 확인할 수 있습니다:
+        `.summary()`로 전체 요약을 확인할 수 있습니다:
         """
     )
     return
@@ -143,6 +141,38 @@ def showDfResult(mo, dfResult):
 @app.cell
 def printSummary(mo, dfResult):
     mo.md(f"```\n{dfResult.summary()}\n```")
+    return
+
+
+@app.cell
+def plotForecast(mo, dfResult, monthlyDf, pd):
+    import plotly.graph_objects as go
+
+    _predDf = dfResult.to_dataframe()
+    _predDates = pd.to_datetime(_predDf["date"])
+
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=monthlyDf["date"], y=monthlyDf["sales"],
+        mode="lines", name="실측",
+    ))
+    fig.add_trace(go.Scatter(
+        x=_predDates, y=_predDf["prediction"],
+        mode="lines", name="예측",
+        line=dict(dash="dash"),
+    ))
+    fig.add_trace(go.Scatter(
+        x=pd.concat([_predDates, _predDates[::-1]]),
+        y=pd.concat([_predDf["upper95"], _predDf["lower95"][::-1]]),
+        fill="toself", fillcolor="rgba(99,110,250,0.15)",
+        line=dict(width=0), name="95% 구간",
+    ))
+    fig.update_layout(
+        title=f"예측 결과 — {dfResult.model}",
+        xaxis_title="날짜", yaxis_title="값",
+        template="plotly_white", height=400,
+    )
+    mo.ui.plotly(fig)
     return
 
 
@@ -165,7 +195,7 @@ def stepsSlider(mo):
         start=5, stop=60, step=5, value=15,
         label="예측 기간 (steps)"
     )
-    return stepsControl,
+    return (stepsControl,)
 
 
 @app.cell
@@ -175,24 +205,23 @@ def showSlider(stepsControl):
 
 
 @app.cell
-def interactiveForecast(np, pd, forecast, stepsControl):
+def interactiveForecast(forecast, np, pd, stepsControl):
     np.random.seed(42)
-    n = 200
-    t = np.arange(n, dtype=np.float64)
-    values = 100 + 0.3 * t + 15 * np.sin(2 * np.pi * t / 7) + np.random.normal(0, 3, n)
+    _n = 200
+    _t = np.arange(_n, dtype=np.float64)
+    _values = 100 + 0.3 * _t + 15 * np.sin(2 * np.pi * _t / 7) + np.random.normal(0, 3, _n)
 
-    interDf = pd.DataFrame({
-        "date": pd.date_range("2024-01-01", periods=n, freq="D"),
-        "value": values,
+    _interDf = pd.DataFrame({
+        "date": pd.date_range("2024-01-01", periods=_n, freq="D"),
+        "value": _values,
     })
 
-    interResult = forecast(interDf, steps=stepsControl.value)
-    return interDf, interResult
+    interResult = forecast(_interDf, steps=stepsControl.value)
+    return (interResult,)
 
 
 @app.cell
 def showInteractive(mo, interResult, stepsControl):
-    predDf = interResult.to_dataframe()
     mo.md(
         f"""
         **{stepsControl.value}일 예측** | 모델: `{interResult.model}`
@@ -200,7 +229,7 @@ def showInteractive(mo, interResult, stepsControl):
         평균 예측값: {interResult.predictions.mean():.1f}
         """
     )
-    return predDf,
+    return
 
 
 @app.cell
@@ -210,7 +239,7 @@ def section4(mo):
         ---
         ## 4. 결과 활용
 
-        `EasyForecastResult` 객체의 다양한 메서드:
+        `EasyForecastResult` 객체의 주요 메서드:
         """
     )
     return
@@ -218,8 +247,8 @@ def section4(mo):
 
 @app.cell
 def resultMethods(mo, interResult):
-    forecastDf = interResult.to_dataframe()
-    jsonStr = interResult.to_json()
+    _forecastDf = interResult.to_dataframe()
+    _jsonStr = interResult.to_json()
 
     mo.md(
         f"""
@@ -230,8 +259,8 @@ def resultMethods(mo, interResult):
         | `.lower` | 95% 하한 | `[{interResult.lower[0]:.1f}, ...]` |
         | `.upper` | 95% 상한 | `[{interResult.upper[0]:.1f}, ...]` |
         | `.model` | 선택된 모델 | `{interResult.model}` |
-        | `.to_dataframe()` | DataFrame 변환 | {len(forecastDf)} rows |
-        | `.to_json()` | JSON 변환 | {len(jsonStr)} chars |
+        | `.to_dataframe()` | DataFrame 변환 | {len(_forecastDf)} rows |
+        | `.to_json()` | JSON 변환 | {len(_jsonStr)} chars |
         | `.summary()` | 텍스트 요약 | 위 참조 |
         """
     )

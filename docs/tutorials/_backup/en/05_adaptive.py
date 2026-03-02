@@ -9,6 +9,7 @@
 
 import marimo
 
+__generated_with = "0.20.2"
 app = marimo.App(width="medium")
 
 
@@ -179,9 +180,9 @@ def section3(mo):
 @app.cell
 def runDna(ForecastDNA, np):
     np.random.seed(42)
-    n = 200
-    t = np.arange(n, dtype=np.float64)
-    seasonalData = 100 + 0.3 * t + 15 * np.sin(2 * np.pi * t / 7) + np.random.normal(0, 3, n)
+    _n = 200
+    _t = np.arange(_n, dtype=np.float64)
+    seasonalData = 100 + 0.3 * _t + 15 * np.sin(2 * np.pi * _t / 7) + np.random.normal(0, 3, _n)
 
     dna = ForecastDNA()
     profile = dna.analyze(seasonalData, period=7)
@@ -225,13 +226,13 @@ def section4(mo):
 @app.cell
 def runSelfHealing(SelfHealingForecast, np):
     np.random.seed(42)
-    n = 50
-    originalPred = np.full(n, 100.0)
-    lower = originalPred - 10
-    upper = originalPred + 10
-    historicalData = np.random.normal(100, 5, 100)
+    _n = 50
+    originalPred = np.full(_n, 100.0)
+    _lower = originalPred - 10
+    _upper = originalPred + 10
+    _historicalData = np.random.normal(100, 5, 100)
 
-    healer = SelfHealingForecast(originalPred, lower, upper, historicalData)
+    healer = SelfHealingForecast(originalPred, _lower, _upper, _historicalData)
 
     actualValues = np.array([105, 110, 115, 108, 120])
     healer.observe(actualValues)
@@ -283,11 +284,11 @@ def section5(mo):
 def runConstraints(ConstraintAwareForecaster, Constraint, np):
     np.random.seed(42)
     rawPred = np.array([150, -20, 300, 50, 6000, 80, 120, 250, -10, 400])
-    lower = rawPred - 30
-    upper = rawPred + 30
+    _lower = rawPred - 30
+    _upper = rawPred + 30
 
     caf = ConstraintAwareForecaster()
-    constrainedResult = caf.apply(rawPred, lower, upper, constraints=[
+    constrainedResult = caf.apply(rawPred, _lower, _upper, constraints=[
         Constraint('non_negative', {}),
         Constraint('range', {'min': 0, 'max': 500}),
     ])

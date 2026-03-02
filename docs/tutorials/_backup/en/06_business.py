@@ -8,6 +8,7 @@
 
 import marimo
 
+__generated_with = "0.20.2"
 app = marimo.App(width="medium")
 
 
@@ -15,14 +16,14 @@ app = marimo.App(width="medium")
 def header(mo):
     mo.md(
         """
-        # 비즈니스 인텔리전스
+        # Business Intelligence
 
-        **예측을 넘어 — 의사결정을 위한 도구들**
+        **Beyond forecasting — tools for decision-making.**
 
-        - **AnomalyDetector**: 이상치 자동 탐지
-        - **WhatIfAnalyzer**: "만약 ~라면?" 시나리오 분석
-        - **Backtester**: 예측 모델 신뢰도 검증
-        - **BusinessMetrics**: MAPE, RMSE, MAE 계산
+        - **AnomalyDetector**: Automatic outlier detection
+        - **WhatIfAnalyzer**: "What if?" scenario simulation
+        - **Backtester**: Forecast model validation
+        - **BusinessMetrics**: MAPE, RMSE, MAE calculation
         """
     )
     return
@@ -46,10 +47,10 @@ def section1(mo):
     mo.md(
         """
         ---
-        ## 1. 이상치 탐지
+        ## 1. Anomaly Detection
 
-        Z-score, IQR, 계절 잔차, 이동 윈도우 등
-        여러 방법으로 이상치를 자동 탐지합니다.
+        Detect outliers using Z-score, IQR, seasonal residuals,
+        or rolling window methods.
         """
     )
     return
@@ -59,13 +60,13 @@ def section1(mo):
 def methodSelector(mo):
     anomalyMethod = mo.ui.dropdown(
         options={
-            "자동 선택": "auto",
+            "Auto": "auto",
             "Z-score": "zscore",
-            "IQR (사분위범위)": "iqr",
-            "이동 윈도우": "rolling",
+            "IQR": "iqr",
+            "Rolling Window": "rolling",
         },
         value="auto",
-        label="탐지 방법"
+        label="Detection Method"
     )
     return anomalyMethod,
 
@@ -79,9 +80,9 @@ def showMethodSelector(anomalyMethod):
 @app.cell
 def createAnomalyData(np):
     np.random.seed(42)
-    n = 200
-    t = np.arange(n, dtype=np.float64)
-    normalData = 100 + 0.2 * t + 10 * np.sin(2 * np.pi * t / 7) + np.random.normal(0, 3, n)
+    _n = 200
+    _t = np.arange(_n, dtype=np.float64)
+    normalData = 100 + 0.2 * _t + 10 * np.sin(2 * np.pi * _t / 7) + np.random.normal(0, 3, _n)
 
     normalData[45] = 250
     normalData[120] = 20
@@ -100,15 +101,15 @@ def runAnomaly(AnomalyDetector, normalData, anomalyMethod):
 def showAnomaly(mo, anomalyResult):
     mo.md(
         f"""
-        ### 이상치 탐지 결과
+        ### Anomaly Detection Results
 
-        | 항목 | 값 |
-        |------|-----|
-        | 방법 | `{anomalyResult.method}` |
-        | 감지된 이상치 | {anomalyResult.nAnomalies}개 |
-        | 이상치 비율 | {anomalyResult.anomalyRatio:.1%} |
-        | 임계값 | {anomalyResult.threshold:.2f} |
-        | 이상치 위치 | {list(anomalyResult.indices[:10])} |
+        | Item | Value |
+        |------|-------|
+        | Method | `{anomalyResult.method}` |
+        | Anomalies Found | {anomalyResult.nAnomalies} |
+        | Anomaly Ratio | {anomalyResult.anomalyRatio:.1%} |
+        | Threshold | {anomalyResult.threshold:.2f} |
+        | Locations | {list(anomalyResult.indices[:10])} |
         """
     )
     return
@@ -119,10 +120,10 @@ def section2(mo):
     mo.md(
         """
         ---
-        ## 2. What-If 시나리오 분석
+        ## 2. What-If Scenario Analysis
 
-        "만약 추세가 10% 증가하면?", "30일차에 충격이 발생하면?"
-        같은 시나리오를 시뮬레이션합니다.
+        Simulate scenarios like "What if trend increases by 10%?"
+        or "What if a shock hits on day 30?"
         """
     )
     return
@@ -140,10 +141,10 @@ def createScenarioData(np):
 def runScenarios(WhatIfAnalyzer, basePred, histData):
     analyzer = WhatIfAnalyzer()
     scenarios = [
-        {"name": "낙관적", "trendChange": 0.1},
-        {"name": "비관적", "trendChange": -0.15},
-        {"name": "충격 발생", "shockAt": 10, "shockMagnitude": -0.3, "shockDuration": 5},
-        {"name": "수준 상승", "levelShift": 0.05},
+        {"name": "Optimistic", "trend_change": 0.1},
+        {"name": "Pessimistic", "trend_change": -0.15},
+        {"name": "Shock Event", "shock_at": 10, "shock_magnitude": -0.3, "shock_duration": 5},
+        {"name": "Level Shift", "level_shift": 0.05},
     ]
     scenarioResults = analyzer.analyze(basePred, histData, scenarios)
     return scenarioResults,
@@ -154,12 +155,12 @@ def showScenarios(mo, scenarioResults, pd):
     rows = []
     for sr in scenarioResults:
         rows.append({
-            "시나리오": sr.name,
-            "평균 예측": round(sr.predictions.mean(), 2),
-            "기준 대비 변화": f"{sr.impact:+.1%}",
+            "Scenario": sr.name,
+            "Mean Forecast": round(sr.predictions.mean(), 2),
+            "vs Baseline": f"{sr.impact:+.1f}%",
         })
     scenDf = pd.DataFrame(rows)
-    mo.md("### 시나리오 비교")
+    mo.md("### Scenario Comparison")
     return scenDf,
 
 
@@ -173,10 +174,10 @@ def section3(mo):
     mo.md(
         """
         ---
-        ## 3. 백테스트
+        ## 3. Backtesting
 
-        Walk-forward validation으로 모델의 실전 성능을 검증합니다.
-        확장 윈도우(expanding) 또는 슬라이딩 윈도우 전략을 지원합니다.
+        Validate model performance with walk-forward validation.
+        Supports expanding and sliding window strategies.
         """
     )
     return
@@ -185,15 +186,19 @@ def section3(mo):
 @app.cell
 def runBacktest(Backtester, np):
     np.random.seed(42)
-    n = 300
-    t = np.arange(n, dtype=np.float64)
-    btData = 100 + 0.3 * t + 10 * np.sin(2 * np.pi * t / 7) + np.random.normal(0, 3, n)
+    _n = 300
+    _t = np.arange(_n, dtype=np.float64)
+    btData = 100 + 0.3 * _t + 10 * np.sin(2 * np.pi * _t / 7) + np.random.normal(0, 3, _n)
 
-    def naiveModel(train, horizon):
-        return np.full(horizon, train[-1])
+    class _NaiveModel:
+        def fit(self, train):
+            self._last = train[-1]
+        def predict(self, steps):
+            pred = np.full(steps, self._last)
+            return pred, pred - 10, pred + 10
 
     bt = Backtester(nFolds=5, horizon=14, strategy='expanding')
-    btResult = bt.run(btData, naiveModel)
+    btResult = bt.run(btData, _NaiveModel)
     return btResult,
 
 
@@ -201,17 +206,17 @@ def runBacktest(Backtester, np):
 def showBacktest(mo, btResult, pd):
     mo.md(
         f"""
-        ### 백테스트 결과 ({btResult.nFolds} folds)
+        ### Backtest Results ({btResult.nFolds} folds)
 
-        | 지표 | 평균 | 표준편차 |
-        |------|------|----------|
+        | Metric | Mean | Std |
+        |--------|------|-----|
         | MAPE | {btResult.avgMAPE:.2f}% | {btResult.mapeStd:.2f}% |
         | RMSE | {btResult.avgRMSE:.2f} | - |
         | MAE | {btResult.avgMAE:.2f} | - |
         | sMAPE | {btResult.avgSMAPE:.2f}% | - |
         | Bias | {btResult.avgBias:+.2f} | - |
-        | 최고 Fold | #{btResult.bestFold} |
-        | 최악 Fold | #{btResult.worstFold} |
+        | Best Fold | #{btResult.bestFold} |
+        | Worst Fold | #{btResult.worstFold} |
         """
     )
     return
@@ -223,13 +228,13 @@ def showFoldDetails(mo, btResult, pd):
     for f in btResult.folds:
         foldRows.append({
             "Fold": f.fold,
-            "학습 크기": f.trainSize,
-            "테스트 크기": f.testSize,
+            "Train Size": f.trainSize,
+            "Test Size": f.testSize,
             "MAPE": round(f.mape, 2),
             "RMSE": round(f.rmse, 2),
         })
     foldDf = pd.DataFrame(foldRows)
-    mo.md("### Fold별 상세")
+    mo.md("### Fold Details")
     return foldDf,
 
 
@@ -243,9 +248,9 @@ def section4(mo):
     mo.md(
         """
         ---
-        ## 4. 비즈니스 지표
+        ## 4. Business Metrics
 
-        실측과 예측을 비교하는 다양한 지표를 계산합니다.
+        Calculate various metrics comparing actuals vs predictions.
         """
     )
     return
@@ -266,21 +271,23 @@ def runMetrics(BusinessMetrics, np):
 def showMetrics(mo, metricsResult):
     mo.md(
         f"""
-        ### 지표 계산 결과
+        ### Metrics Results
 
-        | 지표 | 값 | 해석 |
-        |------|-----|------|
-        | **Bias** | {metricsResult.get('bias', 0):+.2f} | 양수=과대예측, 음수=과소예측 |
-        | **Bias %** | {metricsResult.get('biasPercent', 0):+.2f}% | 백분율 편향 |
-        | **WAPE** | {metricsResult.get('wape', 0):.2f}% | 가중 절대 백분율 오차 |
-        | **MASE** | {metricsResult.get('mase', 0):.2f} | 1 미만이면 Naive보다 우수 |
-        | **예측 정확도** | {metricsResult.get('forecastAccuracy', 0):.1f}% | 높을수록 좋음 |
+        | Metric | Value | Interpretation |
+        |--------|-------|----------------|
+        | **Bias** | {metricsResult.get('bias', 0):+.2f} | Positive=over-forecast |
+        | **Bias %** | {metricsResult.get('biasPercent', 0):+.2f}% | Percentage bias |
+        | **WAPE** | {metricsResult.get('wape', 0):.2f}% | Weighted Absolute Percentage Error |
+        | **MASE** | {metricsResult.get('mase', 0):.2f} | <1 means better than Naive |
+        | **Forecast Accuracy** | {metricsResult.get('forecastAccuracy', 0):.1f}% | Higher is better |
+        | **Over-forecast** | {metricsResult.get('overForecastRatio', 0):.1%} | Predicted > Actual |
+        | **Under-forecast** | {metricsResult.get('underForecastRatio', 0):.1%} | Predicted < Actual |
 
         ---
 
-        이 튜토리얼 시리즈를 완료했습니다.
+        You've completed the tutorial series.
 
-        더 자세한 내용은 [GitHub](https://github.com/eddmpython/vectrix)을 참조하세요.
+        For more details, visit [GitHub](https://github.com/eddmpython/vectrix).
         """
     )
     return

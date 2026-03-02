@@ -3,11 +3,14 @@
 # dependencies = [
 #     "marimo",
 #     "vectrix",
+#     "numpy",
+#     "pandas",
 # ]
 # ///
 
 import marimo
 
+__generated_with = "0.20.2"
 app = marimo.App(width="medium")
 
 
@@ -15,17 +18,17 @@ app = marimo.App(width="medium")
 def header(mo):
     mo.md(
         """
-        # R-style Regression
+        # R-style 회귀분석
 
-        **Run regression with a single formula, just like R.**
+        **R처럼 수식 한 줄로 회귀분석을 수행합니다.**
 
         ```python
         from vectrix import regress
         result = regress(data=df, formula="sales ~ ads + price")
         ```
 
-        Supports OLS, Ridge, Lasso, Huber, and Quantile regression
-        with VIF, heteroscedasticity, normality, and autocorrelation diagnostics.
+        OLS, Ridge, Lasso, Huber, Quantile 회귀를 지원하고,
+        VIF, 이분산성, 정규성, 자기상관 진단까지 한 번에 제공합니다.
         """
     )
     return
@@ -33,10 +36,11 @@ def header(mo):
 
 @app.cell
 def imports():
+    import marimo as mo
     import numpy as np
     import pandas as pd
     from vectrix import regress
-    return np, pd, regress
+    return mo, np, pd, regress
 
 
 @app.cell
@@ -44,9 +48,9 @@ def section1(mo):
     mo.md(
         """
         ---
-        ## 1. Basic Regression
+        ## 1. 기본 회귀분석
 
-        Let's build a sales prediction model with marketing data.
+        마케팅 데이터로 매출 예측 모델을 만들어봅시다.
         """
     )
     return
@@ -55,12 +59,12 @@ def section1(mo):
 @app.cell
 def createData(np, pd):
     np.random.seed(42)
-    n = 200
+    _n = 200
 
-    ads = np.random.uniform(10, 100, n)
-    price = np.random.uniform(5, 50, n)
-    promo = np.random.binomial(1, 0.3, n).astype(float)
-    sales = 50 + 2.5 * ads - 1.8 * price + 30 * promo + np.random.normal(0, 15, n)
+    ads = np.random.uniform(10, 100, _n)
+    price = np.random.uniform(5, 50, _n)
+    promo = np.random.binomial(1, 0.3, _n).astype(float)
+    sales = 50 + 2.5 * ads - 1.8 * price + 30 * promo + np.random.normal(0, 15, _n)
 
     marketDf = pd.DataFrame({
         "sales": sales,
@@ -73,7 +77,7 @@ def createData(np, pd):
 
 @app.cell
 def showData(mo, marketDf):
-    mo.md("### Data Preview")
+    mo.md("### 데이터 미리보기")
     return
 
 
@@ -87,7 +91,7 @@ def section2(mo):
     mo.md(
         """
         ---
-        ## 2. Formula-based Regression
+        ## 2. 수식으로 회귀분석
 
         R-style formula: `"sales ~ ads + price + promo"`
         """
@@ -112,9 +116,9 @@ def section3(mo):
     mo.md(
         """
         ---
-        ## 3. Choose Regression Method
+        ## 3. 회귀분석 방법 선택
 
-        Select a method from the dropdown.
+        드롭다운에서 방법을 바꿔보세요.
         """
     )
     return
@@ -124,14 +128,14 @@ def section3(mo):
 def methodSelector(mo):
     methodChoice = mo.ui.dropdown(
         options={
-            "OLS (Ordinary Least Squares)": "ols",
-            "Ridge (L2 Regularization)": "ridge",
-            "Lasso (L1 Regularization)": "lasso",
-            "Huber (Robust)": "huber",
-            "Quantile Regression": "quantile",
+            "OLS (최소자승법)": "ols",
+            "Ridge (L2 정규화)": "ridge",
+            "Lasso (L1 정규화)": "lasso",
+            "Huber (로버스트)": "huber",
+            "Quantile (분위 회귀)": "quantile",
         },
         value="ols",
-        label="Regression Method"
+        label="회귀 방법"
     )
     return methodChoice,
 
@@ -157,15 +161,15 @@ def runMethodRegression(regress, marketDf, methodChoice):
 def showMethodResult(mo, methodResult, methodChoice):
     mo.md(
         f"""
-        ### {methodChoice.value.upper()} Results
+        ### {methodChoice.value.upper()} 결과
 
-        | Metric | Value |
-        |--------|-------|
+        | 지표 | 값 |
+        |------|-----|
         | R² | {methodResult.r_squared:.4f} |
         | Adjusted R² | {methodResult.adj_r_squared:.4f} |
         | F-statistic | {methodResult.f_stat:.2f} |
 
-        **Coefficients:**
+        **계수:**
         ```
         {methodResult.summary()}
         ```
@@ -179,14 +183,14 @@ def section4(mo):
     mo.md(
         """
         ---
-        ## 4. Regression Diagnostics
+        ## 4. 회귀 진단
 
-        `.diagnose()` validates statistical assumptions:
+        `.diagnose()`로 모델의 통계적 가정을 검증합니다.
 
-        - **VIF**: Multicollinearity (>10 is problematic)
-        - **Breusch-Pagan**: Heteroscedasticity test
-        - **Jarque-Bera**: Residual normality test
-        - **Durbin-Watson**: Autocorrelation test
+        - **VIF**: 다중공선성 (10 이상이면 문제)
+        - **Breusch-Pagan**: 이분산성 검정
+        - **Jarque-Bera**: 잔차 정규성 검정
+        - **Durbin-Watson**: 자기상관 검정
         """
     )
     return
@@ -204,9 +208,9 @@ def section5(mo):
     mo.md(
         """
         ---
-        ## 5. Prediction
+        ## 5. 예측
 
-        Predict on new data with confidence intervals:
+        새 데이터에 대한 예측 + 신뢰구간:
         """
     )
     return
@@ -221,7 +225,7 @@ def runPredict(mo, result, np, pd):
     })
 
     predictions = result.predict(newData)
-    mo.md("### Predictions")
+    mo.md("### 예측 결과")
     return predictions,
 
 
@@ -235,23 +239,23 @@ def section6(mo):
     mo.md(
         """
         ---
-        ## 6. More Features
+        ## 6. 편의 기능
 
         ```python
-        # Use all variables
+        # 전체 변수 사용
         regress(data=df, formula="y ~ .")
 
-        # Interaction terms
+        # 교호작용
         regress(data=df, formula="y ~ x1 * x2")
 
-        # Polynomial terms
+        # 다항식
         regress(data=df, formula="y ~ x + I(x**2)")
 
-        # Direct array input
+        # 직접 배열 입력
         regress(y=y_array, X=X_array)
         ```
 
-        **Next tutorial:** `04_models.py` — 30+ Model Comparison
+        **다음 튜토리얼:** `04_models.py` — 30+ 모델 비교
         """
     )
     return

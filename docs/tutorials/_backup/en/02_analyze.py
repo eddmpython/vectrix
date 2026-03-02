@@ -3,12 +3,14 @@
 # dependencies = [
 #     "marimo",
 #     "vectrix",
-#     "matplotlib",
+#     "numpy",
+#     "pandas",
 # ]
 # ///
 
 import marimo
 
+__generated_with = "0.20.2"
 app = marimo.App(width="medium")
 
 
@@ -32,10 +34,11 @@ def header(mo):
 
 @app.cell
 def imports():
+    import marimo as mo
     import numpy as np
     import pandas as pd
     from vectrix import analyze, quick_report
-    return np, pd, analyze, quick_report
+    return mo, np, pd, analyze, quick_report
 
 
 @app.cell
@@ -76,39 +79,39 @@ def showSelector(dataChoice):
 @app.cell
 def generateData(np, pd, dataChoice):
     np.random.seed(42)
-    n = 200
-    t = np.arange(n, dtype=np.float64)
+    _n = 200
+    _t = np.arange(_n, dtype=np.float64)
 
     choice = dataChoice.value
     if choice == "trendSeasonal":
-        values = 100 + 0.3 * t + 15 * np.sin(2 * np.pi * t / 7) + np.random.normal(0, 3, n)
+        values = 100 + 0.3 * _t + 15 * np.sin(2 * np.pi * _t / 7) + np.random.normal(0, 3, _n)
         desc = "Linear trend + weekly seasonality + noise"
     elif choice == "pureTrend":
-        values = 50 + 0.8 * t + np.random.normal(0, 2, n)
+        values = 50 + 0.8 * _t + np.random.normal(0, 2, _n)
         desc = "Strong upward trend + weak noise"
     elif choice == "volatile":
-        returns = np.zeros(n)
-        sigma2 = np.ones(n)
-        for i in range(1, n):
+        returns = np.zeros(_n)
+        sigma2 = np.ones(_n)
+        for i in range(1, _n):
             sigma2[i] = 0.05 + 0.1 * returns[i - 1] ** 2 + 0.85 * sigma2[i - 1]
             returns[i] = np.random.normal(0, np.sqrt(sigma2[i]))
         values = 100 + np.cumsum(returns)
         desc = "GARCH-style volatility clustering"
     elif choice == "intermittent":
-        values = np.zeros(n)
-        for i in range(n):
+        values = np.zeros(_n)
+        for i in range(_n):
             if np.random.random() < 0.3:
                 values[i] = np.random.exponential(50)
         desc = "70% zeros, intermittent demand pattern"
     else:
-        values = (100 + 0.2 * t
-                  + 10 * np.sin(2 * np.pi * t / 7)
-                  + 20 * np.sin(2 * np.pi * t / 30)
-                  + np.random.normal(0, 3, n))
+        values = (100 + 0.2 * _t
+                  + 10 * np.sin(2 * np.pi * _t / 7)
+                  + 20 * np.sin(2 * np.pi * _t / 30)
+                  + np.random.normal(0, 3, _n))
         desc = "Weekly (7) + monthly (30) dual seasonality"
 
     sampleDf = pd.DataFrame({
-        "date": pd.date_range("2024-01-01", periods=n, freq="D"),
+        "date": pd.date_range("2024-01-01", periods=_n, freq="D"),
         "value": values,
     })
     return sampleDf, desc

@@ -3,12 +3,14 @@
 # dependencies = [
 #     "marimo",
 #     "vectrix",
-#     "matplotlib",
+#     "numpy",
+#     "pandas",
 # ]
 # ///
 
 import marimo
 
+__generated_with = "0.20.2"
 app = marimo.App(width="medium")
 
 
@@ -33,10 +35,11 @@ def header(mo):
 
 @app.cell
 def imports():
+    import marimo as mo
     import numpy as np
     import pandas as pd
     from vectrix import forecast
-    return np, pd, forecast
+    return mo, np, pd, forecast
 
 
 @app.cell
@@ -84,14 +87,9 @@ def showResult(mo, result):
 
 @app.cell
 def showDataframe(mo, result):
-    df = result.to_dataframe()
+    _df = result.to_dataframe()
     mo.md("### Forecast Table")
-    return df,
-
-
-@app.cell
-def displayTable(mo, df):
-    return mo.ui.table(df)
+    return
 
 
 @app.cell
@@ -110,19 +108,19 @@ def section2(mo):
 @app.cell
 def forecastFromDf(np, pd, forecast):
     np.random.seed(42)
-    n = 120
-    t = np.arange(n, dtype=np.float64)
-    trend = 100 + 0.5 * t
-    seasonal = 20 * np.sin(2 * np.pi * t / 12)
-    noise = np.random.normal(0, 5, n)
+    _n = 120
+    _t = np.arange(_n, dtype=np.float64)
+    _trend = 100 + 0.5 * _t
+    _seasonal = 20 * np.sin(2 * np.pi * _t / 12)
+    _noise = np.random.normal(0, 5, _n)
 
     monthlyDf = pd.DataFrame({
-        "date": pd.date_range("2015-01-01", periods=n, freq="MS"),
-        "sales": trend + seasonal + noise,
+        "date": pd.date_range("2015-01-01", periods=_n, freq="MS"),
+        "sales": _trend + _seasonal + _noise,
     })
 
     dfResult = forecast(monthlyDf, steps=12)
-    return monthlyDf, dfResult
+    return dfResult,
 
 
 @app.cell
@@ -177,22 +175,22 @@ def showSlider(stepsControl):
 @app.cell
 def interactiveForecast(np, pd, forecast, stepsControl):
     np.random.seed(42)
-    n = 200
-    t = np.arange(n, dtype=np.float64)
-    values = 100 + 0.3 * t + 15 * np.sin(2 * np.pi * t / 7) + np.random.normal(0, 3, n)
+    _n = 200
+    _t = np.arange(_n, dtype=np.float64)
+    _values = 100 + 0.3 * _t + 15 * np.sin(2 * np.pi * _t / 7) + np.random.normal(0, 3, _n)
 
-    interDf = pd.DataFrame({
-        "date": pd.date_range("2024-01-01", periods=n, freq="D"),
-        "value": values,
+    _interDf = pd.DataFrame({
+        "date": pd.date_range("2024-01-01", periods=_n, freq="D"),
+        "value": _values,
     })
 
-    interResult = forecast(interDf, steps=stepsControl.value)
-    return interDf, interResult
+    interResult = forecast(_interDf, steps=stepsControl.value)
+    return interResult,
 
 
 @app.cell
 def showInteractive(mo, interResult, stepsControl):
-    predDf = interResult.to_dataframe()
+    _predDf = interResult.to_dataframe()
     mo.md(
         f"""
         **{stepsControl.value}-day forecast** | Model: `{interResult.model}`
@@ -200,7 +198,7 @@ def showInteractive(mo, interResult, stepsControl):
         Mean prediction: {interResult.predictions.mean():.1f}
         """
     )
-    return predDf,
+    return
 
 
 @app.cell
@@ -218,8 +216,8 @@ def section4(mo):
 
 @app.cell
 def resultMethods(mo, interResult):
-    forecastDf = interResult.to_dataframe()
-    jsonStr = interResult.to_json()
+    _forecastDf = interResult.to_dataframe()
+    _jsonStr = interResult.to_json()
 
     mo.md(
         f"""
@@ -230,8 +228,8 @@ def resultMethods(mo, interResult):
         | `.lower` | 95% lower bound | `[{interResult.lower[0]:.1f}, ...]` |
         | `.upper` | 95% upper bound | `[{interResult.upper[0]:.1f}, ...]` |
         | `.model` | Selected model | `{interResult.model}` |
-        | `.to_dataframe()` | Convert to DataFrame | {len(forecastDf)} rows |
-        | `.to_json()` | Convert to JSON | {len(jsonStr)} chars |
+        | `.to_dataframe()` | Convert to DataFrame | {len(_forecastDf)} rows |
+        | `.to_json()` | Convert to JSON | {len(_jsonStr)} chars |
         | `.summary()` | Text summary | See above |
         """
     )
