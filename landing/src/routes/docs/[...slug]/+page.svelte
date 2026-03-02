@@ -13,14 +13,14 @@
 		currentLang === 'ko' && data.koComponent ? data.koComponent : data.enComponent
 	);
 	let meta = $derived(
-		currentLang === 'ko' && data.koMeta?.title ? data.koMeta : data.enMeta
+		currentLang === 'ko' && data.koMeta?.title ? data.koMeta : (data.enMeta ?? {})
 	);
 
 	let prevNext = $derived(findPrevNext(page.url.pathname.replace(base, ''), navigation));
 </script>
 
 <svelte:head>
-	<title>{meta.title ? `${meta.title} — Vectrix` : 'Vectrix Docs'}</title>
+	<title>{meta?.title ? `${meta.title} — Vectrix` : 'Vectrix Docs'}</title>
 </svelte:head>
 
 {#if data.status === 404}
