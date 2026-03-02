@@ -43,7 +43,7 @@ values[90] = 50
 values[130] = 700
 
 detector = AnomalyDetector()
-result = detector.detect(values, sensitivity=0.95)
+result = detector.detect(values, threshold=2.0)
 
 for idx in result.indices:
     print(f"  인덱스 {idx}: 값={values[idx]:.1f}, 점수={result.scores[idx]:+.2f}")

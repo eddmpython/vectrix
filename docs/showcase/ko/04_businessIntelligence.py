@@ -92,7 +92,7 @@ def _(mo):
 def _(AnomalyDetector, bizDf, mo, np):
     detector = AnomalyDetector()
     _y = np.array(bizDf["revenue"], dtype=np.float64)
-    anomResult = detector.detect(_y, sensitivity=0.95)
+    anomResult = detector.detect(_y, threshold=2.0)
 
     _rows = []
     for _idx in anomResult.indices:

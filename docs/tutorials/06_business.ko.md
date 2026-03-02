@@ -19,7 +19,7 @@ normal[120] = 20
 normal[175] = 250
 
 detector = AnomalyDetector()
-result = detector.detect(normal, sensitivity=0.95)
+result = detector.detect(normal, threshold=2.0)
 
 print(f"발견된 이상치: {len(result.indices)}")
 for idx in result.indices:
@@ -33,11 +33,11 @@ for idx in result.indices:
   인덱스 175: 값=250.0, 점수=4.12
 ```
 
-### 민감도 조절
+### 임계값 조절
 
-- `sensitivity=0.99` — 극단적 이상치만 감지 (알림 최소화)
-- `sensitivity=0.95` — 균형 잡힌 설정 (기본값)
-- `sensitivity=0.90` — 공격적 감지 (더 많은 알림)
+- `threshold=4.0` — 극단적 이상치만 감지 (알림 최소화)
+- `threshold=3.0` — 균형 잡힌 설정 (기본값)
+- `threshold=2.0` — 공격적 감지 (더 많은 알림)
 
 ## 2. What-If 시나리오 분석
 

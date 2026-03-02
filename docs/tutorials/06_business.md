@@ -19,7 +19,7 @@ normal[120] = 20
 normal[175] = 250
 
 detector = AnomalyDetector()
-result = detector.detect(normal, sensitivity=0.95)
+result = detector.detect(normal, threshold=2.0)
 
 print(f"Anomalies found: {len(result.indices)}")
 for idx in result.indices:
@@ -33,11 +33,11 @@ Anomalies found: 3
   Index 175: value=250.0, score=4.12
 ```
 
-### Sensitivity
+### Threshold
 
-- `sensitivity=0.99` — Only flag extreme outliers (fewer alerts)
-- `sensitivity=0.95` — Balanced (default)
-- `sensitivity=0.90` — More aggressive detection (more alerts)
+- `threshold=4.0` — Only flag extreme outliers (fewer alerts)
+- `threshold=3.0` — Balanced (default)
+- `threshold=2.0` — More aggressive detection (more alerts)
 
 ## 2. What-If Scenario Analysis
 
