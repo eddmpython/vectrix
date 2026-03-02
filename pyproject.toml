@@ -1,6 +1,6 @@
 [project]
 name = "vectrix"
-version = "0.0.6"
+version = "0.0.7"
 description = "Zero-config time series forecasting & analysis library. Pure numpy + scipy implementation with 30+ models, regression, and adaptive intelligence."
 readme = "README.md"
 license = {text = "MIT"}
@@ -58,6 +58,7 @@ foundation = [
 neural = [
     "neuralforecast>=1.7",
 ]
+mcp = ["mcp[cli]>=1.0"]
 all = ["vectrix[numba,ml,foundation,neural]"]
 
 [project.urls]
@@ -75,6 +76,7 @@ build-backend = "maturin"
 features = ["pyo3/extension-module"]
 python-source = "src"
 module-name = "vectrix._core"
+include = ["llms.txt", "llms-full.txt", "mcp/server.py", "mcp/README.md"]
 
 [dependency-groups]
 dev = [

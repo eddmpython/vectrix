@@ -1,0 +1,59 @@
+# Vectrix
+
+> Zero-config time series forecasting library for Python. 30+ statistical models, automatic selection, Rust turbo acceleration. Pure NumPy/SciPy with adaptive intelligence, regression, and business analytics.
+
+- Version: 0.0.7
+- Python: 3.10+
+- Dependencies: numpy, pandas, scipy (core only)
+- Install: `pip install vectrix`
+- GitHub: https://github.com/eddmpython/vectrix
+- Docs: https://eddmpython.github.io/vectrix/docs/
+
+## Quick Start
+
+```python
+from vectrix import forecast, analyze, regress
+
+# One-line forecast
+result = forecast(df, date="date", value="sales", steps=12)
+print(result.summary())
+print(f"MAPE: {result.mape:.2f}%")
+
+# Time series analysis (DNA profiling)
+analysis = analyze(df, date="date", value="sales")
+print(analysis.summary())
+
+# R-style regression
+reg = regress(data=df, formula="sales ~ ads + price")
+print(reg.summary())
+```
+
+## Core API
+
+- [Easy API](https://eddmpython.github.io/vectrix/docs/api/easy/): forecast(), analyze(), regress(), compare(), quick_report()
+- [Vectrix Class](https://eddmpython.github.io/vectrix/docs/api/vectrix/): Full-control forecasting interface
+- [Installation](https://eddmpython.github.io/vectrix/docs/getting-started/installation/): Setup guide with optional Rust turbo
+- [Quickstart](https://eddmpython.github.io/vectrix/docs/getting-started/quickstart/): 5-minute tutorial
+
+## API Reference
+
+- [Forecasting Guide](https://eddmpython.github.io/vectrix/docs/guide/forecasting/): Detailed forecasting workflows
+- [Model Catalog](https://eddmpython.github.io/vectrix/docs/guide/models/): All 30+ models with parameters
+- [Regression Guide](https://eddmpython.github.io/vectrix/docs/guide/regression/): OLS, Ridge, Lasso, Huber, Quantile
+- [Adaptive Intelligence](https://eddmpython.github.io/vectrix/docs/guide/adaptive/): Regime detection, self-healing, DNA
+- [Business Analytics](https://eddmpython.github.io/vectrix/docs/guide/business/): Anomaly, scenarios, backtesting
+
+## Tutorials
+
+- [01 Quickstart](https://eddmpython.github.io/vectrix/docs/tutorials/01_quickstart/): One-line forecasting
+- [02 Analysis & DNA](https://eddmpython.github.io/vectrix/docs/tutorials/02_analyze/): Feature fingerprinting
+- [03 Regression](https://eddmpython.github.io/vectrix/docs/tutorials/03_regression/): R-style formula regression
+- [04 30+ Models](https://eddmpython.github.io/vectrix/docs/tutorials/04_models/): Model comparison workflow
+- [05 Adaptive](https://eddmpython.github.io/vectrix/docs/tutorials/05_adaptive/): Regime, constraints, DNA
+- [06 Business](https://eddmpython.github.io/vectrix/docs/tutorials/06_business/): Anomaly, what-if, backtesting
+
+## Optional
+
+- [Benchmarks](https://eddmpython.github.io/vectrix/docs/benchmarks/): M4 Competition results
+- [Changelog](https://eddmpython.github.io/vectrix/docs/changelog/): Version history
+- [GitHub Issues](https://github.com/eddmpython/vectrix/issues): Bug reports and feature requests

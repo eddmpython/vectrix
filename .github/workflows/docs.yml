@@ -8,6 +8,9 @@ on:
       - 'mkdocs.yml'
       - 'src/vectrix/**'
       - 'landing/**'
+      - 'llms.txt'
+      - 'llms-full.txt'
+      - 'mcp/**'
   workflow_dispatch:
 
 permissions:
@@ -54,6 +57,8 @@ jobs:
           mkdir -p _deploy
           cp -r landing/build/* _deploy/
           cp -r site/ _deploy/docs/
+          cp llms.txt _deploy/llms.txt
+          cp llms-full.txt _deploy/llms-full.txt
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

@@ -436,6 +436,59 @@ rust/                         Optional Rust acceleration (vectrix-core)
 
 <br>
 
+## ◈ AI Integration
+
+Vectrix is designed to be fully accessible to AI assistants. Whether you're using Claude, GPT, Copilot, or any other AI tool, Vectrix provides structured context files that allow any AI to understand the complete API in a single read.
+
+### llms.txt — AI-Readable Documentation
+
+The [`llms.txt`](https://llmstxt.org/) standard provides AI assistants with a structured overview of the project, and `llms-full.txt` contains the complete API reference with every function signature, parameter, return type, and common usage pattern.
+
+| File | URL | Contents |
+|:-----|:----|:---------|
+| `llms.txt` | [eddmpython.github.io/vectrix/llms.txt](https://eddmpython.github.io/vectrix/llms.txt) | Project overview + documentation links |
+| `llms-full.txt` | [eddmpython.github.io/vectrix/llms-full.txt](https://eddmpython.github.io/vectrix/llms-full.txt) | Complete API reference — every class, method, parameter, gotcha |
+
+Point your AI assistant to `llms-full.txt` for instant, session-independent understanding of the entire library. No context loss between sessions.
+
+### MCP Server — Tool Use for AI Assistants
+
+The [Model Context Protocol](https://modelcontextprotocol.io/) server exposes Vectrix as callable tools for Claude Desktop, Claude Code, and other MCP-compatible AI assistants.
+
+**10 tools**: `forecast_timeseries`, `forecast_csv`, `analyze_timeseries`, `compare_models`, `run_regression`, `detect_anomalies`, `backtest_model`, `list_sample_datasets`, `load_sample_dataset`
+
+```bash
+# Setup with Claude Code
+pip install "vectrix[mcp]"
+claude mcp add --transport stdio vectrix -- uv run python mcp/server.py
+
+# Setup with Claude Desktop (add to claude_desktop_config.json)
+{
+    "mcpServers": {
+        "vectrix": {
+            "command": "uv",
+            "args": ["run", "python", "/path/to/mcp/server.py"]
+        }
+    }
+}
+```
+
+Once connected, ask your AI: *"Forecast the next 12 months of this sales data"* — the AI calls Vectrix directly.
+
+### Claude Code Skills
+
+Three specialized skills for Claude Code users:
+
+| Skill | Command | Description |
+|:------|:--------|:------------|
+| `vectrix-forecast` | `/vectrix-forecast` | Time series forecasting workflow |
+| `vectrix-analyze` | `/vectrix-analyze` | DNA profiling and anomaly detection |
+| `vectrix-regress` | `/vectrix-regress` | R-style regression with diagnostics |
+
+Skills are auto-loaded when working in the Vectrix project directory.
+
+<br>
+
 ## ◈ Contributing
 
 ```bash

@@ -5,6 +5,40 @@ All notable changes to Vectrix will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.7] - 2026-03-02
+
+AI integration release — llms.txt for instant AI understanding, MCP server for tool use, Claude Code skills for workflow automation.
+
+### Added
+
+**llms.txt / llms-full.txt**
+- `llms.txt`: Structured project overview following the [llms.txt standard](https://llmstxt.org/) — documentation links, quick start, API sections
+- `llms-full.txt`: Complete API reference (every class, method, parameter, return type, common mistakes) — AI reads once, understands the full library
+- Deployed to GitHub Pages root: `eddmpython.github.io/vectrix/llms.txt` and `llms-full.txt`
+- Included in PyPI package for local access
+
+**MCP Server (Model Context Protocol)**
+- 10 tools: `forecast_timeseries`, `forecast_csv`, `analyze_timeseries`, `compare_models`, `run_regression`, `detect_anomalies`, `backtest_model`, `list_sample_datasets`, `load_sample_dataset`
+- 2 resources: `vectrix://models`, `vectrix://api-reference`
+- 2 prompts: `forecast_workflow`, `regression_workflow`
+- Compatible with Claude Desktop, Claude Code, and any MCP client
+- Setup: `pip install "vectrix[mcp]"` + `claude mcp add`
+
+**Claude Code Skills (3)**
+- `vectrix-forecast`: Time series forecasting workflow with full API reference
+- `vectrix-analyze`: DNA profiling, anomaly detection, regime analysis
+- `vectrix-regress`: R-style regression, diagnostics, variable selection
+- Auto-loaded in project directory, invocable via `/vectrix-forecast` etc.
+
+### Changed
+
+- `pyproject.toml`: Added `mcp` optional dependency, `include` for llms.txt/mcp in wheel
+- `docs.yml`: Copy llms.txt and llms-full.txt to GitHub Pages deploy directory
+- README.md / README_KR.md: Added "AI Integration" section (llms.txt, MCP, Skills)
+- CLAUDE.md: Added README update policy (mandatory update after every feature change)
+
+[0.0.7]: https://github.com/eddmpython/vectrix/compare/v0.0.6...v0.0.7
+
 ## [0.0.6] - 2026-03-02
 
 Documentation & deployment release — tutorials, showcases, EasyForecastResult enhancements, and unified SvelteKit landing + MkDocs GitHub Pages deployment.

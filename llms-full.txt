@@ -1,0 +1,523 @@
+# Vectrix — Complete API Reference for LLMs
+
+> Zero-config time series forecasting library for Python. 30+ statistical models with automatic selection, Rust turbo acceleration, adaptive intelligence, full regression suite, and business analytics. Pure NumPy/SciPy — no deep learning frameworks required.
+
+- Version: 0.0.7
+- Python: >=3.10
+- Core deps: numpy>=1.24, pandas>=2.0, scipy>=1.10
+- Install: `pip install vectrix`
+- GitHub: https://github.com/eddmpython/vectrix
+- PyPI: https://pypi.org/project/vectrix/
+- Docs: https://eddmpython.github.io/vectrix/docs/
+
+---
+
+## 1. Easy API — One-Line Functions
+
+The easiest way to use Vectrix. Import from top level:
+
+```python
+from vectrix import forecast, analyze, regress, compare, quick_report
+```
+
+### forecast()
+
+```python
+forecast(
+    data,              # str (CSV path), DataFrame, Series, ndarray, list, tuple, dict
+    date=None,         # str — date column name (auto-detected if None)
+    value=None,        # str — value column name (auto-detected if None)
+    steps=30,          # int — forecast horizon
+    frequency='auto',  # str — 'D','W','M','Q','Y','H' or 'auto'
+    verbose=False      # bool — print progress
+) -> EasyForecastResult
+```
+
+**EasyForecastResult attributes:**
+- `predictions` — np.ndarray of forecasted values
+- `dates` — pd.DatetimeIndex of forecast dates
+- `lower` — np.ndarray of 95% CI lower bound
+- `upper` — np.ndarray of 95% CI upper bound
+- `model` — str, name of best model (e.g. "AutoETS(A,Ad,A)")
+- `mape` — float, Mean Absolute Percentage Error
+- `rmse` — float, Root Mean Square Error
+- `mae` — float, Mean Absolute Error
+- `smape` — float, Symmetric MAPE
+- `models` — list of all evaluated model names
+
+**EasyForecastResult methods:**
+- `summary() -> str` — human-readable summary
+- `to_dataframe() -> pd.DataFrame` — forecast as DataFrame with date, forecast, lower, upper
+- `compare() -> pd.DataFrame` — side-by-side comparison of all models (sMAPE, MAPE, RMSE, MAE)
+- `all_forecasts() -> pd.DataFrame` — DataFrame of all valid model forecasts
+- `describe() -> pd.DataFrame` — statistical description
+- `plot(figsize=(12,6), showHistory=50, showCI=True, title=None)` — matplotlib plot
+- `to_csv(path) -> self` — save to CSV
+- `to_json(path=None) -> str` — convert to JSON
+- `save(path) -> self` — save to .fxm binary
+- `__getitem__(idx)` — index forecast by int or slice
+
+**Example:**
+```python
+from vectrix import forecast
+result = forecast("sales.csv", steps=12)
+print(result.model)          # "DynamicOptimizedTheta"
+print(f"MAPE: {result.mape:.2f}%")
+df = result.to_dataframe()   # date, forecast, lower, upper
+comparison = result.compare() # all models ranked
+```
+
+### analyze()
+
+```python
+analyze(
+    data,              # same flexible input as forecast()
+    date=None,         # str
+    value=None,        # str
+    period=None        # int — seasonal period (auto-detected if None)
+) -> EasyAnalysisResult
+```
+
+**EasyAnalysisResult attributes:**
+- `dna` — DNAProfile with: difficulty, category, fingerprint, recommendedModels, features
+- `changepoints` — list of detected structural breaks
+- `anomalies` — list of anomaly indices
+- `features` — dict of 65+ time series features
+- `characteristics` — DataCharacteristics object
+
+**Example:**
+```python
+from vectrix import analyze
+result = analyze(df, date="date", value="sales")
+print(result.dna.difficulty)        # "medium"
+print(result.dna.recommendedModels) # ["dot", "auto_ces", "mstl"]
+print(result.features["trendStrength"])  # 0.87
+```
+
+### regress()
+
+```python
+regress(
+    y=None,            # np.ndarray or str (column name)
+    X=None,            # np.ndarray or DataFrame
+    data=None,         # pd.DataFrame (used with formula)
+    formula=None,      # str — R-style "y ~ x1 + x2"
+    method='ols',      # str — 'ols', 'ridge', 'lasso', 'huber', 'quantile'
+    summary=True       # bool — print summary on creation
+) -> EasyRegressionResult
+```
+
+**EasyRegressionResult attributes:**
+- `coefficients` — pd.Series with coefficient names and values
+- `pvalues` — pd.Series
+- `r_squared` — float
+- `adj_r_squared` — float
+- `f_stat` — float
+
+**EasyRegressionResult methods:**
+- `summary() -> str`
+- `diagnose() -> str` — Durbin-Watson, Breusch-Pagan, VIF, Jarque-Bera
+- `predict(X, interval='prediction', alpha=0.05) -> pd.DataFrame`
+
+**Example:**
+```python
+from vectrix import regress
+reg = regress(data=df, formula="revenue ~ ads + price + season")
+print(reg.r_squared)    # 0.92
+print(reg.diagnose())   # full diagnostic report
+pred = reg.predict(new_df)  # with prediction intervals
+```
+
+### compare()
+
+```python
+compare(
+    data,
+    date=None,
+    value=None,
+    steps=30,
+    verbose=False
+) -> pd.DataFrame  # columns: model, smape, mape, rmse, mae — sorted by smape
+```
+
+### quick_report()
+
+```python
+quick_report(
+    data,
+    date=None,
+    value=None,
+    steps=30
+) -> dict  # keys: forecast, analysis, metrics
+```
+
+---
+
+## 2. Engine Models (30+)
+
+All models follow the same interface:
+
+```python
+model = ModelClass()
+model.fit(y)  # y: np.ndarray
+predictions, lower, upper = model.predict(steps)  # all np.ndarray
+```
+
+### Import paths
+
+```python
+from vectrix.engine.ets import AutoETS
+from vectrix.engine.arima import AutoARIMA, ARIMAModel
+from vectrix.engine.theta import OptimizedTheta
+from vectrix.engine.dot import DynamicOptimizedTheta
+from vectrix.engine.ces import AutoCES
+from vectrix.engine.mstl import AutoMSTL
+from vectrix.engine.tbats import AutoTBATS
+from vectrix.engine.garch import GARCHModel, EGARCHModel, GJRGARCHModel
+from vectrix.engine.croston import AutoCroston
+from vectrix.engine.fourTheta import AdaptiveThetaEnsemble
+from vectrix.engine.dtsf import DynamicTimeScanForecaster
+from vectrix.engine.esn import EchoStateForecaster
+from vectrix.engine.baseline import NaiveModel, SeasonalNaiveModel, MeanModel, RandomWalkDrift, WindowAverage
+```
+
+### Model catalog
+
+| Model | Class | Best for |
+|-------|-------|----------|
+| AutoETS | AutoETS | General purpose, trend+seasonal |
+| AutoARIMA | AutoARIMA | Stationary with complex autocorrelation |
+| Theta | OptimizedTheta | Simple trend extrapolation |
+| DOT | DynamicOptimizedTheta | General purpose (M4 OWA 0.905) |
+| AutoCES | AutoCES | General purpose (M4 OWA 0.927) |
+| AutoMSTL | AutoMSTL | Multiple seasonality (daily, weekly, yearly) |
+| AutoTBATS | AutoTBATS | Complex multi-seasonal |
+| GARCH | GARCHModel | Volatility modeling |
+| EGARCH | EGARCHModel | Asymmetric volatility |
+| GJR-GARCH | GJRGARCHModel | Leverage effect in volatility |
+| Croston | AutoCroston | Intermittent/lumpy demand |
+| 4Theta | AdaptiveThetaEnsemble | M4-validated ensemble (Yearly OWA 0.879) |
+| DTSF | DynamicTimeScanForecaster | Pattern matching, hourly data |
+| ESN | EchoStateForecaster | Ensemble diversity (not standalone) |
+| Naive | NaiveModel | Baseline |
+| Seasonal Naive | SeasonalNaiveModel | Seasonal baseline |
+
+---
+
+## 3. Adaptive Intelligence
+
+```python
+from vectrix.adaptive.regime import RegimeDetector, RegimeAwareForecaster
+from vectrix.adaptive.healing import SelfHealingForecast
+from vectrix.adaptive.constraint import ConstraintAwareForecaster, Constraint
+from vectrix.adaptive.dna import ForecastDNA
+```
+
+### RegimeDetector
+```python
+detector = RegimeDetector()
+result = detector.detect(y)  # np.ndarray
+# result.regimeLabels — np.ndarray of regime assignments
+# result.currentRegime — int
+# result.regimeStats — list of dicts per regime
+# len(result.regimeStats) — number of regimes
+```
+
+### ForecastDNA
+```python
+dna = ForecastDNA()
+profile = dna.analyze(y, period=12)
+# profile.difficulty — "easy" | "medium" | "hard" | "extreme"
+# profile.category — str
+# profile.recommendedModels — list[str]
+# profile.features — dict of 65+ features
+# profile.fingerprint — np.ndarray
+```
+
+### SelfHealingForecast
+```python
+healer = SelfHealingForecast(predictions, lower, upper, historical_data)
+report = healer.observe(actual_values)
+# report.overallHealth — float (0-1)
+# report.healthScore — float
+updated_pred, updated_lower, updated_upper = healer.getUpdatedForecast()
+```
+
+### ConstraintAwareForecaster
+```python
+forecaster = ConstraintAwareForecaster()
+result = forecaster.apply(predictions, lower, upper, constraints=[
+    Constraint(type='non_negative'),
+    Constraint(type='range', min=0, max=1000),
+    Constraint(type='monotonic', direction='increasing'),
+])
+```
+
+---
+
+## 4. Business Intelligence
+
+```python
+from vectrix.business import (
+    AnomalyDetector, WhatIfAnalyzer, Backtester,
+    BusinessMetrics, ReportGenerator, HTMLReportGenerator
+)
+```
+
+### AnomalyDetector
+```python
+detector = AnomalyDetector()
+result = detector.detect(
+    y,                    # np.ndarray
+    method='auto',        # 'zscore', 'iqr', 'seasonal', 'rolling', 'auto'
+    threshold=3.0,        # float — detection threshold
+    period=1              # int — seasonal period (for seasonal method)
+)
+# result.indices — np.ndarray of anomaly positions
+# result.scores — np.ndarray of anomaly scores
+# result.nAnomalies — int
+# result.anomalyRatio — float
+```
+
+### WhatIfAnalyzer
+```python
+analyzer = WhatIfAnalyzer()
+scenarios = [
+    {"name": "base", "trend_change": 0},
+    {"name": "growth", "trend_change": 0.10},
+    {"name": "recession", "trend_change": -0.15, "level_shift": -0.05},
+    {"name": "shock", "shock_at": 3, "shock_magnitude": -0.25, "shock_duration": 3},
+]
+results = analyzer.analyze(baseline_forecast, historical_y, scenarios, period=12)
+# results[i].name, .impact, .percentChange, .values
+summary = analyzer.compareSummary(results)
+```
+
+### Backtester
+```python
+bt = Backtester(nFolds=4, horizon=12, strategy="expanding", minTrainSize=60)
+result = bt.run(y, modelFactory=AutoETS)
+summary = bt.summary(result)
+# result.folds[i].fold, .trainSize, .testSize, .mape
+```
+
+### BusinessMetrics
+```python
+metrics = BusinessMetrics()
+result = metrics.calculate(actual, predicted)  # returns dict
+# keys: mape, rmse, mae, smape, mase, wape, etc.
+```
+
+---
+
+## 5. Regression Module
+
+```python
+from vectrix.regression import (
+    OLSInference, RegressionDiagnostics,
+    RidgeRegressor, LassoRegressor, HuberRegressor, QuantileRegressor,
+    StepwiseSelector, RegularizationCV, BestSubsetSelector,
+    NeweyWestOLS, CochraneOrcutt, PraisWinsten, GrangerCausality,
+)
+```
+
+### Key classes
+- `OLSInference().fit(X, y)` → RegressionResult with coefficients, pvalues, CI
+- `RegressionDiagnostics().diagnose(...)` → Durbin-Watson, Breusch-Pagan, VIF, Jarque-Bera
+- `StepwiseSelector(direction='both').select(X, y)` → optimal feature subset
+- `GrangerCausality().test(y1, y2, maxLag)` → p-values per lag
+
+---
+
+## 6. Prediction Intervals
+
+```python
+from vectrix.intervals import ConformalInterval, BootstrapInterval
+from vectrix.intervals.distribution import ForecastDistribution, DistributionFitter, empiricalCRPS
+```
+
+```python
+ci = ConformalInterval(alpha=0.05)
+lower, upper = ci.predict(y_pred, y_actual)
+
+bi = BootstrapInterval(alpha=0.05, nBootstrap=1000)
+lower, upper = bi.predict(y_pred, residuals)
+
+fitter = DistributionFitter()
+dist = fitter.fit(residuals)  # ForecastDistribution
+q50 = dist.quantile(0.5)
+crps = dist.crps(actual)
+```
+
+---
+
+## 7. Hierarchical Reconciliation
+
+```python
+from vectrix.hierarchy import BottomUp, TopDown, MinTrace
+
+bu = BottomUp()
+reconciled = bu.reconcile(base_forecasts, hierarchy)
+
+td = TopDown()
+reconciled = td.reconcile(base_forecasts, hierarchy, proportions)
+
+mt = MinTrace(method='ols')
+reconciled = mt.reconcile(base_forecasts, hierarchy, S_matrix)
+```
+
+---
+
+## 8. Pipeline System
+
+```python
+from vectrix.pipeline import (
+    ForecastPipeline, Differencer, LogTransformer, BoxCoxTransformer,
+    Scaler, Deseasonalizer, Detrend, OutlierClipper, MissingValueImputer
+)
+
+pipe = ForecastPipeline([
+    ("log", LogTransformer()),
+    ("deseason", Deseasonalizer(period=12)),
+    ("model", AutoETS()),
+])
+pipe.fit(y)
+pred, lower, upper = pipe.predict(steps=12)
+```
+
+All transformers: `fit(y)`, `transform(y)`, `inverseTransform(y)`
+
+---
+
+## 9. Datasets
+
+```python
+from vectrix import loadSample, listSamples
+
+listSamples()  # pd.DataFrame with name, description, length, frequency
+
+df = loadSample("airline")       # 144 monthly observations
+df = loadSample("retail")        # 730 daily
+df = loadSample("stock")         # 252 business daily
+df = loadSample("temperature")   # 1095 daily
+df = loadSample("energy")        # 720 hourly
+df = loadSample("web")           # 180 daily
+df = loadSample("intermittent")  # 365 daily sparse demand
+```
+
+---
+
+## 10. Utilities
+
+### Batch Forecasting
+```python
+from vectrix.batch import batchForecast
+results = batchForecast({"series1": df1, "series2": df2}, dateCol="date", valueCol="value", steps=12)
+```
+
+### Model Persistence
+```python
+from vectrix import ModelPersistence
+ModelPersistence.save(model, "model.fxm")
+model = ModelPersistence.load("model.fxm")
+```
+
+### TSFrame
+```python
+from vectrix import TSFrame
+ts = TSFrame(df, dateCol="date", valueCol="value")
+result = ts.forecast(steps=12)
+```
+
+### Global Model (Cross-learning)
+```python
+from vectrix.global_model import GlobalForecaster
+gf = GlobalForecaster()
+gf.fit({"store1": y1, "store2": y2, "store3": y3})
+forecasts = gf.predict(steps=12)  # dict of (pred, lower, upper)
+```
+
+---
+
+## 11. Optional Dependencies
+
+```bash
+pip install "vectrix[ml]"          # LightGBM, XGBoost, sklearn
+pip install "vectrix[foundation]"  # Chronos-2, torch
+pip install "vectrix[neural]"      # NeuralForecast (NBEATS, NHITS, TFT)
+pip install "vectrix[all]"         # Everything
+```
+
+### Foundation Models
+```python
+from vectrix.ml.chronos import ChronosForecaster
+from vectrix.ml.timesfm import TimesFMForecaster
+```
+
+### Neural Models
+```python
+from vectrix.ml.neural import NBEATSForecaster, NHITSForecaster, TFTForecaster
+```
+
+---
+
+## 12. Common Patterns and Gotchas
+
+### Data input flexibility
+forecast() accepts: str (CSV path), pd.DataFrame, pd.Series, np.ndarray, list, tuple, dict
+
+### Column auto-detection
+Date columns auto-detected by name: "date", "ds", "timestamp", "time", "날짜", "일자", "일시"
+Value columns auto-detected by name: "value", "y", "target", "sales", "값"
+
+### Naming convention
+- Functions/variables: camelCase (e.g., loadSample, listSamples)
+- Classes: PascalCase (e.g., AutoETS, ForecastDNA)
+- Exception: Easy API uses snake_case (forecast, analyze, regress, quick_report)
+
+### Import shortcuts
+```python
+# Top-level imports (most common)
+from vectrix import forecast, analyze, regress, compare, quick_report
+from vectrix import loadSample, listSamples
+from vectrix import TSFrame, ModelPersistence
+
+# Engine models
+from vectrix.engine.ets import AutoETS
+from vectrix.engine.dot import DynamicOptimizedTheta
+
+# Business
+from vectrix.business import AnomalyDetector, Backtester, BusinessMetrics
+
+# Adaptive
+from vectrix.adaptive.dna import ForecastDNA
+from vectrix.adaptive.regime import RegimeDetector
+```
+
+### Common mistakes
+- `AnomalyDetector.detect()` uses `threshold=` not `sensitivity=`
+- `loadSample()` returns pd.DataFrame — value column name varies per dataset
+- `listSamples()` returns pd.DataFrame not dict
+- `analyze()` requires DataFrame + dateCol + valueCol (not raw ndarray)
+- `EasyAnalysisResult.dna.difficulty` not `result.difficulty`
+- Model imports: CrostonModel → AutoCroston, DOTModel → DynamicOptimizedTheta, ThetaModel → OptimizedTheta, TBATS → AutoTBATS
+- `BusinessMetrics.calculate()` returns dict not object
+- `RegimeResult`: use `len(result.regimeStats)` for nRegimes
+- `HealingReport`: properties are overallHealth, healthScore, totalObserved, totalCorrected
+
+### Rust turbo acceleration
+```python
+from vectrix import TURBO_AVAILABLE
+print(TURBO_AVAILABLE)  # True if Rust extension loaded
+# 13 accelerated functions: ets_filter, ets_loglik, theta_decompose,
+# arima_css, css_objective, seasonal_css_objective, ses_sse, ses_filter,
+# batch_ets_filter, dot_objective, dot_residuals, ces_nonseasonal_sse,
+# ces_seasonal_sse
+# Fallback: Rust > Numba JIT > Pure Python (automatic, transparent)
+```
+
+### Performance benchmarks (M4 Competition)
+- DOT: OWA 0.905 (general purpose best)
+- AutoCES: OWA 0.927
+- 4Theta Yearly: OWA 0.879 (= M4 official #11)
+- VX-Ensemble Hourly: OWA 0.696 (winner-level)

@@ -434,6 +434,59 @@ rust/                         선택적 Rust 가속 (vectrix-core)
 
 <br>
 
+## ◈ AI 통합
+
+Vectrix는 AI 어시스턴트가 완벽하게 이해할 수 있도록 설계되었습니다. Claude, GPT, Copilot 등 어떤 AI 도구를 사용하든, 구조화된 컨텍스트 파일을 통해 전체 API를 한 번에 파악할 수 있습니다.
+
+### llms.txt — AI용 문서
+
+[`llms.txt`](https://llmstxt.org/) 표준은 AI 어시스턴트에게 프로젝트의 구조화된 개요를 제공하고, `llms-full.txt`는 모든 함수 시그니처, 파라미터, 반환 타입, 사용 패턴을 포함한 완전한 API 레퍼런스입니다.
+
+| 파일 | URL | 내용 |
+|:-----|:----|:-----|
+| `llms.txt` | [eddmpython.github.io/vectrix/llms.txt](https://eddmpython.github.io/vectrix/llms.txt) | 프로젝트 개요 + 문서 링크 |
+| `llms-full.txt` | [eddmpython.github.io/vectrix/llms-full.txt](https://eddmpython.github.io/vectrix/llms-full.txt) | 완전한 API 레퍼런스 — 모든 클래스, 메서드, 파라미터, 주의사항 |
+
+AI 어시스턴트에게 `llms-full.txt`를 읽게 하면 세션이 바뀌어도 라이브러리를 즉시 이해합니다.
+
+### MCP 서버 — AI 도구 호출
+
+[Model Context Protocol](https://modelcontextprotocol.io/) 서버는 Vectrix를 Claude Desktop, Claude Code 등 MCP 호환 AI 어시스턴트에서 직접 호출할 수 있는 도구로 노출합니다.
+
+**10개 도구**: `forecast_timeseries`, `forecast_csv`, `analyze_timeseries`, `compare_models`, `run_regression`, `detect_anomalies`, `backtest_model`, `list_sample_datasets`, `load_sample_dataset`
+
+```bash
+# Claude Code 설정
+pip install "vectrix[mcp]"
+claude mcp add --transport stdio vectrix -- uv run python mcp/server.py
+
+# Claude Desktop 설정 (claude_desktop_config.json에 추가)
+{
+    "mcpServers": {
+        "vectrix": {
+            "command": "uv",
+            "args": ["run", "python", "/path/to/mcp/server.py"]
+        }
+    }
+}
+```
+
+연결 후 AI에게 *"이 매출 데이터를 12개월 예측해줘"*라고 말하면 AI가 Vectrix를 직접 호출합니다.
+
+### Claude Code Skills
+
+Claude Code 사용자를 위한 3개 전문 스킬:
+
+| 스킬 | 명령어 | 설명 |
+|:------|:--------|:-----|
+| `vectrix-forecast` | `/vectrix-forecast` | 시계열 예측 워크플로우 |
+| `vectrix-analyze` | `/vectrix-analyze` | DNA 프로파일링 및 이상치 탐지 |
+| `vectrix-regress` | `/vectrix-regress` | R-스타일 회귀분석 + 진단 |
+
+Vectrix 프로젝트 디렉토리에서 작업할 때 자동으로 로드됩니다.
+
+<br>
+
 ## ◈ 기여
 
 ```bash
