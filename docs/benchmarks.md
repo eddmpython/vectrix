@@ -67,7 +67,7 @@ python benchmarks/runM4.py --all --n 50
 | Item | Version / Spec |
 |------|----------------|
 | Python | 3.10+ |
-| Vectrix | 0.0.5 |
+| Vectrix | 0.0.7 |
 | OS | Windows 11 / Ubuntu 22.04 / macOS 14+ |
 | CPU | Any modern x86_64 or ARM64 |
 | RAM | 8 GB minimum |
