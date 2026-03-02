@@ -9,7 +9,7 @@
 	let currentLang = $state('en');
 	locale.subscribe(v => currentLang = v);
 
-	let component = $derived(
+	let Component = $derived(
 		currentLang === 'ko' && data.koComponent ? data.koComponent : data.enComponent
 	);
 	let meta = $derived(
@@ -31,7 +31,7 @@
 	</div>
 {:else}
 	<article class="doc-article">
-		<component />
+		<Component />
 	</article>
 
 	{#if prevNext.prev || prevNext.next}
