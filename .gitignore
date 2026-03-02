@@ -46,6 +46,7 @@ Thumbs.db
 *.log
 *.html
 !docs/overrides/*.html
+!landing/src/**/*.html
 *.pdf
 
 # Cache
@@ -68,3 +69,8 @@ rust/target/
 
 # uv
 uv.lock
+
+# Landing (SvelteKit) — build artifacts only
+landing/node_modules/
+landing/.svelte-kit/
+landing/build/
