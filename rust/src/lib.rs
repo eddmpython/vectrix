@@ -631,7 +631,7 @@ fn ces_seasonal_sse(
 }
 
 #[pymodule]
-fn vectrix_core(m: &Bound<'_, PyModule>) -> PyResult<()> {
+fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(ets_filter, m)?)?;
     m.add_function(wrap_pyfunction!(ets_loglik, m)?)?;
     m.add_function(wrap_pyfunction!(theta_decompose, m)?)?;

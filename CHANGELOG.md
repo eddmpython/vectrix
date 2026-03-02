@@ -5,6 +5,48 @@ All notable changes to Vectrix will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.6] - 2026-03-02
+
+Documentation & deployment release — tutorials, showcases, EasyForecastResult enhancements, and unified SvelteKit landing + MkDocs GitHub Pages deployment.
+
+### Added
+
+**EasyForecastResult Enhancements**
+- `compare()`: Side-by-side model comparison table with sMAPE, MAPE, RMSE, MAE metrics
+- `all_forecasts()`: DataFrame of all valid model forecasts for manual analysis
+- Accuracy attributes: `.mape`, `.rmse`, `.mae`, `.smape` on EasyForecastResult for quick access
+- `Vectrix._refitAllModels()`: Refit all valid models after best model selection for compare/all_forecasts
+
+**Tutorials (Markdown, 6 topics × 2 languages = 12 files)**
+- 01_quickstart: One-line forecasting, result inspection, visualization
+- 02_analyze: DNA profiling, feature fingerprinting, changepoint detection
+- 03_regression: R-style formula regression, diagnostics, robust methods
+- 04_models: 30+ model catalog, manual selection, comparison workflow
+- 05_adaptive: Regime detection, self-healing, constraints, forecast DNA
+- 06_business: Anomaly detection, what-if scenarios, backtesting, business metrics
+
+**Showcases (marimo interactive notebooks)**
+- 03_modelComparison: 30+ model comparison with DNA analysis
+- 04_businessIntelligence: Anomaly detection, scenarios, backtesting
+- Companion .md pages for GitHub Pages visibility (8 files)
+
+### Changed
+
+**Unified GitHub Pages Deployment**
+- SvelteKit landing page now serves at root (`/vectrix/`)
+- MkDocs documentation serves at `/vectrix/docs/`
+- `docs.yml` workflow builds both SvelteKit + MkDocs and merges into single deployment
+- All landing page links updated to point to `/vectrix/docs/` paths
+- SvelteKit `paths.base` configured via `BASE_PATH` environment variable
+- Header/Footer components use `{base}` import for correct asset paths
+
+**Documentation Navigation**
+- mkdocs.yml nav updated with tutorial and showcase sub-pages
+- showcase/index and tutorials/index updated with content descriptions
+- README.md and README_KR.md updated: 573 tests, compare API, new models, doc links
+
+[0.0.6]: https://github.com/eddmpython/vectrix/compare/v0.0.5...v0.0.6
+
 ## [0.0.5] - 2026-03-02
 
 Performance release — Rust turbo acceleration extended to DOT, CES, and 4Theta models (vectrix-core 0.2.0).

@@ -10,7 +10,7 @@
 	<p class="text-vx-text-muted text-lg mb-8">Get started with Vectrix in under a minute.</p>
 
 	<div class="flex justify-center items-center gap-3 flex-wrap">
-		<Button href="https://eddmpython.github.io/vectrix/getting-started/quickstart/">
+		<Button href="https://eddmpython.github.io/vectrix/docs/getting-started/quickstart/">
 			<Play class="w-4 h-4" />
 			Get Started
 		</Button>

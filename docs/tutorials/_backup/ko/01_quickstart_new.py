@@ -11,7 +11,7 @@
 
 import marimo
 
-__generated_with = "0.12.0"
+__generated_with = "0.20.2"
 app = marimo.App(width="medium")
 
 
@@ -21,39 +21,36 @@ def imports():
     import numpy as np
     import pandas as pd
     from vectrix import forecast
+
     return forecast, mo, np, pd
 
 
 @app.cell
 def header(mo):
-    mo.md(
-        """
-        # Vectrix 빠른 시작
+    mo.md("""
+    # Vectrix 빠른 시작
 
-        **3분 만에 첫 예측을 만들어보세요.**
+    **3분 만에 첫 예측을 만들어보세요.**
 
-        Vectrix는 설정 없이 바로 사용할 수 있는 시계열 예측 라이브러리입니다.
-        30+ 모델을 자동으로 비교하고, 최적의 모델을 선택합니다.
+    Vectrix는 설정 없이 바로 사용할 수 있는 시계열 예측 라이브러리입니다.
+    30+ 모델을 자동으로 비교하고, 최적의 모델을 선택합니다.
 
-        ```
-        pip install vectrix
-        ```
-        """
-    )
+    ```
+    pip install vectrix
+    ```
+    """)
     return
 
 
 @app.cell
 def section1(mo):
-    mo.md(
-        """
-        ---
-        ## 1. 리스트로 바로 예측
+    mo.md("""
+    ---
+    ## 1. 리스트로 바로 예측
 
-        데이터가 숫자 리스트만 있어도 됩니다.
-        날짜, 컬럼명, 모델 선택 — 전부 자동입니다.
-        """
-    )
+    데이터가 숫자 리스트만 있어도 됩니다.
+    날짜, 컬럼명, 모델 선택 — 전부 자동입니다.
+    """)
     return
 
 
@@ -71,17 +68,15 @@ def forecastFromList(forecast):
 
 @app.cell
 def showResult(mo, result):
-    mo.md(
-        f"""
-        ### 결과 확인
+    mo.md(f"""
+    ### 결과 확인
 
-        | 항목 | 값 |
-        |------|-----|
-        | 선택된 모델 | `{result.model}` |
-        | 예측 기간 | {len(result.predictions)}일 |
-        | 예측 범위 | {result.predictions.min():.1f} ~ {result.predictions.max():.1f} |
-        """
-    )
+    | 항목 | 값 |
+    |------|-----|
+    | 선택된 모델 | `{result.model}` |
+    | 예측 기간 | {len(result.predictions)}일 |
+    | 예측 범위 | {result.predictions.min():.1f} ~ {result.predictions.max():.1f} |
+    """)
     return
 
 
@@ -94,14 +89,12 @@ def showTable(mo, result):
 
 @app.cell
 def section2(mo):
-    mo.md(
-        """
-        ---
-        ## 2. DataFrame에서 예측
+    mo.md("""
+    ---
+    ## 2. DataFrame에서 예측
 
-        pandas DataFrame이 있으면 날짜와 값 컬럼을 자동으로 감지합니다.
-        """
-    )
+    pandas DataFrame이 있으면 날짜와 값 컬럼을 자동으로 감지합니다.
+    """)
     return
 
 
@@ -120,32 +113,32 @@ def forecastFromDf(forecast, np, pd):
     })
 
     dfResult = forecast(monthlyDf, steps=12)
-    return (dfResult, monthlyDf)
+    return dfResult, monthlyDf
 
 
 @app.cell
-def showDfResult(mo, dfResult):
-    mo.md(
-        f"""
-        ### DataFrame 예측 결과
+def showDfResult(dfResult, mo):
+    mo.md(f"""
+    ### DataFrame 예측 결과
 
-        - 모델: `{dfResult.model}`
-        - 12개월 예측 생성 완료
+    - 모델: `{dfResult.model}`
+    - 12개월 예측 생성 완료
 
-        `.summary()`로 전체 요약을 확인할 수 있습니다:
-        """
-    )
+    `.summary()`로 전체 요약을 확인할 수 있습니다:
+    """)
     return
 
 
 @app.cell
-def printSummary(mo, dfResult):
-    mo.md(f"```\n{dfResult.summary()}\n```")
+def printSummary(dfResult, mo):
+    mo.md(f"""
+    ```\n{dfResult.summary()}\n```
+    """)
     return
 
 
 @app.cell
-def plotForecast(mo, dfResult, monthlyDf, pd):
+def plotForecast(dfResult, mo, monthlyDf, pd):
     import plotly.graph_objects as go
 
     _predDf = dfResult.to_dataframe()
@@ -178,14 +171,12 @@ def plotForecast(mo, dfResult, monthlyDf, pd):
 
 @app.cell
 def section3(mo):
-    mo.md(
-        """
-        ---
-        ## 3. 예측 기간 조절
+    mo.md("""
+    ---
+    ## 3. 예측 기간 조절
 
-        슬라이더로 예측 기간(steps)을 바꿔보세요.
-        """
-    )
+    슬라이더로 예측 기간(steps)을 바꿔보세요.
+    """)
     return
 
 
@@ -221,32 +212,28 @@ def interactiveForecast(forecast, np, pd, stepsControl):
 
 
 @app.cell
-def showInteractive(mo, interResult, stepsControl):
-    mo.md(
-        f"""
-        **{stepsControl.value}일 예측** | 모델: `{interResult.model}`
+def showInteractive(interResult, mo, stepsControl):
+    mo.md(f"""
+    **{stepsControl.value}일 예측** | 모델: `{interResult.model}`
 
-        평균 예측값: {interResult.predictions.mean():.1f}
-        """
-    )
+    평균 예측값: {interResult.predictions.mean():.1f}
+    """)
     return
 
 
 @app.cell
 def section4(mo):
-    mo.md(
-        """
-        ---
-        ## 4. 결과 활용
+    mo.md("""
+    ---
+    ## 4. 결과 활용
 
-        `EasyForecastResult` 객체의 주요 메서드:
-        """
-    )
+    `EasyForecastResult` 객체의 주요 메서드:
+    """)
     return
 
 
 @app.cell
-def resultMethods(mo, interResult):
+def resultMethods(interResult, mo):
     _forecastDf = interResult.to_dataframe()
     _jsonStr = interResult.to_json()
 
@@ -269,25 +256,23 @@ def resultMethods(mo, interResult):
 
 @app.cell
 def section5(mo):
-    mo.md(
-        """
-        ---
-        ## 5. 다양한 입력 형식
+    mo.md("""
+    ---
+    ## 5. 다양한 입력 형식
 
-        Vectrix는 거의 모든 형태의 데이터를 받습니다:
+    Vectrix는 거의 모든 형태의 데이터를 받습니다:
 
-        ```python
-        forecast([1, 2, 3, 4, 5])                    # 리스트
-        forecast(np.array([1, 2, 3, 4, 5]))           # numpy 배열
-        forecast(pd.Series([1, 2, 3, 4, 5]))          # pandas Series
-        forecast({"value": [1, 2, 3, 4, 5]})          # dict
-        forecast(df, date="날짜", value="매출")         # DataFrame
-        forecast("data.csv")                           # CSV 파일 경로
-        ```
+    ```python
+    forecast([1, 2, 3, 4, 5])                    # 리스트
+    forecast(np.array([1, 2, 3, 4, 5]))           # numpy 배열
+    forecast(pd.Series([1, 2, 3, 4, 5]))          # pandas Series
+    forecast({"value": [1, 2, 3, 4, 5]})          # dict
+    forecast(df, date="날짜", value="매출")         # DataFrame
+    forecast("data.csv")                           # CSV 파일 경로
+    ```
 
-        **다음 튜토리얼:** `02_analyze.py` — 시계열 DNA 분석
-        """
-    )
+    **다음 튜토리얼:** `02_analyze.py` — 시계열 DNA 분석
+    """)
     return
 
 

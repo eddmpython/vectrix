@@ -49,11 +49,11 @@
 		</div>
 
 		<div class="flex justify-center gap-3 mb-12 flex-wrap">
-			<Button href="https://eddmpython.github.io/vectrix/getting-started/installation/">
+			<Button href="https://eddmpython.github.io/vectrix/docs/getting-started/installation/">
 				<Download class="w-4 h-4" />
 				Install
 			</Button>
-			<Button variant="secondary" href="https://eddmpython.github.io/vectrix/getting-started/quickstart/">
+			<Button variant="secondary" href="https://eddmpython.github.io/vectrix/docs/getting-started/quickstart/">
 				<Play class="w-4 h-4" />
 				Quickstart
 			</Button>

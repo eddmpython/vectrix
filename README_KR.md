@@ -22,7 +22,7 @@
 <a href="https://pypi.org/project/vectrix/"><img src="https://img.shields.io/pypi/v/vectrix?style=for-the-badge&color=6366f1&labelColor=0f172a&logo=pypi&logoColor=white" alt="PyPI"></a>
 <a href="https://pypi.org/project/vectrix/"><img src="https://img.shields.io/pypi/pyversions/vectrix?style=for-the-badge&labelColor=0f172a&logo=python&logoColor=white" alt="Python"></a>
 <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-22d3ee?style=for-the-badge&labelColor=0f172a" alt="License"></a>
-<img src="https://img.shields.io/badge/Tests-387%20passed-10b981?style=for-the-badge&labelColor=0f172a&logo=pytest&logoColor=white" alt="Tests">
+<img src="https://img.shields.io/badge/Tests-573%20passed-10b981?style=for-the-badge&labelColor=0f172a&logo=pytest&logoColor=white" alt="Tests">
 </p>
 
 <br>
@@ -39,6 +39,8 @@
 <a href="#-사용-예시">사용 예시</a> ·
 <a href="#-벤치마크">벤치마크</a> ·
 <a href="#-api-레퍼런스">API</a> ·
+<a href="https://eddmpython.github.io/vectrix/docs/tutorials/">튜토리얼</a> ·
+<a href="https://eddmpython.github.io/vectrix/docs/showcase/">쇼케이스</a> ·
 <a href="README.md">English</a>
 </p>
 
@@ -183,6 +185,9 @@ result.plot()
 | **Croston** | Classic, SBA, TSB 간헐적 수요 |
 | **Logistic Growth** | 용량 제한 포화 추세 |
 | **AutoMSTL** | 다중 계절성 STL + ARIMA 잔차 |
+| **4Theta** | M4 Competition 방법론, 4개 theta line 가중 |
+| **DTSF** | Dynamic Time Scan, 비모수 패턴 매칭 |
+| **ESN** | Echo State Network, 저수지 컴퓨팅 |
 | **베이스라인** | Naive, Seasonal, Mean, Drift, Window Average |
 
 </details>
@@ -266,12 +271,16 @@ pip install "vectrix[all]"         # 전체
 ### Easy API
 
 ```python
-from vectrix import forecast, analyze, regress
+from vectrix import forecast, analyze, regress, compare
 
 result = forecast([100, 120, 115, 130, 125, 140], steps=5)
+print(result.compare())          # 전체 모델 순위
+print(result.all_forecasts())    # 모든 모델의 예측값
 
 report = analyze(df, date="date", value="sales")
 print(f"난이도: {report.dna.difficulty}")
+
+comparison = compare(df, date="date", value="sales", steps=12)
 
 model = regress(data=df, formula="sales ~ temperature + promotion")
 print(model.summary())
@@ -349,7 +358,7 @@ M3, M4 대회 데이터셋으로 평가 (카테고리별 100개 시계열). OWA 
 | Daily | 1.207 |
 | Hourly | 1.006 |
 
-sMAPE/MASE 상세 결과: [벤치마크 상세](docs/benchmarks.ko.md)
+sMAPE/MASE 상세 결과: [벤치마크 상세](https://eddmpython.github.io/vectrix/docs/benchmarks/)
 
 <br>
 
@@ -362,6 +371,7 @@ sMAPE/MASE 상세 결과: [벤치마크 상세](docs/benchmarks.ko.md)
 | `forecast(data, steps=30)` | 자동 모델 선택 예측 |
 | `analyze(data)` | DNA 프로파일링, 변환점, 이상치 |
 | `regress(y, X)` / `regress(data=df, formula="y ~ x")` | 진단 포함 회귀분석 |
+| `compare(data, steps=30)` | 전체 모델 비교 (DataFrame) |
 | `quick_report(data, steps=30)` | 분석 + 예측 통합 |
 
 ### Classic API
@@ -375,7 +385,7 @@ sMAPE/MASE 상세 결과: [벤치마크 상세](docs/benchmarks.ko.md)
 
 | 객체 | 주요 속성 |
 |:-----|:---------|
-| `EasyForecastResult` | `.predictions` `.dates` `.lower` `.upper` `.model` `.plot()` `.to_csv()` `.to_json()` |
+| `EasyForecastResult` | `.predictions` `.dates` `.lower` `.upper` `.model` `.mape` `.rmse` `.models` `.compare()` `.all_forecasts()` `.plot()` `.to_csv()` `.to_json()` |
 | `EasyAnalysisResult` | `.dna` `.changepoints` `.anomalies` `.features` `.summary()` |
 | `EasyRegressionResult` | `.coefficients` `.pvalues` `.r_squared` `.f_stat` `.summary()` `.diagnose()` |
 
@@ -398,6 +408,9 @@ vectrix/
 │   ├── mstl.py              Multi-Seasonal Decomposition
 │   ├── garch.py             GARCH / EGARCH / GJR-GARCH
 │   ├── croston.py           Croston Classic / SBA / TSB
+│   ├── fourTheta.py         4Theta (M4 Competition 방법론)
+│   ├── dtsf.py              Dynamic Time Scan Forecaster
+│   ├── esn.py               Echo State Network
 │   ├── logistic.py          Logistic Growth
 │   ├── hawkes.py            Hawkes Intermittent Demand
 │   ├── lotkaVolterra.py     Lotka-Volterra Ensemble

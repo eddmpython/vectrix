@@ -74,3 +74,15 @@ uv.lock
 landing/node_modules/
 landing/.svelte-kit/
 landing/build/
+landing/static/_backup/
+
+# Marimo skills (auto-generated)
+.agent/
+.agents/
+.claude/skills/
+.kiro/
+.windsurf/
+skills-lock.json
+
+# Local data cache
+data/

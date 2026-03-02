@@ -1,41 +1,28 @@
 # 튜토리얼
 
-인터랙티브 [marimo](https://marimo.io) 노트북. 로컬에서 실행하면 완전한 대화형 환경을 사용할 수 있습니다.
-
-## 실행 방법
-
-```bash
-pip install "vectrix[tutorials]"
-marimo run docs/tutorials/ko/01_quickstart.py
-```
+Vectrix를 마스터하기 위한 단계별 가이드. 각 튜토리얼에는 복사-붙여넣기로 바로 실행 가능한 코드 예제가 포함되어 있습니다.
 
 ## 튜토리얼 목록
 
-| # | 주제 | English | 한국어 |
-|---|------|---------|--------|
-| 01 | 빠른 시작 | `en/01_quickstart.py` | `ko/01_quickstart.py` |
-| 02 | 분석 & DNA | `en/02_analyze.py` | `ko/02_analyze.py` |
-| 03 | 회귀분석 | `en/03_regression.py` | `ko/03_regression.py` |
-| 04 | 30+ 모델 | `en/04_models.py` | `ko/04_models.py` |
-| 05 | 적응형 지능 | `en/05_adaptive.py` | `ko/05_adaptive.py` |
-| 06 | 비즈니스 인텔리전스 | `en/06_business.py` | `ko/06_business.py` |
+| # | 주제 | 설명 |
+|---|------|------|
+| 01 | [빠른 시작](01_quickstart.md) | 3분 만에 리스트, DataFrame, CSV로 예측하기 |
+| 02 | [분석 & DNA](02_analyze.md) | 시계열 자동 프로파일링과 DNA 핑거프린팅 |
+| 03 | [회귀분석](03_regression.md) | R 스타일 수식 회귀분석과 진단 |
+| 04 | [30+ 모델](04_models.md) | Vectrix 클래스 직접 사용, 모델 비교, Flat Defense |
+| 05 | [적응형 지능](05_adaptive.md) | 레짐 감지, DNA, 자가 치유, 제약 조건 |
+| 06 | [비즈니스 인텔리전스](06_business.md) | 이상치 탐지, 시나리오, 백테스팅, 지표 |
 
-## 튜토리얼 설명
+## 시작하기
 
-### 01 — 빠른 시작
-리스트, DataFrame, CSV에서 예측. `.predictions`, `.plot()`, `.to_csv()` 결과 탐색.
+```bash
+pip install vectrix
+```
 
-### 02 — 분석 & DNA
-시계열 자동 프로파일링: 난이도, 카테고리, 핑거프린트, 변화점, 이상치.
+**튜토리얼 01**부터 시작하여 3분 안에 첫 예측을 만들어보세요. 이후 순서대로 진행하면 됩니다.
 
-### 03 — 회귀분석
-R 스타일 수식 회귀. OLS, Ridge, Lasso, Huber, Quantile. 진단 포함.
+## 사전 요구사항
 
-### 04 — 30+ 모델
-`Vectrix` 클래스 직접 사용. 모든 모델 비교, Flat Defense 시스템 이해.
-
-### 05 — 적응형 지능
-레짐 감지, Forecast DNA, 자가 치유 예측, 비즈니스 제약 조건.
-
-### 06 — 비즈니스 인텔리전스
-이상치 탐지, What-if 시나리오, 백테스팅, 비즈니스 지표.
+- Python 3.10+
+- `pip install vectrix` (numpy, scipy 자동 설치)
+- 기본 Python 지식 (리스트, DataFrame, 함수)

@@ -7,6 +7,7 @@ on:
       - 'docs/**'
       - 'mkdocs.yml'
       - 'src/vectrix/**'
+      - 'landing/**'
   workflow_dispatch:
 
 permissions:
@@ -29,18 +30,35 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install dependencies
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -e ".[docs]"
 
-      - name: Build docs
+      - name: Build MkDocs
         run: mkdocs build
+
+      - name: Build SvelteKit landing
+        working-directory: landing
+        run: |
+          npm ci
+          BASE_PATH=/vectrix npm run build
+
+      - name: Merge into deploy directory
+        run: |
+          mkdir -p _deploy
+          cp -r landing/build/* _deploy/
+          cp -r site/ _deploy/docs/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: site/
+          path: _deploy/
 
   deploy:
     needs: build

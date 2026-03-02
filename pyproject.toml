@@ -1,6 +1,6 @@
 [project]
 name = "vectrix"
-version = "0.0.5"
+version = "0.0.6"
 description = "Zero-config time series forecasting & analysis library. Pure numpy + scipy implementation with 30+ models, regression, and adaptive intelligence."
 readme = "README.md"
 license = {text = "MIT"}
@@ -58,20 +58,7 @@ foundation = [
 neural = [
     "neuralforecast>=1.7",
 ]
-# turbo = ["vectrix-core>=0.2.0"]  # Enable after vectrix-core is published to PyPI
-dev = [
-    "pytest>=7.0",
-    "pytest-cov>=4.0",
-    "ruff>=0.1.0",
-]
-tutorials = ["marimo>=0.1.0", "matplotlib>=3.5.0"]
-docs = [
-    "mkdocs>=1.6",
-    "mkdocs-material>=9.5",
-    "mkdocstrings[python]>=0.24",
-    "mkdocs-static-i18n>=1.2",
-]
-all = ["vectrix[numba,ml,foundation,neural,dev,tutorials,docs]"]
+all = ["vectrix[numba,ml,foundation,neural]"]
 
 [project.urls]
 Homepage = "https://github.com/eddmpython/vectrix"
@@ -81,11 +68,28 @@ Documentation = "https://eddmpython.github.io/vectrix/"
 "Buy Me a Coffee" = "https://buymeacoffee.com/eddmpython"
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["maturin>=1.7,<2.0"]
+build-backend = "maturin"
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/vectrix"]
+[tool.maturin]
+features = ["pyo3/extension-module"]
+python-source = "src"
+module-name = "vectrix._core"
+
+[dependency-groups]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "ruff>=0.1.0",
+    "marimo>=0.1.0",
+    "matplotlib>=3.5.0",
+]
+docs = [
+    "mkdocs>=1.6",
+    "mkdocs-material>=9.5",
+    "mkdocstrings[python]>=0.24",
+    "mkdocs-static-i18n>=1.2",
+]
 
 [tool.ruff]
 target-version = "py310"

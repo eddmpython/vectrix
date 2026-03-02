@@ -1,19 +1,20 @@
 <script lang="ts">
+	import { base } from '$app/paths';
 	import { Github, Youtube, Mail } from 'lucide-svelte';
 
 	const footerLinks = {
 		Documentation: [
-			{ label: 'Installation', href: 'https://eddmpython.github.io/vectrix/getting-started/installation/' },
-			{ label: 'Quickstart', href: 'https://eddmpython.github.io/vectrix/getting-started/quickstart/' },
-			{ label: 'API Reference', href: 'https://eddmpython.github.io/vectrix/api/easy/' },
-			{ label: 'User Guide', href: 'https://eddmpython.github.io/vectrix/guide/forecasting/' },
-			{ label: 'Tutorials', href: 'https://eddmpython.github.io/vectrix/tutorials/' }
+			{ label: 'Installation', href: 'https://eddmpython.github.io/vectrix/docs/getting-started/installation/' },
+			{ label: 'Quickstart', href: 'https://eddmpython.github.io/vectrix/docs/getting-started/quickstart/' },
+			{ label: 'API Reference', href: 'https://eddmpython.github.io/vectrix/docs/api/easy/' },
+			{ label: 'User Guide', href: 'https://eddmpython.github.io/vectrix/docs/guide/forecasting/' },
+			{ label: 'Tutorials', href: 'https://eddmpython.github.io/vectrix/docs/tutorials/' }
 		],
 		Project: [
 			{ label: 'GitHub', href: 'https://github.com/eddmpython/vectrix' },
 			{ label: 'PyPI', href: 'https://pypi.org/project/vectrix/' },
-			{ label: 'Changelog', href: 'https://eddmpython.github.io/vectrix/changelog/' },
-			{ label: 'Benchmarks', href: 'https://eddmpython.github.io/vectrix/benchmarks/' },
+			{ label: 'Changelog', href: 'https://eddmpython.github.io/vectrix/docs/changelog/' },
+			{ label: 'Benchmarks', href: 'https://eddmpython.github.io/vectrix/docs/benchmarks/' },
 			{ label: 'Issues', href: 'https://github.com/eddmpython/vectrix/issues' }
 		],
 		eddmpython: [
@@ -42,7 +43,7 @@
 		<div class="grid grid-cols-1 md:grid-cols-5 gap-8 mb-10">
 			<div class="md:col-span-1">
 				<div class="flex items-center gap-1.5 mb-3">
-					<img src="/icon-final.png" alt="Vectrix" width="28" height="28" />
+					<img src="{base}/icon-final.png" alt="Vectrix" width="28" height="28" />
 					<strong class="text-vx-text text-lg">Vectrix</strong>
 				</div>
 				<p class="text-sm text-vx-text-dim leading-relaxed mb-4">Zero-config time series forecasting for Python.</p>

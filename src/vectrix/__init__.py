@@ -10,6 +10,15 @@ Usage:
     >>> print(result.predictions)
 """
 
+import sys
+
+try:
+    from . import _core
+    sys.modules["vectrix_core"] = _core
+    TURBO_AVAILABLE = True
+except ImportError:
+    TURBO_AVAILABLE = False
+
 from .adaptive import (
     Constraint,
     ConstraintAwareForecaster,
@@ -25,6 +34,7 @@ from .easy import (
     EasyForecastResult,
     EasyRegressionResult,
     analyze,
+    compare,
     forecast,
     quick_report,
     regress,
@@ -100,6 +110,7 @@ __all__ = [
     "forecast",
     "analyze",
     "regress",
+    "compare",
     "quick_report",
     "EasyForecastResult",
     "EasyAnalysisResult",
@@ -133,4 +144,6 @@ __all__ = [
     # Datasets
     "loadSample",
     "listSamples",
+    # Rust acceleration
+    "TURBO_AVAILABLE",
 ]

@@ -403,6 +403,25 @@ class EasyForecastResult:
         self.model = forecastResult.bestModelName
         self._raw = forecastResult
         self._historicalValues = historicalValues
+        self._df = df
+
+        bestId = forecastResult.bestModelId
+        bestModel = forecastResult.allModelResults.get(bestId)
+        self.mape = bestModel.mape if bestModel else float('inf')
+        self.rmse = bestModel.rmse if bestModel else float('inf')
+        self.mae = bestModel.mae if bestModel else float('inf')
+        self.smape = bestModel.smape if bestModel else float('inf')
+
+        self.models = sorted(
+            [
+                m.modelName for m in forecastResult.allModelResults.values()
+                if m.isValid and m.mape < float('inf')
+            ],
+            key=lambda name: next(
+                (m.mape for m in forecastResult.allModelResults.values() if m.modelName == name),
+                float('inf')
+            )
+        )
 
     def summary(self) -> str:
         """
@@ -574,6 +593,61 @@ class EasyForecastResult:
         """Save results to JSON (convenience wrapper for .to_json)."""
         self.to_json(path)
         return self
+
+    def compare(self) -> pd.DataFrame:
+        """
+        Compare all models that were evaluated during forecasting.
+
+        Returns
+        -------
+        pd.DataFrame
+            Sorted by MAPE. Columns: model, mape, rmse, mae, smape, time_ms, selected.
+        """
+        rows = []
+        bestId = self._raw.bestModelId
+        for modelId, m in self._raw.allModelResults.items():
+            if not m.isValid or m.mape >= float('inf'):
+                continue
+            rows.append({
+                'model': m.modelName,
+                'mape': round(m.mape, 2),
+                'rmse': round(m.rmse, 2),
+                'mae': round(m.mae, 2),
+                'smape': round(m.smape, 2),
+                'time_ms': round(m.trainingTime * 1000, 1),
+                'selected': modelId == bestId,
+            })
+        return pd.DataFrame(rows).sort_values('mape', ignore_index=True)
+
+    def all_forecasts(self) -> pd.DataFrame:
+        """
+        Get predictions from every evaluated model in one DataFrame.
+
+        Returns
+        -------
+        pd.DataFrame
+            Columns: date, then one column per model name with prediction values.
+            Models whose prediction length differs from dates are padded with NaN.
+        """
+        nDates = len(self.dates)
+        data = {'date': self.dates}
+        sortedModels = sorted(
+            self._raw.allModelResults.values(),
+            key=lambda m: m.mape
+        )
+        for m in sortedModels:
+            if not m.isValid or m.mape >= float('inf'):
+                continue
+            preds = m.predictions
+            if len(preds) == nDates:
+                data[m.modelName] = preds
+            elif len(preds) < nDates:
+                padded = np.full(nDates, np.nan)
+                padded[:len(preds)] = preds
+                data[m.modelName] = padded
+            else:
+                data[m.modelName] = preds[:nDates]
+        return pd.DataFrame(data)
 
     def describe(self):
         """Pandas .describe()-style summary statistics."""
@@ -1141,6 +1215,44 @@ def regress(
 
 
 
+def compare(
+    data: Union[str, pd.DataFrame, np.ndarray, list, tuple, pd.Series, dict],
+    date: str = None,
+    value: str = None,
+    steps: int = 30,
+    verbose: bool = False
+) -> pd.DataFrame:
+    """
+    Compare all models on the given data and return a ranked DataFrame.
+
+    Parameters
+    ----------
+    data : str, DataFrame, ndarray, or list
+        Input data (same formats as forecast).
+    date : str, optional
+        Date column name.
+    value : str, optional
+        Value column name.
+    steps : int
+        Forecast horizon (default: 30).
+    verbose : bool
+        Print progress messages.
+
+    Returns
+    -------
+    pd.DataFrame
+        Sorted by MAPE. Columns: model, mape, rmse, mae, smape, time_ms, selected.
+
+    Examples
+    --------
+    >>> from vectrix import compare
+    >>> df = compare([120, 135, 148, 155, 167, 178, 190, 195, 210, 225], steps=5)
+    >>> print(df)
+    """
+    result = forecast(data, date=date, value=value, steps=steps, verbose=verbose)
+    return result.compare()
+
+
 def quick_report(
     data: Union[str, pd.DataFrame, np.ndarray, list, tuple, pd.Series, dict],
     date: str = None,
@@ -1236,6 +1348,7 @@ __all__ = [
     'forecast',
     'analyze',
     'regress',
+    'compare',
     'quick_report',
     'EasyForecastResult',
     'EasyAnalysisResult',

@@ -735,13 +735,20 @@ class Vectrix:
             lower95 = self.dropDetector.applyDropPatternSmart(lower95, originalLength)
             upper95 = self.dropDetector.applyDropPatternSmart(upper95, originalLength)
 
-        # Ensemble (fast refit with cached models)
+        for mid in validModels:
+            try:
+                fPred, fLo, fHi = self._refitModelOnFullData(mid, allValues, steps, period)
+                self.modelResults[mid].predictions = fPred
+                self.modelResults[mid].lower95 = fLo
+                self.modelResults[mid].upper95 = fHi
+            except Exception:
+                pass
+
         if len(validModels) >= 2:
             try:
                 modelPredictions = {}
                 for mid in validModels[:3]:
-                    pred, _, _ = self._refitModelOnFullData(mid, allValues, steps, period)
-                    modelPredictions[mid] = pred
+                    modelPredictions[mid] = self.modelResults[mid].predictions
 
                 # Weighted ensemble
                 weights = []

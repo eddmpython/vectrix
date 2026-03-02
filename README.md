@@ -22,7 +22,7 @@
 <a href="https://pypi.org/project/vectrix/"><img src="https://img.shields.io/pypi/v/vectrix?style=for-the-badge&color=6366f1&labelColor=0f172a&logo=pypi&logoColor=white" alt="PyPI"></a>
 <a href="https://pypi.org/project/vectrix/"><img src="https://img.shields.io/pypi/pyversions/vectrix?style=for-the-badge&labelColor=0f172a&logo=python&logoColor=white" alt="Python"></a>
 <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-22d3ee?style=for-the-badge&labelColor=0f172a" alt="License"></a>
-<img src="https://img.shields.io/badge/Tests-387%20passed-10b981?style=for-the-badge&labelColor=0f172a&logo=pytest&logoColor=white" alt="Tests">
+<img src="https://img.shields.io/badge/Tests-573%20passed-10b981?style=for-the-badge&labelColor=0f172a&logo=pytest&logoColor=white" alt="Tests">
 </p>
 
 <br>
@@ -39,6 +39,8 @@
 <a href="#-usage">Usage</a> ·
 <a href="#-benchmarks">Benchmarks</a> ·
 <a href="#-api-reference">API Reference</a> ·
+<a href="https://eddmpython.github.io/vectrix/docs/tutorials/">Tutorials</a> ·
+<a href="https://eddmpython.github.io/vectrix/docs/showcase/">Showcase</a> ·
 <a href="README_KR.md">한국어</a>
 </p>
 
@@ -185,6 +187,9 @@ result.plot()
 | **Croston** | Classic, SBA, TSB intermittent demand |
 | **Logistic Growth** | Saturating trends with capacity constraints |
 | **AutoMSTL** | Multi-seasonal STL + ARIMA residuals |
+| **4Theta** | M4 Competition method, 4 theta lines weighted |
+| **DTSF** | Dynamic Time Scan, non-parametric pattern matching |
+| **ESN** | Echo State Network, reservoir computing |
 | **Baselines** | Naive, Seasonal, Mean, Drift, Window Average |
 
 </details>
@@ -268,12 +273,16 @@ pip install "vectrix[all]"         # Everything
 ### Easy API
 
 ```python
-from vectrix import forecast, analyze, regress
+from vectrix import forecast, analyze, regress, compare
 
 result = forecast([100, 120, 115, 130, 125, 140], steps=5)
+print(result.compare())          # All model rankings
+print(result.all_forecasts())    # Every model's predictions
 
 report = analyze(df, date="date", value="sales")
 print(f"Difficulty: {report.dna.difficulty}")
+
+comparison = compare(df, date="date", value="sales", steps=12)
 
 model = regress(data=df, formula="sales ~ temperature + promotion")
 print(model.summary())
@@ -351,7 +360,7 @@ Evaluated on M3 and M4 competition datasets (first 100 series per category). OWA
 | Daily | 1.207 |
 | Hourly | 1.006 |
 
-Full results with sMAPE/MASE breakdown: [benchmarks](docs/benchmarks.md)
+Full results with sMAPE/MASE breakdown: [benchmarks](https://eddmpython.github.io/vectrix/docs/benchmarks/)
 
 <br>
 
@@ -364,6 +373,7 @@ Full results with sMAPE/MASE breakdown: [benchmarks](docs/benchmarks.md)
 | `forecast(data, steps=30)` | Auto model selection forecasting |
 | `analyze(data)` | DNA profiling, changepoints, anomalies |
 | `regress(y, X)` / `regress(data=df, formula="y ~ x")` | Regression with diagnostics |
+| `compare(data, steps=30)` | All model comparison (DataFrame) |
 | `quick_report(data, steps=30)` | Combined analysis + forecast |
 
 ### Classic API
@@ -377,7 +387,7 @@ Full results with sMAPE/MASE breakdown: [benchmarks](docs/benchmarks.md)
 
 | Object | Key Attributes |
 |:-------|:--------------|
-| `EasyForecastResult` | `.predictions` `.dates` `.lower` `.upper` `.model` `.plot()` `.to_csv()` `.to_json()` |
+| `EasyForecastResult` | `.predictions` `.dates` `.lower` `.upper` `.model` `.mape` `.rmse` `.models` `.compare()` `.all_forecasts()` `.plot()` `.to_csv()` `.to_json()` |
 | `EasyAnalysisResult` | `.dna` `.changepoints` `.anomalies` `.features` `.summary()` |
 | `EasyRegressionResult` | `.coefficients` `.pvalues` `.r_squared` `.f_stat` `.summary()` `.diagnose()` |
 
@@ -400,6 +410,9 @@ vectrix/
 │   ├── mstl.py              Multi-Seasonal Decomposition
 │   ├── garch.py             GARCH / EGARCH / GJR-GARCH
 │   ├── croston.py           Croston Classic / SBA / TSB
+│   ├── fourTheta.py         4Theta (M4 Competition method)
+│   ├── dtsf.py              Dynamic Time Scan Forecaster
+│   ├── esn.py               Echo State Network
 │   ├── logistic.py          Logistic Growth
 │   ├── hawkes.py            Hawkes Intermittent Demand
 │   ├── lotkaVolterra.py     Lotka-Volterra Ensemble

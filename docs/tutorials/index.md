@@ -1,41 +1,28 @@
 # Tutorials
 
-Interactive [marimo](https://marimo.io) notebooks. Run locally for full interactivity.
-
-## How to Run
-
-```bash
-pip install "vectrix[tutorials]"
-marimo run docs/tutorials/en/01_quickstart.py
-```
+Step-by-step guides to master Vectrix. Each tutorial includes copy-paste runnable code examples.
 
 ## Available Tutorials
 
-| # | Topic | English | Korean |
-|---|-------|---------|--------|
-| 01 | Quickstart | `en/01_quickstart.py` | `ko/01_quickstart.py` |
-| 02 | Analysis & DNA | `en/02_analyze.py` | `ko/02_analyze.py` |
-| 03 | Regression | `en/03_regression.py` | `ko/03_regression.py` |
-| 04 | 30+ Models | `en/04_models.py` | `ko/04_models.py` |
-| 05 | Adaptive Intelligence | `en/05_adaptive.py` | `ko/05_adaptive.py` |
-| 06 | Business Intelligence | `en/06_business.py` | `ko/06_business.py` |
+| # | Topic | Description |
+|---|-------|-------------|
+| 01 | [Quickstart](01_quickstart.md) | Forecast from lists, DataFrames, and CSV files in 3 minutes |
+| 02 | [Analysis & DNA](02_analyze.md) | Automatic time series profiling and DNA fingerprinting |
+| 03 | [Regression](03_regression.md) | R-style formula regression with full diagnostics |
+| 04 | [30+ Models](04_models.md) | Direct Vectrix class usage, model comparison, Flat Defense |
+| 05 | [Adaptive Intelligence](05_adaptive.md) | Regime detection, DNA, self-healing, constraints |
+| 06 | [Business Intelligence](06_business.md) | Anomaly detection, scenarios, backtesting, metrics |
 
-## Tutorial Descriptions
+## Getting Started
 
-### 01 — Quickstart
-Forecast from lists, DataFrames, and CSV files. Explore results with `.predictions`, `.plot()`, `.to_csv()`.
+```bash
+pip install vectrix
+```
 
-### 02 — Analysis & DNA
-Automatic time series profiling: difficulty, category, fingerprint, changepoints, anomalies.
+Start with **Tutorial 01** to make your first forecast in under 3 minutes, then work through the series sequentially.
 
-### 03 — Regression
-R-style formula regression with OLS, Ridge, Lasso, Huber, Quantile. Full diagnostics.
+## Prerequisites
 
-### 04 — 30+ Models
-Direct `Vectrix` class usage. Compare all models, understand Flat Defense system.
-
-### 05 — Adaptive Intelligence
-Regime detection, Forecast DNA, self-healing forecasts, business constraints.
-
-### 06 — Business Intelligence
-Anomaly detection, what-if scenarios, backtesting, business metrics.
+- Python 3.10+
+- `pip install vectrix` (numpy, scipy included automatically)
+- Basic Python knowledge (lists, DataFrames, functions)
