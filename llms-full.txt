@@ -1,0 +1,353 @@
+# Vectrix — Complete Reference
+
+> Zero-config time series forecasting for Python. 30+ models, auto selection, Rust turbo acceleration.
+
+Vectrix is a Python library for time series forecasting. It evaluates 30+ statistical models (ETS, ARIMA, Theta, CES, DOT, MSTL, TBATS, GARCH, and more), validates each on a holdout set, and returns the best one with 95% confidence intervals — in a single function call.
+
+- Version: 0.0.7
+- License: MIT
+- Python: 3.10+
+- Dependencies: NumPy, pandas, SciPy (only 3)
+- GitHub: https://github.com/eddmpython/vectrix
+- PyPI: https://pypi.org/project/vectrix/
+- Documentation: https://eddmpython.github.io/vectrix/docs/getting-started/installation
+
+## Installation
+
+```
+pip install vectrix
+```
+
+Optional Rust acceleration (no compiler needed, pre-built wheels):
+```
+pip install vectrix[turbo]
+```
+
+## Quick Start
+
+```python
+from vectrix import forecast
+result = forecast([100, 120, 130, 115, 140, 160, 150, 170], steps=5)
+print(result.model)        # Best model name
+print(result.predictions)  # numpy array of forecast values
+print(result.lower)        # Lower 95% confidence bound
+print(result.upper)        # Upper 95% confidence bound
+print(result.mape)         # Validation MAPE (%)
+print(result.rmse)         # Validation RMSE
+```
+
+## Key Features
+
+- **Zero configuration**: Pass data, get forecasts. No model selection, no hyperparameter tuning.
+- **30+ models**: Exponential smoothing, ARIMA, Theta, decomposition, intermittent demand, volatility, neural reservoir, pattern matching.
+- **Adaptive intelligence**: Regime detection, self-healing forecasts, constraint enforcement, DNA-based meta-learning.
+- **Business intelligence**: Anomaly detection, what-if scenarios, backtesting, business-specific accuracy metrics.
+- **Rust turbo**: Optional native extension accelerates core loops 5-24x. No Rust compiler needed.
+- **Lightweight**: Only 3 dependencies (NumPy, pandas, SciPy).
+
+## Model Catalog (30+ models)
+
+### Exponential Smoothing
+- **AutoETS** — Automatic exponential smoothing (error/trend/seasonal component selection)
+- **AutoCES** — Complex Exponential Smoothing (M4 Competition OWA 0.927)
+- **Holt-Winters** — Triple exponential smoothing with seasonal components
+
+### Theta Family
+- **OptimizedTheta** — Optimized Theta method
+- **AdaptiveThetaEnsemble (4Theta)** — M4 Competition 3rd place method, four theta lines weighted combination
+- **DynamicOptimizedTheta (DOT)** — Dynamic Optimized Theta (M4 Competition OWA 0.905, best universal model)
+
+### ARIMA
+- **ARIMAModel** — Automatic ARIMA with CSS optimization
+
+### Decomposition
+- **MSTL / AutoMSTL** — Multiple Seasonal-Trend decomposition using LOESS
+- **SeasonalDecomposition** — Classical seasonal decomposition
+
+### TBATS
+- **TBATS / AutoTBATS** — Trigonometric seasonality, Box-Cox, ARMA errors, Trend, Seasonal
+
+### Intermittent Demand
+- **CrostonClassic** — Croston's method for intermittent demand
+- **CrostonSBA** — Syntetos-Boylan Approximation
+- **CrostonTSB** — Teunter-Syntetos-Babai method
+- **AutoCroston** — Automatic Croston variant selection
+- **HawkesIntermittentDemand** — Hawkes process for event-driven demand
+
+### Volatility
+- **GARCHModel** — Generalized Autoregressive Conditional Heteroskedasticity
+- **EGARCHModel** — Exponential GARCH (asymmetric volatility)
+- **GJRGARCHModel** — GJR-GARCH (leverage effect)
+
+### Neural / Pattern Matching
+- **EchoStateForecaster (ESN)** — Echo State Network (reservoir computing)
+- **DynamicTimeScanForecaster (DTSF)** — Non-parametric pattern matching forecaster
+
+### Baselines
+- **NaiveModel** — Last value repeat
+- **SeasonalNaiveModel** — Last seasonal cycle repeat
+- **MeanModel** — Historical mean
+- **RandomWalkDrift** — Random walk with drift
+- **WindowAverage** — Moving average
+
+### Special Purpose
+- **LogisticGrowthModel** — Logistic/saturating growth curves
+- **LotkaVolterraEnsemble** — Predator-prey dynamics
+- **PhaseTransitionForecaster** — Phase transition detection
+- **VARModel** — Vector Autoregression (multivariate)
+- **VECMModel** — Vector Error Correction Model (cointegration)
+
+## Easy API (one-line usage)
+
+### forecast()
+```python
+from vectrix import forecast
+
+result = forecast(data, steps=10)
+result = forecast(data, steps=10, period=7)
+result = forecast(data, steps=10, models=["ets", "arima", "theta"])
+```
+
+Returns `EasyForecastResult`:
+- `.predictions` — numpy array of forecast values
+- `.lower` — Lower 95% confidence bound
+- `.upper` — Upper 95% confidence bound
+- `.model` — Best model name (string)
+- `.mape` — Validation MAPE (%)
+- `.rmse` — Validation RMSE
+- `.compare()` — Returns DataFrame ranking all evaluated models
+- `.all_forecasts()` — Returns dict of all model predictions
+- `.to_dataframe()` — Convert to pandas DataFrame
+- `.to_csv(path)` — Export to CSV
+- `.to_json()` — Export to JSON
+
+### analyze()
+```python
+from vectrix import analyze
+
+result = analyze(data)
+```
+
+Returns `EasyAnalysisResult`:
+- `.dna` — DNA profile object
+  - `.dna.fingerprint` — Deterministic hash of 65+ features
+  - `.dna.difficulty` — "easy" / "medium" / "hard" / "extreme"
+  - `.dna.difficultyScore` — 0-100 difficulty score
+  - `.dna.category` — Data category classification
+  - `.dna.recommendedModels` — List of recommended model names
+- `.characteristics` — Time series characteristics (trend, seasonality, noise level)
+- `.changepoints` — Detected structural change points
+- `.anomalies` — Detected anomaly indices and scores
+
+### regress()
+```python
+from vectrix import regress
+
+result = regress(df, "y ~ x1 + x2 + x3")
+```
+
+Returns `EasyRegressionResult`:
+- `.r_squared` — R-squared
+- `.adj_r_squared` — Adjusted R-squared
+- `.f_stat` — F-statistic
+- `.coefficients` — Coefficient table
+- `.summary()` — Full regression summary
+- `.diagnose()` — Diagnostic tests (normality, heteroscedasticity, autocorrelation)
+- `.predict(new_data)` — Predict on new data
+
+### compare()
+```python
+from vectrix import compare
+
+rankings = compare(data, steps=10)
+```
+
+Returns pandas DataFrame with all models ranked by validation accuracy.
+
+## Vectrix Class (full control)
+
+```python
+from vectrix import Vectrix
+
+vx = Vectrix()
+result = vx.forecast(df, dateCol="date", valueCol="sales", steps=14, trainRatio=0.8)
+result = vx.forecast(df, dateCol="date", valueCol="sales", steps=14, models=["ets", "arima"])
+result = vx.analyze(df, dateCol="date", valueCol="sales")
+```
+
+## Engine Access (individual models)
+
+```python
+from vectrix.engine.ets import AutoETS
+ets = AutoETS(period=12)
+ets.fit(data)
+predictions, lower, upper = ets.predict(steps=6)
+
+from vectrix.engine.dot import DynamicOptimizedTheta
+dot = DynamicOptimizedTheta(period=12)
+dot.fit(data)
+predictions, lower, upper = dot.predict(steps=6)
+
+from vectrix.engine.fourTheta import AdaptiveThetaEnsemble
+ft = AdaptiveThetaEnsemble(period=12)
+ft.fit(data)
+predictions, lower, upper = ft.predict(steps=6)
+```
+
+## Adaptive Intelligence
+
+### Regime Detection (HMM)
+```python
+from vectrix import RegimeDetector
+
+detector = RegimeDetector(nRegimes=3)
+result = detector.detect(data)
+print(result.currentRegime)
+print(result.regimeStats)
+print(result.regimeLabels)
+```
+
+### Self-Healing Forecast
+```python
+from vectrix import SelfHealingForecast
+
+healer = SelfHealingForecast(predictions, lower, upper, historical_data)
+healer.observe(actual_values)
+report = healer.getReport()
+print(report.overallHealth)
+print(report.healthScore)
+updated_preds, updated_lower, updated_upper = healer.getUpdatedForecast()
+```
+
+### Constraint-Aware Forecasting
+```python
+from vectrix import ConstraintAwareForecaster, Constraint
+
+caf = ConstraintAwareForecaster()
+result = caf.apply(predictions, lower, upper, constraints=[
+    Constraint('non_negative', {}),
+    Constraint('range', {'min': 0, 'max': 5000}),
+    Constraint('capacity', {'capacity': 10000}),
+    Constraint('yoy_change', {'maxPct': 30, 'historicalData': past_year}),
+])
+```
+
+Constraint types: non_negative, range, capacity, yoy_change, sum, monotone, ratio, custom.
+
+### Forecast DNA
+```python
+from vectrix import ForecastDNA
+
+dna = ForecastDNA()
+profile = dna.analyze(data, period=7)
+print(profile.fingerprint)
+print(profile.difficulty)
+print(profile.difficultyScore)
+print(profile.recommendedModels)
+```
+
+Extracts 65+ statistical features: trend strength, seasonal strength, ACF/PACF, entropy, Hurst exponent, volatility clustering, nonlinear autocorrelation, demand density, and more.
+
+## Business Intelligence
+
+### Anomaly Detection
+```python
+from vectrix import AnomalyDetector
+
+detector = AnomalyDetector()
+result = detector.detect(data, method="auto")
+print(result.anomalies)
+print(result.scores)
+```
+
+### What-If Scenario Analysis
+```python
+from vectrix import WhatIfAnalyzer
+
+analyzer = WhatIfAnalyzer()
+result = analyzer.analyze(predictions, data, scenarios=[
+    {"name": "Best case", "adjustment": 1.2},
+    {"name": "Worst case", "adjustment": 0.8},
+])
+```
+
+### Backtesting
+```python
+from vectrix import Backtester
+
+bt = Backtester(nFolds=5)
+result = bt.run(data, modelFactory)
+print(result.avgMape)
+print(result.foldResults)
+```
+
+### Business Metrics
+```python
+from vectrix import BusinessMetrics
+
+metrics = BusinessMetrics()
+result = metrics.calculate(actual, predicted)
+```
+
+## Regression Analysis
+
+```python
+from vectrix.regression import OLSRegression, RobustRegression, TimeSeriesRegression
+
+ols = OLSRegression()
+result = ols.fit(df, formula="y ~ x1 + x2")
+print(result.summary())
+print(result.diagnose())
+
+robust = RobustRegression(method="huber")
+result = robust.fit(df, formula="y ~ x1 + x2")
+
+tsr = TimeSeriesRegression()
+result = tsr.fit(df, formula="y ~ x1 + x2", dateCol="date")
+```
+
+## Rust Turbo Acceleration
+
+13 accelerated functions (5-24x speedup):
+- ets_filter, ets_loglik, batch_ets_filter — ETS core loops
+- arima_css, css_objective, seasonal_css_objective — ARIMA optimization
+- theta_decompose — Theta decomposition
+- ses_sse, ses_filter — Simple Exponential Smoothing
+- dot_objective, dot_residuals — DOT optimization (24x)
+- ces_nonseasonal_sse, ces_seasonal_sse — CES optimization (12x)
+
+Check turbo status:
+```python
+import vectrix
+print(vectrix.__turbo__)  # True if Rust extension is loaded
+```
+
+## Benchmarks (M4 Competition)
+
+Overall OWA scores (lower is better, 1.0 = Naive2 baseline):
+- **DOT**: 0.905 (best universal model)
+- **AutoCES**: 0.927
+- **4Theta Yearly**: 0.879 (equivalent to M4 Competition #11)
+- **VX-Ensemble Hourly**: 0.696 (competition winner level)
+- **DTSF Hourly**: 0.765
+
+## Sample Data
+
+```python
+from vectrix import listSamples, loadSample
+
+samples = listSamples()
+df = loadSample("airline_passengers")
+```
+
+Built-in datasets: airline_passengers, australian_wine, and more.
+
+## Links
+
+- Documentation: https://eddmpython.github.io/vectrix/docs/getting-started/installation
+- API Reference: https://eddmpython.github.io/vectrix/docs/api/easy
+- Tutorials: https://eddmpython.github.io/vectrix/docs/tutorials/quickstart
+- Benchmarks: https://eddmpython.github.io/vectrix/docs/benchmarks
+- GitHub: https://github.com/eddmpython/vectrix
+- PyPI: https://pypi.org/project/vectrix/
+- Changelog: https://eddmpython.github.io/vectrix/docs/changelog
