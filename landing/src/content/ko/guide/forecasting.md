@@ -78,7 +78,9 @@ print(f"전략: {fr.recommendedStrategy}")
 개별 모델을 직접 사용
 
 ```python
-from vectrix.engine import AutoETS, AutoARIMA, ThetaModel
+from vectrix.engine.ets import AutoETS
+from vectrix.engine.arima import AutoARIMA
+from vectrix.engine.theta import OptimizedTheta
 
 ets = AutoETS(period=7)
 ets.fit(data)

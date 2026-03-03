@@ -116,7 +116,9 @@ for modelId, mr in result.allModelResults.items():
 개별 모델을 직접 사용할 수 있습니다
 
 ```python
-from vectrix.engine import AutoETS, AutoARIMA, DynamicOptimizedTheta
+from vectrix.engine.ets import AutoETS
+from vectrix.engine.arima import AutoARIMA
+from vectrix.engine.dot import DynamicOptimizedTheta
 
 ets = AutoETS(period=7)
 ets.fit(data)

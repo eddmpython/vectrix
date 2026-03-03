@@ -78,7 +78,9 @@ print(f"Strategy: {fr.recommendedStrategy}")
 Use individual models directly
 
 ```python
-from vectrix.engine import AutoETS, AutoARIMA, ThetaModel
+from vectrix.engine.ets import AutoETS
+from vectrix.engine.arima import AutoARIMA
+from vectrix.engine.theta import OptimizedTheta
 
 ets = AutoETS(period=7)
 ets.fit(data)
