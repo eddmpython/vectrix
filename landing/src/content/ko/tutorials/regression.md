@@ -186,10 +186,12 @@ model = regress(
 print(f"R-squared: {model.r_squared:.4f}")
 print(f"Adj R-squared: {model.adj_r_squared:.4f}")
 
-print("\n=== 진단 ===")
+print()
+print("=== 진단 ===")
 print(model.diagnose())
 
-print("\n=== 예측 ===")
+print()
+print("=== 예측 ===")
 newData = pd.DataFrame({
     "tvAds": [100, 200],
     "digitalAds": [500, 800],

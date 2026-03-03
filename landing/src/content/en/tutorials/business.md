@@ -156,7 +156,8 @@ Worst fold: #1
 ### Per-Fold Results
 
 ```python
-print("\nPer-fold breakdown:")
+print()
+print("Per-fold breakdown:")
 for f in result.folds:
     print(f"  Fold {f.fold}: MAPE={f.mape:.2f}%, RMSE={f.rmse:.2f}")
 ```

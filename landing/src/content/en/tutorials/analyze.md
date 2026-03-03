@@ -255,13 +255,15 @@ print(f"Category: {report.dna.category}")
 print(f"Difficulty: {report.dna.difficulty}")
 print(f"Top models: {report.dna.recommendedModels[:3]}")
 
-print("\n=== Characteristics ===")
+print()
+print("=== Characteristics ===")
 c = report.characteristics
 print(f"Trend: {c.trendDirection} (strength {c.trendStrength:.2f})")
 print(f"Seasonal: period={c.period}, strength={c.seasonalStrength:.2f}")
 print(f"Predictability: {c.predictabilityScore}/100")
 
-print(f"\n=== Structural Breaks ===")
+print()
+print("=== Structural Breaks ===")
 print(f"Changepoints: {report.changepoints}")
 print(f"Anomalies: {report.anomalies}")
 ```

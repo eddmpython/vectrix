@@ -235,7 +235,8 @@ print(f"Lower bound: {result.lower}")
 print(f"Upper bound: {result.upper}")
 
 result.to_csv("forecast.csv")
-print("\nAll models evaluated:")
+print()
+print("All models evaluated:")
 print(result.compare().head(10))
 ```
 

@@ -224,7 +224,8 @@ future = pd.DataFrame({
     "price": [28, 25, 22],
     "season": [1, 0, 1],
 })
-print("\nPredictions:")
+print()
+print("Predictions:")
 print(model.predict(future))
 ```
 

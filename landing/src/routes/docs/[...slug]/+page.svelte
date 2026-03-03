@@ -5,10 +5,41 @@
 	import { getDescription, getCanonicalUrl, SITE_NAME, OG_IMAGE } from '$lib/docs/seo';
 	import { page } from '$app/state';
 	import { ChevronLeft, ChevronRight } from 'lucide-svelte';
+	import { onMount, tick } from 'svelte';
 
 	let { data } = $props();
 	let currentLang = $state('en');
 	locale.subscribe(v => currentLang = v);
+
+	function addCopyButtons() {
+		document.querySelectorAll('.doc-article pre').forEach((pre) => {
+			if (pre.querySelector('.copy-btn')) return;
+			const wrapper = document.createElement('div');
+			wrapper.style.position = 'relative';
+			pre.parentNode!.insertBefore(wrapper, pre);
+			wrapper.appendChild(pre);
+
+			const btn = document.createElement('button');
+			btn.className = 'copy-btn';
+			btn.textContent = 'Copy';
+			btn.addEventListener('click', () => {
+				const code = pre.querySelector('code');
+				const text = (code || pre).textContent || '';
+				navigator.clipboard.writeText(text).then(() => {
+					btn.textContent = 'Copied!';
+					setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+				});
+			});
+			wrapper.appendChild(btn);
+		});
+	}
+
+	onMount(addCopyButtons);
+
+	$effect(() => {
+		Component;
+		tick().then(addCopyButtons);
+	});
 
 	let Component = $derived(
 		currentLang === 'ko' && data.koComponent ? data.koComponent : data.enComponent
@@ -112,6 +143,31 @@
 	.not-found a {
 		color: #06b6d4;
 		text-decoration: none;
+	}
+
+	:global(.copy-btn) {
+		position: absolute;
+		top: 8px;
+		right: 8px;
+		padding: 4px 10px;
+		font-size: 0.7rem;
+		font-family: 'JetBrains Mono', monospace;
+		background: rgba(148, 163, 184, 0.15);
+		color: #94a3b8;
+		border: 1px solid rgba(148, 163, 184, 0.2);
+		border-radius: 4px;
+		cursor: pointer;
+		opacity: 0;
+		transition: opacity 0.15s, background 0.15s;
+		z-index: 1;
+	}
+	:global(.copy-btn:hover) {
+		background: rgba(6, 182, 212, 0.2);
+		color: #06b6d4;
+		border-color: rgba(6, 182, 212, 0.4);
+	}
+	:global(div:hover > .copy-btn) {
+		opacity: 1;
 	}
 
 	.doc-pagination {

@@ -224,7 +224,8 @@ print(f"하한: {result.lower}")
 print(f"상한: {result.upper}")
 
 result.to_csv("forecast.csv")
-print("\n평가된 전체 모델:")
+print()
+print("평가된 전체 모델:")
 print(result.compare().head(10))
 ```
 
