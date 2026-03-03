@@ -11,7 +11,7 @@
   <section class="vx-hero">
     <div class="vx-hero-badge">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-      v0.0.7 — AI 통합 + Rust Turbo
+      v0.0.8 — 내장 Rust 엔진
     </div>
     <h1 class="vx-hero-title">
       시계열 예측을<br>
@@ -19,7 +19,7 @@
     </h1>
     <p class="vx-hero-sub">
       코드 한 줄. 30+ 모델. 설정 제로.<br>
-      순수 파이썬 — 컴파일 의존성 없음.
+      내장 Rust 엔진 — 설치만 하면 바로 빠릅니다.
     </p>
     <div class="vx-hero-stats">
       <div class="vx-hero-stat">
@@ -31,8 +31,8 @@
         <span class="vx-hero-stat-label">의존성</span>
       </div>
       <div class="vx-hero-stat">
-        <span class="vx-hero-stat-value">10x</span>
-        <span class="vx-hero-stat-label">Rust 가속</span>
+        <span class="vx-hero-stat-value">67x</span>
+        <span class="vx-hero-stat-label">Rust 엔진</span>
       </div>
       <div class="vx-hero-stat">
         <span class="vx-hero-stat-value">M4</span>
@@ -87,7 +87,7 @@
         </div>
         <div class="vx-number-item">
           <span class="vx-number-value">&lt;5ms</span>
-          <span class="vx-number-label">Rust turbo 가속 ETS 모델 피팅</span>
+          <span class="vx-number-label">내장 Rust 엔진 ETS 모델 피팅</span>
         </div>
       </div>
     </div>
@@ -140,8 +140,8 @@
         <div class="vx-feature-icon purple">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
         </div>
-        <h3>순수 파이썬</h3>
-        <p>NumPy + SciPy + Pandas만 사용. 컴파일 불필요. 선택적 Rust turbo로 10배 속도.</p>
+        <h3>내장 Rust 엔진</h3>
+        <p>Polars처럼 설치만 하면 자동으로 빨라집니다. 25개 핵심 핫 루프 Rust 가속.</p>
       </div>
       <div class="vx-feature">
         <div class="vx-feature-icon green">
@@ -379,12 +379,12 @@
     </div>
   </section>
 
-  <!-- Rust Turbo -->
+  <!-- Rust Engine -->
   <section class="vx-section vx-center">
     <span class="vx-section-label">성능</span>
-    <h2 class="vx-section-title">Rust Turbo Mode</h2>
+    <h2 class="vx-section-title">내장 Rust 엔진</h2>
     <p class="vx-section-desc">
-      선택적 Rust 가속 코어 루프. 모든 플랫폼 사전 빌드 wheel — Rust 컴파일러 불필요.
+      25개 핵심 핫 루프가 Rust로 가속. 모든 wheel에 컴파일 — Rust 컴파일러 불필요.
     </p>
     <div class="vx-speed-grid">
       <div class="vx-speed-card">
@@ -425,7 +425,7 @@
       </div>
     </div>
     <p style="margin-top: 1.5rem; color: var(--vx-text-dim); font-size: 0.85rem;">
-      <code>pip install "vectrix[turbo]"</code> — wheel 미제공 시 순수 파이썬으로 자동 대체.
+      <code>pip install vectrix</code> — Rust 엔진이 모든 wheel에 내장. 설치만 하면 빠릅니다.
     </p>
   </section>
 
@@ -635,8 +635,8 @@
     </p>
     <div class="vx-install-tabs" id="installTabsKo">
       <button class="vx-install-tab active" data-cmd="pip install vectrix">기본</button>
-      <button class="vx-install-tab" data-cmd='pip install "vectrix[turbo]"'>Rust 가속</button>
       <button class="vx-install-tab" data-cmd='pip install "vectrix[ml]"'>ML 포함</button>
+      <button class="vx-install-tab" data-cmd='pip install "vectrix[foundation]"'>Foundation</button>
       <button class="vx-install-tab" data-cmd='pip install "vectrix[all]"'>전체</button>
     </div>
     <div class="vx-install-cmd">
@@ -648,16 +648,16 @@
     </div>
     <div class="vx-install-details">
       <div class="vx-install-detail">
-        <strong>기본</strong> — NumPy + SciPy + Pandas. 30+ 모델 포함.
-      </div>
-      <div class="vx-install-detail">
-        <strong>Rust 가속</strong> — 5~10배 빠름. 사전 빌드 wheel 제공.
+        <strong>기본</strong> — 30+ 모델 + 내장 Rust 엔진. 필요한 모든 것.
       </div>
       <div class="vx-install-detail">
         <strong>ML</strong> — LightGBM + XGBoost + scikit-learn 모델 추가.
       </div>
       <div class="vx-install-detail">
-        <strong>전체</strong> — 모든 의존성 포함 (Rust + ML + Foundation).
+        <strong>Foundation</strong> — Chronos-2 + TimesFM 제로샷 모델 추가.
+      </div>
+      <div class="vx-install-detail">
+        <strong>전체</strong> — 모든 의존성 포함 (ML + Foundation).
       </div>
     </div>
   </section>
@@ -690,8 +690,8 @@
               <td>No</td>
             </tr>
             <tr>
-              <td>순수 파이썬 (컴파일 의존성 없음)</td>
-              <td class="vx-bench-good">Yes</td>
+              <td>내장 Rust 엔진</td>
+              <td class="vx-bench-good">Yes (5-67x)</td>
               <td>No</td>
               <td>No</td>
               <td>No</td>
@@ -778,7 +778,7 @@
       </div>
       <div class="vx-oss-item">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--vx-success)" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
-        <strong>387개 테스트</strong>
+        <strong>573개 테스트</strong>
         <p>포괄적 테스트 커버리지</p>
       </div>
       <div class="vx-oss-item">

@@ -1,10 +1,10 @@
 # Vectrix — Complete Reference
 
-> Zero-config time series forecasting for Python. 30+ models, auto selection, Rust turbo acceleration.
+> Zero-config time series forecasting for Python. 30+ models, auto selection, built-in Rust engine.
 
 Vectrix is a Python library for time series forecasting. It evaluates 30+ statistical models (ETS, ARIMA, Theta, CES, DOT, MSTL, TBATS, GARCH, and more), validates each on a holdout set, and returns the best one with 95% confidence intervals — in a single function call.
 
-- Version: 0.0.7
+- Version: 0.0.8
 - License: MIT
 - Python: 3.10+
 - Dependencies: NumPy, pandas, SciPy (only 3)
@@ -18,10 +18,8 @@ Vectrix is a Python library for time series forecasting. It evaluates 30+ statis
 pip install vectrix
 ```
 
-Optional Rust acceleration (no compiler needed, pre-built wheels):
-```
-pip install vectrix[turbo]
-```
+The Rust engine is built into every wheel — no separate install needed.
+Like Polars, just `pip install vectrix` and the acceleration is automatic.
 
 ## Quick Start
 
@@ -42,7 +40,7 @@ print(result.rmse)         # Validation RMSE
 - **30+ models**: Exponential smoothing, ARIMA, Theta, decomposition, intermittent demand, volatility, neural reservoir, pattern matching.
 - **Adaptive intelligence**: Regime detection, self-healing forecasts, constraint enforcement, DNA-based meta-learning.
 - **Business intelligence**: Anomaly detection, what-if scenarios, backtesting, business-specific accuracy metrics.
-- **Rust turbo**: Optional native extension accelerates core loops 5-24x. No Rust compiler needed.
+- **Built-in Rust engine**: 25 core hot loops Rust-accelerated (5-67x). Compiled into every wheel — like Polars.
 - **Lightweight**: Only 3 dependencies (NumPy, pandas, SciPy).
 
 ## Model Catalog (30+ models)
@@ -306,20 +304,27 @@ tsr = TimeSeriesRegression()
 result = tsr.fit(df, formula="y ~ x1 + x2", dateCol="date")
 ```
 
-## Rust Turbo Acceleration
+## Built-in Rust Engine
 
-13 accelerated functions (5-24x speedup):
+25 accelerated functions compiled into every wheel (5-67x speedup):
 - ets_filter, ets_loglik, batch_ets_filter — ETS core loops
 - arima_css, css_objective, seasonal_css_objective — ARIMA optimization
 - theta_decompose — Theta decomposition
 - ses_sse, ses_filter — Simple Exponential Smoothing
 - dot_objective, dot_residuals — DOT optimization (24x)
 - ces_nonseasonal_sse, ces_seasonal_sse — CES optimization (12x)
+- garch_filter, egarch_filter, gjr_garch_filter — GARCH family
+- tbats_filter — TBATS trigonometric filtering
+- dtsf_distances, dtsf_fit_residuals — DTSF pattern matching
+- mstl_extract_seasonal, mstl_moving_average — MSTL decomposition
+- croston_tsb_filter — Croston TSB intermittent demand
+- esn_reservoir_update — ESN reservoir computing
+- four_theta_fitted, four_theta_deseasonalize — 4Theta ensemble
 
-Check turbo status:
+Check engine status:
 ```python
 import vectrix
-print(vectrix.__turbo__)  # True if Rust extension is loaded
+print(vectrix.TURBO_AVAILABLE)  # True if Rust engine is loaded
 ```
 
 ## Benchmarks (M4 Competition)

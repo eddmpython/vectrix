@@ -10,12 +10,11 @@
 
 <br>
 
-<h3>순수 Python 시계열 예측 엔진</h3>
+<h3>시계열 예측 엔진 — 내장 Rust 가속</h3>
 
 <p>
 <img src="https://img.shields.io/badge/3-Dependencies-818cf8?style=for-the-badge&labelColor=0f172a" alt="Dependencies">
-<img src="https://img.shields.io/badge/Pure-Python-6366f1?style=for-the-badge&labelColor=0f172a" alt="Pure Python">
-<img src="https://img.shields.io/badge/Rust-Turbo%20Mode-e45a33?style=for-the-badge&labelColor=0f172a&logo=rust&logoColor=white" alt="Rust Turbo">
+<img src="https://img.shields.io/badge/Built--in-Rust%20Engine-e45a33?style=for-the-badge&labelColor=0f172a&logo=rust&logoColor=white" alt="Built-in Rust Engine">
 </p>
 
 <p>
@@ -103,18 +102,18 @@ print(report.summary())
 
 Bottom-up, Top-down, MinTrace로 계층적 시계열을 조정합니다.
 
-### Rust Turbo Mode
+### 내장 Rust 엔진
 
-`vectrix[turbo]`를 설치하면 Rust로 작성된 핵심 루프가 활성화됩니다. Rust 컴파일러 불필요 — Linux, macOS (x86 + ARM), Windows용 사전 빌드 wheel 제공.
+25개 핵심 예측 핫 루프가 Rust로 가속되어 모든 wheel에 컴파일됩니다. Polars처럼 설치만 하면 자동으로 빨라집니다.
 
-| 구성요소 | Turbo 없음 | Turbo 적용 | 속도 향상 |
-|:---------|:----------|:----------|:---------|
+| 구성요소 | Python Only | Rust 적용 | 속도 향상 |
+|:---------|:-----------|:----------|:---------|
 | `forecast()` 200pts | 295ms | **52ms** | **5.6x** |
 | AutoETS fit | 348ms | **32ms** | **10.8x** |
-| AutoARIMA fit | 195ms | **35ms** | **5.6x** |
+| DOT fit | 240ms | **10ms** | **24x** |
 | ETS 필터 (핫 루프) | 0.17ms | **0.003ms** | **67x** |
 
-Turbo는 완전 선택사항입니다. 없으면 Numba JIT(설치 시) 또는 순수 Python으로 동작합니다. 코드 변경 불필요 — 설치만 하면 자동으로 빨라집니다.
+Rust 컴파일러 불필요. `pip install vectrix`만 하면 가속이 자동 적용됩니다.
 
 ### 내장 샘플 데이터셋
 
@@ -129,9 +128,9 @@ result = forecast(df, date="date", value="passengers", steps=12)
 
 사용 가능: `airline`, `retail`, `stock`, `temperature`, `energy`, `web`, `intermittent`
 
-### 전부 순수 Python
+### 최소 의존성, 최대 성능
 
-위의 모든 기능 — 예측 모델, 레짐 감지, 회귀분석 진단, 제약조건 적용, 계층적 조정 — 이 NumPy, SciPy, Pandas만으로 구현되어 있습니다. Rust turbo는 선택사항이며 필수가 아닙니다.
+위의 모든 기능 — 예측 모델, 레짐 감지, 회귀분석 진단, 제약조건 적용, 계층적 조정 — 이 NumPy, SciPy, Pandas + 내장 Rust 엔진으로 구현되어 있습니다. 설치 하나로 전체 성능을 즉시 사용할 수 있습니다.
 
 <br>
 
@@ -156,8 +155,7 @@ result.plot()
 
 | | Vectrix | statsforecast | Prophet | Darts |
 |:--|:--:|:--:|:--:|:--:|
-| **순수 Python (C/Fortran 없음)** | ✅ | ❌ (numba) | ❌ (cmdstan) | ❌ (torch) |
-| **선택적 Rust 가속** | ✅ (5-10x) | ❌ | ❌ | ❌ |
+| **내장 Rust 엔진** | ✅ (5-67x) | ❌ | ❌ | ❌ |
 | **의존성** | 3 | 5+ | 10+ | 20+ |
 | **자동 모델 선택** | ✅ | ✅ | ❌ | ❌ |
 | **평탄 예측 방어** | ✅ | ❌ | ❌ | ❌ |
@@ -257,11 +255,10 @@ result.plot()
 ## ◈ 설치
 
 ```bash
-pip install vectrix                # 핵심 (numpy + scipy + pandas)
-pip install "vectrix[turbo]"       # + Rust 가속 (5-10배 속도 향상)
-pip install "vectrix[numba]"       # + Numba JIT (2-5배 가속)
-pip install "vectrix[ml]"          # + LightGBM, XGBoost, scikit-learn
-pip install "vectrix[all]"         # 전체
+pip install vectrix                  # 30+ 모델 + Rust 엔진 내장
+pip install "vectrix[ml]"            # + LightGBM, XGBoost, scikit-learn
+pip install "vectrix[foundation]"    # + Amazon Chronos-2, Google TimesFM 2.5
+pip install "vectrix[all]"           # 전체
 ```
 
 <br>
@@ -428,8 +425,8 @@ vectrix/
 ├── global_model/          크로스시리즈 예측
 └── datasets.py            7개 내장 샘플 데이터셋
 
-rust/                         선택적 Rust 가속 (vectrix-core)
-└── src/lib.rs             ETS, ARIMA, Theta, SES 핫 루프 (PyO3)
+rust/                         내장 Rust 엔진 (25개 가속 함수)
+└── src/lib.rs             ETS, ARIMA, Theta, DOT, CES, GARCH 등 (PyO3)
 ```
 
 <br>

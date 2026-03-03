@@ -267,52 +267,76 @@ src/vectrix/
 - modelCreation/001~012: `src/vectrix/experiments/modelCreation/`
 - 각 연구 방향별 폴더에 독립 번호 체계
 
-## 약점 분석 (2026-02-28 기준)
+## 약점 및 개선 필요사항 (2026-03-03 업데이트)
 
-### 벤치마크 정확도
-- **M4 Daily OWA 1.207** — Naive2보다 20.7% 나쁨 (sMAPE 3.254 vs 2.652)
-- **M4 Hourly OWA 1.006** — Naive2와 동일 수준 (패배)
-- 원인: 고빈도 다중 계절성(일/주/연) 처리 부족, 노이즈 비율 높은 데이터에서 CV 과적합
+### [긴급] 정확도 — 가장 큰 문제
+- **M4 Daily OWA 1.207** — Naive2보다 20.7% 나쁨. 이대로면 벤치마크 공개가 역효과
+- **M4 Hourly OWA 1.006** — Naive2와 동일. 30+ 모델이 무의미
+- **목표**: Daily OWA < 0.95, Hourly OWA < 0.85
+- **원인**: 고빈도 다중 계절성(일/주/연) 처리 부족, 노이즈 높은 데이터에서 CV 과적합
+- statsforecast는 Daily 0.92, Hourly 0.78 수준 — 이것이 현실적 목표
+
+### [중요] 속도 — forecast() 전체 기준
+- Rust 67x는 ETS filter 단일 루프 기준. forecast() 전체는 48ms
+- statsforecast AutoETS는 0.3ms (Numba JIT) — 100배 차이
+- Rust 내장했지만 Polars급 속도를 주장하려면 더 많은 핫 루프 이전 필요
+- SES, ARIMA, Theta 등 핫 루프 외에 Python 오버헤드(모델 선택, CV, 앙상블) 최적화 필요
+
+### [중요] 킬러 유스케이스 부재
+- "30+ 모델"은 기본 능력이지 차별점이 아님
+- VX-Ensemble Hourly OWA 0.696이 유일한 세계급 성과
+- Forecast DNA + Flat Defense가 독자적이지만 마케팅에 활용 부족
+- 한 가지를 세계 최고로 만들어야 함 — "이 문제에는 Vectrix" 포지셔닝
+
+### [중요] 커뮤니티/인지도
+- PyPI 다운로드 수 거의 0
+- GitHub stars 미미
+- 혼자 개발 (bus factor 1)
+- 기업 지원 경쟁사(Nixtla, Meta, Unit8)와 규모 싸움은 불가능
+- 블로그/Reddit/Kaggle/HackerNews 노출 전략 필요
 
 ### 업계 대비 기능 격차 (우선순위순)
 1. **M4 Daily/Hourly 정확도** — 벤치마크 신뢰도 직결 (난이도: 중)
-2. **Foundation Model 미지원** — TimesFM 2.5, Chronos-2, Moirai-2 등 제로샷 예측이 업계 최대 트렌드 (난이도: 상)
-3. **속도** — StatsForecast 대비 10~100x 느림, Spark/Dask/Ray 분산 미지원 (난이도: 중)
-4. **딥러닝 모델 전무** — NBEATS, NHITS, TFT 등 M4 우승 모델 부재 (난이도: 상)
-5. **확률적 예측 부족** — 파라메트릭 분포 출력, 분위수 예측, CRPS 메트릭 없음 (난이도: 중)
-6. **다변량 VAR/VECM** — ARIMAX만 존재, VAR/VECM/다변량 GARCH 없음 (난이도: 중)
-7. **이벤트/휴일 효과** — Prophet 스타일 캘린더 기반 모델링 부재 (난이도: 하)
-8. **파이프라인 시스템** — 전처리→모델→후처리 조합 시스템 없음 (난이도: 중)
+2. **속도 최적화** — forecast() 전체 파이프라인 Rust 이전 (난이도: 중)
+3. **Foundation Model** — TimesFM 2.5, Chronos-2, Moirai-2 래퍼 (이미 있지만 깊이 부족)
+4. **다변량 VAR/VECM** — ARIMAX만 존재 (난이도: 중)
+5. **이벤트/휴일 효과** — Prophet 스타일 캘린더 모델링 부재 (난이도: 하)
 
-### 경쟁사 대비 강점 (유지해야 할 것)
+### 강점 (유지해야 할 것)
 - 적응형 예측 (레짐, 자가치유, DNA) — 독자적 차별화
 - 비즈니스 인텔리전스 (시나리오, 백테스트, 이상치) — 실무 특화
-- 순수 NumPy/SciPy — 의존성 최소, 설치 간편
-- Conformal/Bootstrap 구간 — 이미 구현됨
-- 계층적 조정 (BottomUp, TopDown, MinTrace) — 이미 구현됨
+- 3개 의존성 + 내장 Rust 엔진 — 설치 최간편
+- AI 에이전트 통합 (llms.txt, MCP, Skills) — 업계 최선두
+- M4 Hourly VX-Ensemble OWA 0.696 — 세계급
 
-## 개선 로드맵 (2026-02-28~)
+## 아이덴티티 원칙 (2026-03-03 확정)
 
-### [진행중] Rust 확장 모듈 (vectrix-core)
-- **목표**: AutoETS fit 348ms → 5ms 이하, 전체 forecast() 0.6s → 0.05s
-- **방법**: PyO3 + maturin, ETS state update / ARIMA likelihood / Theta decomposition 핫 패스 Rust 포팅
-- **배포**: GitHub Actions에서 manylinux/macOS/Windows wheel pre-build
-- **Python fallback**: `try: from vectrix_core import ... except ImportError: pure Python`
-- **설치**: `pip install vectrix` (순수 Python) / `pip install vectrix[fast]` (Rust 가속)
+- **"Pure Python" 표현 사용 금지** — Rust 엔진이 내장된 패키지
+- **30+ 모델은 기본 능력** — 차별점으로 내세우지 않음
+- **Rust는 투명** — Polars처럼 사용자가 의식하지 않아도 빠름
+- **Python 문법, Rust 속도** — 이것이 정체성
 
-### [대기] M4 Daily/Hourly 정확도 개선
+## 개선 로드맵 (2026-03-03~)
+
+### [완료] Rust 엔진 내장 (v0.0.8)
+- 25개 함수 Rust 가속, 4개 플랫폼 wheel, `pip install vectrix` = Rust 포함
+- "optional turbo" → "built-in Rust engine" 메시징 전환 완료
+
+### [다음] M4 Daily/Hourly 정확도 개선
 - Daily OWA 1.207 → 0.95 이하, Hourly OWA 1.006 → 0.85 이하
 - MSTL 고주파 다중 계절성 최적화 (일/주/연 3중 계절)
-- M4 전체 데이터셋 벤치마크 실행 & 공개
+- 다중 계절 모델(TBATS, MSTL) 앙상블 전략 재설계
 
-### [대기] 전체 데이터셋 벤치마크
-- M4 100,000 시리즈 전체 벤치마크
-- statsforecast/Darts/Prophet 대비 속도 + 정확도 비교표
+### [대기] forecast() 전체 파이프라인 속도
+- 현재 48ms → 목표 5ms 이하
+- 모델 선택/CV/앙상블 로직의 Python 오버헤드 Rust 이전
+- Numba 의존성 제거 고려 (Rust로 완전 대체)
 
-### [대기] 영문 docstring 전환
-- 소스코드 docstring 한국어 → 영어 전환
-- API 문서 사이트에서 영문 페이지에 한글이 노출되는 문제 해결
+### [대기] 킬러 유스케이스 확립
+- VX-Ensemble Hourly를 중심으로 "Hourly/고빈도 예측 = Vectrix" 포지셔닝
+- 또는 "Zero-config + AI-native forecasting" 포지셔닝
 
-### [대기] 테스트 커버리지 강화
-- 현재 387개 → 500개 이상 목표
-- 엣지 케이스, 수치 안정성 테스트 추가
+### [대기] 커뮤니티 성장
+- 기술 블로그 포스트 (M4 벤치마크 재현, Rust 가속 여정)
+- Reddit r/MachineLearning, r/datascience 포스팅
+- Kaggle 노트북 예제

@@ -11,7 +11,7 @@
   <section class="vx-hero">
     <div class="vx-hero-badge">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-      v0.0.7 — AI Integration + Rust Turbo
+      v0.0.8 — Built-in Rust Engine
     </div>
     <h1 class="vx-hero-title">
       Time Series Forecasting<br>
@@ -19,7 +19,7 @@
     </h1>
     <p class="vx-hero-sub">
       One line of code. 30+ models. Zero configuration.<br>
-      Pure Python — no compiled dependencies required.
+      Built-in Rust engine — blazing fast out of the box.
     </p>
     <div class="vx-hero-stats">
       <div class="vx-hero-stat">
@@ -31,8 +31,8 @@
         <span class="vx-hero-stat-label">Dependencies</span>
       </div>
       <div class="vx-hero-stat">
-        <span class="vx-hero-stat-value">10x</span>
-        <span class="vx-hero-stat-label">Rust Turbo</span>
+        <span class="vx-hero-stat-value">67x</span>
+        <span class="vx-hero-stat-label">Rust Engine</span>
       </div>
       <div class="vx-hero-stat">
         <span class="vx-hero-stat-value">387</span>
@@ -87,7 +87,7 @@
         </div>
         <div class="vx-number-item">
           <span class="vx-number-value">&lt;5ms</span>
-          <span class="vx-number-label">ETS model fit with Rust turbo acceleration</span>
+          <span class="vx-number-label">ETS model fit with built-in Rust engine</span>
         </div>
       </div>
     </div>
@@ -140,8 +140,8 @@
         <div class="vx-feature-icon purple">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
         </div>
-        <h3>Pure Python</h3>
-        <p>Built on NumPy + SciPy + Pandas only. No compiled extensions, no platform issues. Optional Rust turbo for 10x speed.</p>
+        <h3>Built-in Rust Engine</h3>
+        <p>Pre-compiled Rust engine included in every wheel — like Polars, just install and it's fast. 25 accelerated hot loops.</p>
       </div>
       <div class="vx-feature">
         <div class="vx-feature-icon green">
@@ -379,12 +379,12 @@
     </div>
   </section>
 
-  <!-- Rust Turbo -->
+  <!-- Rust Engine -->
   <section class="vx-section vx-center">
     <span class="vx-section-label">Performance</span>
-    <h2 class="vx-section-title">Rust Turbo Mode</h2>
+    <h2 class="vx-section-title">Built-in Rust Engine</h2>
     <p class="vx-section-desc">
-      Optional Rust-accelerated core loops. Pre-built wheels for all platforms — no Rust compiler needed.
+      25 core hot loops compiled in Rust. Every wheel ships with the engine — no Rust compiler needed.
     </p>
     <div class="vx-speed-grid">
       <div class="vx-speed-card">
@@ -425,7 +425,7 @@
       </div>
     </div>
     <p style="margin-top: 1.5rem; color: var(--vx-text-dim); font-size: 0.85rem;">
-      <code>pip install "vectrix[turbo]"</code> — automatic fallback to pure Python if wheels are unavailable.
+      <code>pip install vectrix</code> — Rust engine is built into every wheel. Just install and it's fast.
     </p>
   </section>
 
@@ -634,8 +634,7 @@
       Choose the installation that fits your needs.
     </p>
     <div class="vx-install-tabs" id="installTabs">
-      <button class="vx-install-tab active" data-cmd="pip install vectrix">Core</button>
-      <button class="vx-install-tab" data-cmd='pip install "vectrix[turbo]"'>Rust Turbo</button>
+      <button class="vx-install-tab active" data-cmd="pip install vectrix">Default</button>
       <button class="vx-install-tab" data-cmd='pip install "vectrix[ml]"'>With ML</button>
       <button class="vx-install-tab" data-cmd='pip install "vectrix[foundation]"'>Foundation</button>
       <button class="vx-install-tab" data-cmd='pip install "vectrix[all]"'>Everything</button>
@@ -649,10 +648,7 @@
     </div>
     <div class="vx-install-details">
       <div class="vx-install-detail">
-        <strong>Core</strong> — NumPy + SciPy + Pandas. All 30+ models included.
-      </div>
-      <div class="vx-install-detail">
-        <strong>Turbo</strong> — Add Rust acceleration. 5-10x faster. Pre-built wheels.
+        <strong>Default</strong> — 30+ models + built-in Rust engine. Everything you need.
       </div>
       <div class="vx-install-detail">
         <strong>ML</strong> — Add LightGBM + XGBoost + scikit-learn models.
@@ -691,8 +687,8 @@
               <td>No</td>
             </tr>
             <tr>
-              <td>Pure Python (no compiled deps)</td>
-              <td class="vx-bench-good">Yes</td>
+              <td>Built-in Rust engine</td>
+              <td class="vx-bench-good">Yes (5-67x)</td>
               <td>No</td>
               <td>No</td>
               <td>No</td>
@@ -779,7 +775,7 @@
       </div>
       <div class="vx-oss-item">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--vx-success)" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
-        <strong>387 Tests</strong>
+        <strong>573 Tests</strong>
         <p>Comprehensive test coverage</p>
       </div>
       <div class="vx-oss-item">

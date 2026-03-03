@@ -29,7 +29,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install numpy pandas scipy pytest pytest-cov ruff maturin
 
-      - name: Install package (pure Python)
+      - name: Install package
         run: pip install -e . --no-build-isolation
         env:
           MATURIN_PEP517_ARGS: "--skip-auditwheel"

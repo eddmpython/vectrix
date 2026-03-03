@@ -405,7 +405,7 @@ class ETSModel:
         self.residuals = residuals
 
     def _filter(self, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-        """State-space filtering (Rust > Numba JIT > Pure Python)"""
+        """State-space filtering (Rust > Numba JIT > fallback)"""
         errorInt = 0 if self.errorType == 'A' else 1
         trendMap = {'N': 0, 'A': 1, 'Ad': 2, 'M': 3}
         trendKey = self.trendType + ('d' if self.damped else '')

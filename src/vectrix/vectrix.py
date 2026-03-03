@@ -1,7 +1,7 @@
 """
-Vectrix: Pure self-implemented time series forecasting engine.
+Vectrix: Time series forecasting engine with built-in Rust acceleration.
 
-Uses only numpy + scipy.optimize (+ optional numba).
+Built on numpy + scipy + pandas with 25 Rust-accelerated hot loops.
 No external forecasting libraries (statsforecast, statsmodels, prophet).
 
 Features:
@@ -9,7 +9,7 @@ Features:
 - Flat prediction prevention: 4-level defense system
 - Periodic drop pattern detection (E009: 61.3% improvement)
 - Multi-seasonality decomposition (E006: 57.8% improvement)
-- 2.3x faster than statsforecast
+- Built-in Rust engine for 5-67x acceleration
 """
 
 import time
@@ -213,7 +213,7 @@ class Vectrix:
 
         if verbose:
             from .engine.turbo import isNumbaAvailable
-            numbaStatus = "✓ Numba enabled" if isNumbaAvailable() else "✗ Numba not found (pure Python)"
+            numbaStatus = "✓ Numba enabled" if isNumbaAvailable() else "✗ Numba not found (fallback mode)"
             print(f"[Vectrix v{self.VERSION}] {numbaStatus}")
 
     def setProgressCallback(self, callback: Callable):

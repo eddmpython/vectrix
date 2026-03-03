@@ -3,7 +3,7 @@
 
 	const capabilities = [
 		{ name: 'Zero-config forecasting', vectrix: true, statsforecast: true, prophet: false, darts: false },
-		{ name: 'Pure Python (no compiled deps)', vectrix: true, statsforecast: false, prophet: false, darts: false },
+		{ name: 'Built-in Rust engine (5-67x)', vectrix: true, statsforecast: false, prophet: false, darts: false },
 		{ name: '30+ statistical models', vectrix: true, statsforecast: true, prophet: false, darts: true },
 		{ name: 'Flat prediction defense', vectrix: true, statsforecast: false, prophet: false, darts: false },
 		{ name: 'Forecast DNA fingerprinting', vectrix: true, statsforecast: false, prophet: false, darts: false },

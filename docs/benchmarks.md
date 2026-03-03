@@ -96,4 +96,4 @@ Results are saved to `benchmarks/m3Results.csv` and `benchmarks/m4Results.csv`.
 - All models are **deterministic** (no random seed required). Given the same data and parameters, Vectrix produces identical results across runs.
 - The `--n 100` flag selects the first 100 series per category/frequency. Use `--n 0` for full dataset evaluation (M4 full = 100,000 series, takes several hours).
 - Benchmark scripts automatically download competition data from the `datasetsforecast` package.
-- Turbo mode (`vectrix[turbo]`) does not affect accuracy — only speed. Results are numerically identical with or without Rust acceleration.
+- The built-in Rust engine does not affect accuracy — only speed. Results are numerically identical with or without Rust acceleration.
