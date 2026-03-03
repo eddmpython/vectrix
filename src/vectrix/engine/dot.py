@@ -10,7 +10,7 @@ DOT-Hybrid mode (E018): For period<=12, applies 8-way auto-select
 accuracy on low-frequency data. For period>=24, uses original
 3-parameter optimization which excels on high-frequency data.
 
-M4 Competition benchmark: OWA 0.884 (DOT-Hybrid) vs 0.905 (original).
+M4 Competition benchmark: OWA 0.885 (DOT-Hybrid) vs 0.905 (original).
 """
 
 from typing import Tuple
@@ -221,8 +221,11 @@ class DynamicOptimizedTheta:
             return self
 
         if self.period < _HYBRID_THRESHOLD:
-            return self._fitHybrid(y)
-        return self._fitClassic(y)
+            self._fitHybrid(y)
+        else:
+            self._fitClassic(y)
+
+        return self
 
     def _fitClassic(self, y: np.ndarray) -> 'DynamicOptimizedTheta':
         n = len(y)
@@ -329,7 +332,8 @@ class DynamicOptimizedTheta:
 
         if self._hybridMode:
             return self._predictHybrid(steps)
-        return self._predictClassic(steps)
+        else:
+            return self._predictClassic(steps)
 
     def _predictClassic(self, steps: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         n = self._n

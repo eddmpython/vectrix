@@ -264,8 +264,64 @@ src/vectrix/
 - 리스크: 윈도우 길이 L 선택, 자동 그룹화 품질
 
 ### 실험 폴더
-- modelCreation/001~012: `src/vectrix/experiments/modelCreation/`
+- modelCreation/001~019: `src/vectrix/experiments/modelCreation/`
 - 각 연구 방향별 폴더에 독립 번호 체계
+
+## 새로운 접근법 연구 (Novel Approaches, 2026-03-03~)
+
+### 배경
+기존 모든 모델(ETS, ARIMA, Theta, CES 등)은 "시계열 = 트렌드 + 계절성 + 잔차" 분해,
+"과거 패턴 반복" 가정, "단일 시계열만 관찰"이라는 공통 프레임에 갇혀 있음.
+이 프레임을 근본적으로 깨는 5가지 방향을 탐색.
+
+### 핵심 원칙
+1. **기존 통계 모델과 근본적으로 다른 원리** — 잔차 상관 0 기대
+2. **모델-프리** — 분해 가정 없이 데이터 자체에서 예측
+3. **구현 단순성** — numpy + 표준 라이브러리만으로 구현
+4. E013~E015 교훈: 복잡할수록 실패. 극도의 단순함 추구
+
+### 구현 우선순위 (Top 5)
+
+| 순위 | 실험 | 모델 | 핵심 원리 |
+|------|------|------|----------|
+| 1 | mc/020 | CompressionForecaster | 예측=압축. zlib 압축률이 가장 높은 연속이 최적 예측 |
+| 2 | mc/021 | TopologicalForecaster | TDA persistent homology로 궤적의 위상 구조 기반 예측 |
+| 3 | mc/022 | GravitationalForecaster | 과거 값이 미래에 중력 행사, N-body 평형점 = 예측 |
+| 4 | mc/023 | EvolutionaryForecaster | 유전 알고리즘으로 예측 후보 자연선택 |
+| 5 | mc/024 | CausalEntropyForecaster | MaxEnt 원리: 인과 제약 하 엔트로피 최대화 = 예측 |
+
+### 각 모델 상세
+
+**mc/020 CompressionForecaster**
+- 알고리즘: 시계열 → 바이트 직렬화 → 후보값 연결 → zlib 압축률 비교 → 최소 압축 크기 = 최적 예측
+- Kolmogorov complexity의 실용적 근사
+- 완전 모델-프리: 어떤 통계 가정도 없음
+- 구현: numpy + zlib, 난이도 하
+- 기대: 기존 모델과 잔차 상관 ~0, 앙상블 다양성 극대화
+
+**mc/021 TopologicalForecaster**
+- 알고리즘: 시간지연 임베딩 → 고차원 궤적 → persistent homology → Betti numbers → 형태 유사 구간 탐색 → 예측
+- 값이 아닌 "궤적의 기하학적 구조"로 예측
+- 구현: numpy + scipy, 난이도 중
+- 기대: 비선형/혼란 시계열에서 우위
+
+**mc/022 GravitationalForecaster**
+- 알고리즘: 각 과거 값 = 질량 입자, 시간 감쇠 + 패턴 유사도로 인력 결정, 평형점 = 예측
+- N-body simulation의 시계열 적용
+- 구현: numpy, 난이도 하~중
+- 기대: 자연스러운 불확실성 구간 (인력 분포 = 예측 분포)
+
+**mc/023 EvolutionaryForecaster**
+- 알고리즘: 무작위 후보 생성 → 과거 일관성 기준 선택 → 교배/돌연변이 → 반복 → 생존자 평균
+- Genetic Algorithm 기반 예측
+- 구현: numpy, 난이도 하
+- 기대: 모델 구조 불필요, 적합성 함수만 정의
+
+**mc/024 CausalEntropyForecaster**
+- 알고리즘: 과거 패턴에서 조건부 제약 추출 → 제약 하 MaxEnt 분포 → 기댓값 = 예측
+- Jaynes의 최대 엔트로피 원리
+- 구현: numpy + scipy.optimize, 난이도 중
+- 기대: "가장 놀랍지 않은" 예측 = 과적합 방지
 
 ## 약점 및 개선 필요사항 (2026-03-03 업데이트)
 

@@ -5,6 +5,34 @@ All notable changes to Vectrix will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.10] - 2026-03-04
+
+Research & stability release — 16 DOT improvement experiments (E020~E030, E013~E015), DOT-Hybrid engine OWA 0.885 re-verified, CES combination approach tested and rolled back.
+
+### Added
+
+**Experiment Files (16 new experiments)**
+- `modelCreation/013~015`: Novel ensemble models (WDE, RGF, EPE) — all rejected, DOT/CES wall too high
+- `modelCreation/020~024`: Fundamentally novel approaches (Compression, Topological, Gravitational, Evolutionary, Causal Entropy) — all rejected, structural decomposition models remain superior
+- `modelCreation/025~030`: DOT engine improvement attempts (Multi-Season, DOT+CES Combined, Holdout Selection, Adaptive Theta Bounds, Residual Correction, Engine Verification)
+  - E026 DOT+CES Combined showed within-experiment improvement but degraded vs E019 baseline (0.918 vs 0.885) — rolled back
+  - E029 Residual Correction catastrophically harmful (Monthly +0.202 regression)
+  - All 6 experiments documented with full results in docstrings
+
+### Changed
+
+- `engine/dot.py`: Minor docstring fix (OWA 0.884 → 0.885), code style consistency in fit/predict methods
+- `CLAUDE.md`: Added Novel Approaches research section, updated experiment folder range to 001~019
+
+### Key Findings
+
+- DOT-Hybrid standalone remains the strongest engine (AVG OWA 0.885)
+- DOT residuals are near white noise — post-processing (residual correction, period re-detection, theta bounds) cannot improve further
+- CES combination adds 4.5x speed overhead while degrading accuracy vs baseline
+- Model-free approaches (compression, topology, gravity) consistently fail — structural assumptions (trend + seasonality + error decomposition) are essential for forecasting accuracy
+
+[0.0.10]: https://github.com/eddmpython/vectrix/compare/v0.0.9...v0.0.10
+
 ## [0.0.9] - 2026-03-03
 
 Accuracy & speed release — DOT-Hybrid model achieves M4 Competition OWA 0.885 (beats #18 Theta 0.897), with 9.8x benchmark speedup from Rust `dot_hybrid_objective`.
