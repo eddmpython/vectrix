@@ -1,0 +1,85 @@
+# Vectrix
+
+> Zero-config time series forecasting for Python. 30+ models, auto selection, Rust turbo acceleration.
+
+Vectrix is a Python library for time series forecasting. It evaluates 30+ statistical models (ETS, ARIMA, Theta, CES, DOT, MSTL, TBATS, GARCH, and more), validates each on a holdout set, and returns the best one with 95% confidence intervals — in a single function call.
+
+## Key Features
+
+- **Zero configuration**: Pass data, get forecasts. No model selection, no hyperparameter tuning.
+- **30+ models**: Exponential smoothing, ARIMA, Theta, decomposition, intermittent demand, volatility, neural reservoir, pattern matching.
+- **Adaptive intelligence**: Regime detection, self-healing forecasts, constraint enforcement, DNA-based meta-learning.
+- **Business intelligence**: Anomaly detection, what-if scenarios, backtesting, business-specific accuracy metrics.
+- **Rust turbo**: Optional native extension accelerates core loops 5-10x. No Rust compiler needed.
+- **Lightweight**: Only 3 dependencies (NumPy, pandas, SciPy).
+
+## Installation
+
+```
+pip install vectrix
+```
+
+## Quick Start
+
+```python
+from vectrix import forecast
+result = forecast([100, 120, 130, 115, 140, 160, 150, 170], steps=5)
+print(result.model)        # Best model name
+print(result.predictions)  # Forecast values
+print(result.mape)         # Validation MAPE (%)
+```
+
+## Links
+
+- Documentation: https://eddmpython.github.io/vectrix/docs/getting-started/installation
+- API Reference: https://eddmpython.github.io/vectrix/docs/api/easy
+- Tutorials: https://eddmpython.github.io/vectrix/docs/tutorials/quickstart
+- Benchmarks: https://eddmpython.github.io/vectrix/docs/benchmarks
+- GitHub: https://github.com/eddmpython/vectrix
+- PyPI: https://pypi.org/project/vectrix/
+
+## API Overview
+
+### Easy API (one-line usage)
+
+- `forecast(data, steps=10)` — Auto-select best model and forecast
+- `analyze(data)` — DNA profiling with 65+ statistical features
+- `regress(data, formula)` — R-style regression with diagnostics
+- `compare(data, steps)` — Rank all 30+ models by accuracy
+
+### Result Objects
+
+- `EasyForecastResult`: `.predictions`, `.lower`, `.upper`, `.model`, `.mape`, `.rmse`, `.compare()`, `.to_dataframe()`, `.to_csv()`, `.to_json()`
+- `EasyAnalysisResult`: `.dna` (fingerprint, difficulty, category, recommendedModels), `.characteristics`, `.changepoints`, `.anomalies`
+- `EasyRegressionResult`: `.r_squared`, `.adj_r_squared`, `.f_stat`, `.summary()`, `.diagnose()`
+
+### Vectrix Class (full control)
+
+```python
+from vectrix import Vectrix
+vx = Vectrix()
+result = vx.forecast(df, dateCol="date", valueCol="sales", steps=14, trainRatio=0.8)
+```
+
+### Engine Access (individual models)
+
+```python
+from vectrix.engine.ets import AutoETS
+ets = AutoETS(period=12)
+ets.fit(data)
+predictions, lower, upper = ets.predict(steps=6)
+```
+
+### Business Intelligence
+
+- `AnomalyDetector().detect(data, method="auto")` — Anomaly detection
+- `WhatIfAnalyzer().analyze(predictions, data, scenarios)` — Scenario analysis
+- `Backtester(nFolds=5).run(data, modelFactory)` — Walk-forward validation
+- `BusinessMetrics().calculate(actual, predicted)` — Business accuracy metrics
+
+### Adaptive Features
+
+- `RegimeDetector(nRegimes=3).detect(data)` — HMM regime detection
+- `SelfHealingForecast(preds, lower, upper, data)` — Real-time forecast correction
+- `ConstraintAwareForecaster().apply(preds, lower, upper, constraints)` — Business constraint enforcement
+- `ForecastDNA().analyze(data, period)` — 65+ feature extraction and meta-learning
