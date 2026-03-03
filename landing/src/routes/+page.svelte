@@ -48,6 +48,30 @@
 		"programmingLanguage": "Python",
 		"codeRepository": "https://github.com/eddmpython/vectrix"
 	})}</script>`}
+
+	{@html `<script type="application/ld+json">${JSON.stringify({
+		"@context": "https://schema.org",
+		"@type": "Organization",
+		"name": "Vectrix",
+		"url": "https://eddmpython.github.io/vectrix/",
+		"logo": "https://eddmpython.github.io/vectrix/icon-512.png",
+		"sameAs": [
+			"https://github.com/eddmpython/vectrix",
+			"https://pypi.org/project/vectrix/"
+		]
+	})}</script>`}
+
+	{@html `<script type="application/ld+json">${JSON.stringify({
+		"@context": "https://schema.org",
+		"@type": "WebSite",
+		"name": "Vectrix",
+		"url": "https://eddmpython.github.io/vectrix/",
+		"potentialAction": {
+			"@type": "SearchAction",
+			"target": "https://eddmpython.github.io/vectrix/docs/api/easy",
+			"query-input": "required name=search_term_string"
+		}
+	})}</script>`}
 </svelte:head>
 
 <Header />

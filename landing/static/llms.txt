@@ -2,6 +2,8 @@
 
 > Zero-config time series forecasting for Python. 30+ models, auto selection, Rust turbo acceleration.
 
+> Detailed version: https://eddmpython.github.io/vectrix/llms-full.txt
+
 Vectrix is a Python library for time series forecasting. It evaluates 30+ statistical models (ETS, ARIMA, Theta, CES, DOT, MSTL, TBATS, GARCH, and more), validates each on a holdout set, and returns the best one with 95% confidence intervals — in a single function call.
 
 ## Key Features
