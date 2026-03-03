@@ -2,6 +2,7 @@
 	import { locale } from '$lib/docs/i18n';
 	import { base } from '$app/paths';
 	import { navigation, findPrevNext } from '$lib/docs/navigation';
+	import { getDescription, getCanonicalUrl, SITE_NAME, OG_IMAGE } from '$lib/docs/seo';
 	import { page } from '$app/state';
 	import { ChevronLeft, ChevronRight } from 'lucide-svelte';
 
@@ -17,10 +18,42 @@
 	);
 
 	let prevNext = $derived(findPrevNext(page.url.pathname.replace(base, ''), navigation));
+
+	let slugPath = $derived(`/docs/${data.slug}`);
+	let pageTitle = $derived(meta?.title ? `${meta.title} — Vectrix` : 'Vectrix Docs');
+	let pageDescription = $derived(getDescription(slugPath));
+	let canonicalUrl = $derived(getCanonicalUrl(slugPath));
 </script>
 
 <svelte:head>
-	<title>{meta?.title ? `${meta.title} — Vectrix` : 'Vectrix Docs'}</title>
+	<title>{pageTitle}</title>
+	<meta name="description" content={pageDescription} />
+	<link rel="canonical" href={canonicalUrl} />
+
+	<meta property="og:type" content="article" />
+	<meta property="og:title" content={pageTitle} />
+	<meta property="og:description" content={pageDescription} />
+	<meta property="og:url" content={canonicalUrl} />
+	<meta property="og:image" content={OG_IMAGE} />
+	<meta property="og:site_name" content={SITE_NAME} />
+
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:title" content={pageTitle} />
+	<meta name="twitter:description" content={pageDescription} />
+	<meta name="twitter:image" content={OG_IMAGE} />
+
+	{@html `<script type="application/ld+json">${JSON.stringify({
+		"@context": "https://schema.org",
+		"@type": "TechArticle",
+		"headline": meta?.title || "Vectrix Documentation",
+		"description": pageDescription,
+		"url": canonicalUrl,
+		"image": OG_IMAGE,
+		"author": { "@type": "Person", "name": "eddmpython", "url": "https://github.com/eddmpython" },
+		"publisher": { "@type": "Organization", "name": "Vectrix", "logo": { "@type": "ImageObject", "url": OG_IMAGE } },
+		"mainEntityOfPage": { "@type": "WebPage", "@id": canonicalUrl },
+		"inLanguage": currentLang === "ko" ? "ko" : "en"
+	})}</script>`}
 </svelte:head>
 
 {#if data.status === 404}

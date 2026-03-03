@@ -17,6 +17,37 @@
 
 <svelte:head>
 	<title>Vectrix — Zero-Config Time Series Forecasting for Python</title>
+	<meta name="description" content="Zero-config time series forecasting for Python. 30+ models, one line of code, Rust turbo acceleration. Automatic model selection, confidence intervals, and business intelligence." />
+	<link rel="canonical" href="https://eddmpython.github.io/vectrix/" />
+
+	<meta property="og:type" content="website" />
+	<meta property="og:title" content="Vectrix — Zero-Config Time Series Forecasting for Python" />
+	<meta property="og:description" content="Production-ready time series forecasting library. 30+ statistical models, automatic selection, Rust turbo acceleration." />
+	<meta property="og:url" content="https://eddmpython.github.io/vectrix/" />
+	<meta property="og:image" content="https://eddmpython.github.io/vectrix/icon-512.png" />
+	<meta property="og:site_name" content="Vectrix" />
+
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:title" content="Vectrix — Zero-Config Time Series Forecasting for Python" />
+	<meta name="twitter:description" content="Production-ready time series forecasting. 30+ models, one line of code." />
+	<meta name="twitter:image" content="https://eddmpython.github.io/vectrix/icon-512.png" />
+
+	{@html `<script type="application/ld+json">${JSON.stringify({
+		"@context": "https://schema.org",
+		"@type": "SoftwareApplication",
+		"name": "Vectrix",
+		"applicationCategory": "DeveloperApplication",
+		"operatingSystem": "Windows, macOS, Linux",
+		"description": "Zero-config time series forecasting for Python. 30+ models, one line of code, Rust turbo acceleration.",
+		"url": "https://eddmpython.github.io/vectrix/",
+		"downloadUrl": "https://pypi.org/project/vectrix/",
+		"softwareVersion": "0.0.7",
+		"author": { "@type": "Person", "name": "eddmpython", "url": "https://github.com/eddmpython" },
+		"offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+		"license": "https://opensource.org/licenses/MIT",
+		"programmingLanguage": "Python",
+		"codeRepository": "https://github.com/eddmpython/vectrix"
+	})}</script>`}
 </svelte:head>
 
 <Header />

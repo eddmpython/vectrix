@@ -34,6 +34,15 @@
 
 <svelte:head>
 	<title>Documentation — Vectrix</title>
+	<meta name="description" content="Vectrix documentation — guides, API reference, tutorials, and benchmarks for time series forecasting in Python." />
+	<link rel="canonical" href="https://eddmpython.github.io/vectrix/docs" />
+
+	<meta property="og:type" content="website" />
+	<meta property="og:title" content="Documentation — Vectrix" />
+	<meta property="og:description" content="Guides, API reference, tutorials, and benchmarks for time series forecasting in Python." />
+	<meta property="og:url" content="https://eddmpython.github.io/vectrix/docs" />
+	<meta property="og:image" content="https://eddmpython.github.io/vectrix/icon-512.png" />
+	<meta property="og:site_name" content="Vectrix" />
 </svelte:head>
 
 <div class="docs-index">
