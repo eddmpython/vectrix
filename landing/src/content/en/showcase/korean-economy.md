@@ -8,7 +8,7 @@ Forecasting Korean economic indicators using publicly available FRED data. This 
 
 ## Data Sources
 
-All data is fetched directly from the Federal Reserve Economic Data (FRED) API:
+All data is fetched directly from the Federal Reserve Economic Data (FRED) API
 
 | Indicator | FRED Series | Frequency | Description |
 |-----------|:-----------:|:---------:|-------------|
@@ -72,7 +72,7 @@ print(result.summary())
 
 ## Comparing Models
 
-Use `compare()` to see how different models perform on the same data:
+Use `compare()` to see how different models perform on the same data
 
 ```python
 result = forecast(df, date="date", value="value", steps=12)

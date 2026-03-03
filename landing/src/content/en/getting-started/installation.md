@@ -36,7 +36,7 @@ pip install "vectrix[all]"         # Everything
 
 ## Rust Turbo Mode
 
-The `turbo` extra installs `vectrix-core`, a Rust-compiled native extension that accelerates core forecasting loops by 5-10x. Pre-built wheels are available for:
+The `turbo` extra installs `vectrix-core`, a Rust-compiled native extension that accelerates core forecasting loops by 5-10x. Pre-built wheels are available for
 
 - Linux (x86_64, manylinux)
 - macOS (x86_64 + Apple Silicon ARM)
@@ -63,7 +63,7 @@ print(result.predictions)
 
 ## Core Dependencies
 
-Vectrix has only 3 required dependencies:
+Vectrix has only 3 required dependencies
 
 | Package | Minimum Version |
 |---------|----------------|

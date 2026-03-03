@@ -36,7 +36,7 @@ print(f"이상치 위치: {result.indices}")
 
 ## 예측
 
-비즈니스 분석의 기준점이 되는 기본 예측을 생성합니다:
+비즈니스 분석의 기준점이 되는 기본 예측을 생성합니다
 
 ```python
 from vectrix import forecast
@@ -110,7 +110,7 @@ print(f"예측 정확도: {result['forecastAccuracy']:.1f}%")
 
 ## 전체 비즈니스 워크플로우
 
-전체 파이프라인을 하나로 연결합니다:
+전체 파이프라인을 하나로 연결합니다
 
 ```python
 import pandas as pd

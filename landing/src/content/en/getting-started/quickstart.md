@@ -37,7 +37,7 @@ result = forecast("sales.csv", steps=12)
 
 ## Working with Results
 
-`EasyForecastResult` provides:
+`EasyForecastResult` provides
 
 | Attribute / Method | Description |
 |-------------------|-------------|

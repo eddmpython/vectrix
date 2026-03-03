@@ -8,7 +8,7 @@ Every time series has a unique fingerprint. Vectrix extracts 65+ statistical fea
 
 ## Basic Analysis
 
-The `analyze()` function accepts the same input formats as `forecast()`:
+The `analyze()` function accepts the same input formats as `forecast()`
 
 ```python
 import pandas as pd
@@ -42,7 +42,7 @@ Changepoints: [89, 201]
 Anomalies: [15, 156, 298]
 ```
 
-You can also pass raw lists or arrays:
+You can also pass raw lists or arrays
 
 ```python
 from vectrix import analyze
@@ -54,7 +54,7 @@ print(report.summary())
 
 ## DNA Profile
 
-The DNA profile is the core of Vectrix's intelligence. Access it through `report.dna`:
+The DNA profile is the core of Vectrix's intelligence. Access it through `report.dna`
 
 ```python
 dna = report.dna
@@ -88,7 +88,7 @@ The fingerprint is deterministic: the same data always produces the same hash. T
 
 ## Changepoints
 
-Changepoints are locations where the statistical properties of the time series shift (mean, variance, or trend):
+Changepoints are locations where the statistical properties of the time series shift (mean, variance, or trend)
 
 ```python
 print(f"Changepoints at indices: {report.changepoints}")
@@ -104,7 +104,7 @@ These correspond to positions in your data where structural breaks occurred -- f
 
 ## Anomalies
 
-Anomaly indices mark individual observations that deviate significantly from the expected pattern:
+Anomaly indices mark individual observations that deviate significantly from the expected pattern
 
 ```python
 print(f"Anomaly indices: {report.anomalies}")
@@ -120,7 +120,7 @@ Number of anomalies: 3
 
 ## Data Characteristics
 
-The `characteristics` object provides detailed statistical properties:
+The `characteristics` object provides detailed statistical properties
 
 ```python
 c = report.characteristics
@@ -165,7 +165,7 @@ Outliers: 3 (0.8%)
 
 ## Full Summary
 
-The `summary()` method combines all analysis components into a single formatted report:
+The `summary()` method combines all analysis components into a single formatted report
 
 ```python
 full_report = report.summary()
@@ -176,7 +176,7 @@ This includes the DNA profile, characteristics, changepoints, anomalies, and mod
 
 ## Extracted Features
 
-Access the raw 65+ features as a dictionary:
+Access the raw 65+ features as a dictionary
 
 ```python
 features = report.features
@@ -201,7 +201,7 @@ for key, value in list(features.items())[:10]:
 
 ## Practical Usage: Analyze Before Forecasting
 
-Use analysis results to make informed forecasting decisions:
+Use analysis results to make informed forecasting decisions
 
 ```python
 from vectrix import analyze, forecast
@@ -226,7 +226,7 @@ else:
 
 ## Direct ForecastDNA Access
 
-For lower-level control, use `ForecastDNA` directly:
+For lower-level control, use `ForecastDNA` directly
 
 ```python
 from vectrix import ForecastDNA

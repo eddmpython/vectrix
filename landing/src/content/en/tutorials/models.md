@@ -8,7 +8,7 @@ Vectrix ships with 30+ forecasting models spanning exponential smoothing, ARIMA,
 
 ## Quick Model Comparison
 
-The fastest way to compare all models on your data:
+The fastest way to compare all models on your data
 
 ```python
 from vectrix import compare
@@ -34,7 +34,7 @@ print(ranking)
 ...
 ```
 
-Or access the comparison from a forecast result:
+Or access the comparison from a forecast result
 
 ```python
 from vectrix import forecast
@@ -45,7 +45,7 @@ print(result.compare())
 
 ## The Vectrix Class
 
-For full control over the forecasting process, use the `Vectrix` class directly:
+For full control over the forecasting process, use the `Vectrix` class directly
 
 ```python
 import pandas as pd
@@ -87,7 +87,7 @@ MSTL: MAPE=4.56%, RMSE=14.23
 
 ## Available Models
 
-All models are evaluated automatically. Here is the complete list organized by category:
+All models are evaluated automatically. Here is the complete list organized by category
 
 ### Exponential Smoothing
 
@@ -164,7 +164,7 @@ All models are evaluated automatically. Here is the complete list organized by c
 
 ## Direct Engine Access
 
-Use individual models for fine-grained control:
+Use individual models for fine-grained control
 
 ```python
 from vectrix.engine.ets import AutoETS
@@ -206,7 +206,7 @@ for name, model in models.items():
 
 ## Flat Prediction Defense
 
-A common failure mode in forecasting is flat (constant) predictions -- where the model outputs the same value for every future step. Vectrix includes a unique 4-level defense system:
+A common failure mode in forecasting is flat (constant) predictions -- where the model outputs the same value for every future step. Vectrix includes a unique 4-level defense system
 
 ```python
 from vectrix import Vectrix
@@ -230,7 +230,7 @@ print(f"Strategy: {fr.recommendedStrategy}")
 
 ## Data Characteristics Drive Selection
 
-Vectrix uses DNA-based meta-learning to select models. The process:
+Vectrix uses DNA-based meta-learning to select models. The process
 
 1. **Feature extraction** -- 65+ statistical features computed from your data
 2. **DNA profiling** -- Features mapped to a difficulty score and category
@@ -247,7 +247,7 @@ print(f"Evaluated: {result.models}")
 
 ## Ensemble Strategy
 
-When no single model clearly dominates, Vectrix can combine multiple models:
+When no single model clearly dominates, Vectrix can combine multiple models
 
 ```python
 from vectrix import Vectrix

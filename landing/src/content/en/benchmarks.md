@@ -61,13 +61,13 @@ These weaknesses are documented transparently and are active research areas. See
 
 ### Reproducing with Vectrix 0.0.7
 
-Install Vectrix:
+Install Vectrix
 
 ```bash
 pip install vectrix==0.0.7
 ```
 
-Run the M3 benchmark (first 100 series per category):
+Run the M3 benchmark (first 100 series per category)
 
 ```python
 from vectrix import Vectrix
@@ -94,7 +94,7 @@ for cat in categories:
     print(f"{cat}: sMAPE={totalSmape/nSeries:.3f}, MASE={totalMase/nSeries:.3f}")
 ```
 
-Run the M4 benchmark (first 100 series per frequency):
+Run the M4 benchmark (first 100 series per frequency)
 
 ```python
 from datasetsforecast.m4 import M4

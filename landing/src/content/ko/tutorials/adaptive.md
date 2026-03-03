@@ -8,7 +8,7 @@ Vectrix만의 고유한 기능 -- 다른 어떤 예측 라이브러리에도 없
 
 ## 레짐 감지
 
-HMM(Hidden Markov Model)을 사용하여 레짐 변화(상승장/하락장, 성수기/비수기)를 감지합니다:
+HMM(Hidden Markov Model)을 사용하여 레짐 변화(상승장/하락장, 성수기/비수기)를 감지합니다
 
 ```python
 from vectrix import RegimeDetector
@@ -34,7 +34,7 @@ for label, stats in result.regimeStats.items():
 
 ## 레짐 인식 예측
 
-레짐별로 자동으로 모델을 전환하여 예측합니다:
+레짐별로 자동으로 모델을 전환하여 예측합니다
 
 ```python
 from vectrix import RegimeAwareForecaster
@@ -48,7 +48,7 @@ print(f"레짐별 모델: {result.modelPerRegime}")
 
 ## 자가 치유 예측
 
-예측 오차를 실시간으로 모니터링하고 자동 교정합니다:
+예측 오차를 실시간으로 모니터링하고 자동 교정합니다
 
 ```python
 from vectrix import SelfHealingForecast
@@ -78,7 +78,7 @@ updated = healer.getUpdatedForecast()
 
 ## 제약 인식 예측
 
-비즈니스 제약을 예측에 적용합니다:
+비즈니스 제약을 예측에 적용합니다
 
 ```python
 from vectrix import ConstraintAwareForecaster, Constraint
@@ -113,7 +113,7 @@ print(f"위반 수: {result.violationCount}")
 
 ## Forecast DNA
 
-시계열의 지문을 추출하여 메타러닝 기반 모델 추천에 활용합니다:
+시계열의 지문을 추출하여 메타러닝 기반 모델 추천에 활용합니다
 
 ```python
 from vectrix import ForecastDNA

@@ -6,7 +6,7 @@ title: Forecasting
 
 ## Easy API
 
-The simplest way to forecast:
+The simplest way to forecast
 
 ```python
 from vectrix import forecast
@@ -18,7 +18,7 @@ result = forecast(data, steps=30)
 
 ## Vectrix Class
 
-For more control, use the `Vectrix` class directly:
+For more control, use the `Vectrix` class directly
 
 ```python
 from vectrix import Vectrix
@@ -60,7 +60,7 @@ for modelId, mr in result.allModelResults.items():
 
 ## Flat Defense System
 
-Vectrix includes a unique 4-level system to prevent flat (constant) predictions:
+Vectrix includes a unique 4-level system to prevent flat (constant) predictions
 
 1. **FlatRiskDiagnostic** -- Pre-assessment of flat prediction risk
 2. **AdaptiveModelSelector** -- Risk-based model selection
@@ -76,7 +76,7 @@ print(f"Strategy: {fr.recommendedStrategy}")
 
 ## Direct Engine Access
 
-Use individual models directly:
+Use individual models directly
 
 ```python
 from vectrix.engine import AutoETS, AutoARIMA, ThetaModel

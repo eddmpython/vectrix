@@ -21,7 +21,7 @@ pipe.fit(y)
 predictions, lower, upper = pipe.predict(12)
 ```
 
-The pipeline:
+The pipeline
 
 1. **fit** — sequentially `fitTransform` each transformer, then `fit` the forecaster on transformed data
 2. **predict** — get predictions from the forecaster, then `inverseTransform` through all transformers in reverse order
@@ -41,7 +41,7 @@ The pipeline:
 
 ## Multi-step Preprocessing
 
-Chain multiple transformers for complex data preparation:
+Chain multiple transformers for complex data preparation
 
 ```python
 from vectrix.pipeline import (
@@ -61,7 +61,7 @@ pipe = ForecastPipeline([
 
 ## Transform Without Forecasting
 
-Use the pipeline as a pure preprocessing tool:
+Use the pipeline as a pure preprocessing tool
 
 ```python
 pipe.fit(train_data)
@@ -103,7 +103,7 @@ Scales to [0, 1] range. Best when bounded output is needed.
 
 ## Box-Cox Transform
 
-Automatically finds the optimal lambda to normalize your data distribution:
+Automatically finds the optimal lambda to normalize your data distribution
 
 ```python
 from vectrix.pipeline import BoxCoxTransformer

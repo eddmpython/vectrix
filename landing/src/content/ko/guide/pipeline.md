@@ -21,7 +21,7 @@ pipe.fit(y)
 predictions, lower, upper = pipe.predict(12)
 ```
 
-파이프라인 동작:
+파이프라인 동작
 
 1. **fit** -- 각 변환기를 순서대로 `fitTransform`한 후, 변환된 데이터로 예측기를 `fit`
 2. **predict** -- 예측기에서 예측값을 얻은 후, 모든 변환기를 역순으로 `inverseTransform`
@@ -41,7 +41,7 @@ predictions, lower, upper = pipe.predict(12)
 
 ## 다단계 전처리
 
-여러 변환기를 체이닝하여 복잡한 데이터 전처리 수행:
+여러 변환기를 체이닝하여 복잡한 데이터 전처리 수행
 
 ```python
 from vectrix.pipeline import (
@@ -61,7 +61,7 @@ pipe = ForecastPipeline([
 
 ## 예측 없이 변환만 수행
 
-파이프라인을 순수 전처리 도구로 사용:
+파이프라인을 순수 전처리 도구로 사용
 
 ```python
 pipe.fit(train_data)
@@ -103,7 +103,7 @@ Scaler(method='minmax')
 
 ## Box-Cox 변환
 
-데이터 분포를 정규화하는 최적 람다를 자동으로 탐색:
+데이터 분포를 정규화하는 최적 람다를 자동으로 탐색
 
 ```python
 from vectrix.pipeline import BoxCoxTransformer

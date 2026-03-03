@@ -27,7 +27,7 @@ print(f"Anomaly ratio: {result.anomalyRatio:.1%}")
 print(f"Indices: {result.indices}")
 ```
 
-Available detection methods:
+Available detection methods
 
 | Method | Description |
 |--------|-------------|
@@ -38,7 +38,7 @@ Available detection methods:
 
 ## Forecasting
 
-Generate a baseline forecast to anchor your business analysis:
+Generate a baseline forecast to anchor your business analysis
 
 ```python
 from vectrix import forecast
@@ -69,7 +69,7 @@ for scenario in scenarios:
     print(f"{scenario['name']:20s}  mean={adjusted.mean():8.1f}")
 ```
 
-Using WhatIfAnalyzer for more advanced scenario modeling:
+Using WhatIfAnalyzer for more advanced scenario modeling
 
 ```python
 analyzer = WhatIfAnalyzer()
@@ -125,7 +125,7 @@ print(f"Service Level:  {result['serviceLevel']:.1%}")
 
 ## Full Business Workflow
 
-Putting it all together in a single pipeline:
+Putting it all together in a single pipeline
 
 ```python
 import pandas as pd

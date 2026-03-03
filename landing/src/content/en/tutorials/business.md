@@ -8,7 +8,7 @@ Beyond forecasting -- tools for real-world decision-making. Detect anomalies, ru
 
 ## Anomaly Detection
 
-Identify unusual observations in your time series:
+Identify unusual observations in your time series
 
 ```python
 from vectrix.business import AnomalyDetector
@@ -68,7 +68,7 @@ print(f"Rolling method found: {result_rolling.nAnomalies} anomalies")
 
 ## What-If Analysis
 
-Explore hypothetical scenarios against a baseline forecast:
+Explore hypothetical scenarios against a baseline forecast
 
 ```python
 from vectrix.business import WhatIfAnalyzer
@@ -126,7 +126,7 @@ Level Shift: mean=525.00, impact=+5.0%
 
 ## Backtesting
 
-Walk-forward validation measures how well your forecasting approach would have performed historically:
+Walk-forward validation measures how well your forecasting approach would have performed historically
 
 ```python
 from vectrix.business import Backtester
@@ -214,7 +214,7 @@ Fold 3:       [====TRAIN====][TEST]
 
 ## Business Metrics
 
-Standard accuracy metrics miss what businesses care about. `BusinessMetrics` provides metrics that matter for operations and finance:
+Standard accuracy metrics miss what businesses care about. `BusinessMetrics` provides metrics that matter for operations and finance
 
 ```python
 from vectrix.business import BusinessMetrics
@@ -263,7 +263,7 @@ Under-forecast ratio: 50.0%
 
 ### Interpreting MASE
 
-MASE (Mean Absolute Scaled Error) compares your model to a Naive baseline:
+MASE (Mean Absolute Scaled Error) compares your model to a Naive baseline
 
 - **MASE below 1.0** — Your model beats Naive. Good.
 - **MASE = 1.0** — Your model equals Naive. No value added.
@@ -271,7 +271,7 @@ MASE (Mean Absolute Scaled Error) compares your model to a Naive baseline:
 
 ## Combining Business Tools
 
-A typical business forecasting workflow:
+A typical business forecasting workflow
 
 ```python
 import numpy as np

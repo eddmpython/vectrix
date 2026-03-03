@@ -8,7 +8,7 @@ title: "튜토리얼 06 — 비즈니스 인텔리전스"
 
 ## 이상치 감지
 
-시계열에서 비정상적인 패턴을 자동으로 식별합니다:
+시계열에서 비정상적인 패턴을 자동으로 식별합니다
 
 ```python
 import numpy as np
@@ -47,7 +47,7 @@ print(f"이상치 위치: {result.indices}")
 
 ## 시나리오 분석 (What-If)
 
-조건 변화가 예측에 미치는 영향을 시뮬레이션합니다:
+조건 변화가 예측에 미치는 영향을 시뮬레이션합니다
 
 ```python
 from vectrix import forecast
@@ -78,7 +78,7 @@ for sr in scenarios:
 
 ## 백테스팅
 
-워크포워드 교차 검증으로 예측 정확도를 평가합니다:
+워크포워드 교차 검증으로 예측 정확도를 평가합니다
 
 ```python
 from vectrix.business import Backtester
@@ -119,7 +119,7 @@ for f in result.folds:
 
 ## 비즈니스 지표
 
-통계적 정확도를 비즈니스 관점의 KPI로 변환합니다:
+통계적 정확도를 비즈니스 관점의 KPI로 변환합니다
 
 ```python
 from vectrix.business import BusinessMetrics
@@ -156,7 +156,7 @@ MASE: 0.87
 
 ## 완전한 비즈니스 워크플로우
 
-전체 파이프라인을 하나로 연결합니다:
+전체 파이프라인을 하나로 연결합니다
 
 ```python
 import pandas as pd

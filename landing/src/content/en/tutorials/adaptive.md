@@ -8,7 +8,7 @@ Adaptive intelligence is unique to Vectrix -- these features are not available i
 
 ## Regime Detection
 
-Real-world data often has regimes: bull/bear markets, peak/off-season periods, pre/post-event phases. Vectrix detects these automatically using Hidden Markov Models:
+Real-world data often has regimes: bull/bear markets, peak/off-season periods, pre/post-event phases. Vectrix detects these automatically using Hidden Markov Models
 
 ```python
 from vectrix import RegimeDetector
@@ -55,7 +55,7 @@ Number of regimes: 3
 
 ## Regime-Aware Forecasting
 
-Instead of using one model for all data, `RegimeAwareForecaster` selects the best model for the current regime:
+Instead of using one model for all data, `RegimeAwareForecaster` selects the best model for the current regime
 
 ```python
 from vectrix import RegimeAwareForecaster
@@ -83,7 +83,7 @@ The forecaster detects which regime the series is currently in and uses the mode
 
 ## Forecast DNA
 
-DNA profiling extracts 65+ statistical features to create a fingerprint for your time series. This fingerprint drives model selection:
+DNA profiling extracts 65+ statistical features to create a fingerprint for your time series. This fingerprint drives model selection
 
 ```python
 from vectrix import ForecastDNA
@@ -140,7 +140,7 @@ else:
 
 ## Self-Healing Forecast
 
-`SelfHealingForecast` monitors forecast errors as new actual values arrive and auto-corrects remaining predictions in real time:
+`SelfHealingForecast` monitors forecast errors as new actual values arrive and auto-corrects remaining predictions in real time
 
 ```python
 from vectrix import SelfHealingForecast, forecast
@@ -157,7 +157,7 @@ healer = SelfHealingForecast(
 )
 ```
 
-As actual values arrive, feed them to the healer:
+As actual values arrive, feed them to the healer
 
 ```python
 actual_day1_to_5 = np.array([198.5, 201.2, 195.8, 203.4, 199.1])
@@ -179,7 +179,7 @@ Corrected: 3
 Improvement: 12.4%
 ```
 
-Get the updated forecast with corrections applied:
+Get the updated forecast with corrections applied
 
 ```python
 updated_predictions = healer.getUpdatedForecast()
@@ -199,7 +199,7 @@ print(f"Updated remaining:  {updated_predictions[5:].round(1)}")
 
 ## Constraint-Aware Forecasting
 
-Business forecasts often need to respect real-world constraints -- predictions cannot be negative, exceed capacity, or change too dramatically year-over-year:
+Business forecasts often need to respect real-world constraints -- predictions cannot be negative, exceed capacity, or change too dramatically year-over-year
 
 ```python
 from vectrix import ConstraintAwareForecaster, Constraint, forecast
@@ -226,7 +226,7 @@ print(f"Constrained: {constrained.predictions[:5].round(1)}")
 
 ### Year-over-Year Constraint
 
-Limit how much the forecast can change compared to last year:
+Limit how much the forecast can change compared to last year
 
 ```python
 past_year = data[-365:]
@@ -279,7 +279,7 @@ constrained = caf.apply(
 
 ## Complete Example
 
-Combining all adaptive features:
+Combining all adaptive features
 
 ```python
 import numpy as np

@@ -19,7 +19,7 @@ sMAPE, MAPE, RMSE, MAE 지표가 포함된 전체 모델 비교 테이블을 출
 
 ## DNA 분석 먼저
 
-모델 비교 전에 DNA 프로파일링으로 데이터를 파악합니다:
+모델 비교 전에 DNA 프로파일링으로 데이터를 파악합니다
 
 ```python
 from vectrix import analyze
@@ -53,7 +53,7 @@ comparison = result.compare()
 print(comparison)
 ```
 
-`compare()` 메서드는 DataFrame을 반환합니다:
+`compare()` 메서드는 DataFrame을 반환합니다
 
 ```
               sMAPE     MAPE     RMSE      MAE
@@ -66,7 +66,7 @@ FourTheta     3.891    3.844   14.892   11.678
 
 ## 모든 모델의 예측값
 
-각 모델이 생성한 원시 예측값을 확인합니다:
+각 모델이 생성한 원시 예측값을 확인합니다
 
 ```python
 allForecasts = result.all_forecasts()
@@ -83,7 +83,7 @@ print(allForecasts)
 
 ## 내장 모델 목록
 
-Vectrix에 포함된 30개 이상의 모델:
+Vectrix에 포함된 30개 이상의 모델
 
 **통계 모델**
 - AutoETS (30가지 상태 공간 조합)

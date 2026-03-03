@@ -43,7 +43,7 @@ print(model.pvalues)          # p-값 배열
 print(model.diagnose())
 ```
 
-다음 항목을 포함한 텍스트 리포트:
+다음 항목을 포함한 텍스트 리포트
 
 - **VIF**: 다중공선성 (10 이상이면 문제)
 - **Breusch-Pagan**: 이분산성 검정

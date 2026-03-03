@@ -46,7 +46,7 @@ quantiles = model.predictQuantiles(
 
 ### Batch Prediction
 
-Forecast multiple series at once:
+Forecast multiple series at once
 
 ```python
 series = [y1, y2, y3]
@@ -71,7 +71,7 @@ predictions, lower, upper = model.predict(steps=12)
 
 ### With Covariates
 
-TimesFM supports exogenous variables (covariates):
+TimesFM supports exogenous variables (covariates)
 
 ```python
 predictions, lower, upper = model.predictWithCovariates(

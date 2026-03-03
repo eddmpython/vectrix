@@ -8,7 +8,7 @@ R-style formula regression with full diagnostics, multiple methods, and predicti
 
 ## Direct Input
 
-The simplest form: pass `y` and `X` directly as arrays:
+The simplest form: pass `y` and `X` directly as arrays
 
 ```python
 import numpy as np
@@ -39,7 +39,7 @@ x2          -1.493      0.048    -31.10    0.000 ***
 
 ## Formula Mode
 
-With a DataFrame, use R-style formulas for a more natural interface:
+With a DataFrame, use R-style formulas for a more natural interface
 
 ```python
 import pandas as pd
@@ -66,7 +66,7 @@ regress(data=df, formula="y ~ x + I(x**2)")   # Polynomial terms
 
 ## Result Object
 
-The `EasyRegressionResult` provides direct access to all regression statistics:
+The `EasyRegressionResult` provides direct access to all regression statistics
 
 ```python
 print(f"R-squared: {model.r_squared:.4f}")
@@ -91,7 +91,7 @@ print(f"P-values: {model.pvalues}")
 
 ## Diagnostics
 
-The `diagnose()` method runs four standard regression diagnostic tests:
+The `diagnose()` method runs four standard regression diagnostic tests
 
 ```python
 print(model.diagnose())
@@ -131,7 +131,7 @@ print(model.diagnose())
 
 ## Prediction with Intervals
 
-Generate predictions with confidence intervals for new data:
+Generate predictions with confidence intervals for new data
 
 ```python
 import pandas as pd
@@ -157,7 +157,7 @@ print(predictions)
 
 ## Regression Methods
 
-Vectrix supports five regression methods. Switch by setting the `method` parameter:
+Vectrix supports five regression methods. Switch by setting the `method` parameter
 
 ```python
 from vectrix import regress
@@ -193,7 +193,7 @@ quant_model  = regress(data=df, formula="sales ~ ads + price", method="quantile"
 
 ## Suppress Auto-Print
 
-By default, `regress()` prints the summary automatically. To suppress this:
+By default, `regress()` prints the summary automatically. To suppress this
 
 ```python
 model = regress(data=df, formula="sales ~ ads + price", summary=False)

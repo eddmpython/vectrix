@@ -46,7 +46,7 @@ quantiles = model.predictQuantiles(
 
 ### 배치 예측
 
-여러 시계열을 한 번에 예측:
+여러 시계열을 한 번에 예측
 
 ```python
 series = [y1, y2, y3]
@@ -71,7 +71,7 @@ predictions, lower, upper = model.predict(steps=12)
 
 ### 공변량 활용
 
-TimesFM은 외생 변수(공변량)를 지원합니다:
+TimesFM은 외생 변수(공변량)를 지원합니다
 
 ```python
 predictions, lower, upper = model.predictWithCovariates(

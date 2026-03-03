@@ -26,7 +26,7 @@ predictions, lower, upper = model.predict(steps=12)
 
 ### Automatic Lag Selection
 
-The model tests all lag orders from 1 to `maxLag` and selects the best one based on information criteria:
+The model tests all lag orders from 1 to `maxLag` and selects the best one based on information criteria
 
 ```python
 model = VARModel(maxLag=8, criterion="aic")   # Akaike IC (default)
@@ -38,7 +38,7 @@ print(f"Selected lag order: {model.order}")
 
 ### Granger Causality
 
-Test whether one variable helps predict another:
+Test whether one variable helps predict another
 
 ```python
 model = VARModel()
@@ -78,7 +78,7 @@ predictions, lower, upper = model.predict(steps=10)
 
 ### Cointegration Rank
 
-VECM automatically estimates the cointegration rank (number of independent cointegrating relationships):
+VECM automatically estimates the cointegration rank (number of independent cointegrating relationships)
 
 ```python
 model = VECMModel(maxLag=4, rank=None)  # auto-detect

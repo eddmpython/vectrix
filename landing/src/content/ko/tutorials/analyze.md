@@ -8,7 +8,7 @@ title: "튜토리얼 02 — 분석 & DNA"
 
 ## 기본 분석
 
-`analyze()` 함수는 `forecast()`와 동일한 입력 형식을 받습니다:
+`analyze()` 함수는 `forecast()`와 동일한 입력 형식을 받습니다
 
 ```python
 import pandas as pd
@@ -42,7 +42,7 @@ Changepoints: [89, 201]
 Anomalies: [15, 156, 298]
 ```
 
-리스트나 배열도 직접 전달할 수 있습니다:
+리스트나 배열도 직접 전달할 수 있습니다
 
 ```python
 from vectrix import analyze
@@ -54,7 +54,7 @@ print(report.summary())
 
 ## DNA 프로파일
 
-DNA 프로파일은 Vectrix 지능의 핵심입니다. `report.dna`를 통해 접근합니다:
+DNA 프로파일은 Vectrix 지능의 핵심입니다. `report.dna`를 통해 접근합니다
 
 ```python
 dna = report.dna
@@ -88,7 +88,7 @@ print(f"추천 모델: {dna.recommendedModels[:5]}")
 
 ## 변화점 감지
 
-변화점은 시계열의 통계적 속성(평균, 분산, 추세)이 전환되는 위치입니다:
+변화점은 시계열의 통계적 속성(평균, 분산, 추세)이 전환되는 위치입니다
 
 ```python
 print(f"변화점 인덱스: {report.changepoints}")
@@ -104,7 +104,7 @@ print(f"변화점 인덱스: {report.changepoints}")
 
 ## 이상치 감지
 
-이상치 인덱스는 예상 패턴에서 크게 벗어나는 개별 관측치를 표시합니다:
+이상치 인덱스는 예상 패턴에서 크게 벗어나는 개별 관측치를 표시합니다
 
 ```python
 print(f"이상치 인덱스: {report.anomalies}")
@@ -120,7 +120,7 @@ print(f"이상치 수: {len(report.anomalies)}")
 
 ## 데이터 특성
 
-`characteristics` 객체는 상세한 통계적 속성을 제공합니다:
+`characteristics` 객체는 상세한 통계적 속성을 제공합니다
 
 ```python
 c = report.characteristics
@@ -165,7 +165,7 @@ print(f"이상치: {c.outlierCount} ({c.outlierRatio:.1%})")
 
 ## 추출된 특성
 
-65개 이상의 원시 특성을 딕셔너리로 접근할 수 있습니다:
+65개 이상의 원시 특성을 딕셔너리로 접근할 수 있습니다
 
 ```python
 features = report.features
@@ -190,7 +190,7 @@ for key, value in list(features.items())[:10]:
 
 ## 실전 활용: 예측 전 분석
 
-분석 결과를 활용하여 정보에 기반한 예측 결정을 내릴 수 있습니다:
+분석 결과를 활용하여 정보에 기반한 예측 결정을 내릴 수 있습니다
 
 ```python
 from vectrix import analyze, forecast
@@ -215,7 +215,7 @@ else:
 
 ## ForecastDNA 직접 접근
 
-하위 레벨에서 직접 제어하려면 `ForecastDNA`를 사용합니다:
+하위 레벨에서 직접 제어하려면 `ForecastDNA`를 사용합니다
 
 ```python
 from vectrix import ForecastDNA

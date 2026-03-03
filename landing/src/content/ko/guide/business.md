@@ -41,7 +41,7 @@ for sr in results:
 
 ## 백테스팅
 
-Walk-forward 검증:
+Walk-forward 검증
 
 ```python
 from vectrix.business import Backtester

@@ -8,7 +8,7 @@ title: "한국 경제 예측"
 
 ## 데이터 출처
 
-모든 데이터는 Federal Reserve Economic Data (FRED) API에서 직접 가져옵니다:
+모든 데이터는 Federal Reserve Economic Data (FRED) API에서 직접 가져옵니다
 
 | 지표 | FRED 코드 | 빈도 | 설명 |
 |------|:---------:|:----:|------|
@@ -72,7 +72,7 @@ print(result.summary())
 
 ## 모델 비교
 
-`compare()`로 동일 데이터에 대한 여러 모델의 성능을 비교할 수 있습니다:
+`compare()`로 동일 데이터에 대한 여러 모델의 성능을 비교할 수 있습니다
 
 ```python
 result = forecast(df, date="date", value="value", steps=12)

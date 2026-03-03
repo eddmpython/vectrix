@@ -36,7 +36,7 @@ pip install "vectrix[all]"         # 전체
 
 ## Rust Turbo Mode
 
-`turbo` 옵션은 Rust로 컴파일된 네이티브 확장 `vectrix-core`를 설치합니다. 핵심 예측 루프가 5-10배 빨라집니다. 사전 빌드 wheel 제공:
+`turbo` 옵션은 Rust로 컴파일된 네이티브 확장 `vectrix-core`를 설치합니다. 핵심 예측 루프가 5-10배 빨라집니다. 사전 빌드 wheel 제공
 
 - Linux (x86_64, manylinux)
 - macOS (x86_64 + Apple Silicon ARM)
@@ -63,7 +63,7 @@ print(result.predictions)
 
 ## 핵심 의존성
 
-Vectrix는 3개의 필수 의존성만 있습니다:
+Vectrix는 3개의 필수 의존성만 있습니다
 
 | 패키지 | 최소 버전 |
 |--------|----------|

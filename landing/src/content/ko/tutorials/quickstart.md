@@ -14,7 +14,7 @@ pip install vectrix
 
 ## 리스트에서 예측
 
-가장 간단한 예측 방법 — Python 리스트와 예측 스텝 수만 전달하면 됩니다:
+가장 간단한 예측 방법 — Python 리스트와 예측 스텝 수만 전달하면 됩니다
 
 ```python
 from vectrix import forecast
@@ -39,7 +39,7 @@ Vectrix는 내부적으로 30개 이상의 모델을 평가하고, 검증 오차
 
 ## DataFrame에서 예측
 
-날짜가 포함된 실제 데이터는 DataFrame으로 전달하고 컬럼명을 지정합니다:
+날짜가 포함된 실제 데이터는 DataFrame으로 전달하고 컬럼명을 지정합니다
 
 ```python
 import pandas as pd
@@ -69,7 +69,7 @@ Predictions:
 
 ## CSV 파일에서 예측
 
-파일 경로를 직접 전달하면 Vectrix가 날짜와 값 컬럼을 자동 감지합니다:
+파일 경로를 직접 전달하면 Vectrix가 날짜와 값 컬럼을 자동 감지합니다
 
 ```python
 from vectrix import forecast
@@ -81,7 +81,7 @@ print(result.predictions)
 
 ## 모델 비교
 
-평가된 모든 모델의 성능을 확인할 수 있습니다:
+평가된 모든 모델의 성능을 확인할 수 있습니다
 
 ```python
 result = forecast(data, steps=5)
@@ -102,7 +102,7 @@ print(comparison)
 ...
 ```
 
-`compare()` 함수를 사용하면 더 빠르게 모델 순위를 확인할 수 있습니다:
+`compare()` 함수를 사용하면 더 빠르게 모델 순위를 확인할 수 있습니다
 
 ```python
 from vectrix import compare
@@ -113,7 +113,7 @@ print(ranking)
 
 ## 모든 모델의 예측값 가져오기
 
-최적 모델뿐 아니라 모든 모델의 예측값을 가져올 수 있습니다:
+최적 모델뿐 아니라 모든 모델의 예측값을 가져올 수 있습니다
 
 ```python
 allPreds = result.all_forecasts()
@@ -132,7 +132,7 @@ print(allPreds)
 
 ## 결과 내보내기
 
-다양한 형식으로 결과를 내보낼 수 있습니다:
+다양한 형식으로 결과를 내보낼 수 있습니다
 
 ```python
 dfResult = result.to_dataframe()
@@ -158,7 +158,7 @@ print(jsonStr[:100])
 
 ## 지원 입력 형식
 
-Vectrix는 6가지 입력 형식을 지원합니다. 변환이 필요 없습니다:
+Vectrix는 6가지 입력 형식을 지원합니다. 변환이 필요 없습니다
 
 ```python
 import numpy as np
@@ -185,7 +185,7 @@ forecast("data.csv", steps=3)                           # CSV 파일 경로
 
 ## 결과 객체 참조
 
-`EasyForecastResult`가 제공하는 속성과 메서드:
+`EasyForecastResult`가 제공하는 속성과 메서드
 
 | 속성 / 메서드 | 타입 | 설명 |
 |--------------|------|------|

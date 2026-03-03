@@ -43,7 +43,7 @@ print(model.pvalues)          # P-values array
 print(model.diagnose())
 ```
 
-Returns a text report with:
+Returns a text report with
 
 - **VIF**: Multicollinearity check (>10 is problematic)
 - **Breusch-Pagan**: Heteroscedasticity test

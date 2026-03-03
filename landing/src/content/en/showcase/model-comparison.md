@@ -19,7 +19,7 @@ This prints a comparison table of all valid models with sMAPE, MAPE, RMSE, and M
 
 ## DNA Analysis First
 
-Before comparing models, understand your data with DNA profiling:
+Before comparing models, understand your data with DNA profiling
 
 ```python
 from vectrix import analyze
@@ -53,7 +53,7 @@ comparison = result.compare()
 print(comparison)
 ```
 
-The `compare()` method returns a DataFrame:
+The `compare()` method returns a DataFrame
 
 ```
               sMAPE     MAPE     RMSE      MAE
@@ -66,14 +66,14 @@ FourTheta     3.891    3.844   14.892   11.678
 
 ## All Model Forecasts
 
-Access the raw forecast values from every model:
+Access the raw forecast values from every model
 
 ```python
 allForecasts = result.all_forecasts()
 print(allForecasts)
 ```
 
-This returns a DataFrame where each column is a model and each row is a forecast step:
+This returns a DataFrame where each column is a model and each row is a forecast step
 
 ```
    step        DOT    AutoCES    AutoETS  FourTheta  ...
@@ -85,7 +85,7 @@ This returns a DataFrame where each column is a model and each row is a forecast
 
 ## Using a Specific Model
 
-If DNA or comparison suggests a particular model:
+If DNA or comparison suggests a particular model
 
 ```python
 from vectrix import Vectrix
@@ -97,7 +97,7 @@ pred = vx.predict(steps=12)
 
 ## Available Models
 
-Vectrix includes 30+ models across several categories:
+Vectrix includes 30+ models across several categories
 
 **Statistical**
 - AutoETS (30 state-space combinations)

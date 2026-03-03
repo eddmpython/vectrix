@@ -14,7 +14,7 @@ pip install vectrix
 
 ## Forecast from a List
 
-The simplest possible forecast -- pass a Python list and the number of steps to predict:
+The simplest possible forecast -- pass a Python list and the number of steps to predict
 
 ```python
 from vectrix import forecast
@@ -39,7 +39,7 @@ Vectrix evaluated 30+ models behind the scenes and selected the one with the low
 
 ## Forecast from a DataFrame
 
-For real-world data with dates, pass a DataFrame with column names:
+For real-world data with dates, pass a DataFrame with column names
 
 ```python
 import pandas as pd
@@ -69,7 +69,7 @@ Predictions:
 
 ## Forecast from a CSV File
 
-Pass a file path directly -- Vectrix auto-detects date and value columns:
+Pass a file path directly -- Vectrix auto-detects date and value columns
 
 ```python
 from vectrix import forecast
@@ -81,7 +81,7 @@ print(result.predictions)
 
 ## Full Text Summary
 
-The `.summary()` method returns a formatted report with model info, metrics, and predictions:
+The `.summary()` method returns a formatted report with model info, metrics, and predictions
 
 ```python
 result = forecast([100, 120, 130, 115, 140, 160, 150, 170], steps=5)
@@ -90,7 +90,7 @@ print(result.summary())
 
 ## Compare All Models
 
-See how every evaluated model performed:
+See how every evaluated model performed
 
 ```python
 result = forecast(data, steps=5)
@@ -111,7 +111,7 @@ print(comparison)
 ...
 ```
 
-The `compare()` function provides an even quicker way to rank models:
+The `compare()` function provides an even quicker way to rank models
 
 ```python
 from vectrix import compare
@@ -122,7 +122,7 @@ print(ranking)
 
 ## Get All Model Forecasts
 
-Retrieve predictions from every model, not just the winner:
+Retrieve predictions from every model, not just the winner
 
 ```python
 all_preds = result.all_forecasts()
@@ -141,7 +141,7 @@ print(all_preds)
 
 ## Export Results
 
-Convert results to various formats for downstream use:
+Convert results to various formats for downstream use
 
 ```python
 df_result = result.to_dataframe()
@@ -167,7 +167,7 @@ print(json_str[:100])
 
 ## Result Object Reference
 
-`EasyForecastResult` provides these attributes and methods:
+`EasyForecastResult` provides these attributes and methods
 
 | Attribute / Method | Type | Description |
 |---|---|---|
@@ -191,7 +191,7 @@ print(json_str[:100])
 
 ## Supported Input Formats
 
-Vectrix accepts six input formats. No conversion needed:
+Vectrix accepts six input formats. No conversion needed
 
 ```python
 import numpy as np

@@ -54,7 +54,7 @@ print(f"이상치: {report.anomalies}")
 
 ## 통합 리포트
 
-분석 + 예측을 한 번에:
+분석 + 예측을 한 번에
 
 ```python
 from vectrix import quick_report

@@ -41,7 +41,7 @@ for sr in results:
 
 ## Backtesting
 
-Walk-forward validation:
+Walk-forward validation
 
 ```python
 from vectrix.business import Backtester

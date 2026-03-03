@@ -8,7 +8,7 @@ Unique to Vectrix -- not available in any other forecasting library.
 
 ## Regime Detection
 
-Detect regime changes (bull/bear, peak/off-season) using HMM:
+Detect regime changes (bull/bear, peak/off-season) using HMM
 
 ```python
 from vectrix import RegimeDetector
@@ -23,7 +23,7 @@ for label, stats in result.regimeStats.items():
 
 ## Regime-Aware Forecasting
 
-Automatically switches models per regime:
+Automatically switches models per regime
 
 ```python
 from vectrix import RegimeAwareForecaster
@@ -36,7 +36,7 @@ print(result.modelPerRegime)
 
 ## Self-Healing Forecast
 
-Monitors errors in real-time and auto-corrects:
+Monitors errors in real-time and auto-corrects
 
 ```python
 from vectrix import SelfHealingForecast
@@ -53,7 +53,7 @@ updated = healer.getUpdatedForecast()
 
 ## Constraint-Aware Forecasting
 
-Apply business constraints to predictions:
+Apply business constraints to predictions
 
 ```python
 from vectrix import ConstraintAwareForecaster, Constraint
@@ -82,7 +82,7 @@ result = caf.apply(predictions, lower, upper, constraints=[
 
 ## Forecast DNA
 
-Extract time series fingerprint for meta-learning:
+Extract time series fingerprint for meta-learning
 
 ```python
 from vectrix import ForecastDNA

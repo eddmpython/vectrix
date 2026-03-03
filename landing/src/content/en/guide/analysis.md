@@ -54,7 +54,7 @@ print(f"Anomalies: {report.anomalies}")
 
 ## Quick Report
 
-Combined analysis + forecast in one call:
+Combined analysis + forecast in one call
 
 ```python
 from vectrix import quick_report
