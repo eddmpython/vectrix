@@ -85,13 +85,27 @@ title: 비즈니스 API
 | 속성 | 타입 | 설명 |
 |---|---|---|
 | `.folds` | `list[FoldResult]` | 폴드별 결과 |
-| `.avgMetrics` | `dict` | 평균 지표 |
+| `.avgMAPE` | `float` | 평균 MAPE |
+| `.avgRMSE` | `float` | 평균 RMSE |
+| `.avgMAE` | `float` | 평균 MAE |
+| `.avgSMAPE` | `float` | 평균 sMAPE |
+| `.avgBias` | `float` | 평균 Bias |
+| `.mapeStd` | `float` | MAPE 표준편차 |
+| `.bestFold` | `int` | 최고 폴드 인덱스 |
+| `.worstFold` | `int` | 최악 폴드 인덱스 |
 
 ### FoldResult
 
 | 속성 | 타입 | 설명 |
 |---|---|---|
-| `.metrics` | `dict` | `'mape'`, `'smape'` 등 지표 딕셔너리 |
+| `.fold` | `int` | 폴드 번호 |
+| `.trainSize` | `int` | 학습 데이터 크기 |
+| `.testSize` | `int` | 테스트 데이터 크기 |
+| `.mape` | `float` | MAPE |
+| `.rmse` | `float` | RMSE |
+| `.mae` | `float` | MAE |
+| `.smape` | `float` | sMAPE |
+| `.bias` | `float` | Bias |
 
 ## BusinessMetrics
 
@@ -99,7 +113,7 @@ title: 비즈니스 API
 
 ### 메서드
 
-- `BusinessMetrics.calculate(y_true, y_pred, **kwargs)` -> `dict`
+- `BusinessMetrics().calculate(actual, predicted, values=None)` -> `dict`
 
 **반환 딕셔너리 키:**
 

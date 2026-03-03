@@ -58,7 +58,6 @@ result = forecast("sales.csv", steps=12)
 forecast([1, 2, 3, 4, 5])                    # 리스트
 forecast(np.array([1, 2, 3, 4, 5]))          # numpy 배열
 forecast(pd.Series([1, 2, 3, 4, 5]))         # pandas Series
-forecast({"value": [1, 2, 3, 4, 5]})         # dict
 forecast(df, date="date", value="sales")      # DataFrame
 forecast("data.csv")                           # CSV 파일 경로
 ```

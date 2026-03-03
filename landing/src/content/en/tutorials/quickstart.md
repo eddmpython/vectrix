@@ -191,7 +191,7 @@ print(json_str[:100])
 
 ## Supported Input Formats
 
-Vectrix accepts six input formats. No conversion needed
+Vectrix accepts five input formats. No conversion needed
 
 ```python
 import numpy as np
@@ -201,7 +201,6 @@ from vectrix import forecast
 forecast([1, 2, 3, 4, 5], steps=3)                    # Python list
 forecast(np.array([1, 2, 3, 4, 5]), steps=3)           # NumPy array
 forecast(pd.Series([1, 2, 3, 4, 5]), steps=3)          # Pandas Series
-forecast({"value": [1, 2, 3, 4, 5]}, steps=3)          # Dictionary
 forecast(df, date="date", value="sales", steps=3)      # DataFrame
 forecast("data.csv", steps=3)                           # CSV file path
 ```

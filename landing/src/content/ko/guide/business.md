@@ -11,7 +11,7 @@ title: 비즈니스 인텔리전스
 ```python
 from vectrix.business import AnomalyDetector
 
-detector = AnomalyDetector(data)
+detector = AnomalyDetector()
 result = detector.detect(data, method="auto", threshold=3.0, period=1)
 
 print(f"방법: {result.method}")
@@ -29,14 +29,14 @@ from vectrix.business import WhatIfAnalyzer
 
 analyzer = WhatIfAnalyzer()
 results = analyzer.analyze(base_predictions, historical_data, [
-    {"name": "낙관적", "trendChange": 0.1},
-    {"name": "비관적", "trendChange": -0.15},
-    {"name": "충격", "shockAt": 10, "shockMagnitude": -0.3, "shockDuration": 5},
-    {"name": "수준 상승", "levelShift": 0.05},
+    {"name": "낙관적", "trend_change": 0.1},
+    {"name": "비관적", "trend_change": -0.15},
+    {"name": "충격", "shock_at": 10, "shock_magnitude": -0.3, "shock_duration": 5},
+    {"name": "수준 상승", "level_shift": 0.05},
 ])
 
 for sr in results:
-    print(f"{sr.name}: 평균={sr.predictions.mean():.2f}, 영향={sr.impact:+.1%}")
+    print(f"{sr.name}: 평균={sr.predictions.mean():.2f}, 영향={sr.impact:+.1f}%")
 ```
 
 ## 백테스팅
@@ -46,13 +46,16 @@ Walk-forward 검증
 ```python
 from vectrix.business import Backtester
 
-bt = Backtester(nFolds=5)
-result = bt.run(data, modelFactory)
+from vectrix.engine.ets import AutoETS
 
-print(f"평균 지표: {result.avgMetrics}")
+bt = Backtester(nFolds=5)
+result = bt.run(data, lambda: AutoETS())
+
+print(f"평균 MAPE: {result.avgMAPE:.2f}%")
+print(f"평균 RMSE: {result.avgRMSE:.2f}")
 
 for f in result.folds:
-    print(f"  Fold: MAPE={f.metrics['mape']:.2f}%")
+    print(f"  Fold {f.fold}: MAPE={f.mape:.2f}%")
 ```
 
 ## 비즈니스 지표
@@ -60,7 +63,7 @@ for f in result.folds:
 ```python
 from vectrix.business import BusinessMetrics
 
-result = BusinessMetrics.calculate(actual, predicted)
+result = BusinessMetrics().calculate(actual, predicted)
 
 print(f"Bias: {result['bias']:+.2f}")
 print(f"WAPE: {result['wape']:.2f}%")

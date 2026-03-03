@@ -29,14 +29,14 @@ from vectrix.business import WhatIfAnalyzer
 
 analyzer = WhatIfAnalyzer()
 results = analyzer.analyze(base_predictions, historical_data, [
-    {"name": "Optimistic", "trendChange": 0.1},
-    {"name": "Pessimistic", "trendChange": -0.15},
-    {"name": "Shock", "shockAt": 10, "shockMagnitude": -0.3, "shockDuration": 5},
-    {"name": "Level Shift", "levelShift": 0.05},
+    {"name": "Optimistic", "trend_change": 0.1},
+    {"name": "Pessimistic", "trend_change": -0.15},
+    {"name": "Shock", "shock_at": 10, "shock_magnitude": -0.3, "shock_duration": 5},
+    {"name": "Level Shift", "level_shift": 0.05},
 ])
 
 for sr in results:
-    print(f"{sr.name}: mean={sr.predictions.mean():.2f}, impact={sr.impact:+.1%}")
+    print(f"{sr.name}: mean={sr.predictions.mean():.2f}, impact={sr.impact:+.1f}%")
 ```
 
 ## Backtesting

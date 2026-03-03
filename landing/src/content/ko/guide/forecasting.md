@@ -29,7 +29,6 @@ result = vx.forecast(
     dateCol="date",
     valueCol="sales",
     steps=14,
-    period=7,
     trainRatio=0.8
 )
 
@@ -41,7 +40,7 @@ print(result.predictions)
 
 ```python
 for modelId, mr in result.allModelResults.items():
-    print(f"{mr.modelName}: MAPE={mr.metrics.mape:.2f}%")
+    print(f"{mr.modelName}: MAPE={mr.mape:.2f}%")
 ```
 
 ## 모델 카테고리

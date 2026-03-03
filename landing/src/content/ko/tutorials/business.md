@@ -18,7 +18,7 @@ data = np.random.normal(100, 10, 365)
 data[50] = 250
 data[200] = 20
 
-detector = AnomalyDetector(data)
+detector = AnomalyDetector()
 result = detector.detect(data, method="auto", threshold=3.0, period=1)
 
 print(f"감지 방법: {result.method}")
@@ -57,10 +57,10 @@ result = forecast(data, steps=30)
 
 analyzer = WhatIfAnalyzer()
 scenarios = analyzer.analyze(result.predictions, data, [
-    {"name": "낙관적", "trendChange": 0.1},
-    {"name": "비관적", "trendChange": -0.15},
-    {"name": "충격", "shockAt": 10, "shockMagnitude": -0.3, "shockDuration": 5},
-    {"name": "수준 이동", "levelShift": 0.05},
+    {"name": "낙관적", "trend_change": 0.1},
+    {"name": "비관적", "trend_change": -0.15},
+    {"name": "충격", "shock_at": 10, "shock_magnitude": -0.3, "shock_duration": 5},
+    {"name": "수준 이동", "level_shift": 0.05},
 ])
 
 for sr in scenarios:
@@ -83,19 +83,23 @@ for sr in scenarios:
 ```python
 from vectrix.business import Backtester
 
-bt = Backtester(nFolds=5)
-result = bt.run(data, modelFactory)
+from vectrix.engine.ets import AutoETS
 
-print(f"평균 지표: {result.avgMetrics}")
+bt = Backtester(nFolds=5)
+result = bt.run(data, lambda: AutoETS())
+
+print(f"평균 MAPE: {result.avgMAPE:.2f}%")
+print(f"평균 RMSE: {result.avgRMSE:.2f}")
 
 for f in result.folds:
-    print(f"  폴드: MAPE={f.metrics['mape']:.2f}%")
+    print(f"  폴드: MAPE={f.mape:.2f}%")
 ```
 
 **예상 출력:**
 
 ```
-평균 지표: {'mape': 5.23, 'smape': 5.01, 'rmse': 12.45, ...}
+평균 MAPE: 5.23%
+평균 RMSE: 12.45
 
   폴드: MAPE=7.12%
   폴드: MAPE=5.45%
@@ -111,7 +115,7 @@ for f in result.folds:
 ```python
 from vectrix.business import BusinessMetrics
 
-result = BusinessMetrics.calculate(actual, predicted)
+result = BusinessMetrics().calculate(actual, predicted)
 
 print(f"편향: {result['bias']:+.2f}")
 print(f"WAPE: {result['wape']:.2f}%")
@@ -148,11 +152,12 @@ MASE: 0.87
 import pandas as pd
 from vectrix import forecast
 from vectrix.business import AnomalyDetector, Backtester, BusinessMetrics
+from vectrix.engine.ets import AutoETS
 
 df = pd.read_csv("daily_sales.csv")
 data = df["sales"].values
 
-detector = AnomalyDetector(data)
+detector = AnomalyDetector()
 anomalies = detector.detect(data, method="auto", threshold=3.0, period=1)
 print(f"1단계 - 이상치: {anomalies.nAnomalies}개 감지")
 
@@ -160,10 +165,10 @@ result = forecast(data, steps=30)
 print(f"2단계 - 예측: {result.model} 선택됨")
 
 backtester = Backtester(nFolds=5)
-btResult = backtester.run(data, modelFactory)
-print(f"3단계 - 백테스트: {btResult.avgMetrics}")
+btResult = backtester.run(data, lambda: AutoETS())
+print(f"3단계 - 백테스트: MAPE={btResult.avgMAPE:.2f}%, RMSE={btResult.avgRMSE:.2f}")
 
-bizMetrics = BusinessMetrics.calculate(
+bizMetrics = BusinessMetrics().calculate(
     data[-30:],
     result.predictions[:30],
 )

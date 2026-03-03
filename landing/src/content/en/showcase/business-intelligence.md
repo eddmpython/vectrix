@@ -77,12 +77,12 @@ whatIfResults = analyzer.analyze(
     result.predictions,
     data,
     [
-        {"name": "Growth +10%", "trendChange": 0.10},
-        {"name": "Decline -20%", "trendChange": -0.20},
+        {"name": "Growth +10%", "trend_change": 0.10},
+        {"name": "Decline -20%", "trend_change": -0.20},
     ],
 )
 for sr in whatIfResults:
-    print(f"{sr.name}: mean={sr.predictions.mean():.1f}, impact={sr.impact:+.1%}")
+    print(f"{sr.name}: mean={sr.predictions.mean():.1f}, impact={sr.impact:+.1f}%")
 ```
 
 ## Backtesting

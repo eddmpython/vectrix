@@ -64,7 +64,7 @@ Hidden Markov Model을 사용한 통계적 레짐 감지.
 
 ## SelfHealingForecast
 
-`SelfHealingForecast(originalPredictions, lower, upper, tolerance=0.1)`
+`SelfHealingForecast(predictions, lower95, upper95, historicalData, period=7, healingMode='adaptive')`
 
 실시간 관측값으로 예측을 자동 교정.
 

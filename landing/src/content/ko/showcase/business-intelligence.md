@@ -18,7 +18,7 @@ data = np.random.normal(100, 10, 365)
 data[50] = 250
 data[200] = 20
 
-detector = AnomalyDetector(data)
+detector = AnomalyDetector()
 result = detector.detect(data, method="auto", threshold=3.0, period=1)
 
 print(f"감지 방법: {result.method}")
@@ -73,11 +73,14 @@ for scenario in scenarios:
 
 ```python
 from vectrix.business import Backtester
+from vectrix.engine.ets import AutoETS
 
 backtester = Backtester(nFolds=5)
-btResult = backtester.run(data, modelFactory)
+btResult = backtester.run(data, lambda: AutoETS())
 
-print(f"평균 지표: {btResult.avgMetrics}")
+print(f"평균 MAPE: {btResult.avgMAPE:.2f}")
+print(f"평균 RMSE: {btResult.avgRMSE:.2f}")
+print(f"평균 MAE: {btResult.avgMAE:.2f}")
 ```
 
 백테스팅은 원점을 앞으로 이동시키며 여러 학습/테스트 분할을 생성하여, 표본 외 성능의 현실적인 추정치를 제공합니다.
@@ -87,14 +90,19 @@ print(f"평균 지표: {btResult.avgMetrics}")
 통계적 정확도를 비즈니스 관점의 KPI로 변환합니다.
 
 ```python
+from vectrix import forecast
 from vectrix.business import BusinessMetrics
 
-result = BusinessMetrics.calculate(actualSales, forecastedSales)
+fcResult = forecast(data, steps=30)
+actual = data[-30:]
+predicted = fcResult.predictions[:30]
 
-print(f"예측 편향: {result['bias']:+.2f}")
-print(f"WAPE: {result['wape']:.2f}%")
-print(f"MASE: {result['mase']:.2f}")
-print(f"예측 정확도: {result['forecastAccuracy']:.1f}%")
+metrics = BusinessMetrics().calculate(actual, predicted)
+
+print(f"예측 편향: {metrics['bias']:+.2f}")
+print(f"WAPE: {metrics['wape']:.2f}%")
+print(f"MASE: {metrics['mase']:.2f}")
+print(f"예측 정확도: {metrics['forecastAccuracy']:.1f}%")
 ```
 
 ## 전체 비즈니스 워크플로우
@@ -105,11 +113,12 @@ print(f"예측 정확도: {result['forecastAccuracy']:.1f}%")
 import pandas as pd
 from vectrix import forecast
 from vectrix.business import AnomalyDetector, Backtester, BusinessMetrics
+from vectrix.engine.ets import AutoETS
 
 df = pd.read_csv("daily_sales.csv")
 data = df["sales"].values
 
-detector = AnomalyDetector(data)
+detector = AnomalyDetector()
 anomalies = detector.detect(data, method="auto", threshold=3.0, period=1)
 print(f"1단계 - 이상치: {anomalies.nAnomalies}개 감지")
 
@@ -117,10 +126,10 @@ result = forecast(data, steps=30)
 print(f"2단계 - 예측: {result.model} 선택됨")
 
 backtester = Backtester(nFolds=5)
-btResult = backtester.run(data, modelFactory)
-print(f"3단계 - 백테스트: {btResult.avgMetrics}")
+btResult = backtester.run(data, lambda: AutoETS())
+print(f"3단계 - 백테스트: MAPE={btResult.avgMAPE:.2f}, RMSE={btResult.avgRMSE:.2f}")
 
-bizMetrics = BusinessMetrics.calculate(data[-30:], result.predictions[:30])
+bizMetrics = BusinessMetrics().calculate(data[-30:], result.predictions[:30])
 print(f"4단계 - 비즈니스 영향: WAPE={bizMetrics['wape']:.2f}%")
 ```
 

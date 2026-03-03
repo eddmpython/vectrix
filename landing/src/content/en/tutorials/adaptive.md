@@ -250,29 +250,33 @@ constrained = caf.apply(
 | `range` | `{'min': N, 'max': M}` | Clips to [min, max] |
 | `capacity` | `{'capacity': N}` | Caps at capacity ceiling |
 | `yoy_change` | `{'maxPct': N, 'historicalData': arr}` | Limits year-over-year change |
-| `sum` | `{'total': N}` | Adjusts so predictions sum to total |
+| `sum_constraint` | `{'window': N, 'maxSum': M}` | Limits sum within rolling windows |
 | `monotone` | `{'direction': 'increasing'}` | Forces monotonic increase or decrease |
-| `ratio` | `{'numerator': arr, 'min': N, 'max': M}` | Maintains ratio between series |
-| `custom` | `{'func': callable}` | Applies a custom constraint function |
+| `ratio` | `{'minRatio': N, 'maxRatio': M}` | Limits consecutive value ratio |
+| `custom` | `{'fn': callable}` | Applies a custom constraint function |
 
 ### Custom Constraint Example
 
 ```python
 import numpy as np
 
-def weekend_boost(predictions):
+def weekend_boost(predictions, lower, upper):
     boosted = predictions.copy()
+    lo = lower.copy()
+    hi = upper.copy()
     for i in range(len(boosted)):
         if i % 7 in [5, 6]:
             boosted[i] *= 1.2
-    return boosted
+            lo[i] *= 1.2
+            hi[i] *= 1.2
+    return boosted, lo, hi
 
 constrained = caf.apply(
     result.predictions,
     result.lower,
     result.upper,
     constraints=[
-        Constraint('custom', {'func': weekend_boost}),
+        Constraint('custom', {'fn': weekend_boost}),
     ]
 )
 ```

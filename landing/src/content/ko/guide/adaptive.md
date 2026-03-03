@@ -41,7 +41,7 @@ print(result.modelPerRegime)
 ```python
 from vectrix import SelfHealingForecast
 
-healer = SelfHealingForecast(predictions, lower, upper, tolerance=0.1)
+healer = SelfHealingForecast(predictions, lower, upper, historicalData, period=7)
 healer.observe(actual_values)
 
 report = healer.getReport()

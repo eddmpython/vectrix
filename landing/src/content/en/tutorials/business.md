@@ -83,15 +83,15 @@ scenarios = analyzer.analyze(
     result.predictions,
     data,
     [
-        {"name": "Optimistic", "trendChange": 0.1},
-        {"name": "Pessimistic", "trendChange": -0.15},
-        {"name": "Supply Shock", "shockAt": 10, "shockMagnitude": -0.3, "shockDuration": 5},
-        {"name": "Level Shift", "levelShift": 0.05},
+        {"name": "Optimistic", "trend_change": 0.1},
+        {"name": "Pessimistic", "trend_change": -0.15},
+        {"name": "Supply Shock", "shock_at": 10, "shock_magnitude": -0.3, "shock_duration": 5},
+        {"name": "Level Shift", "level_shift": 0.05},
     ]
 )
 
 for sr in scenarios:
-    print(f"{sr.name}: mean={sr.predictions.mean():.2f}, impact={sr.impact:+.1%}")
+    print(f"{sr.name}: mean={sr.predictions.mean():.2f}, impact={sr.impact:+.1f}%")
 ```
 
 **Expected output:**
@@ -108,11 +108,11 @@ Level Shift: mean=525.00, impact=+5.0%
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `name` | `str` | Scenario label |
-| `trendChange` | `float` | Percentage trend adjustment (0.1 = +10%) |
-| `shockAt` | `int` | Step index where shock begins |
-| `shockMagnitude` | `float` | Shock size (-0.3 = -30% drop) |
-| `shockDuration` | `int` | Number of steps the shock lasts |
-| `levelShift` | `float` | Permanent level adjustment (0.05 = +5%) |
+| `trend_change` | `float` | Percentage trend adjustment (0.1 = +10%) |
+| `shock_at` | `int` | Step index where shock begins |
+| `shock_magnitude` | `float` | Shock size (-0.3 = -30% drop) |
+| `shock_duration` | `int` | Number of steps the shock lasts |
+| `level_shift` | `float` | Permanent level adjustment (0.05 = +5%) |
 
 ### ScenarioResult Attributes
 
@@ -292,8 +292,8 @@ print(f"Model: {result.model}")
 
 analyzer = WhatIfAnalyzer()
 scenarios = analyzer.analyze(result.predictions, data, [
-    {"name": "Growth +10%", "trendChange": 0.10},
-    {"name": "Decline -10%", "trendChange": -0.10},
+    {"name": "Growth +10%", "trend_change": 0.10},
+    {"name": "Decline -10%", "trend_change": -0.10},
 ])
 for s in scenarios:
     print(f"  {s.name}: mean={s.predictions.mean():.0f}")

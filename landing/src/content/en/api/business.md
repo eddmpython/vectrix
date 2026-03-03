@@ -40,12 +40,12 @@ Methods: `auto`, `zscore`, `iqr`, `rolling`
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `name` | `str` | Scenario label |
-| `trendChange` | `float` | Trend adjustment |
-| `seasonalMultiplier` | `float` | Scale seasonality |
-| `shockAt` | `int` | Shock step index |
-| `shockMagnitude` | `float` | Shock size |
-| `shockDuration` | `int` | Shock length |
-| `levelShift` | `float` | Permanent level change |
+| `trend_change` | `float` | Trend adjustment |
+| `seasonal_multiplier` | `float` | Scale seasonality |
+| `shock_at` | `int` | Shock step index |
+| `shock_magnitude` | `float` | Shock size |
+| `shock_duration` | `int` | Shock length |
+| `level_shift` | `float` | Permanent level change |
 
 ## Backtester
 

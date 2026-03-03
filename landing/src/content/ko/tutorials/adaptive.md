@@ -53,7 +53,7 @@ print(f"레짐별 모델: {result.modelPerRegime}")
 ```python
 from vectrix import SelfHealingForecast
 
-healer = SelfHealingForecast(predictions, lower, upper, tolerance=0.1)
+healer = SelfHealingForecast(predictions, lower, upper, historicalData, period=7)
 healer.observe(actualValues)
 
 report = healer.getReport()
@@ -83,9 +83,9 @@ from vectrix import ConstraintAwareForecaster, Constraint
 
 caf = ConstraintAwareForecaster()
 result = caf.apply(predictions, lower95, upper95, constraints=[
-    Constraint(name='non_negative', type='min', value=0),
-    Constraint(name='max_cap', type='max', value=5000),
-    Constraint(name='increasing', type='monotonic', value='increasing'),
+    Constraint(type='non_negative', params={}),
+    Constraint(type='capacity', params={'max': 5000}),
+    Constraint(type='monotone', params={'direction': 'increasing'}),
 ], smoothing=True)
 
 print(f"원본 평균: {predictions.mean():.2f}")
@@ -96,10 +96,13 @@ print(f"교정 평균: {result.predictions.mean():.2f}")
 
 | 유형 | 설명 |
 |------|------|
-| `min` | 최솟값 제한 (예: 음수 불가) |
-| `max` | 최댓값 제한 (예: 용량 상한) |
+| `non_negative` | 음수 불가 제약 |
 | `range` | 최소/최대 범위 제한 |
-| `monotonic` | 단조 증가/감소만 허용 |
+| `monotone` | 단조 증가/감소만 허용 |
+| `capacity` | 용량 상한 제한 |
+| `yoy_change` | 전년 대비 변화율 제한 |
+| `sum_constraint` | 합계 제약 |
+| `custom` | 사용자 정의 제약 |
 
 > **참고:** 제약은 순서대로 적용됩니다. 서로 충돌하는 제약이 있으면, 나중에 적용되는 제약이 우선합니다.
 
@@ -158,8 +161,8 @@ caf = ConstraintAwareForecaster()
 constrained = caf.apply(
     result.predictions, result.lower, result.upper,
     constraints=[
-        Constraint(name='non_negative', type='min', value=0),
-        Constraint(name='range_cap', type='range', value=(200, 800)),
+        Constraint(type='non_negative', params={}),
+        Constraint(type='range', params={'min': 200, 'max': 800}),
     ],
     smoothing=True
 )

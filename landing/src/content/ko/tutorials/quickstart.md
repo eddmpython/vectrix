@@ -158,7 +158,7 @@ print(jsonStr[:100])
 
 ## 지원 입력 형식
 
-Vectrix는 6가지 입력 형식을 지원합니다. 변환이 필요 없습니다
+Vectrix는 5가지 입력 형식을 지원합니다. 변환이 필요 없습니다
 
 ```python
 import numpy as np
@@ -168,7 +168,6 @@ from vectrix import forecast
 forecast([1, 2, 3, 4, 5], steps=3)                    # Python 리스트
 forecast(np.array([1, 2, 3, 4, 5]), steps=3)           # NumPy 배열
 forecast(pd.Series([1, 2, 3, 4, 5]), steps=3)          # Pandas Series
-forecast({"value": [1, 2, 3, 4, 5]}, steps=3)          # 딕셔너리
 forecast(df, date="date", value="sales", steps=3)      # DataFrame
 forecast("data.csv", steps=3)                           # CSV 파일 경로
 ```
