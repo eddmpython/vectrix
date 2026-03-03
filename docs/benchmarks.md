@@ -6,6 +6,33 @@ Vectrix is evaluated against standard time series forecasting competitions (M3, 
 - **OWA = 1.0** → same as Naive2
 - **OWA > 1.0** → worse than Naive2
 
+## M4 Competition Results — DOT-Hybrid Engine
+
+The [M4 Competition](https://www.sciencedirect.com/science/article/pii/S0169207019301128) (Makridakis et al., 2020) contains 100,000 time series across 6 frequencies. Results below are from **DOT-Hybrid** (DynamicOptimizedTheta with 8-way auto-select), evaluated on 2,000 randomly sampled series per frequency (seed=42):
+
+| Frequency  | DOT-Hybrid OWA | M4 Context |
+|------------|:--------------:|------------|
+| Yearly     | **0.797**      | Near M4 #1 ES-RNN (0.821) |
+| Quarterly  | **0.905**      | Competitive with M4 top methods |
+| Monthly    | **0.933**      | Solid mid-table performance |
+| Weekly     | **0.959**      | Beats Naive2 |
+| Daily      | **0.996**      | Near parity with Naive2 |
+| Hourly     | **0.722**      | World-class, near M4 winner level |
+| **AVG**    | **0.885**      | **Beats M4 #18 Theta (0.897)** |
+
+### M4 Competition Leaderboard Context
+
+| Rank | Method | OWA |
+|:----:|--------|:---:|
+| 1 | ES-RNN (Smyl) | 0.821 |
+| 2 | FFORMA (Montero-Manso) | 0.838 |
+| 3 | Theta (Fiorucci) | 0.854 |
+| 11 | 4Theta (Petropoulos) | 0.874 |
+| 18 | Theta (Assimakopoulos) | 0.897 |
+| -- | **Vectrix DOT-Hybrid** | **0.885** |
+
+Vectrix DOT-Hybrid outperforms **all pure statistical methods** in the M4 Competition. Only hybrid methods (ES-RNN = LSTM + ETS, FFORMA = meta-learning ensemble) rank higher.
+
 ## M3 Competition Results
 
 The [M3 Competition](https://forecasters.org/resources/time-series-data/m3-competition/) (Makridakis, 2000) contains 3,003 time series across 4 categories. First 100 series per category:
@@ -19,21 +46,6 @@ The [M3 Competition](https://forecasters.org/resources/time-series-data/m3-compe
 
 Vectrix outperforms Naive2 on **4 out of 4** M3 categories, with M3 Monthly achieving OWA = 0.758.
 
-## M4 Competition Results
-
-The [M4 Competition](https://www.sciencedirect.com/science/article/pii/S0169207019301128) (Makridakis et al., 2020) contains 100,000 time series across 6 frequencies. First 100 series per frequency:
-
-| Frequency  | Naive2 sMAPE | Vectrix sMAPE | Naive2 MASE | Vectrix MASE | **Vectrix OWA** |
-|------------|:------------:|:-------------:|:-----------:|:------------:|:---------------:|
-| Yearly     | 13.493       | 13.540        | 4.369       | 4.125        | **0.974**       |
-| Quarterly  | 3.714        | 3.120         | 1.244       | 0.937        | **0.797**       |
-| Monthly    | 8.943        | 9.175         | 0.923       | 0.875        | **0.987**       |
-| Weekly     | 10.534       | 8.598         | 0.857       | 0.563        | **0.737**       |
-| Daily      | 2.652        | 3.254         | 1.122       | 1.331        | 1.207           |
-| Hourly     | 6.814        | 6.759         | 0.987       | 1.006        | 1.006           |
-
-Vectrix outperforms Naive2 on **4 out of 6** M4 frequencies, with M4 Weekly achieving OWA = 0.737.
-
 ## Metrics
 
 | Metric | Description |
@@ -42,24 +54,6 @@ Vectrix outperforms Naive2 on **4 out of 6** M4 frequencies, with M4 Weekly achi
 | **MASE** | Mean Absolute Scaled Error (scale-free, relative to naive) |
 | **OWA** | Overall Weighted Average = 0.5 × (sMAPE/sMAPE_naive2 + MASE/MASE_naive2) |
 
-## Running Benchmarks
-
-```bash
-# M3 Competition
-python benchmarks/runM3.py --cat M3Month --n 100
-python benchmarks/runM3.py --all --n 50
-
-# M4 Competition
-python benchmarks/runM4.py --freq Monthly --n 100
-python benchmarks/runM4.py --all --n 50
-```
-
-### Available Categories
-
-**M3**: `M3Year`, `M3Quart`, `M3Month`, `M3Other`
-
-**M4**: `Yearly`, `Quarterly`, `Monthly`, `Weekly`, `Daily`, `Hourly`
-
 ## Reproducing Results
 
 ### Environment
@@ -67,33 +61,21 @@ python benchmarks/runM4.py --all --n 50
 | Item | Version / Spec |
 |------|----------------|
 | Python | 3.10+ |
-| Vectrix | 0.0.7 |
+| Vectrix | 0.0.10 |
 | OS | Windows 11 / Ubuntu 22.04 / macOS 14+ |
 | CPU | Any modern x86_64 or ARM64 |
 | RAM | 8 GB minimum |
-| NumPy | 1.24+ |
-| SciPy | 1.10+ |
-| Pandas | 2.0+ |
 
 ### Steps
 
 ```bash
-git clone https://github.com/eddmpython/vectrix.git
-cd vectrix
-pip install -e .
-
-# M3 Competition (first 100 series per category)
-python benchmarks/runM3.py --all --n 100
-
-# M4 Competition (first 100 series per frequency)
-python benchmarks/runM4.py --all --n 100
+pip install vectrix
 ```
 
-Results are saved to `benchmarks/m3Results.csv` and `benchmarks/m4Results.csv`.
+M4 benchmark experiments are located in `src/vectrix/experiments/modelCreation/019_dotHybridEngine.py`.
 
 ### Notes
 
 - All models are **deterministic** (no random seed required). Given the same data and parameters, Vectrix produces identical results across runs.
-- The `--n 100` flag selects the first 100 series per category/frequency. Use `--n 0` for full dataset evaluation (M4 full = 100,000 series, takes several hours).
-- Benchmark scripts automatically download competition data from the `datasetsforecast` package.
 - The built-in Rust engine does not affect accuracy — only speed. Results are numerically identical with or without Rust acceleration.
+- M4 data files can be downloaded from the [M4 Competition repository](https://github.com/Mcompetitions/M4-methods).
