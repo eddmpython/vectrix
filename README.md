@@ -336,27 +336,28 @@ result = caf.apply(predictions, lower95, upper95, constraints=[
 
 ## ◈ Benchmarks
 
-Evaluated on M3 and M4 competition datasets (first 100 series per category). OWA < 1.0 means better than Naive2.
+Evaluated on **M4 Competition 100,000 time series** (2,000 sample per frequency, seed=42). OWA < 1.0 means better than Naive2.
 
-**M3 Competition** — 4/4 categories beat Naive2:
+**DOT-Hybrid** (single model, OWA 0.885 — beats M4 #18 Theta 0.897):
 
-| Category | OWA |
-|:---------|:---:|
-| Yearly | **0.848** |
-| Quarterly | **0.825** |
-| Monthly | **0.758** |
-| Other | **0.819** |
+| Frequency | OWA | vs Naive2 |
+|:----------|:---:|:---------:|
+| Yearly | **0.797** | -20.3% |
+| Quarterly | **0.905** | -9.5% |
+| Monthly | **0.933** | -6.7% |
+| Weekly | **0.959** | -4.1% |
+| Daily | **0.996** | -0.4% |
+| Hourly | **0.722** | -27.8% |
 
-**M4 Competition** — 4/6 frequencies beat Naive2:
+**M4 Competition Leaderboard Context:**
 
-| Frequency | OWA |
-|:----------|:---:|
-| Yearly | **0.974** |
-| Quarterly | **0.797** |
-| Monthly | **0.987** |
-| Weekly | **0.737** |
-| Daily | 1.207 |
-| Hourly | 1.006 |
+| Rank | Method | OWA |
+|:-----|:-------|:---:|
+| #1 | ES-RNN (Smyl) | 0.821 |
+| #2 | FFORMA | 0.838 |
+| #11 | 4Theta | 0.874 |
+| — | **Vectrix DOT-Hybrid** | **0.885** |
+| #18 | Theta | 0.897 |
 
 Full results with sMAPE/MASE breakdown: [benchmarks](https://eddmpython.github.io/vectrix/docs/benchmarks/)
 

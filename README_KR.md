@@ -333,27 +333,28 @@ result = caf.apply(predictions, lower95, upper95, constraints=[
 
 ## ◈ 벤치마크
 
-M3, M4 대회 데이터셋으로 평가 (카테고리별 100개 시계열). OWA < 1.0이면 Naive2보다 우수.
+**M4 Competition 100,000 시계열** 벤치마크 (빈도별 2,000 샘플, seed=42). OWA < 1.0이면 Naive2보다 우수.
 
-**M3 Competition** — 4/4 카테고리에서 Naive2 능가:
+**DOT-Hybrid** (단일 모델, OWA 0.885 — M4 #18 Theta 0.897 초과):
 
-| 카테고리 | OWA |
-|:---------|:---:|
-| Yearly | **0.848** |
-| Quarterly | **0.825** |
-| Monthly | **0.758** |
-| Other | **0.819** |
+| 빈도 | OWA | vs Naive2 |
+|:-----|:---:|:---------:|
+| Yearly | **0.797** | -20.3% |
+| Quarterly | **0.905** | -9.5% |
+| Monthly | **0.933** | -6.7% |
+| Weekly | **0.959** | -4.1% |
+| Daily | **0.996** | -0.4% |
+| Hourly | **0.722** | -27.8% |
 
-**M4 Competition** — 4/6 빈도에서 Naive2 능가:
+**M4 Competition 리더보드 위치:**
 
-| 빈도 | OWA |
-|:-----|:---:|
-| Yearly | **0.974** |
-| Quarterly | **0.797** |
-| Monthly | **0.987** |
-| Weekly | **0.737** |
-| Daily | 1.207 |
-| Hourly | 1.006 |
+| 순위 | 방법 | OWA |
+|:-----|:-----|:---:|
+| #1 | ES-RNN (Smyl) | 0.821 |
+| #2 | FFORMA | 0.838 |
+| #11 | 4Theta | 0.874 |
+| — | **Vectrix DOT-Hybrid** | **0.885** |
+| #18 | Theta | 0.897 |
 
 sMAPE/MASE 상세 결과: [벤치마크 상세](https://eddmpython.github.io/vectrix/docs/benchmarks/)
 

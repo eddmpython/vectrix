@@ -1205,6 +1205,99 @@ fn four_theta_deseasonalize(
     }
 }
 
+// ── DOT Hybrid objective (buildThetaLine + SES optimize + combine + MAE) ──
+#[pyfunction]
+fn dot_hybrid_objective(
+    y: PyReadonlyArray1<f64>,
+    theta_line0: PyReadonlyArray1<f64>,
+    theta: f64,
+    is_additive: bool,
+) -> PyResult<f64> {
+    let y = y.as_array();
+    let t0 = theta_line0.as_array();
+    let n = y.len();
+    if n < 3 {
+        return Ok(f64::MAX);
+    }
+
+    let mut theta_line = vec![0.0f64; n];
+    if is_additive {
+        for i in 0..n {
+            theta_line[i] = theta * y[i] + (1.0 - theta) * t0[i];
+        }
+    } else {
+        for i in 0..n {
+            let yv = if y[i] > 1e-10 { y[i] } else { 1e-10 };
+            let tv = if t0[i] > 1e-10 { t0[i] } else { 1e-10 };
+            theta_line[i] = yv.powf(theta) * tv.powf(1.0 - theta);
+        }
+    }
+
+    let alpha = optimize_alpha_bounded(&theta_line);
+
+    let mut filtered = vec![0.0f64; n];
+    filtered[0] = theta_line[0];
+    for t in 1..n {
+        filtered[t] = alpha * theta_line[t] + (1.0 - alpha) * filtered[t - 1];
+    }
+
+    let mut mae = 0.0f64;
+    if is_additive {
+        let w = 1.0 / theta.max(1.0);
+        let w2 = 1.0 - w;
+        for i in 0..n {
+            let fitted = w * filtered[i] + w2 * t0[i];
+            mae += (y[i] - fitted).abs();
+        }
+    } else {
+        let inv = 1.0 / theta.max(1.0);
+        let inv2 = 1.0 - inv;
+        for i in 0..n {
+            let fv = if filtered[i] > 1e-10 { filtered[i] } else { 1e-10 };
+            let tv = if t0[i] > 1e-10 { t0[i] } else { 1e-10 };
+            let fitted = fv.powf(inv) * tv.powf(inv2);
+            mae += (y[i] - fitted).abs();
+        }
+    }
+
+    Ok(mae / n as f64)
+}
+
+fn ses_sse_inner(y: &[f64], alpha: f64) -> f64 {
+    let mut level = y[0];
+    let mut sse = 0.0f64;
+    for t in 1..y.len() {
+        let error = y[t] - level;
+        sse += error * error;
+        level = alpha * y[t] + (1.0 - alpha) * level;
+    }
+    sse
+}
+
+fn optimize_alpha_bounded(y: &[f64]) -> f64 {
+    let n = y.len();
+    if n < 3 {
+        return 0.3;
+    }
+
+    let (mut lo, mut hi) = (0.001f64, 0.999f64);
+    let gr = (5.0f64.sqrt() - 1.0) / 2.0;
+
+    for _ in 0..50 {
+        let x1 = hi - gr * (hi - lo);
+        let x2 = lo + gr * (hi - lo);
+        let f1 = ses_sse_inner(y, x1);
+        let f2 = ses_sse_inner(y, x2);
+        if f1 < f2 {
+            hi = x2;
+        } else {
+            lo = x1;
+        }
+    }
+
+    (lo + hi) / 2.0
+}
+
 #[pymodule]
 fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(ets_filter, m)?)?;
@@ -1232,5 +1325,6 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(esn_reservoir_update, m)?)?;
     m.add_function(wrap_pyfunction!(four_theta_fitted, m)?)?;
     m.add_function(wrap_pyfunction!(four_theta_deseasonalize, m)?)?;
+    m.add_function(wrap_pyfunction!(dot_hybrid_objective, m)?)?;
     Ok(())
 }

@@ -141,6 +141,51 @@
 2. **앙상블 가중치의 핵심은 정확도** — 다양성, 물리적 제약, 예측 가능성 등 추가 축은 noise
 3. **단일 모델 CES가 앙상블보다 우수한 경우가 많다** — 모델 풀의 품질이 앙상블보다 중요
 
+## 016~018: DOT 강화 + SCUM 앙상블 실험 (2026-03-03)
+
+### 016 DOT++ (조건부 채택)
+- **8-way auto-select**: 2 trend(linear/exponential) x 2 model(additive/multiplicative) x 2 season(A/M/N)
+- Yearly **0.796** (기존 0.887, -10.3%) — 세계 최고 수준 단일 통계 모델
+- Hourly **0.955** (기존 0.722, +32.3%) — 고빈도에서 과적합 발생
+- **결론**: period<=12에서만 사용 (DOT-Hybrid 전략)
+
+### 017 SCUM (기각)
+- **Full SCUM (DOT+CES+ETS+ARIMA median)**: AVG 0.925 > DOT 0.905 (악화)
+- **원인**: Vectrix ETS/ARIMA가 DOT/CES보다 약해서 median을 끌어내림
+- **SCUM Mean**: Weekly/Daily에서 ETS/ARIMA 극단값으로 폭발 (MASE 10^9)
+- **유일한 성공**: Hourly median 0.704 > DOT 0.722 (CES 기여)
+
+### 018 Hybrid DOT + SCUM Variants (채택)
+
+| 모델 | Yearly | Quarterly | Monthly | Weekly | Daily | Hourly | **AVG** |
+|------|--------|-----------|---------|--------|-------|--------|---------|
+| dot_current | 0.887 | 0.942 | 0.937 | 0.938 | 1.004 | 0.722 | **0.905** |
+| **dot_hybrid** | **0.796** | **0.904** | 0.931 | 0.957 | 0.996 | 0.722 | **0.884** |
+| scum2 | 0.920 | 0.933 | 0.927 | 0.947 | 1.000 | **0.702** | 0.905 |
+| **combined** | 0.838 | 0.913 | **0.917** | 0.962 | 0.996 | **0.702** | **0.888** |
+
+- **DOT-Hybrid: AVG 0.884** — M4 #18 Theta(0.897) 초과! 단일 모델 세계급
+- **Combined (DOT-Hybrid+CES median): AVG 0.888** — 앙상블 최강
+- M4 참조: #1 ES-RNN 0.821, #2 FFORMA 0.838, #11 4Theta 0.874
+
+### 핵심 발견
+1. **지수추세(exponential) + 승법 theta line이 저빈도 데이터에서 혁신적**
+2. **고빈도(Hourly)에서는 기존 DOT 3파라미터 최적화가 최적**
+3. **DOT+CES median이 Hourly에서 DOT 단독보다 우수** (0.702 vs 0.722)
+4. **ETS/ARIMA는 vectrix에서 SCUM 품질 부족** — DOT/CES만 조합 대상
+5. **DOT-Hybrid가 현재 시점 vectrix 최강 모델** — 엔진 통합 확정
+
+### 019 DOT-Hybrid Engine Verification (확인 완료)
+
+| 모델 | Yearly | Quarterly | Monthly | Weekly | Daily | Hourly | **AVG** |
+|------|--------|-----------|---------|--------|-------|--------|---------|
+| **dot_engine** | **0.797** | **0.905** | **0.933** | 0.959 | **0.996** | **0.722** | **0.885** |
+| E018 참조 | 0.796 | 0.904 | 0.931 | 0.957 | 0.996 | 0.722 | 0.884 |
+
+- **속도**: M4 100K 전체 1.7분 (E016 16.6분 대비 9.8x)
+- **정확도**: E018과 0.001 OWA 이내 일치 (Rust golden section vs scipy 미세 차이)
+- **Rust 26개 함수**: DOT=True, SES=True, Hybrid=True 모두 활성
+
 ## 완료된 단계
 - [x] 3개 모델 engine/ 모듈화 (fit/predict/residuals 인터페이스)
 - [x] types.py에 모델 정보 등록
@@ -148,36 +193,12 @@
 - [x] 기존 테스트 387개 통과 확인
 - [x] 012 M4 100K 벤치마크 완료
 - [x] 013~015 세상에 없던 새 앙상블/예측 원리 3개 실험 (전부 기각)
+- [x] 016~018 DOT 강화 + SCUM 실험 완료
+- [x] DOT-Hybrid를 engine/dot.py에 통합 (period<24: DOT++, period>=24: classic)
+- [x] Rust dot_hybrid_objective 추가 (26번째 함수)
+- [x] 019 통합 엔진 M4 100K 검증 완료 (OWA 0.885)
 
 ## 다음 단계
 - [ ] 4Theta seasonality 처리 개선 (Quarterly/Monthly/Weekly/Daily 약세)
 - [ ] DTSF 단기 시리즈 성능 개선 (n<100에서 약세)
 - [ ] ESN reservoir 크기 자동 조정 (긴 시리즈에서 느림)
-
-## 남은 대기 후보 (미실험)
-- KernelDensityForecaster
-- BayesianChangeForecaster
-
-## "세상에 없던 모델" 후보 (016~)
-
-013~015 실패에서 얻은 설계 원칙:
-1. 앙상블/가중치/후처리가 아니라 **예측 메커니즘 자체**가 달라야 함
-2. DOT/CES를 이기는 게 아니라 **DOT/CES가 못하는 걸 하는** 모델
-3. 기존 통계 모델 잔차 상관 0.73~1.0 → 비모수/비선형만이 진짜 다양성 제공
-4. 외부 제약 부과(RG, Lyapunov)는 역효과 → 데이터에서 직접 구조를 학습해야 함
-5. 단일 모델 품질 > 앙상블 모델 수
-
-### 후보 1: Topological Persistence Forecaster
-- **원리**: Persistent Homology(TDA)로 시계열의 위상 구조(루프, 구멍, 연결 성분) 추출 → 구조 변화 감지 → 구조별 국소 예측
-- **근거**: TDA를 시계열 분류/이상치에 쓴 연구는 있으나, 예측기로 직접 쓴 논문 없음
-- **기대**: 레짐 전환이 잦은 데이터에서 강점 가능
-
-### 후보 2: Causal Entropy Forecaster
-- **원리**: Transfer Entropy로 자기 과거→미래 인과 강도를 horizon별 측정 → 인과가 강한 lag에만 집중하는 비모수 예측기
-- **근거**: Transfer Entropy는 Granger Causality의 비모수 확장. 예측기 자체로 쓴 사례 없음
-- **기대**: 장기 의존성이 강한 데이터에서 lag 선택 자동화
-
-### 후보 3: Fractal Interpolation Forecaster
-- **원리**: IFS(Iterated Function System)로 시계열의 프랙탈 자기유사 구조 학습 → 자기유사성 기반 외삽
-- **근거**: 프랙탈 보간(Barnsley 1986)은 존재하나 예측기로 쓴 건 없음. 014 RGF에서 자기유사성 0.95+ 확인
-- **기대**: 긴 주기 반복 패턴(Yearly, Quarterly)에서 강점 가능

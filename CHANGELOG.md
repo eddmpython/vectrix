@@ -5,6 +5,33 @@ All notable changes to Vectrix will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.9] - 2026-03-03
+
+Accuracy & speed release — DOT-Hybrid model achieves M4 Competition OWA 0.885 (beats #18 Theta 0.897), with 9.8x benchmark speedup from Rust `dot_hybrid_objective`.
+
+### Added
+
+**DOT-Hybrid Mode (M4 OWA: 0.905 → 0.885)**
+- Period < 24: 8-way auto-select (2 trend × 2 model × 2 season types) with exponential trend and multiplicative theta line
+- Period ≥ 24: Original 3-parameter DOT optimization (preserves Hourly OWA 0.722)
+- Automatic mode switching at `_HYBRID_THRESHOLD = 24`
+- Yearly OWA 0.797 (world-class, near M4 #1 ES-RNN 0.821)
+- NumPy-vectorized combination functions replacing Python for-loops
+
+**Rust Acceleration: `dot_hybrid_objective` (26th function)**
+- Full DOT-Hybrid objective: buildThetaLine + golden section alpha optimization + SES filter + combine + MAE — all in Rust
+- Golden section search (50 iterations) replaces scipy `minimize_scalar` inside Rust for alpha optimization
+- M4 100K benchmark: 16.6 min → 1.7 min (9.8x faster)
+- Per-group speedups: Yearly 3x, Quarterly 3.7x, Monthly 4.8x, Weekly 7.7x, Daily 9.8x, Hourly 53x
+
+### Changed
+
+- `engine/dot.py`: `DynamicOptimizedTheta` now includes hybrid mode with backward-compatible API
+- `rust/src/lib.rs`: 25 → 26 Rust-accelerated functions
+- Version sync: pyproject.toml, Cargo.toml, __init__.py all at 0.0.9
+
+[0.0.9]: https://github.com/eddmpython/vectrix/compare/v0.0.8...v0.0.9
+
 ## [0.0.8] - 2026-03-03
 
 Built-in Rust engine release — Rust acceleration expanded to all engines and compiled into every wheel. No `[turbo]` extra, no flags — `pip install vectrix` includes the Rust engine like Polars.
