@@ -12,6 +12,13 @@ import numpy as np
 from .arima import ARIMAModel
 from .turbo import TurboCore
 
+try:
+    from vectrix_core import mstl_extract_seasonal as _rustExtractSeasonal
+    from vectrix_core import mstl_moving_average as _rustMovingAverage
+    RUST_AVAILABLE = True
+except ImportError:
+    RUST_AVAILABLE = False
+
 
 class MSTL:
     """
@@ -193,6 +200,9 @@ class MSTL:
         np.ndarray
             Seasonal component
         """
+        if RUST_AVAILABLE:
+            return np.asarray(_rustExtractSeasonal(y, period))
+
         n = len(y)
         seasonal = np.zeros(n)
 
@@ -210,6 +220,9 @@ class MSTL:
 
     def _movingAverage(self, y: np.ndarray, window: int) -> np.ndarray:
         """Moving average - O(n) cumsum method"""
+        if RUST_AVAILABLE:
+            return np.asarray(_rustMovingAverage(y, window))
+
         n = len(y)
         result = np.zeros(n)
         halfWin = window // 2

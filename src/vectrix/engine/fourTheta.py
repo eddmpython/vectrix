@@ -17,6 +17,8 @@ from scipy.optimize import minimize_scalar
 try:
     from vectrix_core import ses_filter as _rustSesFilter
     from vectrix_core import ses_sse as _rustSesSSE
+    from vectrix_core import four_theta_fitted as _rustFourThetaFitted
+    from vectrix_core import four_theta_deseasonalize as _rustFourThetaDeseasonalize
     RUST_AVAILABLE = True
 except ImportError:
     RUST_AVAILABLE = False
@@ -134,15 +136,27 @@ class AdaptiveThetaEnsemble:
             model = self._fitThetaLine(deseasonalized, theta)
             self._models.append(model)
 
-        fittedValues = np.zeros(self._n)
-        for i, model in enumerate(self._models):
-            for t in range(self._n):
-                trendPred = model['intercept'] + model['slope'] * t
-                sesPred = model['filtered'][t] if t < len(model['filtered']) else model['lastLevel']
-                if model['theta'] == 0:
-                    fittedValues[t] += self._weights[i] * trendPred
-                else:
-                    fittedValues[t] += self._weights[i] * (trendPred + sesPred) / 2.0
+        if RUST_AVAILABLE:
+            thetas = np.array([m['theta'] for m in self._models], dtype=np.float64)
+            intercepts = np.array([m['intercept'] for m in self._models], dtype=np.float64)
+            slopes = np.array([m['slope'] for m in self._models], dtype=np.float64)
+            filteredFlat = np.concatenate([m['filtered'] for m in self._models])
+            filteredLengths = np.array([len(m['filtered']) for m in self._models], dtype=np.int64)
+            lastLevels = np.array([m['lastLevel'] for m in self._models], dtype=np.float64)
+            fittedValues = np.asarray(_rustFourThetaFitted(
+                self._n, thetas, intercepts, slopes, self._weights,
+                filteredFlat, filteredLengths, lastLevels
+            ))
+        else:
+            fittedValues = np.zeros(self._n)
+            for i, model in enumerate(self._models):
+                for t in range(self._n):
+                    trendPred = model['intercept'] + model['slope'] * t
+                    sesPred = model['filtered'][t] if t < len(model['filtered']) else model['lastLevel']
+                    if model['theta'] == 0:
+                        fittedValues[t] += self._weights[i] * trendPred
+                    else:
+                        fittedValues[t] += self._weights[i] * (trendPred + sesPred) / 2.0
 
         if self._seasonal is not None:
             for t in range(self._n):
@@ -257,6 +271,12 @@ class AdaptiveThetaEnsemble:
         return 1
 
     def _deseasonalize(self, y, period):
+        if RUST_AVAILABLE:
+            seasonalArr, isMult, deseasonArr = _rustFourThetaDeseasonalize(y, period)
+            seasonal = np.asarray(seasonalArr)
+            deseasonalized = np.asarray(deseasonArr)
+            return seasonal, 'multiplicative' if isMult else 'additive', deseasonalized
+
         n = len(y)
         seasonal = np.zeros(period)
         counts = np.zeros(period)

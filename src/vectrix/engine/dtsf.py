@@ -15,6 +15,13 @@ from typing import Tuple
 import numpy as np
 from scipy.signal import periodogram
 
+try:
+    from vectrix_core import dtsf_distances as _rustDtsfDistances
+    from vectrix_core import dtsf_fit_residuals as _rustDtsfFitResiduals
+    RUST_AVAILABLE = True
+except ImportError:
+    RUST_AVAILABLE = False
+
 
 class DynamicTimeScanForecaster:
     """
@@ -54,46 +61,51 @@ class DynamicTimeScanForecaster:
             W = max(W, 2)
 
             if n >= W + 2:
-                residuals = np.zeros(n)
-                for t in range(W, n):
-                    query = self._y[t - W:t]
-                    if self.normalize:
-                        qMean = np.mean(query)
-                        qStd = max(np.std(query), 1e-8)
-                        queryNorm = (query - qMean) / qStd
-                    else:
-                        queryNorm = query
-
-                    maxStart = t - W
-                    if maxStart < 1:
-                        continue
-
-                    distances = np.zeros(maxStart)
-                    for i in range(maxStart):
-                        window = self._y[i:i + W]
+                if RUST_AVAILABLE:
+                    self.residuals = np.asarray(_rustDtsfFitResiduals(
+                        self._y, W, self.nNeighbors, self.normalize
+                    ))
+                else:
+                    residuals = np.zeros(n)
+                    for t in range(W, n):
+                        query = self._y[t - W:t]
                         if self.normalize:
-                            wMean = np.mean(window)
-                            wStd = max(np.std(window), 1e-8)
-                            windowNorm = (window - wMean) / wStd
+                            qMean = np.mean(query)
+                            qStd = max(np.std(query), 1e-8)
+                            queryNorm = (query - qMean) / qStd
                         else:
-                            windowNorm = window
-                        distances[i] = np.sqrt(np.mean((queryNorm - windowNorm) ** 2))
+                            queryNorm = query
 
-                    K = min(self.nNeighbors, maxStart)
-                    if K >= len(distances):
-                        neighborIdx = np.arange(len(distances))
-                    else:
-                        neighborIdx = np.argpartition(distances, K)[:K]
+                        maxStart = t - W
+                        if maxStart < 1:
+                            continue
 
-                    preds = []
-                    for idx in neighborIdx:
-                        nextIdx = idx + W
-                        if nextIdx < n:
-                            preds.append(self._y[nextIdx])
-                    if preds:
-                        residuals[t] = self._y[t] - np.median(preds)
+                        distances = np.zeros(maxStart)
+                        for i in range(maxStart):
+                            window = self._y[i:i + W]
+                            if self.normalize:
+                                wMean = np.mean(window)
+                                wStd = max(np.std(window), 1e-8)
+                                windowNorm = (window - wMean) / wStd
+                            else:
+                                windowNorm = window
+                            distances[i] = np.sqrt(np.mean((queryNorm - windowNorm) ** 2))
 
-                self.residuals = residuals
+                        K = min(self.nNeighbors, maxStart)
+                        if K >= len(distances):
+                            neighborIdx = np.arange(len(distances))
+                        else:
+                            neighborIdx = np.argpartition(distances, K)[:K]
+
+                        preds = []
+                        for idx in neighborIdx:
+                            nextIdx = idx + W
+                            if nextIdx < n:
+                                preds.append(self._y[nextIdx])
+                        if preds:
+                            residuals[t] = self._y[t] - np.median(preds)
+
+                    self.residuals = residuals
             else:
                 self.residuals = np.zeros(n)
         else:
@@ -129,18 +141,23 @@ class DynamicTimeScanForecaster:
             sigma = self._residStd * np.sqrt(np.arange(1, steps + 1))
             return pred, pred - 1.96 * sigma, pred + 1.96 * sigma
 
-        distances = np.zeros(maxStart)
-        for i in range(maxStart):
-            window = y[i:i + W]
-            if self.normalize:
-                wMean = np.mean(window)
-                wStd = max(np.std(window), 1e-8)
-                windowNorm = (window - wMean) / wStd
-            else:
-                windowNorm = window
-            shapeDist = np.sqrt(np.mean((queryNorm - windowNorm) ** 2))
-            timeWeight = np.exp(-self.timeDecay * (n - i))
-            distances[i] = shapeDist / max(timeWeight, 1e-10)
+        if RUST_AVAILABLE:
+            distances = np.asarray(_rustDtsfDistances(
+                y, queryNorm, W, maxStart, self.normalize, self.timeDecay, n
+            ))
+        else:
+            distances = np.zeros(maxStart)
+            for i in range(maxStart):
+                window = y[i:i + W]
+                if self.normalize:
+                    wMean = np.mean(window)
+                    wStd = max(np.std(window), 1e-8)
+                    windowNorm = (window - wMean) / wStd
+                else:
+                    windowNorm = window
+                shapeDist = np.sqrt(np.mean((queryNorm - windowNorm) ** 2))
+                timeWeight = np.exp(-self.timeDecay * (n - i))
+                distances[i] = shapeDist / max(timeWeight, 1e-10)
 
         K = min(self.nNeighbors, maxStart)
         if K >= len(distances):

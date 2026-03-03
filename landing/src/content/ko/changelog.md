@@ -8,6 +8,32 @@ Vectrix의 모든 주요 변경 사항을 기록합니다.
 
 이 형식은 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)를 기반으로 하며, [Semantic Versioning](https://semver.org/spec/v2.0.0.html)을 준수합니다.
 
+## [0.0.8] - 2026-03-03
+
+내장 Rust 엔진 릴리즈 — Rust 가속을 전체 엔진으로 확장 (13 → 25개 함수), 모든 wheel에 컴파일. `[turbo]` 없이 `pip install vectrix`만으로 Rust 엔진이 포함됩니다. Polars처럼.
+
+### 추가
+
+**Rust 엔진 확장 (13 → 25개 함수)**
+- GARCH: `garch_filter`, `egarch_filter`, `gjr_garch_filter`
+- TBATS: `tbats_filter`
+- DTSF: `dtsf_distances`, `dtsf_fit_residuals` (O(n²) 패턴 매칭 — 최대 속도 향상)
+- MSTL: `mstl_extract_seasonal`, `mstl_moving_average`
+- Croston: `croston_tsb_filter`
+- ESN: `esn_reservoir_update`
+- 4Theta: `four_theta_fitted`, `four_theta_deseasonalize`
+
+**CI/CD: macOS x86_64 wheel 추가**
+- `macos-13` 빌드 타겟 추가 — 4개 플랫폼 빌드 (Linux, macOS ARM, macOS x86, Windows)
+
+### 변경
+
+- 전체 문서 업데이트: "선택적 Rust turbo" → "내장 Rust 엔진"
+- 모든 설치 가이드에서 `[turbo]` 제거
+- 랜딩 페이지 전면 재작성: Hero, Features, Install, Performance 섹션
+
+---
+
 ## [0.0.7] - 2026-03-02
 
 llms.txt를 통한 즉각적인 AI 이해, MCP 서버를 통한 도구 사용, Claude Code 스킬을 통한 워크플로우 자동화를 포함한 AI 통합 릴리즈.

@@ -1,8 +1,8 @@
 # Vectrix
 
-> Zero-config time series forecasting library for Python. 30+ statistical models, automatic selection, Rust turbo acceleration. Pure NumPy/SciPy with adaptive intelligence, regression, and business analytics.
+> Zero-config time series forecasting library for Python. 30+ statistical models, automatic selection, built-in Rust engine. NumPy/SciPy/Pandas with adaptive intelligence, regression, and business analytics.
 
-- Version: 0.0.7
+- Version: 0.0.8
 - Python: 3.10+
 - Dependencies: numpy, pandas, scipy (core only)
 - Install: `pip install vectrix`
@@ -32,7 +32,7 @@ print(reg.summary())
 
 - [Easy API](https://eddmpython.github.io/vectrix/docs/api/easy/): forecast(), analyze(), regress(), compare(), quick_report()
 - [Vectrix Class](https://eddmpython.github.io/vectrix/docs/api/vectrix/): Full-control forecasting interface
-- [Installation](https://eddmpython.github.io/vectrix/docs/getting-started/installation/): Setup guide with optional Rust turbo
+- [Installation](https://eddmpython.github.io/vectrix/docs/getting-started/installation/): Setup guide (Rust engine built-in)
 - [Quickstart](https://eddmpython.github.io/vectrix/docs/getting-started/quickstart/): 5-minute tutorial
 
 ## API Reference

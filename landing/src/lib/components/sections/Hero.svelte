@@ -15,7 +15,7 @@
 	<div class="relative z-10 max-w-4xl mx-auto">
 		<Badge class="mb-6">
 			<Zap class="w-3.5 h-3.5" />
-			v0.0.7 — AI Integration + Rust Turbo
+			v0.0.8 — Built-in Rust Engine
 		</Badge>
 
 		<h1 class="text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.1] mb-4">
@@ -30,14 +30,14 @@
 
 		<p class="text-lg md:text-xl text-vx-text-muted font-light max-w-xl mx-auto mb-8 leading-relaxed">
 			One line of code. 30+ models. Zero configuration.<br />
-			Pure Python — no compiled dependencies required.
+			Built-in Rust engine — blazing fast out of the box.
 		</p>
 
 		<div class="flex justify-center gap-6 mb-10 flex-wrap">
 			{#each [
 				{ value: '30+', label: 'Models' },
 				{ value: '3', label: 'Dependencies' },
-				{ value: '24x', label: 'Rust Turbo' },
+				{ value: '67x', label: 'Rust Engine' },
 				{ value: '573', label: 'Tests' }
 			] as stat}
 				<div class="text-center">

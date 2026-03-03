@@ -6,6 +6,32 @@ title: Changelog
 
 All notable changes to Vectrix are documented here. This project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html) and the [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 
+## [0.0.8] - 2026-03-03
+
+Built-in Rust engine release — Rust acceleration expanded to all engines (13 → 25 functions) and compiled into every wheel. No `[turbo]` extra needed — `pip install vectrix` includes the Rust engine like Polars.
+
+### Added
+
+**Rust Engine Expansion (13 → 25 functions)**
+- GARCH: `garch_filter`, `egarch_filter`, `gjr_garch_filter`
+- TBATS: `tbats_filter`
+- DTSF: `dtsf_distances`, `dtsf_fit_residuals` (O(n²) pattern matching — biggest speedup)
+- MSTL: `mstl_extract_seasonal`, `mstl_moving_average`
+- Croston: `croston_tsb_filter`
+- ESN: `esn_reservoir_update`
+- 4Theta: `four_theta_fitted`, `four_theta_deseasonalize`
+
+**CI/CD: macOS x86_64 wheel**
+- Added `macos-13` build target — now 4 platform builds (Linux, macOS ARM, macOS x86, Windows)
+
+### Changed
+
+- All documentation updated: "optional Rust turbo" → "built-in Rust engine"
+- Removed `[turbo]` extra from all installation guides
+- Landing page rewritten: Hero, Features, Install, Performance sections
+
+---
+
 ## [0.0.7] - 2026-03-02
 
 AI integration release -- llms.txt, MCP server (10 tools, 2 resources, 2 prompts), Claude Code skills (3).

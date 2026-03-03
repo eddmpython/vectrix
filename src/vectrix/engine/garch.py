@@ -14,6 +14,14 @@ from typing import Tuple
 import numpy as np
 from scipy.optimize import minimize
 
+try:
+    from vectrix_core import garch_filter as _rustGarchFilter
+    from vectrix_core import egarch_filter as _rustEgarchFilter
+    from vectrix_core import gjr_garch_filter as _rustGjrGarchFilter
+    RUST_AVAILABLE = True
+except ImportError:
+    RUST_AVAILABLE = False
+
 
 class GARCHModel:
     """
@@ -72,6 +80,12 @@ class GARCHModel:
 
             if omega <= 0 or alphaG < 0 or betaG < 0 or alphaG + betaG >= 1:
                 return 1e10
+
+            if RUST_AVAILABLE:
+                return _rustGarchFilter(
+                    y, mu, omega, alphaG, betaG, self.unconditionalVar,
+                    self.meanModel == 'ar1', self.ar1
+                )
 
             sigma2 = self.unconditionalVar
             nll = 0.0
@@ -198,6 +212,12 @@ class EGARCHModel:
             betaE = params[2]
             gamma = params[3]
 
+            if RUST_AVAILABLE:
+                return _rustEgarchFilter(
+                    y, self.mu, omega, alphaE, betaE, gamma,
+                    np.log(max(self.unconditionalVar, 1e-10))
+                )
+
             logSigma2 = np.log(max(self.unconditionalVar, 1e-10))
             nll = 0.0
             sqrt2pi = np.sqrt(2 / np.pi)
@@ -311,6 +331,12 @@ class GJRGARCHModel:
                 return 1e10
             if alphaGJR + betaGJR + 0.5 * gammaGJR >= 1:
                 return 1e10
+
+            if RUST_AVAILABLE:
+                return _rustGjrGarchFilter(
+                    y, self.mu, omega, alphaGJR, betaGJR, gammaGJR,
+                    self.unconditionalVar
+                )
 
             sigma2 = self.unconditionalVar
             nll = 0.0

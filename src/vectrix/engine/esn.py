@@ -14,6 +14,12 @@ from typing import Tuple
 
 import numpy as np
 
+try:
+    from vectrix_core import esn_reservoir_update as _rustEsnReservoirUpdate
+    RUST_AVAILABLE = True
+except ImportError:
+    RUST_AVAILABLE = False
+
 
 class EchoStateForecaster:
     """
@@ -80,15 +86,25 @@ class EchoStateForecaster:
         self._W = W
 
         washout = min(n // 5, 100)
-        states = np.zeros((n - washout, N))
-        x = np.zeros(N)
 
-        for t in range(n):
-            u = yNorm[t]
-            xNew = np.tanh(self._Win.flatten() * u + self._W @ x)
-            x = (1.0 - self._leakRate) * x + self._leakRate * xNew
-            if t >= washout:
-                states[t - washout] = x
+        if RUST_AVAILABLE:
+            statesFlat, x = _rustEsnReservoirUpdate(
+                yNorm, self._Win.flatten(), self._W.flatten(), N, self._leakRate, washout
+            )
+            statesFlat = np.asarray(statesFlat)
+            x = np.asarray(x)
+            statesRows = n - washout if n > washout else 0
+            states = statesFlat.reshape(statesRows, N) if statesRows > 0 else np.zeros((0, N))
+        else:
+            states = np.zeros((n - washout, N))
+            x = np.zeros(N)
+
+            for t in range(n):
+                u = yNorm[t]
+                xNew = np.tanh(self._Win.flatten() * u + self._W @ x)
+                x = (1.0 - self._leakRate) * x + self._leakRate * xNew
+                if t >= washout:
+                    states[t - washout] = x
 
         targets = yNorm[washout + 1:]
         stateMatrix = states[:-1]

@@ -10,12 +10,12 @@
 
 <br>
 
-<h3>Pure Python Time Series Forecasting Engine</h3>
+<h3>Time Series Forecasting Engine — Built-in Rust Acceleration</h3>
 
 <p>
 <img src="https://img.shields.io/badge/3-Dependencies-818cf8?style=for-the-badge&labelColor=0f172a" alt="Dependencies">
-<img src="https://img.shields.io/badge/Pure-Python-6366f1?style=for-the-badge&labelColor=0f172a" alt="Pure Python">
-<img src="https://img.shields.io/badge/Rust-Turbo%20Mode-e45a33?style=for-the-badge&labelColor=0f172a&logo=rust&logoColor=white" alt="Rust Turbo">
+<img src="https://img.shields.io/badge/Built--in-Rust%20Engine-e45a33?style=for-the-badge&labelColor=0f172a&logo=rust&logoColor=white" alt="Built-in Rust Engine">
+<img src="https://img.shields.io/badge/Python-3.10+-6366f1?style=for-the-badge&labelColor=0f172a&logo=python&logoColor=white" alt="Python 3.10+">
 </p>
 
 <p>
@@ -50,7 +50,7 @@
 
 ## ◈ What is Vectrix?
 
-Vectrix is a time series forecasting library that runs on **3 dependencies** (NumPy, SciPy, Pandas) with **no compiled extensions**. No C compiler, no cmdstan, no system packages — `pip install` and it works.
+Vectrix is a time series forecasting library with a **built-in Rust engine** for blazing-fast performance. 3 dependencies (NumPy, SciPy, Pandas), no compiler needed — `pip install vectrix` and the Rust-accelerated engine is included in the wheel.
 
 ### Forecasting
 
@@ -103,18 +103,18 @@ A pure-numpy HMM (Baum-Welch + Viterbi) detects regime shifts. When a regime cha
 
 Bottom-up, top-down, and MinTrace reconciliation for hierarchical time series.
 
-### Rust Turbo Mode
+### Built-in Rust Engine
 
-Install `vectrix[turbo]` to unlock Rust-accelerated core loops. No Rust compiler needed — pre-built wheels for Linux, macOS (x86 + ARM), and Windows.
+Every `pip install vectrix` includes a pre-built Rust extension — like Polars, no compiler needed. 25 core hot loops are Rust-accelerated across all forecasting engines.
 
-| Component | Without Turbo | With Turbo | Speedup |
-|:----------|:-------------|:-----------|:--------|
+| Component | Python Only | With Rust | Speedup |
+|:----------|:-----------|:----------|:--------|
 | `forecast()` 200pts | 295ms | **52ms** | **5.6x** |
 | AutoETS fit | 348ms | **32ms** | **10.8x** |
-| AutoARIMA fit | 195ms | **35ms** | **5.6x** |
+| DOT fit | 240ms | **10ms** | **24x** |
 | ETS filter (hot loop) | 0.17ms | **0.003ms** | **67x** |
 
-Turbo is fully optional. Without it, Vectrix falls back to Numba JIT (if available) or pure Python. Your code doesn't change — just install and it's faster.
+Pre-built wheels for Linux (x86_64), macOS (ARM + x86), and Windows. The Rust engine is included in the default installation — no extras, no flags, no `[turbo]`.
 
 ### Built-in Sample Datasets
 
@@ -129,9 +129,9 @@ result = forecast(df, date="date", value="passengers", steps=12)
 
 Available: `airline`, `retail`, `stock`, `temperature`, `energy`, `web`, `intermittent`
 
-### Everything is Pure Python
+### Minimal Dependencies, Maximum Performance
 
-All of the above — forecasting models, regime detection, regression diagnostics, constraint enforcement, hierarchical reconciliation — is implemented in pure Python with only NumPy, SciPy, and Pandas. No compiled extensions, no system dependencies. Rust turbo is optional and never required.
+All of the above — forecasting models, regime detection, regression diagnostics, constraint enforcement, hierarchical reconciliation — runs on just NumPy, SciPy, and Pandas. The Rust engine is compiled into the wheel and loaded automatically. No system dependencies, no compiler, no extra install steps.
 
 <br>
 
@@ -156,8 +156,8 @@ result.plot()
 
 | | Vectrix | statsforecast | Prophet | Darts |
 |:--|:--:|:--:|:--:|:--:|
-| **Pure Python (no C/Fortran)** | ✅ | ❌ (numba) | ❌ (cmdstan) | ❌ (torch) |
-| **Optional Rust acceleration** | ✅ (5-10x) | ❌ | ❌ | ❌ |
+| **Built-in Rust engine** | ✅ (5-67x) | ❌ | ❌ | ❌ |
+| **No compiler needed** | ✅ | ❌ (numba) | ❌ (cmdstan) | ❌ (torch) |
 | **Dependencies** | 3 | 5+ | 10+ | 20+ |
 | **Auto model selection** | ✅ | ✅ | ❌ | ❌ |
 | **Flat-line defense** | ✅ | ❌ | ❌ | ❌ |
@@ -165,7 +165,7 @@ result.plot()
 | **Built-in regression** | R-style | ❌ | ❌ | ❌ |
 | **Sample datasets** | 7 built-in | ❌ | ❌ | ✅ |
 
-> **Comparison notes**: Dependencies counted as direct `pip install` requirements (not transitive). "Pure Python" means the core library runs without compiled extensions — Vectrix's optional Rust turbo (`vectrix[turbo]`) is a separate, opt-in wheel. statsforecast requires Numba JIT compilation; Prophet requires CmdStan (C++ compiler); Darts requires PyTorch. Feature comparison based on statsforecast 2.0+, Prophet 1.1+, Darts 0.31+.
+> **Comparison notes**: Dependencies counted as direct `pip install` requirements (not transitive). Vectrix's Rust engine is compiled into the wheel (like Polars) — no separate install needed. statsforecast requires Numba JIT compilation; Prophet requires CmdStan (C++ compiler); Darts requires PyTorch. Feature comparison based on statsforecast 2.0+, Prophet 1.1+, Darts 0.31+.
 
 <br>
 
@@ -259,9 +259,7 @@ result.plot()
 ## ◈ Installation
 
 ```bash
-pip install vectrix                # Core (numpy + scipy + pandas)
-pip install "vectrix[turbo]"       # + Rust acceleration (5-10x speedup)
-pip install "vectrix[numba]"       # + Numba JIT (2-5x speedup)
+pip install vectrix                # Rust engine included — no extras needed
 pip install "vectrix[ml]"          # + LightGBM, XGBoost, scikit-learn
 pip install "vectrix[all]"         # Everything
 ```
@@ -430,8 +428,8 @@ vectrix/
 ├── global_model/          Cross-series forecasting
 └── datasets.py            7 built-in sample datasets
 
-rust/                         Optional Rust acceleration (vectrix-core)
-└── src/lib.rs             ETS, ARIMA, Theta, SES hot loops (PyO3)
+rust/                         Built-in Rust engine (25 accelerated functions)
+└── src/lib.rs             ETS, ARIMA, DOT, CES, GARCH, DTSF, ESN, 4Theta (PyO3)
 ```
 
 <br>

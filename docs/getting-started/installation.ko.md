@@ -19,33 +19,34 @@
     uv add vectrix
     ```
 
+Rust 엔진이 **wheel에 내장**되어 있습니다 — 별도 설치, 컴파일러 불필요. Polars처럼 설치만 하면 바로 빠릅니다.
+
 ## 선택적 추가 기능
 
 ```bash
-pip install "vectrix[turbo]"       # Rust 가속 (5-10배 속도 향상, Rust 컴파일러 불필요)
-pip install "vectrix[numba]"       # Numba JIT 가속 (2-5배 속도 향상)
-pip install "vectrix[ml]"          # LightGBM, XGBoost, scikit-learn
-pip install "vectrix[foundation]"  # Amazon Chronos-2, Google TimesFM 2.5
-pip install "vectrix[tutorials]"   # 인터랙티브 marimo 튜토리얼
-pip install "vectrix[all]"         # 전체
+pip install vectrix                  # 30+ 모델 + Rust 엔진 내장
+pip install "vectrix[ml]"            # + LightGBM, XGBoost, scikit-learn
+pip install "vectrix[foundation]"    # + Amazon Chronos-2, Google TimesFM 2.5
+pip install "vectrix[all]"           # 전체
 ```
 
-## Rust Turbo Mode
+## 내장 Rust 엔진
 
-`turbo` 옵션은 Rust로 컴파일된 네이티브 확장 `vectrix-core`를 설치합니다. 핵심 예측 루프가 5-10배 빨라집니다. 사전 빌드 wheel 제공:
+25개 핵심 예측 핫 루프가 Rust로 가속되어 모든 wheel에 컴파일됩니다:
 
 - Linux (x86_64, manylinux)
-- macOS (x86_64 + Apple Silicon ARM)
+- macOS (Apple Silicon ARM + x86_64)
 - Windows (x86_64)
 - Python 3.10, 3.11, 3.12, 3.13
 
 Rust 컴파일러 불필요. 코드 변경 없이 설치만 하면 자동으로 빨라집니다.
 
-| 구성요소 | Turbo 없음 | Turbo 적용 | 속도 향상 |
-|:---------|:----------|:----------|:---------|
+| 구성요소 | Python Only | Rust 적용 | 속도 향상 |
+|:---------|:-----------|:----------|:---------|
 | `forecast()` 200pts | 295ms | **52ms** | **5.6x** |
 | AutoETS fit | 348ms | **32ms** | **10.8x** |
-| AutoARIMA fit | 195ms | **35ms** | **5.6x** |
+| DOT fit | 240ms | **10ms** | **24x** |
+| ETS filter (핫 루프) | 0.17ms | **0.003ms** | **67x** |
 
 ## 설치 확인
 
@@ -55,6 +56,12 @@ from vectrix import forecast
 
 result = forecast([100, 120, 130, 115, 140], steps=3)
 print(result.predictions)
+```
+
+Rust 엔진 활성화 확인:
+
+```python
+print(vectrix.TURBO_AVAILABLE)  # True
 ```
 
 ## 핵심 의존성

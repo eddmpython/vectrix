@@ -1,7 +1,7 @@
 """
 Vectrix: Zero-config time series forecasting library.
 
-Pure numpy + scipy implementation with no external forecasting library dependencies.
+Built-in Rust engine for blazing-fast performance. No Rust compiler needed — pre-built wheels included.
 
 Usage:
     >>> from vectrix import Vectrix
@@ -79,7 +79,7 @@ from .types import (
 )
 from .vectrix import Vectrix
 
-__version__ = "0.0.5"
+__version__ = "0.0.8"
 __all__ = [
     "Vectrix",
     "ForecastResult",

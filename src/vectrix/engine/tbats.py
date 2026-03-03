@@ -13,6 +13,12 @@ import numpy as np
 from scipy.optimize import minimize
 
 try:
+    from vectrix_core import tbats_filter as _rustTbatsFilter
+    RUST_AVAILABLE = True
+except ImportError:
+    RUST_AVAILABLE = False
+
+try:
     from numba import jit
     NUMBA_AVAILABLE = True
 except ImportError:
@@ -211,6 +217,11 @@ class TBATS:
             alpha = params[0]
             beta = params[1] if useTrend else 0.0
             phi = params[2] if useDamping and useTrend else 0.98
+            if RUST_AVAILABLE:
+                return _rustTbatsFilter(
+                    y, alpha, beta, phi, useTrend, useDamping,
+                    frequencies, totalHarmonics
+                )
             return _tbatsObjectiveJIT(
                 y, alpha, beta, phi, useTrend, useDamping,
                 frequencies, harmonicOffsets, totalHarmonics

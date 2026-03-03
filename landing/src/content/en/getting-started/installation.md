@@ -4,7 +4,7 @@ title: Installation
 
 # Installation
 
-Vectrix is a pure Python library with optional native acceleration. Most users are up and running in under 30 seconds.
+Vectrix ships with a **built-in Rust engine** — like Polars, the Rust extension is compiled into the wheel. No compiler, no extras, just `pip install` and it's fast.
 
 ## Requirements
 
@@ -33,45 +33,42 @@ uv add vectrix
 pip install vectrix
 ```
 
-This installs Vectrix with its 3 core dependencies (NumPy, pandas, SciPy) and nothing else. No C compiler, no CUDA, no heavy frameworks.
+This installs Vectrix with its 3 core dependencies (NumPy, pandas, SciPy) **and the Rust engine**. No C compiler, no CUDA, no heavy frameworks.
 
 ## Optional Extras
 
 Vectrix follows a modular design — install only what you need:
 
 ```bash
-pip install "vectrix[turbo]"       # Rust acceleration (5-10x speedup, no Rust compiler needed)
-pip install "vectrix[numba]"       # Numba JIT acceleration (2-5x speedup)
-pip install "vectrix[ml]"          # LightGBM, XGBoost, scikit-learn
-pip install "vectrix[foundation]"  # Amazon Chronos-2, Google TimesFM 2.5
-pip install "vectrix[tutorials]"   # Interactive marimo tutorials
-pip install "vectrix[all]"         # Everything
+pip install vectrix                  # All 30+ models + built-in Rust engine
+pip install "vectrix[ml]"            # + LightGBM, XGBoost, scikit-learn
+pip install "vectrix[foundation]"    # + Amazon Chronos-2, Google TimesFM 2.5
+pip install "vectrix[all]"           # Everything
 ```
 
 | Extra | What It Adds | When to Use |
 |:------|:-------------|:------------|
-| `turbo` | Rust-compiled native extension | Production workloads, large datasets |
-| `numba` | JIT-compiled numerical loops | Alternative acceleration without Rust |
 | `ml` | LightGBM, XGBoost, scikit-learn | Machine learning model candidates |
 | `foundation` | Chronos-2, TimesFM 2.5 | Zero-shot foundation model forecasting |
-| `tutorials` | marimo interactive notebooks | Learning and exploration |
+| `neural` | NeuralForecast (N-BEATS, N-HiTS, TFT) | Deep learning models |
 
-## Rust Turbo Mode
+## Built-in Rust Engine
 
-The `turbo` extra installs `vectrix-core`, a Rust-compiled native extension that accelerates 13 core forecasting inner loops — ETS state filtering, ARIMA likelihood computation, Theta decomposition, and more. Pre-built binary wheels are available for all major platforms:
+25 core forecasting hot loops are Rust-accelerated and compiled into every wheel. Pre-built binary wheels are available for all major platforms:
 
 - **Linux** x86_64 (manylinux)
-- **macOS** x86_64 + Apple Silicon (ARM64)
+- **macOS** Apple Silicon (ARM64) + x86_64
 - **Windows** x86_64
 - **Python** 3.10, 3.11, 3.12, 3.13
 
-No Rust compiler is needed. The acceleration is completely transparent — your code doesn't change, it just runs faster. Vectrix auto-detects the native extension at import time and falls back to pure Python if unavailable.
+No Rust compiler is needed. The acceleration is completely transparent — your code doesn't change, it just runs faster. Vectrix auto-detects the Rust engine at import time.
 
-| Component | Without Turbo | With Turbo | Speedup |
-|:----------|:-------------|:-----------|:--------|
+| Component | Python Only | With Rust | Speedup |
+|:----------|:-----------|:----------|:--------|
 | `forecast()` 200pts | 295ms | **52ms** | **5.6x** |
 | AutoETS fit | 348ms | **32ms** | **10.8x** |
-| AutoARIMA fit | 195ms | **35ms** | **5.6x** |
+| DOT fit | 240ms | **10ms** | **24x** |
+| ETS filter (hot loop) | 0.17ms | **0.003ms** | **67x** |
 
 ## Verify Installation
 
@@ -85,11 +82,11 @@ result = forecast([100, 120, 130, 115, 140], steps=3)
 print(result.predictions)
 ```
 
-If you installed `turbo`, check that the native extension loaded:
+Check that the Rust engine loaded:
 
 ```python
 import vectrix
-print(vectrix.__turbo__)  # True if Rust acceleration is active
+print(vectrix.TURBO_AVAILABLE)  # True if Rust engine is active
 ```
 
 ## Core Dependencies

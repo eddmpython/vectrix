@@ -1,7 +1,7 @@
 [project]
 name = "vectrix"
-version = "0.0.7"
-description = "Zero-config time series forecasting & analysis library. Pure numpy + scipy implementation with 30+ models, regression, and adaptive intelligence."
+version = "0.0.8"
+description = "Zero-config time series forecasting & analysis library. 30+ models with built-in Rust engine for blazing-fast performance."
 readme = "README.md"
 license = {file = "LICENSE"}
 requires-python = ">=3.10"

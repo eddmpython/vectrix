@@ -1,8 +1,8 @@
 # Vectrix — Complete API Reference for LLMs
 
-> Zero-config time series forecasting library for Python. 30+ statistical models with automatic selection, Rust turbo acceleration, adaptive intelligence, full regression suite, and business analytics. Pure NumPy/SciPy — no deep learning frameworks required.
+> Zero-config time series forecasting library for Python. 30+ statistical models with automatic selection, built-in Rust engine (25 accelerated functions), adaptive intelligence, full regression suite, and business analytics.
 
-- Version: 0.0.7
+- Version: 0.0.8
 - Python: >=3.10
 - Core deps: numpy>=1.24, pandas>=2.0, scipy>=1.10
 - Install: `pip install vectrix`
@@ -505,15 +505,22 @@ from vectrix.adaptive.regime import RegimeDetector
 - `RegimeResult`: use `len(result.regimeStats)` for nRegimes
 - `HealingReport`: properties are overallHealth, healthScore, totalObserved, totalCorrected
 
-### Rust turbo acceleration
+### Built-in Rust engine
 ```python
 from vectrix import TURBO_AVAILABLE
-print(TURBO_AVAILABLE)  # True if Rust extension loaded
-# 13 accelerated functions: ets_filter, ets_loglik, theta_decompose,
-# arima_css, css_objective, seasonal_css_objective, ses_sse, ses_filter,
-# batch_ets_filter, dot_objective, dot_residuals, ces_nonseasonal_sse,
-# ces_seasonal_sse
-# Fallback: Rust > Numba JIT > Pure Python (automatic, transparent)
+print(TURBO_AVAILABLE)  # True if Rust engine loaded (default for all pip installs)
+# 25 accelerated functions across all engines:
+# ETS: ets_filter, ets_loglik, batch_ets_filter
+# ARIMA: arima_css, css_objective, seasonal_css_objective
+# Theta/DOT: theta_decompose, dot_objective, dot_residuals, ses_sse, ses_filter
+# CES: ces_nonseasonal_sse, ces_seasonal_sse
+# GARCH: garch_filter, egarch_filter, gjr_garch_filter
+# TBATS: tbats_filter
+# DTSF: dtsf_distances, dtsf_fit_residuals
+# MSTL: mstl_extract_seasonal, mstl_moving_average
+# Croston: croston_tsb_filter
+# ESN: esn_reservoir_update
+# 4Theta: four_theta_fitted, four_theta_deseasonalize
 ```
 
 ### Performance benchmarks (M4 Competition)

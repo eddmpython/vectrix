@@ -13,6 +13,12 @@ from typing import Tuple
 
 import numpy as np
 
+try:
+    from vectrix_core import croston_tsb_filter as _rustCrostonTsbFilter
+    RUST_AVAILABLE = True
+except ImportError:
+    RUST_AVAILABLE = False
+
 
 class CrostonClassic:
     """
@@ -139,18 +145,35 @@ class CrostonTSB:
         self.z = np.mean(y[y > 0]) if np.any(y > 0) else 1.0
         self.d = np.mean(y > 0)
 
-        residuals = []
-        for t in range(n):
-            forecast = self.d * self.z
-            residuals.append(y[t] - forecast)
+        if RUST_AVAILABLE:
+            zFinal, dFinal, _ = _rustCrostonTsbFilter(
+                y, self.alpha, self.beta, self.z, self.d
+            )
+            residuals = []
+            z, d = self.z, self.d
+            for t in range(n):
+                residuals.append(y[t] - d * z)
+                if y[t] > 0:
+                    z = self.alpha * y[t] + (1 - self.alpha) * z
+                    d = self.beta + (1 - self.beta) * d
+                else:
+                    d = (1 - self.beta) * d
+            self.z = zFinal
+            self.d = dFinal
+            self.residuals = np.array(residuals)
+        else:
+            residuals = []
+            for t in range(n):
+                forecast = self.d * self.z
+                residuals.append(y[t] - forecast)
 
-            if y[t] > 0:
-                self.z = self.alpha * y[t] + (1 - self.alpha) * self.z
-                self.d = self.beta * 1.0 + (1 - self.beta) * self.d
-            else:
-                self.d = (1 - self.beta) * self.d
+                if y[t] > 0:
+                    self.z = self.alpha * y[t] + (1 - self.alpha) * self.z
+                    self.d = self.beta * 1.0 + (1 - self.beta) * self.d
+                else:
+                    self.d = (1 - self.beta) * self.d
 
-        self.residuals = np.array(residuals)
+            self.residuals = np.array(residuals)
         self.fitted = True
         return self
 

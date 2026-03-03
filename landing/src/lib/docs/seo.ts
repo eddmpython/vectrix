@@ -1,11 +1,11 @@
 export const SITE_URL = 'https://eddmpython.github.io/vectrix';
 export const SITE_NAME = 'Vectrix';
-export const DEFAULT_DESCRIPTION = 'Zero-config time series forecasting for Python. 30+ models, one line of code, Rust turbo acceleration.';
+export const DEFAULT_DESCRIPTION = 'Zero-config time series forecasting for Python. 30+ models, one line of code, built-in Rust engine.';
 export const OG_IMAGE = `${SITE_URL}/icon-512.png`;
 
 export const pageDescriptions: Record<string, string> = {
 	'/docs': 'Vectrix documentation — guides, API reference, tutorials, and benchmarks for time series forecasting in Python.',
-	'/docs/getting-started/installation': 'Install Vectrix with pip or uv. Supports Python 3.10+ on Windows, macOS, and Linux. Optional Rust turbo acceleration.',
+	'/docs/getting-started/installation': 'Install Vectrix with pip or uv. Supports Python 3.10+ on Windows, macOS, and Linux. Built-in Rust engine included.',
 	'/docs/getting-started/quickstart': 'Get started with Vectrix in under a minute. Forecast, analyze, and visualize time series data with a single function call.',
 	'/docs/guide/forecasting': 'Complete guide to time series forecasting with Vectrix. Easy API, model selection, confidence intervals, and advanced options.',
 	'/docs/guide/analysis': 'Automatic time series analysis with DNA profiling. Detect patterns, seasonality, trends, anomalies, and data characteristics.',

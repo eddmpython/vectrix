@@ -5,6 +5,39 @@ All notable changes to Vectrix will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.8] - 2026-03-03
+
+Built-in Rust engine release — Rust acceleration expanded to all engines and compiled into every wheel. No `[turbo]` extra, no flags — `pip install vectrix` includes the Rust engine like Polars.
+
+### Added
+
+**Rust Engine Expansion (13 → 25 functions)**
+- `garch_filter`, `egarch_filter`, `gjr_garch_filter`: GARCH family negative log-likelihood hot loops
+- `tbats_filter`: Fourier harmonic state update loop
+- `dtsf_distances`, `dtsf_fit_residuals`: O(n²) sliding window pattern matching (biggest speedup)
+- `mstl_extract_seasonal`, `mstl_moving_average`: MSTL seasonal decomposition
+- `croston_tsb_filter`: Croston TSB SES update loop
+- `esn_reservoir_update`: Echo State Network reservoir state computation O(n×N²)
+- `four_theta_fitted`, `four_theta_deseasonalize`: 4Theta fitted values + seasonal decomposition
+- All 25 functions compiled into the default wheel — no separate `[turbo]` install needed
+
+**CI/CD: macOS x86_64 wheel**
+- Added `macos-13` build target for Intel Mac users
+- Now 4 platform builds: Linux x86_64, macOS ARM, macOS x86_64, Windows x86_64
+
+### Changed
+
+**Messaging: "optional Rust turbo" → "built-in Rust engine"**
+- `pyproject.toml`: Description updated to reflect built-in Rust engine
+- `README.md`: Removed all "optional" Rust language, comparison table updated
+- Landing page: Hero, Features, Install, Performance, Numbers sections rewritten
+- Docs (EN/KO): Installation guides rewritten — no `[turbo]` extra mentioned
+- SEO metadata: All "Rust turbo" → "built-in Rust engine" across meta tags, schema, OG tags
+
+**Version sync**: pyproject.toml, Cargo.toml, __init__.py all at 0.0.8
+
+[0.0.8]: https://github.com/eddmpython/vectrix/compare/v0.0.7...v0.0.8
+
 ## [0.0.7] - 2026-03-02
 
 AI integration release — llms.txt for instant AI understanding, MCP server for tool use, Claude Code skills for workflow automation.
