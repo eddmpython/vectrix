@@ -153,7 +153,7 @@ healer = SelfHealingForecast(
     result.predictions,
     result.lower,
     result.upper,
-    data
+    data,
 )
 ```
 
@@ -182,9 +182,9 @@ Improvement: 12.4%
 Get the updated forecast with corrections applied
 
 ```python
-updated_predictions = healer.getUpdatedForecast()
+updated_preds, updated_lower, updated_upper = healer.getUpdatedForecast()
 print(f"Original remaining: {result.predictions[5:].round(1)}")
-print(f"Updated remaining:  {updated_predictions[5:].round(1)}")
+print(f"Updated remaining:  {updated_preds[5:].round(1)}")
 ```
 
 ### HealingReport Attributes

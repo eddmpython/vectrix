@@ -14,15 +14,18 @@ Detect statistical regimes using Hidden Markov Models.
 
 ### Methods
 
-- `detect(data)` → `RegimeResult`
+- `detect(y)` → `RegimeResult`
 
 ### RegimeResult
 
 | Attribute | Type | Description |
 |---|---|---|
-| `.currentRegime` | `int` | Current regime index |
-| `.regimeStats` | `list` | Per-regime statistics |
-| `.labels` | `np.ndarray` | Regime label per observation |
+| `.currentRegime` | `str` | Current regime label |
+| `.regimeStats` | `dict` | Per-regime statistics (mean, std, etc.) |
+| `.states` | `np.ndarray` | Regime index per observation |
+| `.labels` | `list[str]` | Regime label per observation |
+| `.transitionMatrix` | `np.ndarray` | K x K transition probability matrix |
+| `.nRegimes` | `int` | Number of detected regimes |
 
 ## RegimeAwareForecaster
 
@@ -32,7 +35,7 @@ Forecast using the current regime context.
 
 ### Methods
 
-- `forecast(data, steps, period=None)` → predictions
+- `forecast(y, steps, period=7)` → `RegimeForecastResult`
 
 ## ForecastDNA
 
@@ -42,7 +45,7 @@ Profile time series characteristics for meta-learning.
 
 ### Methods
 
-- `analyze(data, period=None)` → `DNAProfile`
+- `analyze(y, period=1)` → `DNAProfile`
 
 ### DNAProfile
 
@@ -57,20 +60,25 @@ Profile time series characteristics for meta-learning.
 
 ## SelfHealingForecast
 
-Auto-correct forecasts with incoming actuals.
+`SelfHealingForecast(predictions, lower95, upper95, historicalData, period=7, healingMode='adaptive')`
+
+Auto-correct forecasts as actual data arrives.
 
 ### Methods
 
-- `heal(originalForecast, actuals, historicalData)` → `HealingReport`
+- `observe(actuals)` → `HealingStatus` — Feed actual values as they arrive
+- `getUpdatedForecast()` → `Tuple[np.ndarray, np.ndarray, np.ndarray]` — (predictions, lower95, upper95)
+- `getReport()` → `HealingReport` — Full healing process report
 
 ### HealingReport
 
 | Attribute | Type | Description |
 |---|---|---|
+| `.overallHealth` | `str` | `excellent`, `good`, `fair`, `poor` |
 | `.healthScore` | `float` | 0–100 health score |
-| `.overallHealth` | `str` | Health status label |
-| `.totalCorrected` | `int` | Number of corrections |
-| `.correctedForecast` | `np.ndarray` | Updated predictions |
+| `.totalObserved` | `int` | Number of actual values received |
+| `.totalCorrected` | `int` | Number of corrections applied |
+| `.improvementPct` | `float` | Error reduction percentage |
 
 ## ConstraintAwareForecaster
 
@@ -80,7 +88,7 @@ Enforce business constraints on predictions.
 
 ### Methods
 
-- `apply(predictions, lower, upper, constraints)` → constrained predictions
+- `apply(predictions, lower95, upper95, constraints, smoothing=True)` → `ConstraintResult`
 
 ## Constraint
 
@@ -92,6 +100,6 @@ Enforce business constraints on predictions.
 | `range` | `{'min': 0, 'max': 5000}` |
 | `capacity` | `{'capacity': 10000}` |
 | `yoy_change` | `{'maxPct': 30, 'historicalData': array}` |
-| `sum` | `{'total': 1000}` |
+| `sum_constraint` | `{'window': 7, 'maxSum': 10000}` |
 | `monotone` | `{'direction': 'increasing'}` |
 | `custom` | `{'func': callable}` |

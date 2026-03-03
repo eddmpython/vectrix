@@ -8,20 +8,21 @@ The simplest way to use Vectrix. One function call for each task.
 
 ## Functions
 
-### `forecast(data, steps=10, **kwargs)`
+### `forecast(data, date=None, value=None, steps=30, frequency='auto', verbose=False)`
 
 One-call forecasting with automatic model selection.
 
 **Parameters:**
 - `data` — Input data (list, ndarray, Series, DataFrame, dict, or CSV path)
-- `steps` — Number of forecast steps (default: 10)
 - `date` — Date column name (optional, auto-detected)
 - `value` — Value column name (optional, auto-detected)
-- `period` — Seasonal period (optional, auto-detected)
+- `steps` — Number of forecast steps (default: 30)
+- `frequency` — Frequency hint (default: `'auto'`, auto-detected)
+- `verbose` — Print progress (default: False)
 
 **Returns:** `EasyForecastResult`
 
-### `analyze(data, **kwargs)`
+### `analyze(data, date=None, value=None, period=None)`
 
 Time series DNA profiling, changepoint detection, anomaly identification.
 
@@ -29,6 +30,7 @@ Time series DNA profiling, changepoint detection, anomaly identification.
 - `data` — Input data (same formats as forecast)
 - `date` — Date column name (optional)
 - `value` — Value column name (optional)
+- `period` — Seasonal period (optional, auto-detected)
 
 **Returns:** `EasyAnalysisResult`
 
@@ -46,11 +48,32 @@ R-style formula regression with full diagnostics.
 
 **Returns:** `EasyRegressionResult`
 
-### `quick_report(data, steps=10, **kwargs)`
+### `compare(data, date=None, value=None, steps=30, verbose=False)`
+
+Compare all models on the given data and return a ranked DataFrame.
+
+**Returns:** `DataFrame` — Models ranked by accuracy (sMAPE, MAPE, RMSE, MAE)
+
+### `quick_report(data, date=None, value=None, steps=30)`
 
 Combined analysis + forecast report generation.
 
-**Returns:** `str` — Formatted report
+**Returns:** `Dict[str, Any]` — Report dictionary with `'summary'`, `'forecast'`, `'analysis'` keys
+
+### `listSamples()`
+
+List available built-in sample datasets.
+
+**Returns:** `DataFrame` — Dataset names and descriptions
+
+### `loadSample(name)`
+
+Load a built-in sample dataset.
+
+**Parameters:**
+- `name` — Dataset name (e.g. `"airline"`, `"retail"`, `"stock"`)
+
+**Returns:** `DataFrame`
 
 ## Result Classes
 

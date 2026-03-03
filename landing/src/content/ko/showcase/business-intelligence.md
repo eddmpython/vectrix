@@ -18,8 +18,8 @@ data = np.random.normal(100, 10, 365)
 data[50] = 250
 data[200] = 20
 
-detector = AnomalyDetector()
-result = detector.detect(data, method="auto")
+detector = AnomalyDetector(data)
+result = detector.detect(data, method="auto", threshold=3.0, period=1)
 
 print(f"감지 방법: {result.method}")
 print(f"이상치 수: {result.nAnomalies}")
@@ -74,17 +74,10 @@ for scenario in scenarios:
 ```python
 from vectrix.business import Backtester
 
-backtester = Backtester()
-btResult = backtester.run(
-    data=data,
-    horizon=12,
-    nWindows=5,
-)
+backtester = Backtester(nFolds=5)
+btResult = backtester.run(data, modelFactory)
 
-print(f"평균 MAE:   {btResult.meanMae:.2f}")
-print(f"평균 RMSE:  {btResult.meanRmse:.2f}")
-print(f"평균 MAPE:  {btResult.meanMape:.2f}%")
-print(f"평균 sMAPE: {btResult.meanSmape:.2f}%")
+print(f"평균 지표: {btResult.avgMetrics}")
 ```
 
 백테스팅은 원점을 앞으로 이동시키며 여러 학습/테스트 분할을 생성하여, 표본 외 성능의 현실적인 추정치를 제공합니다.
@@ -96,11 +89,7 @@ print(f"평균 sMAPE: {btResult.meanSmape:.2f}%")
 ```python
 from vectrix.business import BusinessMetrics
 
-metrics = BusinessMetrics()
-result = metrics.calculate(
-    actual=actualSales,
-    forecast=forecastedSales,
-)
+result = BusinessMetrics.calculate(actualSales, forecastedSales)
 
 print(f"예측 편향: {result['bias']:+.2f}")
 print(f"WAPE: {result['wape']:.2f}%")
@@ -120,22 +109,18 @@ from vectrix.business import AnomalyDetector, Backtester, BusinessMetrics
 df = pd.read_csv("daily_sales.csv")
 data = df["sales"].values
 
-detector = AnomalyDetector()
-anomalies = detector.detect(data, method="auto")
+detector = AnomalyDetector(data)
+anomalies = detector.detect(data, method="auto", threshold=3.0, period=1)
 print(f"1단계 - 이상치: {anomalies.nAnomalies}개 감지")
 
 result = forecast(data, steps=30)
 print(f"2단계 - 예측: {result.model} 선택됨")
 
-backtester = Backtester()
-btResult = backtester.run(data, horizon=30, nWindows=5)
-print(f"3단계 - 백테스트: MAE={btResult.meanMae:.2f}, MAPE={btResult.meanMape:.2f}%")
+backtester = Backtester(nFolds=5)
+btResult = backtester.run(data, modelFactory)
+print(f"3단계 - 백테스트: {btResult.avgMetrics}")
 
-metrics = BusinessMetrics()
-bizMetrics = metrics.calculate(
-    actual=data[-30:],
-    forecast=result.predictions[:30],
-)
+bizMetrics = BusinessMetrics.calculate(data[-30:], result.predictions[:30])
 print(f"4단계 - 비즈니스 영향: WAPE={bizMetrics['wape']:.2f}%")
 ```
 

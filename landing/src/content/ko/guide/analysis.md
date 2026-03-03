@@ -39,10 +39,8 @@ c = report.characteristics
 print(f"길이: {c.length}")
 print(f"주기: {c.period}")
 print(f"추세: {c.hasTrend} ({c.trendDirection}, 강도 {c.trendStrength:.2f})")
-print(f"계절성: {c.hasSeasonality} (강도 {c.seasonalStrength:.2f})")
-print(f"변동성: {c.volatilityLevel} ({c.volatility:.4f})")
-print(f"예측가능성: {c.predictabilityScore}/100")
-print(f"이상치: {c.outlierCount} ({c.outlierRatio:.1%})")
+print(f"계절성: {c.hasSeasonality} (주기 {c.seasonalPeriods})")
+print(f"변동성: {c.volatility:.4f}")
 ```
 
 ## 변화점 & 이상치
@@ -59,8 +57,7 @@ print(f"이상치: {report.anomalies}")
 ```python
 from vectrix import quick_report
 
-report = quick_report(df, steps=14)
-print(report['summary'])
+report = quick_report(df, date="date", value="sales", steps=14)
 forecast_result = report['forecast']
 analysis_result = report['analysis']
 ```

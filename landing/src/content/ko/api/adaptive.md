@@ -27,8 +27,9 @@ Hidden Markov Model을 사용한 통계적 레짐 감지.
 | 속성 | 타입 | 설명 |
 |---|---|---|
 | `.currentRegime` | `int` | 현재 레짐 인덱스 |
-| `.regimeStats` | `list` | 레짐별 통계 |
-| `.labels` | `np.ndarray` | 관측치별 레짐 레이블 |
+| `.regimeStats` | `dict` | 레짐별 통계 |
+| `.regimes` | `np.ndarray` | 관측치별 레짐 레이블 |
+| `.transitionMatrix` | `np.ndarray` | 레짐 전이 행렬 |
 
 ## RegimeAwareForecaster
 
@@ -63,11 +64,15 @@ Hidden Markov Model을 사용한 통계적 레짐 감지.
 
 ## SelfHealingForecast
 
+`SelfHealingForecast(originalPredictions, lower, upper, tolerance=0.1)`
+
 실시간 관측값으로 예측을 자동 교정.
 
 ### 메서드
 
-- `heal(originalForecast, actuals, historicalData)` -> `HealingReport`
+- `observe(actuals)` -> `HealingStatus`
+- `getUpdatedForecast()` -> `(predictions, lower, upper)`
+- `getReport()` -> `HealingReport`
 
 ### HealingReport
 
@@ -75,8 +80,8 @@ Hidden Markov Model을 사용한 통계적 레짐 감지.
 |---|---|---|
 | `.healthScore` | `float` | 0--100 건강 점수 |
 | `.overallHealth` | `str` | 건강 상태 레이블 |
+| `.totalObserved` | `int` | 관측 횟수 |
 | `.totalCorrected` | `int` | 교정 횟수 |
-| `.correctedForecast` | `np.ndarray` | 갱신된 예측값 |
 
 ## ConstraintAwareForecaster
 
@@ -86,18 +91,15 @@ Hidden Markov Model을 사용한 통계적 레짐 감지.
 
 ### 메서드
 
-- `apply(predictions, lower, upper, constraints)` -> 제약 적용된 예측값
+- `apply(predictions, lower95, upper95, constraints, smoothing=True)` -> `ConstraintResult`
 
 ## Constraint
 
-`Constraint(type, params)`
+`Constraint(name, type, value, ...)`
 
-| 유형 | 매개변수 | 설명 |
-|------|-----------|------|
-| `non_negative` | `{}` | 음수 불가 |
-| `range` | `{'min': 0, 'max': 5000}` | 최소/최대 범위 |
-| `capacity` | `{'capacity': 10000}` | 용량 상한 |
-| `yoy_change` | `{'maxPct': 30, 'historicalData': array}` | 전년 대비 변화율 제한 |
-| `sum` | `{'total': 1000}` | 합계 제약 |
-| `monotone` | `{'direction': 'increasing'}` | 증가/감소만 허용 |
-| `custom` | `{'func': callable}` | 커스텀 함수 |
+| 유형 | 설명 | 예시 |
+|------|------|------|
+| `min` | 최솟값 제한 | `Constraint(name='floor', type='min', value=0)` |
+| `max` | 최댓값 제한 | `Constraint(name='cap', type='max', value=5000)` |
+| `range` | 최소/최대 범위 | `Constraint(name='bounds', type='range', value=(0, 5000))` |
+| `monotonic` | 증가/감소만 허용 | `Constraint(name='inc', type='monotonic', value='increasing')` |

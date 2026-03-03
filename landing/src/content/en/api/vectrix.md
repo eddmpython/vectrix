@@ -6,22 +6,22 @@ title: Vectrix Class
 
 The full-featured forecasting engine with model comparison and selection.
 
-## `Vectrix(verbose=False)`
+## `Vectrix(locale='ko_KR', verbose=False, nJobs=-1)`
 
 Main forecasting class.
 
 ### Methods
 
-#### `forecast(data, dateCol=None, valueCol=None, steps=10, period=None)`
+#### `forecast(df, dateCol, valueCol, steps=30, trainRatio=0.8)`
 
 Run the full forecasting pipeline.
 
 **Parameters:**
-- `data` — pandas DataFrame with date and value columns
-- `dateCol` — Date column name (auto-detected if None)
-- `valueCol` — Value column name (auto-detected if None)
-- `steps` — Number of forecast steps
-- `period` — Seasonal period (auto-detected if None)
+- `df` — pandas DataFrame with date and value columns
+- `dateCol` — Date column name
+- `valueCol` — Value column name
+- `steps` — Number of forecast steps (default: 30)
+- `trainRatio` — Train/test split ratio (default: 0.8)
 
 **Returns:** `ForecastResult`
 

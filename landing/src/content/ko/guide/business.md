@@ -11,8 +11,8 @@ title: 비즈니스 인텔리전스
 ```python
 from vectrix.business import AnomalyDetector
 
-detector = AnomalyDetector()
-result = detector.detect(data, method="auto")
+detector = AnomalyDetector(data)
+result = detector.detect(data, method="auto", threshold=3.0, period=1)
 
 print(f"방법: {result.method}")
 print(f"이상치: {result.nAnomalies}개")
@@ -46,25 +46,21 @@ Walk-forward 검증
 ```python
 from vectrix.business import Backtester
 
-bt = Backtester(nFolds=5, horizon=14, strategy='expanding')
-result = bt.run(data, model_function)
+bt = Backtester(nFolds=5)
+result = bt.run(data, modelFactory)
 
-print(f"평균 MAPE: {result.avgMAPE:.2f}%")
-print(f"평균 RMSE: {result.avgRMSE:.2f}")
+print(f"평균 지표: {result.avgMetrics}")
 
 for f in result.folds:
-    print(f"  Fold {f.fold}: MAPE={f.mape:.2f}%")
+    print(f"  Fold: MAPE={f.metrics['mape']:.2f}%")
 ```
-
-전략: `expanding`, `sliding`
 
 ## 비즈니스 지표
 
 ```python
 from vectrix.business import BusinessMetrics
 
-metrics = BusinessMetrics()
-result = metrics.calculate(actual, predicted)
+result = BusinessMetrics.calculate(actual, predicted)
 
 print(f"Bias: {result['bias']:+.2f}")
 print(f"WAPE: {result['wape']:.2f}%")

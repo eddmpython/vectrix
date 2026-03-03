@@ -18,7 +18,7 @@ title: Vectrix 클래스
 
 ### 메서드
 
-#### `forecast(data, dateCol=None, valueCol=None, steps=10, period=None)`
+#### `forecast(df, dateCol, valueCol, steps=30, trainRatio=0.8)`
 
 전체 예측 파이프라인을 실행합니다.
 
@@ -26,11 +26,11 @@ title: Vectrix 클래스
 
 | 매개변수 | 타입 | 설명 |
 |---|---|---|
-| `data` | `DataFrame` | 날짜와 값 컬럼을 포함한 pandas DataFrame |
-| `dateCol` | `str` | 날짜 컬럼명 (None이면 자동 탐지) |
-| `valueCol` | `str` | 값 컬럼명 (None이면 자동 탐지) |
-| `steps` | `int` | 예측 스텝 수 |
-| `period` | `int` | 계절 주기 (None이면 자동 탐지) |
+| `df` | `DataFrame` | 날짜와 값 컬럼을 포함한 pandas DataFrame |
+| `dateCol` | `str` | 날짜 컬럼명 |
+| `valueCol` | `str` | 값 컬럼명 |
+| `steps` | `int` | 예측 스텝 수 (기본: 30) |
+| `trainRatio` | `float` | 학습 데이터 비율 (기본: 0.8) |
 
 **반환:** `ForecastResult`
 
@@ -48,4 +48,11 @@ title: Vectrix 클래스
 | `.allModelResults` | `dict` | 전체 ModelResult 객체 |
 | `.characteristics` | `DataCharacteristics` | 탐지된 데이터 속성 |
 | `.flatRisk` | `FlatRiskAssessment` | 평탄 예측 위험도 |
+| `.flatInfo` | `FlatPredictionInfo` | 평탄 예측 정보 |
 | `.warnings` | `list` | 생성된 경고 목록 |
+
+### ForecastResult 메서드
+
+| 메서드 | 반환 | 설명 |
+|---|---|---|
+| `.getSummary()` | `str` | 포맷된 텍스트 요약 |

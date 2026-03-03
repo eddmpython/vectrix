@@ -128,10 +128,8 @@ c = report.characteristics
 print(f"길이: {c.length}")
 print(f"주기: {c.period}")
 print(f"추세: {c.hasTrend} ({c.trendDirection}, 강도 {c.trendStrength:.2f})")
-print(f"계절성: {c.hasSeasonality} (강도 {c.seasonalStrength:.2f})")
-print(f"변동성: {c.volatilityLevel} ({c.volatility:.4f})")
-print(f"예측 가능성: {c.predictabilityScore}/100")
-print(f"이상치: {c.outlierCount} ({c.outlierRatio:.1%})")
+print(f"계절성: {c.hasSeasonality} (주기 {c.seasonalPeriods})")
+print(f"변동성: {c.volatility:.4f}")
 ```
 
 **예상 출력:**
@@ -140,10 +138,8 @@ print(f"이상치: {c.outlierCount} ({c.outlierRatio:.1%})")
 길이: 365
 주기: 7
 추세: True (upward, 강도 0.72)
-계절성: True (강도 0.85)
-변동성: low (0.0312)
-예측 가능성: 78/100
-이상치: 3 (0.8%)
+계절성: True (주기 [7])
+변동성: 0.0312
 ```
 
 ### 특성 참조
@@ -152,16 +148,13 @@ print(f"이상치: {c.outlierCount} ({c.outlierRatio:.1%})")
 |-----|------|------|
 | `length` | `int` | 관측치 수 |
 | `period` | `int` | 감지된 계절 주기 |
+| `frequency` | `str` | 빈도 레이블 |
 | `hasTrend` | `bool` | 추세 존재 여부 |
 | `trendDirection` | `str` | `upward`, `downward`, `none` |
 | `trendStrength` | `float` | 추세 강도 (0-1) |
 | `hasSeasonality` | `bool` | 계절성 존재 여부 |
-| `seasonalStrength` | `float` | 계절성 강도 (0-1) |
+| `seasonalPeriods` | `list` | 감지된 계절 주기 목록 |
 | `volatility` | `float` | 변동 계수 |
-| `volatilityLevel` | `str` | `low`, `medium`, `high` |
-| `predictabilityScore` | `int` | 0-100, 높을수록 예측 가능 |
-| `outlierCount` | `int` | 감지된 이상치 수 |
-| `outlierRatio` | `float` | 이상치 비율 |
 
 ## 추출된 특성
 

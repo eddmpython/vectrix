@@ -130,17 +130,13 @@ Walk-forward validation measures how well your forecasting approach would have p
 
 ```python
 from vectrix.business import Backtester
-from vectrix import forecast
+from vectrix.engine.ets import AutoETS
 import numpy as np
 
 data = np.random.randn(300).cumsum() + 200
 
-def model_function(train_data, steps):
-    result = forecast(train_data, steps=steps)
-    return result.predictions
-
 bt = Backtester(nFolds=5, horizon=14, strategy='expanding')
-result = bt.run(data, model_function)
+result = bt.run(data, lambda: AutoETS())
 
 print(f"Average MAPE: {result.avgMAPE:.2f}%")
 print(f"Average RMSE: {result.avgRMSE:.2f}")
@@ -277,6 +273,7 @@ A typical business forecasting workflow
 import numpy as np
 from vectrix import forecast
 from vectrix.business import AnomalyDetector, Backtester, BusinessMetrics, WhatIfAnalyzer
+from vectrix.engine.ets import AutoETS
 
 np.random.seed(42)
 data = np.random.randn(365).cumsum() + 1000
@@ -285,11 +282,8 @@ detector = AnomalyDetector()
 anomalies = detector.detect(data, method="auto")
 print(f"Anomalies in history: {anomalies.nAnomalies}")
 
-def model_fn(train, steps):
-    return forecast(train, steps=steps).predictions
-
 bt = Backtester(nFolds=4, horizon=30, strategy='expanding')
-bt_result = bt.run(data, model_fn)
+bt_result = bt.run(data, lambda: AutoETS())
 print(f"Backtest MAPE: {bt_result.avgMAPE:.2f}%")
 
 result = forecast(data, steps=30)

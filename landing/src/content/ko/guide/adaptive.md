@@ -41,14 +41,15 @@ print(result.modelPerRegime)
 ```python
 from vectrix import SelfHealingForecast
 
-healer = SelfHealingForecast(predictions, lower, upper, historical_data)
+healer = SelfHealingForecast(predictions, lower, upper, tolerance=0.1)
 healer.observe(actual_values)
 
 report = healer.getReport()
 print(f"건강 상태: {report.overallHealth} ({report.healthScore:.1f}/100)")
-print(f"개선율: {report.improvementPct:.1f}%")
+print(f"총 관측: {report.totalObserved}")
+print(f"총 교정: {report.totalCorrected}")
 
-updated = healer.getUpdatedForecast()
+updated_predictions, updated_lower, updated_upper = healer.getUpdatedForecast()
 ```
 
 ## 제약 조건 인식 예측
@@ -59,26 +60,21 @@ updated = healer.getUpdatedForecast()
 from vectrix import ConstraintAwareForecaster, Constraint
 
 caf = ConstraintAwareForecaster()
-result = caf.apply(predictions, lower, upper, constraints=[
-    Constraint('non_negative', {}),
-    Constraint('range', {'min': 0, 'max': 5000}),
-    Constraint('capacity', {'capacity': 10000}),
-    Constraint('yoy_change', {'maxPct': 30, 'historicalData': past_year}),
-])
+result = caf.apply(predictions, lower95, upper95, constraints=[
+    Constraint(name='non_negative', type='min', value=0),
+    Constraint(name='max_cap', type='max', value=5000),
+    Constraint(name='increasing', type='monotonic', value='increasing'),
+], smoothing=True)
 ```
 
 ### 제약 조건 유형
 
 | 유형 | 설명 |
 |------|------|
-| `non_negative` | 음수 불가 |
+| `min` | 최솟값 제한 (예: 음수 불가) |
+| `max` | 최댓값 제한 (예: 용량 상한) |
 | `range` | 최소/최대 범위 |
-| `capacity` | 용량 상한 |
-| `yoy_change` | 전년 대비 변화율 제한 |
-| `sum` | 합계 제약 |
-| `monotone` | 증가/감소만 허용 |
-| `ratio` | 시리즈 간 비율 |
-| `custom` | 커스텀 함수 |
+| `monotonic` | 증가/감소만 허용 |
 
 ## Forecast DNA
 

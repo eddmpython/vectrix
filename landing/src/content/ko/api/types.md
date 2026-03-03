@@ -31,7 +31,7 @@ Vectrix 전반에서 사용되는 핵심 데이터 타입과 결과 객체.
 | `modelId` | `str` | 모델 식별자 |
 | `modelName` | `str` | 표시명 |
 | `isValid` | `bool` | 유효한 출력 생성 여부 |
-| `mape` | `float` | 검증 MAPE |
+| `metrics` | `ModelMetrics` | 검증 지표 (`.mape`, `.smape`, `.mase`, `.rmse`) |
 | `predictions` | `np.ndarray` | 모델 예측값 |
 | `lower95` | `np.ndarray` | 하한 |
 | `upper95` | `np.ndarray` | 상한 |

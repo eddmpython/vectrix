@@ -73,12 +73,16 @@ Using WhatIfAnalyzer for more advanced scenario modeling
 
 ```python
 analyzer = WhatIfAnalyzer()
-whatIfResult = analyzer.analyze(
-    data=data,
-    baselineForecast=result.predictions,
-    scenarios=scenarios,
+whatIfResults = analyzer.analyze(
+    result.predictions,
+    data,
+    [
+        {"name": "Growth +10%", "trendChange": 0.10},
+        {"name": "Decline -20%", "trendChange": -0.20},
+    ],
 )
-print(whatIfResult)
+for sr in whatIfResults:
+    print(f"{sr.name}: mean={sr.predictions.mean():.1f}, impact={sr.impact:+.1%}")
 ```
 
 ## Backtesting
@@ -87,18 +91,15 @@ Validate forecast accuracy with rolling origin cross-validation.
 
 ```python
 from vectrix.business import Backtester
+from vectrix.engine.ets import AutoETS
 
-backtester = Backtester()
-btResult = backtester.run(
-    data=data,
-    horizon=12,
-    nWindows=5,
-)
+backtester = Backtester(nFolds=5, horizon=12)
+btResult = backtester.run(data, lambda: AutoETS())
 
-print(f"Mean MAE:   {btResult.meanMae:.2f}")
-print(f"Mean RMSE:  {btResult.meanRmse:.2f}")
-print(f"Mean MAPE:  {btResult.meanMape:.2f}%")
-print(f"Mean sMAPE: {btResult.meanSmape:.2f}%")
+print(f"Avg MAE:   {btResult.avgMAE:.2f}")
+print(f"Avg RMSE:  {btResult.avgRMSE:.2f}")
+print(f"Avg MAPE:  {btResult.avgMAPE:.2f}%")
+print(f"Avg sMAPE: {btResult.avgSMAPE:.2f}%")
 ```
 
 Backtesting creates multiple train/test splits by sliding the origin forward, giving a realistic estimate of out-of-sample performance.
@@ -111,16 +112,12 @@ Translate statistical accuracy into business-relevant KPIs.
 from vectrix.business import BusinessMetrics
 
 metrics = BusinessMetrics()
-result = metrics.calculate(
-    actual=actualSales,
-    forecast=forecastedSales,
-    revenue_per_unit=25.0,
-    cost_per_unit=8.0,
-)
+result = metrics.calculate(actualSales, forecastedSales)
 
-print(f"Forecast Bias: {result['forecastBias']:.2f}%")
-print(f"Revenue Impact: ${result['revenueImpact']:,.0f}")
-print(f"Service Level:  {result['serviceLevel']:.1%}")
+print(f"Bias: {result['bias']:+.2f}")
+print(f"Bias %: {result['biasPercent']:+.2f}%")
+print(f"WAPE: {result['wape']:.2f}%")
+print(f"Accuracy: {result['forecastAccuracy']:.1f}%")
 ```
 
 ## Full Business Workflow
@@ -131,6 +128,7 @@ Putting it all together in a single pipeline
 import pandas as pd
 from vectrix import forecast
 from vectrix.business import AnomalyDetector, Backtester, BusinessMetrics
+from vectrix.engine.ets import AutoETS
 
 df = pd.read_csv("daily_sales.csv")
 data = df["sales"].values
@@ -142,18 +140,13 @@ print(f"Step 1 - Anomalies: {anomalies.nAnomalies} detected")
 result = forecast(data, steps=30)
 print(f"Step 2 - Forecast: {result.model} selected")
 
-backtester = Backtester()
-btResult = backtester.run(data, horizon=30, nWindows=5)
-print(f"Step 3 - Backtest: MAE={btResult.meanMae:.2f}, MAPE={btResult.meanMape:.2f}%")
+backtester = Backtester(nFolds=5, horizon=30)
+btResult = backtester.run(data, lambda: AutoETS())
+print(f"Step 3 - Backtest: MAE={btResult.avgMAE:.2f}, MAPE={btResult.avgMAPE:.2f}%")
 
 metrics = BusinessMetrics()
-bizMetrics = metrics.calculate(
-    actual=data[-30:],
-    forecast=result.predictions[:30],
-    revenue_per_unit=25.0,
-    cost_per_unit=8.0,
-)
-print(f"Step 4 - Business Impact: Revenue impact = ${bizMetrics['revenueImpact']:,.0f}")
+bizMetrics = metrics.calculate(data[-30:], result.predictions[:30])
+print(f"Step 4 - Accuracy: {bizMetrics['forecastAccuracy']:.1f}%, Bias: {bizMetrics['bias']:+.2f}")
 ```
 
 > **Note:** All business intelligence tools work with raw numpy arrays, pandas Series, or DataFrames. No special data format is required.

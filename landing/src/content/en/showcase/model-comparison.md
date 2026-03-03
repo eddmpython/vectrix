@@ -26,11 +26,11 @@ from vectrix import analyze
 
 report = analyze([100, 120, 130, 115, 140, 160, 150, 170, 180, 195])
 
-print(f"Trend: {report.trend}")
-print(f"Seasonality: {report.seasonality}")
-print(f"Volatility: {report.volatility}")
+print(f"Trend: {report.characteristics.hasTrend} ({report.characteristics.trendDirection})")
+print(f"Seasonality: {report.characteristics.hasSeasonality}")
+print(f"Volatility: {report.characteristics.volatility}")
 print(f"Difficulty: {report.dna.difficulty}")
-print(f"Recommended models: {report.dna.recommended}")
+print(f"Recommended models: {report.dna.recommendedModels}")
 ```
 
 DNA profiling extracts 65+ time series features and recommends the best-fit models based on a meta-learning system.
@@ -88,11 +88,11 @@ This returns a DataFrame where each column is a model and each row is a forecast
 If DNA or comparison suggests a particular model
 
 ```python
-from vectrix import Vectrix
+from vectrix.engine.dot import DynamicOptimizedTheta
 
-vx = Vectrix(method="dot")
-vx.fit(data)
-pred = vx.predict(steps=12)
+model = DynamicOptimizedTheta(period=12)
+model.fit(data)
+pred, lower, upper = model.predict(steps=12)
 ```
 
 ## Available Models
@@ -139,7 +139,7 @@ df = pd.read_csv("monthly_sales.csv")
 
 report = analyze(df, date="date", value="sales")
 print(f"DNA difficulty: {report.dna.difficulty}")
-print(f"Recommended: {report.dna.recommended}")
+print(f"Recommended: {report.dna.recommendedModels}")
 
 result = forecast(df, date="date", value="sales", steps=12)
 

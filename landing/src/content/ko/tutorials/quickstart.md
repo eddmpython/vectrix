@@ -181,7 +181,7 @@ forecast("data.csv", steps=3)                           # CSV 파일 경로
 | `steps` | `10` | 예측 스텝 수 |
 | `date` | 자동 | 날짜 컬럼명 (DataFrame/CSV만 해당) |
 | `value` | 자동 | 값 컬럼명 (DataFrame/CSV만 해당) |
-| `period` | 자동 | 계절 주기 (생략 시 자동 감지) |
+| `frequency` | `'auto'` | 데이터 빈도 (생략 시 자동 감지) |
 
 ## 결과 객체 참조
 
@@ -199,11 +199,11 @@ forecast("data.csv", steps=3)                           # CSV 파일 경로
 | `.mae` | `float` | 검증 MAE |
 | `.smape` | `float` | 검증 sMAPE |
 | `.compare()` | `DataFrame` | MAPE 기준 전체 모델 순위 |
-| `.all_forecasts()` | `DataFrame` | 모든 모델의 예측값 |
+| `.all_forecasts()` | `dict` | 모든 모델의 예측값 |
 | `.summary()` | `str` | 서식화된 텍스트 요약 |
 | `.to_dataframe()` | `DataFrame` | date, prediction, lower95, upper95 |
 | `.to_csv(path)` | `self` | CSV 파일 내보내기 |
-| `.to_json(path)` | `str` | JSON 문자열 내보내기 |
+| `.to_json()` | `str` | JSON 문자열 내보내기 |
 
 ## 완전한 예제
 
@@ -215,7 +215,7 @@ monthlySales = [
     460, 490, 530, 560, 600, 640, 610, 630, 670, 700, 730, 770,
 ]
 
-result = forecast(monthlySales, steps=6, period=12)
+result = forecast(monthlySales, steps=6, frequency='M')
 
 print(f"모델: {result.model}")
 print(f"MAPE: {result.mape:.2f}%")

@@ -29,7 +29,6 @@ result = vx.forecast(
     dateCol="date",
     valueCol="sales",
     steps=14,
-    period=7,
     trainRatio=0.8
 )
 

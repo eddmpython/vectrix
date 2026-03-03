@@ -8,7 +8,7 @@ Vectrix를 사용하는 가장 간단한 방법. 각 작업에 함수 하나면 
 
 ## 함수
 
-### `forecast(data, steps=10, **kwargs)`
+### `forecast(data, date=None, value=None, steps=30, frequency='auto', verbose=False)`
 
 자동 모델 선택을 통한 원콜 예측.
 
@@ -17,14 +17,15 @@ Vectrix를 사용하는 가장 간단한 방법. 각 작업에 함수 하나면 
 | 매개변수 | 타입 | 설명 |
 |---|---|---|
 | `data` | `list, ndarray, Series, DataFrame, dict, str` | 입력 데이터 (CSV 경로도 가능) |
-| `steps` | `int` | 예측 스텝 수 (기본: 10) |
 | `date` | `str` | 날짜 컬럼명 (선택, 자동 탐지) |
 | `value` | `str` | 값 컬럼명 (선택, 자동 탐지) |
-| `period` | `int` | 계절 주기 (선택, 자동 탐지) |
+| `steps` | `int` | 예측 스텝 수 (기본: 30) |
+| `frequency` | `str` | 데이터 빈도 (기본: `'auto'`) |
+| `verbose` | `bool` | 상세 로그 출력 (기본: False) |
 
 **반환:** `EasyForecastResult`
 
-### `analyze(data, **kwargs)`
+### `analyze(data, date=None, value=None, period=None)`
 
 시계열 DNA 프로파일링, 변화점 탐지, 이상치 식별.
 
@@ -38,7 +39,7 @@ Vectrix를 사용하는 가장 간단한 방법. 각 작업에 함수 하나면 
 
 **반환:** `EasyAnalysisResult`
 
-### `regress(y=None, X=None, data=None, formula=None, method="ols", **kwargs)`
+### `regress(y=None, X=None, data=None, formula=None, method="ols", summary=True)`
 
 R 스타일 수식 회귀분석 + 전체 진단.
 
@@ -55,11 +56,29 @@ R 스타일 수식 회귀분석 + 전체 진단.
 
 **반환:** `EasyRegressionResult`
 
-### `quick_report(data, steps=10, **kwargs)`
+### `compare(data, date=None, value=None, steps=30, verbose=False)`
+
+모든 모델의 성능 비교 테이블 생성.
+
+**반환:** `DataFrame`
+
+### `quick_report(data, date=None, value=None, steps=30)`
 
 분석 + 예측 통합 리포트 생성.
 
-**반환:** `str` -- 포맷된 리포트 문자열
+**반환:** `Dict` -- forecast, analysis 키를 포함한 딕셔너리
+
+### `listSamples()`
+
+사용 가능한 내장 샘플 데이터셋 목록.
+
+**반환:** `DataFrame`
+
+### `loadSample(name)`
+
+내장 샘플 데이터셋을 DataFrame으로 로드.
+
+**반환:** `DataFrame`
 
 ## 결과 클래스
 
@@ -83,11 +102,11 @@ R 스타일 수식 회귀분석 + 전체 진단.
 | 메서드 | 반환 타입 | 설명 |
 |---|---|---|
 | `.compare()` | `DataFrame` | MAPE 기준 전체 모델 순위 |
-| `.all_forecasts()` | `DataFrame` | 모든 모델의 예측값 |
+| `.all_forecasts()` | `dict` | 모든 모델의 예측값 |
 | `.summary()` | `str` | 포맷된 텍스트 요약 |
 | `.to_dataframe()` | `DataFrame` | date, prediction, lower95, upper95 |
 | `.to_csv(path)` | `self` | CSV로 저장 |
-| `.to_json(path)` | `str` | JSON으로 저장 |
+| `.to_json()` | `str` | JSON 문자열 반환 |
 | `.describe()` | `DataFrame` | Pandas 스타일 통계 |
 
 ### EasyAnalysisResult

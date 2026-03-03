@@ -53,23 +53,21 @@ print(f"레짐별 모델: {result.modelPerRegime}")
 ```python
 from vectrix import SelfHealingForecast
 
-healer = SelfHealingForecast(predictions, lower, upper, historicalData)
+healer = SelfHealingForecast(predictions, lower, upper, tolerance=0.1)
 healer.observe(actualValues)
 
 report = healer.getReport()
 print(f"건강 상태: {report.overallHealth} ({report.healthScore:.1f}/100)")
-print(f"개선율: {report.improvementPct:.1f}%")
 print(f"총 관측: {report.totalObserved}")
 print(f"총 교정: {report.totalCorrected}")
 
-updated = healer.getUpdatedForecast()
+updated_predictions, updated_lower, updated_upper = healer.getUpdatedForecast()
 ```
 
 **예상 출력:**
 
 ```
 건강 상태: good (82.5/100)
-개선율: 15.3%
 총 관측: 14
 총 교정: 3
 ```
@@ -84,30 +82,24 @@ updated = healer.getUpdatedForecast()
 from vectrix import ConstraintAwareForecaster, Constraint
 
 caf = ConstraintAwareForecaster()
-result = caf.apply(predictions, lower, upper, constraints=[
-    Constraint('non_negative', {}),
-    Constraint('range', {'min': 0, 'max': 5000}),
-    Constraint('capacity', {'capacity': 10000}),
-    Constraint('yoy_change', {'maxPct': 30, 'historicalData': pastYear}),
-])
+result = caf.apply(predictions, lower95, upper95, constraints=[
+    Constraint(name='non_negative', type='min', value=0),
+    Constraint(name='max_cap', type='max', value=5000),
+    Constraint(name='increasing', type='monotonic', value='increasing'),
+], smoothing=True)
 
 print(f"원본 평균: {predictions.mean():.2f}")
 print(f"교정 평균: {result.predictions.mean():.2f}")
-print(f"위반 수: {result.violationCount}")
 ```
 
 ### 제약 유형
 
 | 유형 | 설명 |
 |------|------|
-| `non_negative` | 음수 값 방지 |
-| `range` | 최솟값/최댓값 범위 제한 |
-| `capacity` | 용량 상한 제한 |
-| `yoy_change` | 전년 대비 변화율 제한 |
-| `sum` | 총합 제약 |
-| `monotone` | 단조 증가/감소만 허용 |
-| `ratio` | 시계열 간 비율 제약 |
-| `custom` | 사용자 정의 함수 |
+| `min` | 최솟값 제한 (예: 음수 불가) |
+| `max` | 최댓값 제한 (예: 용량 상한) |
+| `range` | 최소/최대 범위 제한 |
+| `monotonic` | 단조 증가/감소만 허용 |
 
 > **참고:** 제약은 순서대로 적용됩니다. 서로 충돌하는 제약이 있으면, 나중에 적용되는 제약이 우선합니다.
 
@@ -166,9 +158,10 @@ caf = ConstraintAwareForecaster()
 constrained = caf.apply(
     result.predictions, result.lower, result.upper,
     constraints=[
-        Constraint('non_negative', {}),
-        Constraint('range', {'min': 200, 'max': 800}),
-    ]
+        Constraint(name='non_negative', type='min', value=0),
+        Constraint(name='range_cap', type='range', value=(200, 800)),
+    ],
+    smoothing=True
 )
 print(f"\n제약 적용 후 예측 범위: {constrained.predictions.min():.1f} ~ {constrained.predictions.max():.1f}")
 ```

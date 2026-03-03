@@ -214,7 +214,7 @@ forecast("data.csv", steps=3)                           # CSV file path
 | `steps` | `10` | Number of forecast steps |
 | `date` | auto | Date column name (DataFrame/CSV only) |
 | `value` | auto | Value column name (DataFrame/CSV only) |
-| `period` | auto | Seasonal period (auto-detected if omitted) |
+| `frequency` | `'auto'` | Frequency hint (auto-detected if omitted) |
 
 ## Complete Example
 
@@ -226,7 +226,7 @@ monthly_sales = [
     460, 490, 530, 560, 600, 640, 610, 630, 670, 700, 730, 770,
 ]
 
-result = forecast(monthly_sales, steps=6, period=12)
+result = forecast(monthly_sales, steps=6)
 
 print(f"Model: {result.model}")
 print(f"MAPE: {result.mape:.2f}%")

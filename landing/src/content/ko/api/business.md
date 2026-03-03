@@ -8,19 +8,22 @@ title: 비즈니스 API
 
 ## AnomalyDetector
 
-`AnomalyDetector()`
+`AnomalyDetector(y)`
+
+생성자에 시계열 배열을 전달합니다.
 
 ### 메서드
 
-- `detect(data, method="auto", threshold=3.0)` -> `AnomalyResult`
+- `detect(y, method="auto", threshold=3.0, period=1)` -> `AnomalyResult`
 
 **매개변수:**
 
 | 매개변수 | 타입 | 설명 |
 |---|---|---|
-| `data` | `ndarray` | 입력 시계열 |
+| `y` | `ndarray` | 입력 시계열 |
 | `method` | `str` | 탐지 방법: `auto`, `zscore`, `iqr`, `rolling` |
 | `threshold` | `float` | 이상치 판정 임계값 (기본: 3.0) |
+| `period` | `int` | 계절 주기 (기본: 1) |
 
 ### AnomalyResult
 
@@ -38,7 +41,7 @@ title: 비즈니스 API
 
 ### 메서드
 
-- `analyze(predictions, historical, scenarios, period=None)` -> `list[ScenarioResult]`
+- `analyze(basePredictions, historicalData, scenarios, period=7)` -> `list[ScenarioResult]`
 - `compareSummary(results)` -> `str`
 
 **매개변수 (analyze):**
@@ -64,39 +67,39 @@ title: 비즈니스 API
 
 ## Backtester
 
-`Backtester(nFolds=5, horizon=30, strategy='expanding', minTrainSize=50)`
+`Backtester(nFolds=5, testSize=None)`
 
 **매개변수:**
 
 | 매개변수 | 타입 | 설명 |
 |---|---|---|
 | `nFolds` | `int` | 폴드 수 (기본: 5) |
-| `horizon` | `int` | 각 폴드의 예측 기간 (기본: 30) |
-| `strategy` | `str` | `'expanding'` 또는 `'sliding'` |
-| `minTrainSize` | `int` | 최소 학습 데이터 크기 (기본: 50) |
+| `testSize` | `int` | 테스트 크기 (선택) |
 
 ### 메서드
 
-- `run(data, modelFactory)` -> `BacktestResult`
-- `summary(result)` -> `str`
+- `run(y, modelFactory)` -> `BacktestResult`
 
 ### BacktestResult
 
 | 속성 | 타입 | 설명 |
 |---|---|---|
-| `.avgMAPE` | `float` | 평균 MAPE |
-| `.avgRMSE` | `float` | 평균 RMSE |
-| `.folds` | `list` | 폴드별 결과 |
-| `.bestFold` | `int` | 최고 폴드 번호 |
-| `.worstFold` | `int` | 최저 폴드 번호 |
+| `.folds` | `list[FoldResult]` | 폴드별 결과 |
+| `.avgMetrics` | `dict` | 평균 지표 |
+
+### FoldResult
+
+| 속성 | 타입 | 설명 |
+|---|---|---|
+| `.metrics` | `dict` | `'mape'`, `'smape'` 등 지표 딕셔너리 |
 
 ## BusinessMetrics
 
-`BusinessMetrics()`
+`BusinessMetrics`
 
 ### 메서드
 
-- `calculate(actual, predicted)` -> `dict`
+- `BusinessMetrics.calculate(y_true, y_pred, **kwargs)` -> `dict`
 
 **반환 딕셔너리 키:**
 

@@ -46,8 +46,10 @@ Walk-forward validation
 ```python
 from vectrix.business import Backtester
 
+from vectrix.engine.ets import AutoETS
+
 bt = Backtester(nFolds=5, horizon=14, strategy='expanding')
-result = bt.run(data, model_function)
+result = bt.run(data, lambda: AutoETS())
 
 print(f"Avg MAPE: {result.avgMAPE:.2f}%")
 print(f"Avg RMSE: {result.avgRMSE:.2f}")
@@ -57,6 +59,8 @@ print(f"Worst Fold: #{result.worstFold}")
 for f in result.folds:
     print(f"  Fold {f.fold}: MAPE={f.mape:.2f}%")
 ```
+
+`modelFactory` must be a callable that returns a model instance with `.fit(y)` and `.predict(steps)` methods.
 
 Strategies: `expanding`, `sliding`
 

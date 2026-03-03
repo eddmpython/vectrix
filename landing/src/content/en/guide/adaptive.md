@@ -48,7 +48,7 @@ report = healer.getReport()
 print(f"Health: {report.overallHealth} ({report.healthScore:.1f}/100)")
 print(f"Improvement: {report.improvementPct:.1f}%")
 
-updated = healer.getUpdatedForecast()
+updated_preds, updated_lower, updated_upper = healer.getUpdatedForecast()
 ```
 
 ## Constraint-Aware Forecasting

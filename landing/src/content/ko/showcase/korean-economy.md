@@ -88,7 +88,8 @@ print(comparison)
 ```python
 result.to_dataframe().to_csv("krw_forecast.csv", index=False)
 
-result.to_json("krw_forecast.json")
+jsonStr = result.to_json()
+print(jsonStr[:100])
 ```
 
 > **참고:** 이 쇼케이스는 교육 및 시연 목적으로만 제공됩니다. 금융 및 경제 지표 예측은 투자 결정에 사용해서는 안 됩니다. 과거 성과가 미래 결과를 보장하지 않습니다.

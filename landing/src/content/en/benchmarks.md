@@ -70,7 +70,7 @@ pip install vectrix==0.0.7
 Run the M3 benchmark (first 100 series per category)
 
 ```python
-from vectrix import Vectrix
+from vectrix import forecast
 from datasetsforecast.m3 import M3
 
 trainDict, testDict = M3.load(directory="./data")
@@ -87,9 +87,8 @@ for cat in categories:
     for i in range(nSeries):
         y = trainData[i]
         h = len(testData[i])
-        vx = Vectrix()
-        vx.fit(y)
-        pred = vx.predict(steps=h)
+        result = forecast(y, steps=h)
+        pred = result.predictions
 
     print(f"{cat}: sMAPE={totalSmape/nSeries:.3f}, MASE={totalMase/nSeries:.3f}")
 ```
@@ -110,9 +109,8 @@ for freq in frequencies:
     for i in range(nSeries):
         y = trainData[i]
         h = len(testData[i])
-        vx = Vectrix()
-        vx.fit(y)
-        pred = vx.predict(steps=h)
+        result = forecast(y, steps=h)
+        pred = result.predictions
 
     print(f"{freq}: sMAPE=..., MASE=...")
 ```

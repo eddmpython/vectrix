@@ -32,7 +32,7 @@ Methods: `auto`, `zscore`, `iqr`, `rolling`
 
 ### Methods
 
-- `analyze(predictions, historical, scenarios, period=None)` → list of `ScenarioResult`
+- `analyze(basePredictions, historicalData, scenarios, period=7)` → list of `ScenarioResult`
 - `compareSummary(results)` → `str`
 
 ### Scenario Parameters
@@ -40,12 +40,12 @@ Methods: `auto`, `zscore`, `iqr`, `rolling`
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `name` | `str` | Scenario label |
-| `trend_change` | `float` | Trend adjustment |
-| `seasonal_multiplier` | `float` | Scale seasonality |
-| `shock_at` | `int` | Shock step index |
-| `shock_magnitude` | `float` | Shock size |
-| `shock_duration` | `int` | Shock length |
-| `level_shift` | `float` | Permanent level change |
+| `trendChange` | `float` | Trend adjustment |
+| `seasonalMultiplier` | `float` | Scale seasonality |
+| `shockAt` | `int` | Shock step index |
+| `shockMagnitude` | `float` | Shock size |
+| `shockDuration` | `int` | Shock length |
+| `levelShift` | `float` | Permanent level change |
 
 ## Backtester
 
@@ -53,8 +53,9 @@ Methods: `auto`, `zscore`, `iqr`, `rolling`
 
 ### Methods
 
-- `run(data, modelFactory)` → `BacktestResult`
-- `summary(result)` → `str`
+- `run(y, modelFactory)` → `BacktestResult`
+  - `y`: Full time series (ndarray)
+  - `modelFactory`: Zero-argument callable that returns a model with `.fit(y)` and `.predict(steps)` methods
 
 ### BacktestResult
 
@@ -74,4 +75,4 @@ Methods: `auto`, `zscore`, `iqr`, `rolling`
 
 - `calculate(actual, predicted)` → `dict`
 
-Returns: `mape`, `rmse`, `mae`, `bias`, `biasPercent`, `wape`, `mase`, `forecastAccuracy`, `overForecastRatio`, `underForecastRatio`
+Returns: `bias`, `biasPercent`, `trackingSignal`, `wape`, `mase`, `overForecastRatio`, `underForecastRatio`, `fillRateImpact`, `forecastAccuracy`

@@ -58,7 +58,6 @@ result = vx.forecast(
     dateCol="date",
     valueCol="sales",
     steps=14,
-    period=7,
     trainRatio=0.8
 )
 
@@ -71,6 +70,7 @@ print(f"Predictions: {result.predictions}")
 ```python
 for modelId, mr in result.allModelResults.items():
     print(f"{mr.modelName}: MAPE={mr.mape:.2f}%, RMSE={mr.rmse:.2f}")
+
 ```
 
 **Expected output:**
@@ -277,7 +277,7 @@ ranking = compare(data, steps=12)
 print("Top 5 models:")
 print(ranking.head(5))
 
-result = forecast(data, steps=12, period=12)
+result = forecast(data, steps=12)
 print(f"\nSelected model: {result.model}")
 print(f"MAPE: {result.mape:.2f}%")
 print(f"Next 12 steps: {result.predictions.round(1)}")
