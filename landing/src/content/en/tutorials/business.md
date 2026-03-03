@@ -4,11 +4,13 @@ title: "Tutorial 06 — Business Intelligence"
 
 # Tutorial 06 — Business Intelligence
 
-Beyond forecasting -- tools for real-world decision-making. Detect anomalies, run what-if scenarios, backtest your forecasts, and measure business-relevant accuracy metrics.
+**Forecasting is only the first step.** Real-world decision-making requires anomaly detection to clean your data, what-if scenarios for planning, backtesting to validate your approach, and business-specific accuracy metrics that go beyond MAPE.
+
+Vectrix's Business Intelligence module provides all four — designed for operations managers, analysts, and data scientists who need production-ready forecasting workflows.
 
 ## Anomaly Detection
 
-Identify unusual observations in your time series
+Before forecasting, identify and understand unusual observations in your historical data. Anomalies can distort model training and lead to biased predictions:
 
 ```python
 from vectrix.business import AnomalyDetector
@@ -68,7 +70,7 @@ print(f"Rolling method found: {result_rolling.nAnomalies} anomalies")
 
 ## What-If Analysis
 
-Explore hypothetical scenarios against a baseline forecast
+What-if analysis lets you explore hypothetical scenarios against your baseline forecast — essential for budget planning, risk assessment, and stakeholder presentations. Define optimistic, pessimistic, and shock scenarios, then compare their impact:
 
 ```python
 from vectrix.business import WhatIfAnalyzer
@@ -126,7 +128,7 @@ Level Shift: mean=525.00, impact=+5.0%
 
 ## Backtesting
 
-Walk-forward validation measures how well your forecasting approach would have performed historically
+How do you know if your forecasting approach actually works? **Backtesting** (walk-forward validation) simulates how well your model would have performed on historical data by repeatedly training on past data and predicting the next window:
 
 ```python
 from vectrix.business import Backtester
@@ -211,7 +213,7 @@ Fold 3:       [====TRAIN====][TEST]
 
 ## Business Metrics
 
-Standard accuracy metrics miss what businesses care about. `BusinessMetrics` provides metrics that matter for operations and finance
+MAPE and RMSE tell you about statistical accuracy, but businesses care about different things: **Are we systematically over- or under-forecasting? What's our volume-weighted error? Does our model beat a naive baseline?** `BusinessMetrics` answers these questions:
 
 ```python
 from vectrix.business import BusinessMetrics
@@ -268,7 +270,7 @@ MASE (Mean Absolute Scaled Error) compares your model to a Naive baseline
 
 ## Combining Business Tools
 
-A typical business forecasting workflow
+In practice, these tools work together as a complete business forecasting workflow — detect anomalies, backtest your approach, generate the forecast, then explore scenarios:
 
 ```python
 import numpy as np
@@ -300,6 +302,8 @@ for s in scenarios:
 ```
 
 ## Complete Example: Monthly Sales Review
+
+A realistic example — evaluating last month's forecast accuracy using business metrics to decide if the model needs recalibration:
 
 ```python
 import numpy as np

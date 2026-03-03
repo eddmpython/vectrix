@@ -4,9 +4,11 @@ title: Business Intelligence
 
 # Business Intelligence
 
-Beyond forecasting -- tools for decision-making.
+**Forecasting is only the first step.** Real-world decision-making requires anomaly detection to clean your data, what-if scenarios for planning, backtesting to validate your approach, and business-specific accuracy metrics that go beyond MAPE. Vectrix's BI module provides all four.
 
 ## Anomaly Detection
+
+Before forecasting, identify unusual observations that could distort model training:
 
 ```python
 from vectrix.business import AnomalyDetector
@@ -23,6 +25,8 @@ print(f"Indices: {result.indices}")
 Methods: `auto`, `zscore`, `iqr`, `rolling`
 
 ## What-If Analysis
+
+Explore hypothetical scenarios against your baseline forecast — essential for budget planning, risk assessment, and stakeholder presentations:
 
 ```python
 from vectrix.business import WhatIfAnalyzer
@@ -41,7 +45,7 @@ for sr in results:
 
 ## Backtesting
 
-Walk-forward validation
+How do you know your forecasting approach works? **Walk-forward validation** simulates historical performance by repeatedly training and predicting:
 
 ```python
 from vectrix.business import Backtester
@@ -65,6 +69,8 @@ for f in result.folds:
 Strategies: `expanding`, `sliding`
 
 ## Business Metrics
+
+MAPE and RMSE tell you about statistical accuracy, but businesses need different answers: **systematic bias detection, volume-weighted error, and naive baseline comparison:**
 
 ```python
 from vectrix.business import BusinessMetrics

@@ -4,11 +4,11 @@ title: "Tutorial 03 — Regression"
 
 # Tutorial 03 — Regression
 
-R-style formula regression with full diagnostics, multiple methods, and prediction intervals -- all in one function call.
+**Full-featured regression analysis in a single function call.** Vectrix supports R-style formula syntax (`y ~ x1 + x2`), automatic diagnostics (heteroscedasticity, normality, multicollinearity), multiple methods (OLS, Ridge, Lasso, Robust), and prediction intervals — without leaving the Python ecosystem.
 
 ## Direct Input
 
-The simplest form: pass `y` and `X` directly as arrays
+The simplest form: pass `y` and `X` directly as numpy arrays. Vectrix runs OLS by default with automatic constant term:
 
 ```python
 import numpy as np

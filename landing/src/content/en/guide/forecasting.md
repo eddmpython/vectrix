@@ -4,9 +4,11 @@ title: Forecasting
 
 # Forecasting
 
+Vectrix provides two APIs for forecasting: the **Easy API** for quick, one-line usage, and the **Vectrix class** for full control over the forecasting pipeline.
+
 ## Easy API
 
-The simplest way to forecast
+The simplest way to forecast. One function call evaluates 30+ models, selects the best, and returns predictions with 95% confidence intervals:
 
 ```python
 from vectrix import forecast
@@ -14,11 +16,11 @@ from vectrix import forecast
 result = forecast(data, steps=30)
 ```
 
-`forecast()` accepts lists, numpy arrays, pandas DataFrames, Series, dicts, and CSV file paths. It automatically selects the best model from 30+ candidates.
+`forecast()` accepts lists, NumPy arrays, pandas DataFrames, Series, and CSV file paths. It automatically detects date/value columns, splits data for validation, and selects the model with the lowest validation error.
 
 ## Vectrix Class
 
-For more control, use the `Vectrix` class directly
+For full access to all model results, flat risk diagnostics, ensemble weights, and per-model metrics, use the `Vectrix` class directly:
 
 ```python
 from vectrix import Vectrix
@@ -45,21 +47,24 @@ for modelId, mr in result.allModelResults.items():
 
 ## Model Categories
 
+Vectrix evaluates models across 10 categories. Each category captures different time series dynamics:
+
 | Category | Models | Best For |
 |----------|--------|----------|
-| **Exponential Smoothing** | AutoETS, ETS variants | Stable patterns |
-| **ARIMA** | AutoARIMA | Stationary series |
-| **Decomposition** | MSTL, AutoMSTL | Multi-seasonal |
-| **Theta** | Theta, DOT | General purpose |
-| **Trigonometric** | TBATS | Complex seasonality |
-| **Complex** | AutoCES | Nonlinear patterns |
-| **Intermittent** | Croston, SBA, TSB | Sparse demand |
-| **Volatility** | GARCH, EGARCH, GJR | Financial data |
-| **Baselines** | Naive, Seasonal, Mean, RWD | Benchmarks |
+| **Exponential Smoothing** | AutoETS, ETS variants | Stable patterns with trend and seasonality |
+| **ARIMA** | AutoARIMA | Stationary and differenced series |
+| **Decomposition** | MSTL, AutoMSTL | Multiple seasonal periods (daily + weekly + yearly) |
+| **Theta** | Theta, DOT, 4Theta | General purpose — DOT is often the strongest single model |
+| **Complex ES** | AutoCES | Nonlinear and complex dynamics |
+| **Trigonometric** | TBATS | Complex multi-seasonality with non-integer periods |
+| **Intermittent** | Croston, SBA, TSB | Sparse demand with many zeros |
+| **Volatility** | GARCH, EGARCH, GJR | Financial data with time-varying variance |
+| **Neural/Reservoir** | ESN, DTSF | Nonlinear dynamics, pattern matching |
+| **Baselines** | Naive, Seasonal, Mean, RWD | Benchmarks — if your model can't beat these, something is wrong |
 
 ## Flat Defense System
 
-Vectrix includes a unique 4-level system to prevent flat (constant) predictions
+A common failure in statistical forecasting is flat (constant) predictions. Vectrix includes a unique 4-level defense system that detects and corrects this automatically:
 
 1. **FlatRiskDiagnostic** -- Pre-assessment of flat prediction risk
 2. **AdaptiveModelSelector** -- Risk-based model selection
@@ -75,7 +80,7 @@ print(f"Strategy: {fr.recommendedStrategy}")
 
 ## Direct Engine Access
 
-Use individual models directly
+For fine-grained control, use individual model engines. Every engine follows the same `fit()` → `predict()` interface:
 
 ```python
 from vectrix.engine.ets import AutoETS

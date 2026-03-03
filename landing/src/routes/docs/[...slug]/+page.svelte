@@ -2,7 +2,7 @@
 	import { locale } from '$lib/docs/i18n';
 	import { base } from '$app/paths';
 	import { navigation, findPrevNext } from '$lib/docs/navigation';
-	import { getDescription, getCanonicalUrl, SITE_NAME, OG_IMAGE } from '$lib/docs/seo';
+	import { getDescription, getCanonicalUrl, SITE_NAME, OG_IMAGE, SITE_URL } from '$lib/docs/seo';
 	import { page } from '$app/state';
 	import { ChevronLeft, ChevronRight } from 'lucide-svelte';
 	import { onMount, tick } from 'svelte';
@@ -54,6 +54,19 @@
 	let pageTitle = $derived(meta?.title ? `${meta.title} — Vectrix` : 'Vectrix Docs');
 	let pageDescription = $derived(getDescription(slugPath));
 	let canonicalUrl = $derived(getCanonicalUrl(slugPath));
+
+	let breadcrumbItems = $derived(() => {
+		if (!data.slug) return [{ name: 'Docs', url: `${SITE_URL}/docs` }];
+		const parts = data.slug.split('/');
+		const items = [{ name: 'Docs', url: `${SITE_URL}/docs` }];
+		let path = '/docs';
+		for (const part of parts) {
+			path += `/${part}`;
+			const name = part.replace(/-/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase());
+			items.push({ name, url: `${SITE_URL}${path}` });
+		}
+		return items;
+	});
 </script>
 
 <svelte:head>
@@ -84,6 +97,17 @@
 		"publisher": { "@type": "Organization", "name": "Vectrix", "logo": { "@type": "ImageObject", "url": OG_IMAGE } },
 		"mainEntityOfPage": { "@type": "WebPage", "@id": canonicalUrl },
 		"inLanguage": currentLang === "ko" ? "ko" : "en"
+	})}</script>`}
+
+	{@html `<script type="application/ld+json">${JSON.stringify({
+		"@context": "https://schema.org",
+		"@type": "BreadcrumbList",
+		"itemListElement": breadcrumbItems().map((item, i) => ({
+			"@type": "ListItem",
+			"position": i + 1,
+			"name": item.name,
+			"item": item.url
+		}))
 	})}</script>`}
 </svelte:head>
 

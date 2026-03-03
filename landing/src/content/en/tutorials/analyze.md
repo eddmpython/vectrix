@@ -4,11 +4,11 @@ title: "Tutorial 02 — Analysis & DNA"
 
 # Tutorial 02 — Analysis & DNA
 
-Every time series has a unique fingerprint. Vectrix extracts 65+ statistical features to build a "DNA profile" that reveals the nature of your data and recommends the best forecasting approach.
+**Understand your data before you forecast it.** Every time series has a unique statistical fingerprint — its "DNA." Vectrix extracts 65+ features from your data to build a profile that reveals trend direction, seasonal patterns, volatility regime, structural breaks, and forecasting difficulty. This profile drives automatic model selection and helps you make better decisions.
 
 ## Basic Analysis
 
-The `analyze()` function accepts the same input formats as `forecast()`
+The `analyze()` function accepts the same input formats as `forecast()` — lists, arrays, DataFrames, Series, or CSV paths:
 
 ```python
 import pandas as pd
@@ -54,7 +54,7 @@ print(report.summary())
 
 ## DNA Profile
 
-The DNA profile is the core of Vectrix's intelligence. Access it through `report.dna`
+The DNA profile is the core of Vectrix's intelligence — it determines which models to prioritize, how to set hyperparameters, and what difficulty level to expect. Access it through `report.dna`:
 
 ```python
 dna = report.dna
@@ -88,7 +88,7 @@ The fingerprint is deterministic: the same data always produces the same hash. T
 
 ## Changepoints
 
-Changepoints are locations where the statistical properties of the time series shift (mean, variance, or trend)
+Changepoints are locations where the underlying statistical properties of the time series shift — a sudden change in mean level, variance, or trend slope. Detecting these is critical because data before a changepoint may follow different dynamics than data after it:
 
 ```python
 print(f"Changepoints at indices: {report.changepoints}")
@@ -104,7 +104,7 @@ These correspond to positions in your data where structural breaks occurred -- f
 
 ## Anomalies
 
-Anomaly indices mark individual observations that deviate significantly from the expected pattern
+Anomalies are individual observations that deviate significantly from the expected pattern. Unlike changepoints (which are structural shifts), anomalies are isolated spikes or dips — often caused by data errors, one-time events, or external shocks:
 
 ```python
 print(f"Anomaly indices: {report.anomalies}")
@@ -120,7 +120,7 @@ Number of anomalies: 3
 
 ## Data Characteristics
 
-The `characteristics` object provides detailed statistical properties
+The `characteristics` object provides a comprehensive statistical profile of your data — trend direction and strength, seasonal patterns, volatility level, and predictability score:
 
 ```python
 c = report.characteristics
@@ -165,7 +165,7 @@ Outliers: 3 (0.8%)
 
 ## Full Summary
 
-The `summary()` method combines all analysis components into a single formatted report
+The `summary()` method combines all analysis components — DNA profile, characteristics, changepoints, anomalies, and model recommendations — into a single formatted report:
 
 ```python
 full_report = report.summary()
@@ -176,7 +176,7 @@ This includes the DNA profile, characteristics, changepoints, anomalies, and mod
 
 ## Extracted Features
 
-Access the raw 65+ features as a dictionary
+Access the raw 65+ statistical features as a dictionary. These features include autocorrelation, Hurst exponent, entropy, volatility clustering, and many more — they power the DNA classification system:
 
 ```python
 features = report.features
@@ -201,7 +201,7 @@ for key, value in list(features.items())[:10]:
 
 ## Practical Usage: Analyze Before Forecasting
 
-Use analysis results to make informed forecasting decisions
+A powerful pattern is to analyze first, then adjust your forecasting strategy based on what the DNA reveals. This lets you handle edge cases gracefully:
 
 ```python
 from vectrix import analyze, forecast
@@ -226,7 +226,7 @@ else:
 
 ## Direct ForecastDNA Access
 
-For lower-level control, use `ForecastDNA` directly
+For lower-level control — such as building custom model selection logic or caching DNA profiles — use the `ForecastDNA` class directly:
 
 ```python
 from vectrix import ForecastDNA

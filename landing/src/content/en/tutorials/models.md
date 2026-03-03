@@ -4,11 +4,13 @@ title: "Tutorial 04 — 30+ Models"
 
 # Tutorial 04 — 30+ Models
 
-Vectrix ships with 30+ forecasting models spanning exponential smoothing, ARIMA, decomposition, theta methods, intermittent demand, volatility, and more. This tutorial shows how to compare models, use the `Vectrix` class for full control, and understand the model selection process.
+**Vectrix ships with 30+ forecasting models** spanning exponential smoothing, ARIMA, decomposition, theta methods, intermittent demand, volatility, neural reservoirs, and pattern matching. Each model captures different aspects of time series dynamics — trend, seasonality, level shifts, nonlinear patterns — and Vectrix automatically selects the best one for your data.
+
+This tutorial shows how to compare models, use the `Vectrix` class for full control, access individual engines directly, and understand the model selection process.
 
 ## Quick Model Comparison
 
-The fastest way to compare all models on your data
+The fastest way to see how all models perform on your data — one function call, ranked by accuracy:
 
 ```python
 from vectrix import compare
@@ -45,7 +47,7 @@ print(result.compare())
 
 ## The Vectrix Class
 
-For full control over the forecasting process, use the `Vectrix` class directly
+The Easy API (`forecast()`) is great for quick results. When you need full control — access to all model results, flat risk diagnostics, ensemble weights, and per-model metrics — use the `Vectrix` class directly:
 
 ```python
 import pandas as pd
@@ -87,7 +89,7 @@ MSTL: MAPE=4.56%, RMSE=14.23
 
 ## Available Models
 
-All models are evaluated automatically. Here is the complete list organized by category
+All models below are evaluated automatically when you call `forecast()` or `Vectrix().forecast()`. Vectrix selects the best one based on validation performance — you never need to choose manually, but understanding the options helps interpret results:
 
 ### Exponential Smoothing
 
@@ -164,7 +166,7 @@ All models are evaluated automatically. Here is the complete list organized by c
 
 ## Direct Engine Access
 
-Use individual models for fine-grained control
+For fine-grained control, use individual model engines directly. Each engine follows the same `fit()` → `predict()` interface and returns predictions with 95% confidence intervals:
 
 ```python
 from vectrix.engine.ets import AutoETS
@@ -206,7 +208,7 @@ for name, model in models.items():
 
 ## Flat Prediction Defense
 
-A common failure mode in forecasting is flat (constant) predictions -- where the model outputs the same value for every future step. Vectrix includes a unique 4-level defense system
+A common failure mode in statistical forecasting is **flat (constant) predictions** — where the model outputs the same value for every future step. This typically happens with mean-reverting models on noisy data. Vectrix includes a unique 4-level defense system that detects and corrects this automatically:
 
 ```python
 from vectrix import Vectrix
@@ -230,7 +232,7 @@ print(f"Strategy: {fr.recommendedStrategy}")
 
 ## Data Characteristics Drive Selection
 
-Vectrix uses DNA-based meta-learning to select models. The process
+Vectrix doesn't pick models randomly. It uses **DNA-based meta-learning** — a system that extracts 65+ statistical features from your data and uses them to prioritize the most promising model candidates. The process:
 
 1. **Feature extraction** -- 65+ statistical features computed from your data
 2. **DNA profiling** -- Features mapped to a difficulty score and category
@@ -247,7 +249,7 @@ print(f"Evaluated: {result.models}")
 
 ## Ensemble Strategy
 
-When no single model clearly dominates, Vectrix can combine multiple models
+When no single model clearly dominates — or when multiple models perform similarly — Vectrix combines them into a weighted ensemble. The ensemble typically outperforms any individual model because different models make different errors:
 
 ```python
 from vectrix import Vectrix
