@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 200" fill="none">
+  <defs>
+    <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#818cf8;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#6366f1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4f46e5;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#22d3ee;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#6366f1;stop-opacity:0.8" />
+    </linearGradient>
+    <filter id="shadow">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#6366f1" flood-opacity="0.4"/>
+    </filter>
+    <filter id="glow-filter">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="200" rx="16" fill="#0f172a"/>
+
+  <!-- Subtle grid pattern -->
+  <g opacity="0.05">
+    <line x1="0" y1="40" x2="800" y2="40" stroke="#818cf8" stroke-width="0.5"/>
+    <line x1="0" y1="80" x2="800" y2="80" stroke="#818cf8" stroke-width="0.5"/>
+    <line x1="0" y1="120" x2="800" y2="120" stroke="#818cf8" stroke-width="0.5"/>
+    <line x1="0" y1="160" x2="800" y2="160" stroke="#818cf8" stroke-width="0.5"/>
+    <line x1="100" y1="0" x2="100" y2="200" stroke="#818cf8" stroke-width="0.5"/>
+    <line x1="200" y1="0" x2="200" y2="200" stroke="#818cf8" stroke-width="0.5"/>
+    <line x1="300" y1="0" x2="300" y2="200" stroke="#818cf8" stroke-width="0.5"/>
+    <line x1="400" y1="0" x2="400" y2="200" stroke="#818cf8" stroke-width="0.5"/>
+    <line x1="500" y1="0" x2="500" y2="200" stroke="#818cf8" stroke-width="0.5"/>
+    <line x1="600" y1="0" x2="600" y2="200" stroke="#818cf8" stroke-width="0.5"/>
+    <line x1="700" y1="0" x2="700" y2="200" stroke="#818cf8" stroke-width="0.5"/>
+  </g>
+
+  <!-- Vector arrows decorative -->
+  <g opacity="0.15" filter="url(#glow-filter)">
+    <path d="M 50 150 L 120 60" stroke="#22d3ee" stroke-width="1.5"/>
+    <polygon points="120,60 114,70 124,72" fill="#22d3ee"/>
+    <path d="M 50 150 L 150 110" stroke="#818cf8" stroke-width="1.5"/>
+    <polygon points="150,110 140,112 142,104" fill="#818cf8"/>
+    <path d="M 50 150 L 100 170" stroke="#a78bfa" stroke-width="1.5"/>
+    <polygon points="100,170 92,164 90,174" fill="#a78bfa"/>
+
+    <path d="M 680 40 L 750 130" stroke="#22d3ee" stroke-width="1.5"/>
+    <polygon points="750,130 744,120 754,118" fill="#22d3ee"/>
+    <path d="M 680 40 L 720 35" stroke="#818cf8" stroke-width="1.5"/>
+    <polygon points="720,35 712,30 710,40" fill="#818cf8"/>
+  </g>
+
+  <!-- Orbital rings -->
+  <ellipse cx="400" cy="100" rx="350" ry="25" stroke="url(#accent)" stroke-width="0.8" fill="none" opacity="0.12"/>
+  <ellipse cx="400" cy="100" rx="300" ry="45" stroke="url(#accent)" stroke-width="0.6" fill="none" opacity="0.08" transform="rotate(-8, 400, 100)"/>
+
+  <!-- ∿ Symbol -->
+  <text x="195" y="125" font-family="Georgia, serif" font-size="72" fill="url(#glow)" filter="url(#shadow)" opacity="0.9">∿</text>
+
+  <!-- Main title -->
+  <text x="260" y="122" font-family="'Segoe UI', 'SF Pro Display', -apple-system, sans-serif" font-size="80" font-weight="800" fill="url(#glow)" filter="url(#shadow)" letter-spacing="-2">VECTRIX</text>
+
+  <!-- Tagline -->
+  <text x="400" y="160" font-family="'Segoe UI', 'SF Pro Display', -apple-system, sans-serif" font-size="14" fill="#94a3b8" text-anchor="middle" letter-spacing="6" font-weight="300">NAVIGATE THE VECTOR SPACE OF TIME</text>
+
+  <!-- Version dot -->
+  <circle cx="635" cy="82" r="4" fill="#22d3ee" opacity="0.8"/>
+
+  <!-- Decorative dots -->
+  <circle cx="60" cy="30" r="2" fill="#6366f1" opacity="0.3"/>
+  <circle cx="90" cy="45" r="1.5" fill="#22d3ee" opacity="0.2"/>
+  <circle cx="740" cy="160" r="2" fill="#6366f1" opacity="0.3"/>
+  <circle cx="760" cy="170" r="1.5" fill="#22d3ee" opacity="0.2"/>
+  <circle cx="720" cy="175" r="1" fill="#a78bfa" opacity="0.2"/>
+</svg>

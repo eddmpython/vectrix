@@ -1,0 +1,92 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+dist/
+build/
+*.whl
+
+# Virtual environments
+.venv/
+env/
+venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.*
+
+# Data files
+*.xlsx
+*.xls
+*.csv
+!benchmarks/*Results.csv
+*.tsv
+*.pkl
+*.pickle
+*.parquet
+*.feather
+*.jsonl
+
+# Output files
+*.log
+*.html
+!docs/overrides/*.html
+!landing/src/**/*.html
+*.pdf
+
+# Cache
+.cache/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+coverage.xml
+.coverage
+
+# MkDocs
+site/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Rust
+rust/target/
+
+# uv
+uv.lock
+
+# Landing (SvelteKit) — build artifacts only
+landing/node_modules/
+landing/.svelte-kit/
+landing/build/
+landing/static/_backup/
+
+# Marimo skills (auto-generated, not vectrix skills)
+.agent/
+.agents/
+.claude/skills/add-molab-badge/
+.claude/skills/anywidget-generator/
+.claude/skills/jupyter-to-marimo/
+.claude/skills/marimo-batch/
+.claude/skills/marimo-notebook/
+.claude/skills/wasm-compatibility/
+.kiro/
+.windsurf/
+skills-lock.json
+
+# Local data cache
+data/

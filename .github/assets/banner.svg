@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 120" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#0f172a;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1e1b4b;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="line-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+      <stop offset="60%" style="stop-color:#818cf8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#22d3ee;stop-opacity:0.6" />
+    </linearGradient>
+    <linearGradient id="conf-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1;stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:#6366f1;stop-opacity:0.02" />
+    </linearGradient>
+    <filter id="line-glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="800" height="120" rx="12" fill="url(#bg)"/>
+
+  <!-- Grid lines -->
+  <g opacity="0.06">
+    <line x1="0" y1="30" x2="800" y2="30" stroke="#818cf8" stroke-width="0.5"/>
+    <line x1="0" y1="60" x2="800" y2="60" stroke="#818cf8" stroke-width="0.5"/>
+    <line x1="0" y1="90" x2="800" y2="90" stroke="#818cf8" stroke-width="0.5"/>
+  </g>
+
+  <!-- Confidence interval area -->
+  <path d="M 500 55 Q 540 40, 560 48 Q 580 56, 600 42 Q 620 28, 640 35 Q 660 42, 680 30 Q 700 18, 720 25 L 720 85 Q 700 72, 680 80 Q 660 88, 640 85 Q 620 82, 600 90 Q 580 98, 560 88 Q 540 78, 500 75 Z" fill="url(#conf-grad)"/>
+
+  <!-- Past signal line -->
+  <path d="M 40 70 Q 80 55, 120 65 Q 160 75, 200 58 Q 240 42, 280 55 Q 320 68, 360 50 Q 400 32, 440 48 Q 460 56, 480 45 L 500 55"
+        stroke="url(#line-grad)" stroke-width="2.5" fill="none" stroke-linecap="round" filter="url(#line-glow)"/>
+
+  <!-- Future prediction line (dashed) -->
+  <path d="M 500 55 Q 540 42, 560 48 Q 580 54, 600 42 Q 620 30, 640 38 Q 660 46, 680 35 Q 700 24, 720 30"
+        stroke="#22d3ee" stroke-width="2" fill="none" stroke-dasharray="8,4" stroke-linecap="round" opacity="0.8"/>
+
+  <!-- Now marker -->
+  <line x1="500" y1="15" x2="500" y2="105" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3,3" opacity="0.6"/>
+  <text x="500" y="12" font-family="'Segoe UI', sans-serif" font-size="9" fill="#f59e0b" text-anchor="middle" opacity="0.8">NOW</text>
+
+  <!-- Labels -->
+  <text x="250" y="105" font-family="'Segoe UI', sans-serif" font-size="10" fill="#64748b" text-anchor="middle" letter-spacing="3">HISTORICAL DATA</text>
+  <text x="620" y="105" font-family="'Segoe UI', sans-serif" font-size="10" fill="#22d3ee" text-anchor="middle" letter-spacing="3" opacity="0.7">PREDICTION</text>
+
+  <!-- Data points on the line -->
+  <circle cx="120" cy="65" r="2.5" fill="#6366f1" opacity="0.6"/>
+  <circle cx="200" cy="58" r="2.5" fill="#6366f1" opacity="0.6"/>
+  <circle cx="280" cy="55" r="2.5" fill="#6366f1" opacity="0.6"/>
+  <circle cx="360" cy="50" r="2.5" fill="#818cf8" opacity="0.7"/>
+  <circle cx="440" cy="48" r="2.5" fill="#818cf8" opacity="0.8"/>
+  <circle cx="500" cy="55" r="3.5" fill="#f59e0b" opacity="0.9"/>
+
+  <!-- Predicted points -->
+  <circle cx="560" cy="48" r="2" fill="#22d3ee" opacity="0.5"/>
+  <circle cx="640" cy="38" r="2" fill="#22d3ee" opacity="0.4"/>
+  <circle cx="720" cy="30" r="2" fill="#22d3ee" opacity="0.3"/>
+</svg>
