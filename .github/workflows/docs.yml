@@ -5,6 +5,7 @@ on:
     branches: [master]
     paths:
       - 'landing/**'
+      - 'docs/**'
       - 'llms.txt'
       - 'llms-full.txt'
       - '.github/workflows/docs.yml'

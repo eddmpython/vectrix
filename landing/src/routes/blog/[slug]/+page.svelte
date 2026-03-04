@@ -1,14 +1,20 @@
 <script lang="ts">
 	import { base } from '$app/paths';
-	import { getPostBySlug, categories } from '$lib/blog/posts';
+	import { getPostBySlug, blogPosts, categories } from '$lib/blog/posts';
 	import { SITE_URL, SITE_NAME, OG_IMAGE } from '$lib/docs/seo';
-	import { ChevronLeft, Clock, ArrowLeft } from 'lucide-svelte';
+	import { Clock, ArrowLeft, ArrowRight } from 'lucide-svelte';
 	import { onMount, tick } from 'svelte';
 
 	let { data } = $props();
 
 	let post = $derived(getPostBySlug(data.slug));
 	let Component = $derived(data.component);
+
+	let otherPosts = $derived(blogPosts.filter(p => p.slug !== data.slug));
+	let visibleCount = $state(3);
+	let visiblePosts = $derived(otherPosts.slice(0, visibleCount));
+	let hasMore = $derived(visibleCount < otherPosts.length);
+	let sentinel: HTMLDivElement | undefined = $state();
 
 	let pageTitle = $derived(data.meta?.title ? `${data.meta.title} — Vectrix Blog` : 'Vectrix Blog');
 	let pageDescription = $derived(post?.description ?? 'A blog post from Vectrix about forecasting.');
@@ -38,7 +44,19 @@
 		});
 	}
 
-	onMount(addCopyButtons);
+	onMount(() => {
+		addCopyButtons();
+
+		if (sentinel) {
+			const observer = new IntersectionObserver((entries) => {
+				if (entries[0].isIntersecting && hasMore) {
+					visibleCount += 3;
+				}
+			}, { rootMargin: '200px' });
+			observer.observe(sentinel);
+			return () => observer.disconnect();
+		}
+	});
 
 	$effect(() => {
 		Component;
@@ -125,6 +143,35 @@
 				Back to all posts
 			</a>
 		</div>
+
+		{#if otherPosts.length > 0}
+			<section class="more-posts">
+				<h2 class="more-posts-heading">More from the blog</h2>
+				{#each visiblePosts as p}
+					<a href="{base}/blog/{p.slug}" class="more-post-card">
+						<div class="more-post-meta">
+							<span class="more-post-category" style="color: {categories[p.category].color}">{categories[p.category].label}</span>
+							<span class="more-post-date">{p.date}</span>
+							<span class="more-post-reading">
+								<Clock size={12} />
+								{p.readingTime}
+							</span>
+						</div>
+						<h3 class="more-post-title">{p.title}</h3>
+						<p class="more-post-desc">{p.description}</p>
+						<span class="more-post-cta">
+							Read article <ArrowRight size={14} />
+						</span>
+					</a>
+				{/each}
+
+				{#if hasMore}
+					<div bind:this={sentinel} class="more-posts-sentinel">
+						<div class="more-posts-loader"></div>
+					</div>
+				{/if}
+			</section>
+		{/if}
 	</div>
 {/if}
 
@@ -356,6 +403,109 @@
 		transition: color 0.15s;
 	}
 	.blog-back-bottom:hover { color: #06b6d4; }
+
+	/* --- More posts (infinite scroll) --- */
+
+	.more-posts {
+		margin-top: 4rem;
+		padding-top: 2rem;
+		border-top: 1px solid rgba(148, 163, 184, 0.08);
+	}
+
+	.more-posts-heading {
+		font-size: 0.8rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.08em;
+		color: #64748b;
+		margin: 0 0 1.25rem;
+	}
+
+	.more-post-card {
+		display: block;
+		padding: 1.25rem;
+		border-radius: 10px;
+		border: 1px solid rgba(148, 163, 184, 0.08);
+		text-decoration: none;
+		transition: all 0.2s;
+		margin-bottom: 0.75rem;
+	}
+
+	.more-post-card:hover {
+		border-color: rgba(6, 182, 212, 0.3);
+		background: rgba(6, 182, 212, 0.03);
+	}
+
+	.more-post-meta {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		margin-bottom: 0.4rem;
+	}
+
+	.more-post-category {
+		font-size: 0.7rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+	}
+
+	.more-post-date {
+		font-size: 0.7rem;
+		color: #475569;
+	}
+
+	.more-post-reading {
+		display: flex;
+		align-items: center;
+		gap: 0.25rem;
+		font-size: 0.7rem;
+		color: #475569;
+	}
+
+	.more-post-title {
+		font-size: 1.15rem;
+		font-weight: 700;
+		color: #f8fafc;
+		margin: 0 0 0.3rem;
+		line-height: 1.3;
+	}
+
+	.more-post-desc {
+		font-size: 0.85rem;
+		color: #94a3b8;
+		line-height: 1.6;
+		margin: 0;
+	}
+
+	.more-post-cta {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.35rem;
+		margin-top: 0.6rem;
+		font-size: 0.8rem;
+		font-weight: 500;
+		color: #06b6d4;
+	}
+
+	.more-posts-sentinel {
+		display: flex;
+		justify-content: center;
+		padding: 2rem 0;
+	}
+
+	.more-posts-loader {
+		width: 24px;
+		height: 24px;
+		border: 2px solid rgba(148, 163, 184, 0.15);
+		border-top-color: #06b6d4;
+		border-radius: 50%;
+		animation: spin 0.6s linear infinite;
+	}
+
+	@keyframes spin {
+		to { transform: rotate(360deg); }
+	}
 
 	@media (max-width: 480px) {
 		.blog-article :global(h1) { font-size: 1.6rem; }

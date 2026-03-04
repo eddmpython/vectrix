@@ -11,13 +11,13 @@ function stripNumberPrefix(filename: string): string {
 const slugMap = new Map<string, string>();
 for (const rawPath of Object.keys(modules)) {
 	const slug = stripNumberPrefix(rawPath)
-		.replace(/^@docs\/blog\//, '')
+		.replace(/^.*\/blog\//, '')
 		.replace('.md', '');
 	slugMap.set(slug, rawPath);
 }
 
 export const entries: EntryGenerator = () => {
-	return blogPosts.map(p => ({ slug: p.slug }));
+	return blogPosts.map((p) => ({ slug: p.slug }));
 };
 
 export const prerender = true;
