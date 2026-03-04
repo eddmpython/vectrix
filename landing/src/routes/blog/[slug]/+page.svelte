@@ -174,7 +174,7 @@
 		<a href="{base}/blog">Back to Blog</a>
 	</div>
 {:else}
-	<div class="blog-post-layout">
+	<div class="blog-post-wrapper">
 		<div class="blog-post-page">
 			<a href="{base}/blog" class="blog-back">
 				<ArrowLeft size={14} />
@@ -270,11 +270,9 @@
 	.not-found p { color: #94a3b8; margin: 1rem 0; }
 	.not-found a { color: #06b6d4; text-decoration: none; }
 
-	.blog-post-layout {
-		display: grid;
-		grid-template-columns: 1fr 200px;
-		gap: 2rem;
-		max-width: 960px;
+	.blog-post-wrapper {
+		position: relative;
+		max-width: 720px;
 		margin: 0 auto;
 	}
 
@@ -599,8 +597,10 @@
 
 	/* Blog TOC */
 	.blog-toc {
-		position: sticky;
+		position: fixed;
 		top: 72px;
+		left: calc(50% + 360px + 2rem);
+		width: 200px;
 		height: fit-content;
 		max-height: calc(100vh - 90px);
 		overflow-y: auto;
@@ -658,10 +658,6 @@
 	}
 
 	@media (max-width: 1100px) {
-		.blog-post-layout {
-			grid-template-columns: 1fr;
-			max-width: 720px;
-		}
 		.blog-toc { display: none; }
 	}
 
