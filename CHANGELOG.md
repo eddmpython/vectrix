@@ -5,6 +5,37 @@ All notable changes to Vectrix will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.13] - 2026-03-04
+
+Model Registry architecture — eliminates coupling between model metadata, model creation, and orchestration. Adding a new model now requires editing only 1 file instead of 5.
+
+### Changed
+
+**Architecture: Model Registry Pattern (`engine/registry.py`)**
+- Created `engine/registry.py` as the Single Source of Truth for all model metadata
+- `ModelSpec` dataclass: modelId, name, description, factory, needsPeriod, minData, flatResistance, bestFor, refitStrategy
+- `createModel(modelId, period)`: unified model instantiation — replaces 200-line if/elif chain in vectrix.py
+- `getRegistry()`, `getModelSpec()`, `listModelIds()`, `getModelInfo()`: centralized access to model information
+- Adding a new forecasting model now requires only 1 edit: add a `ModelSpec` entry to `registry.py`
+
+**vectrix.py Refactored (959 → 709 lines, -26%)**
+- Removed `NATIVE_MODELS` class dict (80+ lines) — replaced by `getRegistry()`
+- Removed `_fitAndPredictNativeWithCache` 200-line if/elif chain — replaced by `createModel()` + `fit()` + `predict()`
+- Refit strategies now driven by `ModelSpec.refitStrategy` field instead of model-specific if/elif
+- `_getModelName()` static method replaces repeated dict lookups
+
+**types.py MODEL_INFO Unified**
+- `MODEL_INFO` is now a lazy-loading proxy that reads from `engine/registry.py` on first access
+- Backward compatible: all existing code using `MODEL_INFO[modelId]` continues to work
+- Eliminates duplicate model metadata between types.py and vectrix.py
+
+### Added
+
+- `engine/registry.py`: Model registry module with `ModelSpec`, `getRegistry()`, `createModel()`, `getModelInfo()`
+- `CLAUDE.md`: Architecture design philosophy section documenting registry pattern, module roles, dependency direction, and engine interface contract
+
+[0.0.13]: https://github.com/eddmpython/vectrix/compare/v0.0.12...v0.0.13
+
 ## [0.0.12] - 2026-03-04
 
 DOT-Hybrid holdout validation release — 8-way config selection for period>1 data now uses holdout validation instead of in-sample MAE, reducing overfitting on Quarterly (-1.25%) and Monthly (-2.55%) forecasts. AVG OWA improved from 0.8831 to ~0.876.

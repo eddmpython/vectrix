@@ -33,6 +33,7 @@ from .probabilistic import ProbabilisticForecaster
 from .tbats import TBATS, AutoTBATS
 from .theta import ThetaModel
 from .tsfeatures import TSFeatureExtractor
+from .registry import ModelSpec, createModel, getModelInfo, getModelSpec, getRegistry, listModelIds
 from .turbo import TurboCore
 from .var import VARModel, VECMModel
 
@@ -86,4 +87,10 @@ __all__ = [
     "AdaptiveThetaEnsemble",
     "EchoStateForecaster",
     "DynamicTimeScanForecaster",
+    "ModelSpec",
+    "getRegistry",
+    "getModelSpec",
+    "listModelIds",
+    "createModel",
+    "getModelInfo",
 ]

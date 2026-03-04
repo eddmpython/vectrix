@@ -23,33 +23,8 @@ import pandas as pd
 warnings.filterwarnings('ignore', module='vectrix')
 
 from .analyzer import AutoAnalyzer
-
-# Self-implemented engines
-from .engine import (
-    ARIMAModel,
-    AutoCES,
-    AutoCroston,
-    AutoMSTL,
-    AutoTBATS,
-    DynamicOptimizedTheta,
-    EGARCHModel,
-    ETSModel,
-    GARCHModel,
-    GJRGARCHModel,
-    MeanModel,
-    NaiveModel,
-    PeriodicDropDetector,
-    RandomWalkDrift,
-    TurboCore,
-    WindowAverage,
-)
-from .engine.arima import AutoARIMA
-from .engine.decomposition import MSTLDecomposition
-from .engine.dtsf import DynamicTimeScanForecaster
-from .engine.esn import EchoStateForecaster
-from .engine.ets import AutoETS
-from .engine.fourTheta import AdaptiveThetaEnsemble
-from .engine.theta import OptimizedTheta
+from .engine import PeriodicDropDetector, TurboCore
+from .engine.registry import createModel, getModelInfo, getModelSpec, getRegistry, listModelIds
 from .flat_defense import FlatPredictionCorrector, FlatPredictionDetector, FlatRiskDiagnostic
 from .models.ensemble import VariabilityPreservingEnsemble
 from .types import DataCharacteristics, FlatRiskAssessment, ForecastResult, ModelResult, RiskLevel
@@ -68,120 +43,7 @@ class Vectrix:
     Dependencies: numpy, pandas, scipy (required), numba (optional)
     """
 
-    VERSION = "0.0.12"
-
-    NATIVE_MODELS = {
-        'auto_ets': {
-            'name': 'AutoETS (Native)',
-            'description': 'Self-implemented automatic exponential smoothing.',
-            'class': AutoETS
-        },
-        'auto_arima': {
-            'name': 'AutoARIMA (Native)',
-            'description': 'Self-implemented automatic ARIMA.',
-            'class': AutoARIMA
-        },
-        'theta': {
-            'name': 'Theta (Native)',
-            'description': 'Self-implemented Theta model.',
-            'class': OptimizedTheta
-        },
-        'ets_aan': {
-            'name': 'ETS(A,A,N)',
-            'description': "Holt's Linear (additive trend, no season).",
-            'class': lambda period: ETSModel('A', 'A', 'N', period)
-        },
-        'ets_aaa': {
-            'name': 'ETS(A,A,A)',
-            'description': 'Holt-Winters additive seasonality.',
-            'class': lambda period: ETSModel('A', 'A', 'A', period)
-        },
-        'seasonal_naive': {
-            'name': 'Seasonal Naive (Native)',
-            'description': 'Seasonal naive baseline.',
-            'class': None
-        },
-        'mstl': {
-            'name': 'MSTL (Native)',
-            'description': 'Multiple seasonal decomposition.',
-            'class': MSTLDecomposition
-        },
-        'auto_mstl': {
-            'name': 'AutoMSTL (Native)',
-            'description': 'Auto multiple seasonality decomposition + ARIMA.',
-            'class': AutoMSTL
-        },
-        'naive': {
-            'name': 'Naive',
-            'description': 'Random Walk — last value repetition.',
-            'class': NaiveModel
-        },
-        'mean': {
-            'name': 'Mean',
-            'description': 'Historical mean forecast.',
-            'class': MeanModel
-        },
-        'rwd': {
-            'name': 'Random Walk with Drift',
-            'description': 'Last value + average trend.',
-            'class': RandomWalkDrift
-        },
-        'window_avg': {
-            'name': 'Window Average',
-            'description': 'Recent window average forecast.',
-            'class': WindowAverage
-        },
-        'auto_ces': {
-            'name': 'AutoCES (Native)',
-            'description': 'Complex exponential smoothing auto selection.',
-            'class': AutoCES
-        },
-        'croston': {
-            'name': 'Croston (Auto)',
-            'description': 'Intermittent demand auto selection.',
-            'class': AutoCroston
-        },
-        'dot': {
-            'name': 'Dynamic Optimized Theta',
-            'description': 'Joint Theta+alpha+drift optimization.',
-            'class': DynamicOptimizedTheta
-        },
-        'tbats': {
-            'name': 'TBATS (Native)',
-            'description': 'Trigonometric multiple seasonality model.',
-            'class': AutoTBATS
-        },
-        'garch': {
-            'name': 'GARCH(1,1)',
-            'description': 'Conditional variance model (financial volatility).',
-            'class': GARCHModel
-        },
-        'egarch': {
-            'name': 'EGARCH',
-            'description': 'Asymmetric volatility model.',
-            'class': EGARCHModel
-        },
-        'gjr_garch': {
-            'name': 'GJR-GARCH',
-            'description': 'Threshold asymmetric GARCH.',
-            'class': GJRGARCHModel
-        },
-        'four_theta': {
-            'name': '4Theta Ensemble',
-            'description': 'Weighted 4 theta line ensemble.',
-            'class': AdaptiveThetaEnsemble
-        },
-        'esn': {
-            'name': 'Echo State Network',
-            'description': 'Reservoir Computing nonlinear forecasting.',
-            'class': EchoStateForecaster
-        },
-        'dtsf': {
-            'name': 'Dynamic Time Scan',
-            'description': 'Non-parametric pattern matching forecasting.',
-            'class': DynamicTimeScanForecaster
-        }
-    }
+    VERSION = "0.0.13"
 
     def __init__(
         self,
@@ -292,7 +154,7 @@ class Vectrix:
 
             self._progress('Selecting models...')
             if models is not None:
-                validModelIds = set(self.NATIVE_MODELS.keys())
+                validModelIds = set(listModelIds())
                 invalidModels = [m for m in models if m not in validModelIds]
                 if invalidModels:
                     return ForecastResult(
@@ -423,7 +285,7 @@ class Vectrix:
 
             result = ModelResult(
                 modelId=modelId,
-                modelName=self.NATIVE_MODELS.get(modelId, {}).get('name', modelId),
+                modelName=self._getModelName(modelId),
                 predictions=predictions,
                 lower95=lower95,
                 upper95=upper95,
@@ -442,7 +304,7 @@ class Vectrix:
         if nWorkers <= 1:
             for i, modelId in enumerate(modelIds):
                 try:
-                    self._progress(f'Training {self.NATIVE_MODELS.get(modelId, {}).get("name", modelId)}...')
+                    self._progress(f'Training {self._getModelName(modelId)}...')
                     mid, result, fittedModel = evaluateSingle(modelId)
                     results[mid] = result
                     if fittedModel is not None:
@@ -479,6 +341,12 @@ class Vectrix:
 
         return results
 
+    @staticmethod
+    def _getModelName(modelId: str) -> str:
+        """Get display name for a model ID from registry."""
+        spec = getModelSpec(modelId)
+        return spec.name if spec else modelId
+
     def _fitAndPredictNativeWithCache(
         self,
         modelId: str,
@@ -486,142 +354,26 @@ class Vectrix:
         steps: int,
         period: int
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, Any]:
-        """Fit and predict with a native model (also returns the fitted model object)."""
-
-        if modelId == 'auto_ets':
-            model = AutoETS(period=period)
-            model.fit(trainData)
-            pred, lo, hi = model.predict(steps)
-            return pred, lo, hi, model
-
-        elif modelId == 'auto_arima':
-            model = AutoARIMA(maxP=3, maxD=2, maxQ=3)
-            model.fit(trainData)
-            pred, lo, hi = model.predict(steps)
-            return pred, lo, hi, model
-
-        elif modelId == 'theta':
-            model = OptimizedTheta(period=period)
-            model.fit(trainData)
-            pred, lo, hi = model.predict(steps)
-            return pred, lo, hi, model
-
-        elif modelId == 'ets_aan':
-            model = ETSModel('A', 'A', 'N', period)
-            model.fit(trainData)
-            pred, lo, hi = model.predict(steps)
-            return pred, lo, hi, model
-
-        elif modelId == 'ets_aaa':
-            model = ETSModel('A', 'A', 'A', period)
-            model.fit(trainData)
-            pred, lo, hi = model.predict(steps)
-            return pred, lo, hi, model
-
-        elif modelId == 'seasonal_naive':
+        """Fit and predict using the model registry."""
+        if modelId == 'seasonal_naive':
             pred, lo, hi = self._seasonalNaive(trainData, steps, period)
             return pred, lo, hi, None
 
-        elif modelId == 'mstl':
-            model = MSTLDecomposition(periods=[period])
+        if modelId == 'mstl':
+            model = createModel(modelId, period)
             predictions = model.predict(trainData, steps)
             sigma = np.std(trainData[-30:])
             margin = 1.96 * sigma * np.sqrt(np.arange(1, steps + 1))
             return predictions, predictions - margin, predictions + margin, model
 
-        elif modelId == 'auto_mstl':
-            model = AutoMSTL()
-            model.fit(trainData)
-            pred, lo, hi = model.predict(steps)
-            return pred, lo, hi, model
-
-        elif modelId == 'tbats':
-            model = AutoTBATS(periods=[period])
-            model.fit(trainData)
-            pred, lo, hi = model.predict(steps)
-            return pred, lo, hi, model
-
-        elif modelId == 'garch':
-            model = GARCHModel()
-            model.fit(trainData)
-            pred, lo, hi = model.predict(steps)
-            return pred, lo, hi, model
-
-        elif modelId == 'egarch':
-            model = EGARCHModel()
-            model.fit(trainData)
-            pred, lo, hi = model.predict(steps)
-            return pred, lo, hi, model
-
-        elif modelId == 'gjr_garch':
-            model = GJRGARCHModel()
-            model.fit(trainData)
-            pred, lo, hi = model.predict(steps)
-            return pred, lo, hi, model
-
-        elif modelId == 'auto_ces':
-            model = AutoCES(period=period)
-            model.fit(trainData)
-            pred, lo, hi = model.predict(steps)
-            return pred, lo, hi, model
-
-        elif modelId == 'croston':
-            model = AutoCroston()
-            model.fit(trainData)
-            pred, lo, hi = model.predict(steps)
-            return pred, lo, hi, model
-
-        elif modelId == 'dot':
-            model = DynamicOptimizedTheta(period=period)
-            model.fit(trainData)
-            pred, lo, hi = model.predict(steps)
-            return pred, lo, hi, model
-
-        elif modelId == 'naive':
-            model = NaiveModel()
-            model.fit(trainData)
-            pred, lo, hi = model.predict(steps)
-            return pred, lo, hi, model
-
-        elif modelId == 'mean':
-            model = MeanModel()
-            model.fit(trainData)
-            pred, lo, hi = model.predict(steps)
-            return pred, lo, hi, model
-
-        elif modelId == 'rwd':
-            model = RandomWalkDrift()
-            model.fit(trainData)
-            pred, lo, hi = model.predict(steps)
-            return pred, lo, hi, model
-
-        elif modelId == 'window_avg':
-            model = WindowAverage(window=min(period, 30))
-            model.fit(trainData)
-            pred, lo, hi = model.predict(steps)
-            return pred, lo, hi, model
-
-        elif modelId == 'four_theta':
-            model = AdaptiveThetaEnsemble(period=period)
-            model.fit(trainData)
-            pred, lo, hi = model.predict(steps)
-            return pred, lo, hi, model
-
-        elif modelId == 'esn':
-            model = EchoStateForecaster()
-            model.fit(trainData)
-            pred, lo, hi = model.predict(steps)
-            return pred, lo, hi, model
-
-        elif modelId == 'dtsf':
-            model = DynamicTimeScanForecaster()
-            model.fit(trainData)
-            pred, lo, hi = model.predict(steps)
-            return pred, lo, hi, model
-
-        else:
+        model = createModel(modelId, period)
+        if model is None:
             pred, lo, hi = self._seasonalNaive(trainData, steps, period)
             return pred, lo, hi, None
+
+        model.fit(trainData)
+        pred, lo, hi = model.predict(steps)
+        return pred, lo, hi, model
 
     def _fitAndPredictNative(
         self,
@@ -667,11 +419,14 @@ class Vectrix:
         cachedModel = getattr(self, '_fittedModels', {}).get(modelId)
 
         if cachedModel is None:
-            # No cache, fit from scratch
             return self._fitAndPredictNative(modelId, allValues, steps, period)
 
+        spec = getModelSpec(modelId)
+        strategy = spec.refitStrategy if spec else None
+
         try:
-            if modelId == 'auto_ets' and hasattr(cachedModel, 'bestModel') and cachedModel.bestModel is not None:
+            if strategy == 'ets_reuse' and hasattr(cachedModel, 'bestModel') and cachedModel.bestModel is not None:
+                from .engine.ets import ETSModel
                 bm = cachedModel.bestModel
                 model = ETSModel(
                     errorType=bm.errorType, trendType=bm.trendType,
@@ -683,21 +438,20 @@ class Vectrix:
                 model.fitted = True
                 return model.predict(steps)
 
-            elif modelId == 'auto_arima' and hasattr(cachedModel, 'bestOrder') and cachedModel.bestOrder is not None:
-                # Reuse optimal ARIMA order
+            elif strategy == 'arima_reuse' and hasattr(cachedModel, 'bestOrder') and cachedModel.bestOrder is not None:
+                from .engine.arima import ARIMAModel
                 model = ARIMAModel(order=cachedModel.bestOrder)
                 model.fit(allValues)
                 return model.predict(steps)
 
-            elif modelId == 'theta' and hasattr(cachedModel, 'bestTheta'):
-                # Reuse optimal theta value
+            elif strategy == 'theta_reuse' and hasattr(cachedModel, 'bestTheta'):
                 from .engine.theta import ThetaModel
                 model = ThetaModel(theta=cachedModel.bestTheta, period=period)
                 model.fit(allValues)
                 return model.predict(steps)
 
-            elif modelId in ('ets_aan', 'ets_aaa'):
-                # Reuse optimized parameters
+            elif strategy == 'ets_fixed_reuse':
+                from .engine.ets import ETSModel
                 bm = cachedModel
                 model = ETSModel(
                     errorType=bm.errorType, trendType=bm.trendType,
@@ -709,15 +463,12 @@ class Vectrix:
                 model.fitted = True
                 return model.predict(steps)
 
-            elif modelId == 'auto_mstl':
-                # MSTL: reuse detected periods
-                if hasattr(cachedModel, 'detectedPeriods'):
-                    from .engine.mstl import MSTL as MSTLEngine
-                    model = MSTLEngine(periods=cachedModel.detectedPeriods, autoDetect=False)
-                    model.fit(allValues)
-                    return model.predict(steps)
+            elif strategy == 'mstl_reuse' and hasattr(cachedModel, 'detectedPeriods'):
+                from .engine.mstl import MSTL as MSTLEngine
+                model = MSTLEngine(periods=cachedModel.detectedPeriods, autoDetect=False)
+                model.fit(allValues)
+                return model.predict(steps)
 
-            # Other models or cache miss — train from scratch
             return self._fitAndPredictNative(modelId, allValues, steps, period)
 
         except Exception:

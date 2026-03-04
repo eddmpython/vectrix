@@ -195,138 +195,49 @@ class ForecastResult:
         }
 
 
-MODEL_INFO = {
-    'seasonal_naive': {
-        'name': 'Seasonal Naive',
-        'description': 'Repeats values from the same point in the last season.',
-        'flatResistance': 0.95,
-        'bestFor': ['strong seasonality', 'high flat risk'],
-        'minData': 14
-    },
-    'mstl': {
-        'name': 'MSTL',
-        'description': 'Multiple seasonal decomposition (LOESS) + ARIMA.',
-        'flatResistance': 0.85,
-        'bestFor': ['multiple seasonality', 'complex patterns'],
-        'minData': 50
-    },
-    'theta': {
-        'name': 'Theta',
-        'description': 'M3 Competition winner. Theta decomposition.',
-        'flatResistance': 0.75,
-        'bestFor': ['general purpose', 'fast forecasting'],
-        'minData': 10
-    },
-    'auto_arima': {
-        'name': 'AutoARIMA',
-        'description': 'Automatic ARIMA. AICc-based optimal parameter selection.',
-        'flatResistance': 0.60,
-        'bestFor': ['stationary data', 'trend forecasting'],
-        'minData': 30
-    },
-    'auto_ets': {
-        'name': 'AutoETS',
-        'description': 'Automatic exponential smoothing. 30 model combinations.',
-        'flatResistance': 0.55,
-        'bestFor': ['stable patterns', 'short-term forecasting'],
-        'minData': 20
-    },
-    'naive': {
-        'name': 'Naive',
-        'description': 'Repeats last observation. Simplest benchmark.',
-        'flatResistance': 0.10,
-        'bestFor': ['benchmark', 'random walk data'],
-        'minData': 2
-    },
-    'mean': {
-        'name': 'Mean',
-        'description': 'Historical mean forecast. Stationary benchmark.',
-        'flatResistance': 0.05,
-        'bestFor': ['benchmark', 'stationary series'],
-        'minData': 2
-    },
-    'rwd': {
-        'name': 'Random Walk with Drift',
-        'description': 'Last value + average trend. Trending benchmark.',
-        'flatResistance': 0.60,
-        'bestFor': ['trending data', 'benchmark'],
-        'minData': 5
-    },
-    'window_avg': {
-        'name': 'Window Average',
-        'description': 'Recent window average forecast.',
-        'flatResistance': 0.15,
-        'bestFor': ['benchmark', 'stable data'],
-        'minData': 5
-    },
-    'auto_ces': {
-        'name': 'AutoCES',
-        'description': 'Complex exponential smoothing. Auto N/S/P/F selection.',
-        'flatResistance': 0.65,
-        'bestFor': ['nonlinear patterns', 'complex seasonality'],
-        'minData': 20
-    },
-    'croston': {
-        'name': 'Croston (Auto)',
-        'description': 'Intermittent demand forecasting. Auto Classic/SBA/TSB.',
-        'flatResistance': 0.30,
-        'bestFor': ['intermittent demand', 'zero-inflated series'],
-        'minData': 10
-    },
-    'dot': {
-        'name': 'Dynamic Optimized Theta',
-        'description': 'Joint Theta+alpha+drift L-BFGS-B optimization.',
-        'flatResistance': 0.80,
-        'bestFor': ['trending data', 'general purpose'],
-        'minData': 10
-    },
-    'tbats': {
-        'name': 'TBATS',
-        'description': 'Trigonometric Seasonal, Box-Cox, ARMA, Trend, Damping.',
-        'flatResistance': 0.85,
-        'bestFor': ['multiple seasonality', 'hourly data', 'complex patterns'],
-        'minData': 30
-    },
-    'garch': {
-        'name': 'GARCH(1,1)',
-        'description': 'Conditional variance model for financial volatility.',
-        'flatResistance': 0.50,
-        'bestFor': ['financial data', 'volatility forecasting', 'returns'],
-        'minData': 50
-    },
-    'egarch': {
-        'name': 'EGARCH',
-        'description': 'Asymmetric volatility model with leverage effect.',
-        'flatResistance': 0.50,
-        'bestFor': ['financial data', 'asymmetric volatility'],
-        'minData': 50
-    },
-    'gjr_garch': {
-        'name': 'GJR-GARCH',
-        'description': 'Threshold asymmetric GARCH for negative shock response.',
-        'flatResistance': 0.50,
-        'bestFor': ['financial data', 'asymmetric volatility'],
-        'minData': 50
-    },
-    'four_theta': {
-        'name': '4Theta Ensemble',
-        'description': 'Weighted combination of 4 theta lines. Top stability.',
-        'flatResistance': 0.80,
-        'bestFor': ['general purpose', 'trending data', 'stable forecasting'],
-        'minData': 10
-    },
-    'esn': {
-        'name': 'Echo State Network',
-        'description': 'Reservoir Computing nonlinear forecasting. Top accuracy.',
-        'flatResistance': 0.70,
-        'bestFor': ['nonlinear patterns', 'regime switching', 'high volatility'],
-        'minData': 20
-    },
-    'dtsf': {
-        'name': 'Dynamic Time Scan',
-        'description': 'Non-parametric pattern matching. Best ensemble diversity.',
-        'flatResistance': 0.65,
-        'bestFor': ['repeating patterns', 'hourly data', 'seasonal data'],
-        'minData': 30
-    }
-}
+def _getModelInfo():
+    """Get MODEL_INFO from the registry (single source of truth)."""
+    from .engine.registry import getModelInfo
+    return getModelInfo()
+
+
+class _LazyModelInfo(dict):
+    """Lazy-loading MODEL_INFO that initializes from registry on first access."""
+
+    _loaded = False
+
+    def _ensureLoaded(self):
+        if not self._loaded:
+            self.update(_getModelInfo())
+            self._loaded = True
+
+    def __getitem__(self, key):
+        self._ensureLoaded()
+        return super().__getitem__(key)
+
+    def __contains__(self, key):
+        self._ensureLoaded()
+        return super().__contains__(key)
+
+    def __iter__(self):
+        self._ensureLoaded()
+        return super().__iter__()
+
+    def keys(self):
+        self._ensureLoaded()
+        return super().keys()
+
+    def values(self):
+        self._ensureLoaded()
+        return super().values()
+
+    def items(self):
+        self._ensureLoaded()
+        return super().items()
+
+    def get(self, key, default=None):
+        self._ensureLoaded()
+        return super().get(key, default)
+
+
+MODEL_INFO = _LazyModelInfo()
