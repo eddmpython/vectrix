@@ -231,4 +231,4 @@ print(analyzer.compareSummary(sr))
 
 ---
 
-**이것으로 튜토리얼 시리즈를 마칩니다.** 실전 예제는 [쇼케이스](../showcase/index.md) 섹션을 참조하세요.
+**이것으로 튜토리얼 시리즈를 마칩니다.** 더 많은 예제는 [API 문서](../api/business.md)를 참조하세요.

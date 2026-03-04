@@ -40,6 +40,9 @@ from .easy import (
     regress,
 )
 from .engine.baselines import MeanModel, NaiveModel, RandomWalkDrift, SeasonalNaiveModel, WindowAverage
+from .engine.dtsf import DynamicTimeScanForecaster
+from .engine.esn import EchoStateForecaster
+from .engine.fourTheta import AdaptiveThetaEnsemble
 from .engine.changepoint import ChangePointDetector
 from .engine.crossval import TimeSeriesCrossValidator
 from .engine.events import EventEffect
@@ -95,6 +98,10 @@ __all__ = [
     "WindowAverage",
     "TimeSeriesCrossValidator",
     "TSFrame",
+    # New engines (v0.0.9+)
+    "AdaptiveThetaEnsemble",
+    "DynamicTimeScanForecaster",
+    "EchoStateForecaster",
     # v3.0 - Engine extensions
     "ChangePointDetector",
     "EventEffect",

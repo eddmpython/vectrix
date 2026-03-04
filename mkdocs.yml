@@ -108,12 +108,6 @@ nav:
     - 30+ Models: tutorials/04_models.md
     - Adaptive Intelligence: tutorials/05_adaptive.md
     - Business Intelligence: tutorials/06_business.md
-  - Showcase:
-    - showcase/index.md
-    - Korean Economy: showcase/01_koreanEconomy.md
-    - Korean Regression: showcase/02_koreanRegression.md
-    - Model Comparison: showcase/03_modelComparison.md
-    - Business Intelligence: showcase/04_businessIntelligence.md
   - Changelog: changelog.md
 
 markdown_extensions:

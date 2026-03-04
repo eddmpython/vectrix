@@ -65,6 +65,7 @@ site/
 
 # Rust
 rust/target/
+*.pdb
 
 # uv
 uv.lock
