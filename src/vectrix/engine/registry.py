@@ -23,7 +23,6 @@ class ModelSpec:
     minData: int = 10
     flatResistance: float = 0.5
     bestFor: tuple = ()
-    refitStrategy: Optional[str] = None
 
 
 def _buildRegistry() -> Dict[str, ModelSpec]:
@@ -53,7 +52,6 @@ def _buildRegistry() -> Dict[str, ModelSpec]:
             minData=20,
             flatResistance=0.55,
             bestFor=('stable patterns', 'short-term forecasting'),
-            refitStrategy='ets_reuse',
         ),
         ModelSpec(
             modelId='auto_arima',
@@ -64,7 +62,6 @@ def _buildRegistry() -> Dict[str, ModelSpec]:
             minData=30,
             flatResistance=0.60,
             bestFor=('stationary data', 'trend forecasting'),
-            refitStrategy='arima_reuse',
         ),
         ModelSpec(
             modelId='theta',
@@ -75,7 +72,6 @@ def _buildRegistry() -> Dict[str, ModelSpec]:
             minData=10,
             flatResistance=0.75,
             bestFor=('general purpose', 'fast forecasting'),
-            refitStrategy='theta_reuse',
         ),
         ModelSpec(
             modelId='ets_aan',
@@ -86,7 +82,6 @@ def _buildRegistry() -> Dict[str, ModelSpec]:
             minData=10,
             flatResistance=0.50,
             bestFor=('trending data',),
-            refitStrategy='ets_fixed_reuse',
         ),
         ModelSpec(
             modelId='ets_aaa',
@@ -97,7 +92,6 @@ def _buildRegistry() -> Dict[str, ModelSpec]:
             minData=20,
             flatResistance=0.50,
             bestFor=('seasonal data',),
-            refitStrategy='ets_fixed_reuse',
         ),
         ModelSpec(
             modelId='seasonal_naive',
@@ -118,7 +112,6 @@ def _buildRegistry() -> Dict[str, ModelSpec]:
             minData=50,
             flatResistance=0.85,
             bestFor=('multiple seasonality', 'complex patterns'),
-            refitStrategy='standard',
         ),
         ModelSpec(
             modelId='auto_mstl',
@@ -129,7 +122,6 @@ def _buildRegistry() -> Dict[str, ModelSpec]:
             minData=50,
             flatResistance=0.85,
             bestFor=('multiple seasonality', 'complex patterns'),
-            refitStrategy='mstl_reuse',
         ),
         ModelSpec(
             modelId='naive',

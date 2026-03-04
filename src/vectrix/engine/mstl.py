@@ -287,6 +287,16 @@ class AutoMSTL:
 
         return self.model
 
+    def refit(self, newData: np.ndarray) -> 'AutoMSTL':
+        """Refit on new data reusing detected periods (skip period detection)."""
+        if not self.detectedPeriods:
+            self.fit(newData)
+            return self
+
+        self.model = MSTL(periods=self.detectedPeriods, autoDetect=False)
+        self.model.fit(newData)
+        return self
+
     def predict(self, steps: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Forecast"""
         if self.model is None:

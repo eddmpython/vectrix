@@ -83,7 +83,7 @@ from .types import (
 )
 from .vectrix import Vectrix
 
-__version__ = "0.0.13"
+__version__ = "0.0.14"
 __all__ = [
     "Vectrix",
     "ForecastResult",

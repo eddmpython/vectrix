@@ -221,6 +221,13 @@ class ETSModel:
 
         return self
 
+    def refit(self, newData: np.ndarray) -> 'ETSModel':
+        """Refit on new data reusing smoothing parameters (skip optimization)."""
+        self._initializeState(newData)
+        self._fitWithParams(newData)
+        self.fitted = True
+        return self
+
     def predict(self, steps: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Forecast
@@ -755,6 +762,24 @@ class AutoETS:
         aicc = aic + 2.0 * k * (k + 1.0) / (n - k - 1.0)
 
         return aicc
+
+    def refit(self, newData: np.ndarray) -> 'AutoETS':
+        """Refit on new data reusing the selected model structure (skip model selection)."""
+        if self.bestModel is None:
+            self.fit(newData)
+            return self
+
+        bm = self.bestModel
+        model = ETSModel(
+            errorType=bm.errorType, trendType=bm.trendType,
+            seasonalType=bm.seasonalType, period=bm.period, damped=bm.damped
+        )
+        model.alpha, model.beta, model.gamma, model.phi = bm.alpha, bm.beta, bm.gamma, bm.phi
+        model._initializeState(newData)
+        model._fitWithParams(newData)
+        model.fitted = True
+        self.bestModel = model
+        return self
 
     def predict(self, steps: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Forecast"""

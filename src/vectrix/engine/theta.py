@@ -307,6 +307,12 @@ class OptimizedTheta:
 
         return self.bestModel
 
+    def refit(self, newData: np.ndarray) -> 'OptimizedTheta':
+        """Refit on new data reusing the selected theta value (skip theta selection)."""
+        self.bestModel = ThetaModel(theta=self.bestTheta, period=self.period)
+        self.bestModel.fit(newData)
+        return self
+
     def predict(self, steps: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Forecast"""
         if self.bestModel is None:

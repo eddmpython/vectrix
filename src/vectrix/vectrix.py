@@ -24,7 +24,7 @@ warnings.filterwarnings('ignore', module='vectrix')
 
 from .analyzer import AutoAnalyzer
 from .engine import PeriodicDropDetector, TurboCore
-from .engine.registry import createModel, getModelInfo, getModelSpec, getRegistry, listModelIds
+from .engine.registry import createModel, getModelSpec, listModelIds
 from .flat_defense import FlatPredictionCorrector, FlatPredictionDetector, FlatRiskDiagnostic
 from .models.ensemble import VariabilityPreservingEnsemble
 from .types import DataCharacteristics, FlatRiskAssessment, ForecastResult, ModelResult, RiskLevel
@@ -43,7 +43,7 @@ class Vectrix:
     Dependencies: numpy, pandas, scipy (required), numba (optional)
     """
 
-    VERSION = "0.0.13"
+    VERSION = "0.0.14"
 
     def __init__(
         self,
@@ -410,56 +410,11 @@ class Vectrix:
         if cachedModel is None:
             return self._fitAndPredictNative(modelId, allValues, steps, period)
 
-        spec = getModelSpec(modelId)
-        strategy = spec.refitStrategy if spec else None
-
         try:
-            if strategy == 'ets_reuse' and hasattr(cachedModel, 'bestModel') and cachedModel.bestModel is not None:
-                from .engine.ets import ETSModel
-                bm = cachedModel.bestModel
-                model = ETSModel(
-                    errorType=bm.errorType, trendType=bm.trendType,
-                    seasonalType=bm.seasonalType, period=bm.period, damped=bm.damped
-                )
-                model.alpha, model.beta, model.gamma, model.phi = bm.alpha, bm.beta, bm.gamma, bm.phi
-                model._initializeState(allValues)
-                model._fitWithParams(allValues)
-                model.fitted = True
-                return model.predict(steps)
-
-            elif strategy == 'arima_reuse' and hasattr(cachedModel, 'bestOrder') and cachedModel.bestOrder is not None:
-                from .engine.arima import ARIMAModel
-                model = ARIMAModel(order=cachedModel.bestOrder)
-                model.fit(allValues)
-                return model.predict(steps)
-
-            elif strategy == 'theta_reuse' and hasattr(cachedModel, 'bestTheta'):
-                from .engine.theta import ThetaModel
-                model = ThetaModel(theta=cachedModel.bestTheta, period=period)
-                model.fit(allValues)
-                return model.predict(steps)
-
-            elif strategy == 'ets_fixed_reuse':
-                from .engine.ets import ETSModel
-                bm = cachedModel
-                model = ETSModel(
-                    errorType=bm.errorType, trendType=bm.trendType,
-                    seasonalType=bm.seasonalType, period=bm.period, damped=bm.damped
-                )
-                model.alpha, model.beta, model.gamma, model.phi = bm.alpha, bm.beta, bm.gamma, bm.phi
-                model._initializeState(allValues)
-                model._fitWithParams(allValues)
-                model.fitted = True
-                return model.predict(steps)
-
-            elif strategy == 'mstl_reuse' and hasattr(cachedModel, 'detectedPeriods'):
-                from .engine.mstl import MSTL as MSTLEngine
-                model = MSTLEngine(periods=cachedModel.detectedPeriods, autoDetect=False)
-                model.fit(allValues)
-                return model.predict(steps)
-
+            if hasattr(cachedModel, 'refit'):
+                cachedModel.refit(allValues)
+                return cachedModel.predict(steps)
             return self._fitAndPredictNative(modelId, allValues, steps, period)
-
         except Exception:
             return self._fitAndPredictNative(modelId, allValues, steps, period)
 

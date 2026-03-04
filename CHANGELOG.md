@@ -5,6 +5,34 @@ All notable changes to Vectrix will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.14] - 2026-03-04
+
+Model refit() interface — each model owns its own refit logic, eliminating the last model-specific if/elif chain in vectrix.py. GitHub Deployments fix.
+
+### Changed
+
+**refit() Interface Added to All Auto Models**
+- `AutoETS.refit(newData)`: reuses selected model structure (error/trend/seasonal type + smoothing params), skips model selection
+- `ETSModel.refit(newData)`: reuses smoothing parameters, skips optimization
+- `AutoARIMA.refit(newData)`: reuses selected order (p,d,q)(P,D,Q)[m], skips order selection
+- `OptimizedTheta.refit(newData)`: reuses selected theta value, skips theta optimization
+- `AutoMSTL.refit(newData)`: reuses detected periods, skips period detection
+
+**vectrix.py `_refitModelOnFullData` Simplified (50 lines → 8 lines)**
+- Removed 5-branch if/elif chain with model-specific refit logic
+- Now uses `hasattr(model, 'refit')` — zero model-specific code in vectrix.py
+- Removed `refitStrategy` field from `ModelSpec` — no longer needed
+
+**GitHub Actions: Deployment Tracking Fix**
+- Added `environment: pypi` to publish job in `.github/workflows/publish.yml`
+- Enables GitHub Deployments section to track each release (previously showed only first deployment)
+
+### Removed
+
+- `ModelSpec.refitStrategy` field — replaced by model-owned `refit()` methods
+
+[0.0.14]: https://github.com/eddmpython/vectrix/compare/v0.0.13...v0.0.14
+
 ## [0.0.13] - 2026-03-04
 
 Model Registry architecture — eliminates coupling between model metadata, model creation, and orchestration. Adding a new model now requires editing only 1 file instead of 5.
@@ -13,7 +41,7 @@ Model Registry architecture — eliminates coupling between model metadata, mode
 
 **Architecture: Model Registry Pattern (`engine/registry.py`)**
 - Created `engine/registry.py` as the Single Source of Truth for all model metadata
-- `ModelSpec` dataclass: modelId, name, description, factory, needsPeriod, minData, flatResistance, bestFor, refitStrategy
+- `ModelSpec` dataclass: modelId, name, description, factory, needsPeriod, minData, flatResistance, bestFor
 - `createModel(modelId, period)`: unified model instantiation — replaces 200-line if/elif chain in vectrix.py
 - `getRegistry()`, `getModelSpec()`, `listModelIds()`, `getModelInfo()`: centralized access to model information
 - Adding a new forecasting model now requires only 1 edit: add a `ModelSpec` entry to `registry.py`
@@ -21,7 +49,6 @@ Model Registry architecture — eliminates coupling between model metadata, mode
 **vectrix.py Refactored (959 → 709 lines, -26%)**
 - Removed `NATIVE_MODELS` class dict (80+ lines) — replaced by `getRegistry()`
 - Removed `_fitAndPredictNativeWithCache` 200-line if/elif chain — replaced by `createModel()` + `fit()` + `predict()`
-- Refit strategies now driven by `ModelSpec.refitStrategy` field instead of model-specific if/elif
 - `_getModelName()` static method replaces repeated dict lookups
 
 **types.py MODEL_INFO Unified**
@@ -32,7 +59,6 @@ Model Registry architecture — eliminates coupling between model metadata, mode
 ### Added
 
 - `engine/registry.py`: Model registry module with `ModelSpec`, `getRegistry()`, `createModel()`, `getModelInfo()`
-- `CLAUDE.md`: Architecture design philosophy section documenting registry pattern, module roles, dependency direction, and engine interface contract
 
 [0.0.13]: https://github.com/eddmpython/vectrix/compare/v0.0.12...v0.0.13
 

@@ -907,6 +907,17 @@ class AutoARIMA:
 
         return aicc
 
+    def refit(self, newData: np.ndarray) -> 'AutoARIMA':
+        """Refit on new data reusing the selected order (skip order selection)."""
+        if self.bestOrder is None:
+            self.fit(newData)
+            return self
+
+        model = ARIMAModel(order=self.bestOrder, seasonalOrder=self.bestSeasonalOrder)
+        model.fit(newData)
+        self.bestModel = model
+        return self
+
     def predict(self, steps: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """Forecast"""
         if self.bestModel is None:
