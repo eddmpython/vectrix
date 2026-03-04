@@ -80,21 +80,33 @@
 	}
 
 	let cleanup: (() => void) | undefined;
+	let mounted = false;
 
 	onMount(() => {
-		addCopyButtons();
-		extractToc();
-		cleanup = observeHeadings();
-		return () => cleanup?.();
+		mounted = true;
+		return () => {
+			mounted = false;
+			cleanup?.();
+		};
 	});
 
 	$effect(() => {
+		if (!mounted) return;
 		Component;
+		data;
 		tick().then(() => {
+			if (!mounted) return;
 			addCopyButtons();
 			extractToc();
 			cleanup?.();
 			cleanup = observeHeadings();
+			if (tocItems.length === 0 && articleEl) {
+				setTimeout(() => {
+					extractToc();
+					cleanup?.();
+					cleanup = observeHeadings();
+				}, 200);
+			}
 		});
 	});
 

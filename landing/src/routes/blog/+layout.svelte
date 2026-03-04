@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { base } from '$app/paths';
-	import { Github } from 'lucide-svelte';
+	import { Github, Coffee } from 'lucide-svelte';
 	import type { Snippet } from 'svelte';
 
 	let { children }: { children: Snippet } = $props();
@@ -44,6 +44,11 @@
 			<a href="https://github.com/eddmpython/vectrix">GitHub</a>
 			<span class="vx-blog-footer-sep">&middot;</span>
 			<a href="https://pypi.org/project/vectrix/">PyPI</a>
+			<span class="vx-blog-footer-sep">&middot;</span>
+			<a href="https://buymeacoffee.com/eddmpython" target="_blank" rel="noopener" class="vx-blog-coffee-link">
+				<Coffee size={13} />
+				Buy me a coffee
+			</a>
 		</div>
 	</footer>
 </div>
@@ -180,6 +185,12 @@
 		text-decoration: none;
 	}
 	.vx-blog-footer a:hover { color: #06b6d4; }
+
+	:global(.vx-blog-coffee-link) {
+		display: inline-flex !important;
+		align-items: center;
+		gap: 0.3rem;
+	}
 
 	.vx-blog-footer-sep {
 		color: #334155;
