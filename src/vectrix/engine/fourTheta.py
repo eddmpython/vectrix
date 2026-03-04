@@ -15,10 +15,10 @@ import numpy as np
 from scipy.optimize import minimize_scalar
 
 try:
+    from vectrix_core import four_theta_deseasonalize as _rustFourThetaDeseasonalize
+    from vectrix_core import four_theta_fitted as _rustFourThetaFitted
     from vectrix_core import ses_filter as _rustSesFilter
     from vectrix_core import ses_sse as _rustSesSSE
-    from vectrix_core import four_theta_fitted as _rustFourThetaFitted
-    from vectrix_core import four_theta_deseasonalize as _rustFourThetaDeseasonalize
     RUST_AVAILABLE = True
 except ImportError:
     RUST_AVAILABLE = False

@@ -15,8 +15,8 @@ import numpy as np
 from scipy.optimize import minimize
 
 try:
-    from vectrix_core import garch_filter as _rustGarchFilter
     from vectrix_core import egarch_filter as _rustEgarchFilter
+    from vectrix_core import garch_filter as _rustGarchFilter
     from vectrix_core import gjr_garch_filter as _rustGjrGarchFilter
     RUST_AVAILABLE = True
 except ImportError:

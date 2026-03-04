@@ -40,12 +40,12 @@ from .easy import (
     regress,
 )
 from .engine.baselines import MeanModel, NaiveModel, RandomWalkDrift, SeasonalNaiveModel, WindowAverage
-from .engine.dtsf import DynamicTimeScanForecaster
-from .engine.esn import EchoStateForecaster
-from .engine.fourTheta import AdaptiveThetaEnsemble
 from .engine.changepoint import ChangePointDetector
 from .engine.crossval import TimeSeriesCrossValidator
+from .engine.dtsf import DynamicTimeScanForecaster
+from .engine.esn import EchoStateForecaster
 from .engine.events import EventEffect
+from .engine.fourTheta import AdaptiveThetaEnsemble
 from .engine.tsfeatures import TSFeatureExtractor
 from .ml import (
     CHRONOS_AVAILABLE,
