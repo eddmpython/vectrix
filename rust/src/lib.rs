@@ -1298,6 +1298,178 @@ fn optimize_alpha_bounded(y: &[f64]) -> f64 {
     (lo + hi) / 2.0
 }
 
+#[pyfunction]
+fn sample_entropy(
+    _py: Python<'_>,
+    y: PyReadonlyArray1<f64>,
+    m: usize,
+    r: f64,
+) -> f64 {
+    let y = y.as_array();
+    let n = y.len();
+    if n < 10 || r < 1e-10 {
+        return 0.0;
+    }
+
+    let count_matches = |m_val: usize| -> usize {
+        let n_t = if n > m_val { n - m_val } else { return 0 };
+        let mut count: usize = 0;
+        for i in 0..n_t {
+            for j in (i + 1)..n_t {
+                let mut max_diff: f64 = 0.0;
+                let mut within = true;
+                for k in 0..m_val {
+                    let d = (y[i + k] - y[j + k]).abs();
+                    if d > r {
+                        within = false;
+                        break;
+                    }
+                    if d > max_diff {
+                        max_diff = d;
+                    }
+                }
+                if within {
+                    count += 1;
+                }
+            }
+        }
+        count
+    };
+
+    let a = count_matches(m + 1);
+    let b = count_matches(m);
+
+    if b == 0 || a == 0 {
+        return 0.0;
+    }
+
+    -(a as f64 / b as f64).ln()
+}
+
+#[pyfunction]
+fn approximate_entropy(
+    _py: Python<'_>,
+    y: PyReadonlyArray1<f64>,
+    m: usize,
+    r: f64,
+) -> f64 {
+    let y = y.as_array();
+    let n = y.len();
+    if n < 10 || r < 1e-10 {
+        return 0.0;
+    }
+
+    let phi = |m_val: usize| -> f64 {
+        let n_t = if n >= m_val { n - m_val + 1 } else { return 0.0 };
+        let mut log_sum: f64 = 0.0;
+        for i in 0..n_t {
+            let mut count: usize = 0;
+            for j in 0..n_t {
+                let mut max_diff: f64 = 0.0;
+                let mut within = true;
+                for k in 0..m_val {
+                    let d = (y[i + k] - y[j + k]).abs();
+                    if d > r {
+                        within = false;
+                        break;
+                    }
+                    if d > max_diff {
+                        max_diff = d;
+                    }
+                }
+                if within {
+                    count += 1;
+                }
+            }
+            log_sum += ((count as f64) / (n_t as f64) + 1e-20).ln();
+        }
+        log_sum / n_t as f64
+    };
+
+    let result = phi(m) - phi(m + 1);
+    if result > 0.0 { result } else { 0.0 }
+}
+
+#[pyfunction]
+fn hurst_exponent(
+    _py: Python<'_>,
+    y: PyReadonlyArray1<f64>,
+    max_lag: usize,
+) -> f64 {
+    let y = y.as_array();
+    let n = y.len();
+    if n < 20 {
+        return 0.5;
+    }
+
+    let mut log_lags: Vec<f64> = Vec::new();
+    let mut log_rs: Vec<f64> = Vec::new();
+
+    for lag in 2..=(max_lag.min(n / 4)) {
+        let n_blocks = n / lag;
+        if n_blocks < 1 {
+            continue;
+        }
+
+        let mut rs_sum: f64 = 0.0;
+        let mut rs_count: usize = 0;
+
+        for b in 0..n_blocks {
+            let start = b * lag;
+            let end = start + lag;
+            let block = &y.as_slice().unwrap()[start..end];
+
+            let mean: f64 = block.iter().sum::<f64>() / lag as f64;
+
+            let mut cum = 0.0_f64;
+            let mut cum_min = f64::MAX;
+            let mut cum_max = f64::MIN;
+            let mut sq_sum = 0.0_f64;
+
+            for &v in block {
+                let d = v - mean;
+                cum += d;
+                if cum < cum_min { cum_min = cum; }
+                if cum > cum_max { cum_max = cum; }
+                sq_sum += d * d;
+            }
+
+            let r = cum_max - cum_min;
+            let variance = sq_sum / (lag as f64 - 1.0);
+            let s = variance.sqrt();
+
+            if s > 1e-10 {
+                rs_sum += r / s;
+                rs_count += 1;
+            }
+        }
+
+        if rs_count > 0 {
+            let rs_mean = rs_sum / rs_count as f64;
+            log_lags.push((lag as f64).ln());
+            log_rs.push(rs_mean.ln());
+        }
+    }
+
+    if log_lags.len() < 2 {
+        return 0.5;
+    }
+
+    let n_pts = log_lags.len() as f64;
+    let sum_x: f64 = log_lags.iter().sum();
+    let sum_y: f64 = log_rs.iter().sum();
+    let sum_xy: f64 = log_lags.iter().zip(log_rs.iter()).map(|(x, y)| x * y).sum();
+    let sum_xx: f64 = log_lags.iter().map(|x| x * x).sum();
+
+    let denom = n_pts * sum_xx - sum_x * sum_x;
+    if denom.abs() < 1e-15 {
+        return 0.5;
+    }
+
+    let slope = (n_pts * sum_xy - sum_x * sum_y) / denom;
+    slope.max(0.0).min(1.0)
+}
+
 #[pymodule]
 fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(ets_filter, m)?)?;
@@ -1326,5 +1498,8 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(four_theta_fitted, m)?)?;
     m.add_function(wrap_pyfunction!(four_theta_deseasonalize, m)?)?;
     m.add_function(wrap_pyfunction!(dot_hybrid_objective, m)?)?;
+    m.add_function(wrap_pyfunction!(sample_entropy, m)?)?;
+    m.add_function(wrap_pyfunction!(approximate_entropy, m)?)?;
+    m.add_function(wrap_pyfunction!(hurst_exponent, m)?)?;
     Ok(())
 }

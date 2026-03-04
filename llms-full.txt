@@ -1,6 +1,6 @@
 # Vectrix — Complete API Reference for LLMs
 
-> Zero-config time series forecasting library for Python. 30+ statistical models with automatic selection, built-in Rust engine (26 accelerated functions), adaptive intelligence, full regression suite, and business analytics.
+> Zero-config time series forecasting library for Python. Automatic model selection with built-in Rust engine (29 accelerated functions), adaptive intelligence, full regression suite, and business analytics.
 
 - Version: 0.0.14
 - Python: >=3.10
@@ -153,7 +153,7 @@ quick_report(
 
 ---
 
-## 2. Engine Models (30+)
+## 2. Engine Models
 
 All models follow the same interface:
 
@@ -178,7 +178,7 @@ from vectrix.engine.croston import AutoCroston
 from vectrix.engine.fourTheta import AdaptiveThetaEnsemble
 from vectrix.engine.dtsf import DynamicTimeScanForecaster
 from vectrix.engine.esn import EchoStateForecaster
-from vectrix.engine.baseline import NaiveModel, SeasonalNaiveModel, MeanModel, RandomWalkDrift, WindowAverage
+from vectrix.engine.baselines import NaiveModel, SeasonalNaiveModel, MeanModel, RandomWalkDrift, WindowAverage
 ```
 
 ### Model catalog
@@ -188,7 +188,7 @@ from vectrix.engine.baseline import NaiveModel, SeasonalNaiveModel, MeanModel, R
 | AutoETS | AutoETS | General purpose, trend+seasonal |
 | AutoARIMA | AutoARIMA | Stationary with complex autocorrelation |
 | Theta | OptimizedTheta | Simple trend extrapolation |
-| DOT | DynamicOptimizedTheta | General purpose (M4 OWA 0.877) |
+| DOT | DynamicOptimizedTheta | General purpose (M4 OWA 0.848) |
 | AutoCES | AutoCES | General purpose (M4 OWA 0.927) |
 | AutoMSTL | AutoMSTL | Multiple seasonality (daily, weekly, yearly) |
 | AutoTBATS | AutoTBATS | Complex multi-seasonal |
@@ -209,7 +209,7 @@ from vectrix.engine.baseline import NaiveModel, SeasonalNaiveModel, MeanModel, R
 ```python
 from vectrix.adaptive.regime import RegimeDetector, RegimeAwareForecaster
 from vectrix.adaptive.healing import SelfHealingForecast
-from vectrix.adaptive.constraint import ConstraintAwareForecaster, Constraint
+from vectrix.adaptive.constraints import ConstraintAwareForecaster, Constraint
 from vectrix.adaptive.dna import ForecastDNA
 ```
 
@@ -509,7 +509,7 @@ from vectrix.adaptive.regime import RegimeDetector
 ```python
 from vectrix import TURBO_AVAILABLE
 print(TURBO_AVAILABLE)  # True if Rust engine loaded (default for all pip installs)
-# 26 accelerated functions across all engines:
+# 29 accelerated functions across all engines:
 # ETS: ets_filter, ets_loglik, batch_ets_filter
 # ARIMA: arima_css, css_objective, seasonal_css_objective
 # Theta/DOT: theta_decompose, dot_objective, dot_residuals, ses_sse, ses_filter
@@ -521,10 +521,11 @@ print(TURBO_AVAILABLE)  # True if Rust engine loaded (default for all pip instal
 # Croston: croston_tsb_filter
 # ESN: esn_reservoir_update
 # 4Theta: four_theta_fitted, four_theta_deseasonalize
+# DNA: sample_entropy, approximate_entropy, hurst_exponent
 ```
 
 ### Performance benchmarks (M4 Competition)
-- DOT: OWA 0.877 (general purpose best)
+- DOT: OWA 0.848 (general purpose best)
 - AutoCES: OWA 0.927
 - 4Theta Yearly: OWA 0.879 (= M4 official #11)
 - VX-Ensemble Hourly: OWA 0.696 (winner-level)

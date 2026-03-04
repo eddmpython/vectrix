@@ -6,7 +6,31 @@ Selects optimal models based on flat prediction risk and data characteristics.
 
 from typing import Any, Dict, List, Optional
 
+from ..engine.registry import getRegistry
 from ..types import MODEL_INFO, DataCharacteristics, FlatRiskAssessment, RiskLevel
+
+
+def _buildFromRegistry(field: str, fallback: Dict[str, Any]) -> Dict[str, Any]:
+    """Build lookup dict from registry, with fallback for unregistered models."""
+    result = dict(fallback)
+    for modelId, spec in getRegistry().items():
+        result[modelId] = getattr(spec, field)
+    return result
+
+
+_EXTRA_FLAT_RESISTANCE = {
+    'snaive_drift': 0.90,
+    'holt_winters': 0.80,
+    'prophet': 0.70,
+    'auto_theta': 0.70,
+}
+
+_EXTRA_MIN_DATA = {
+    'snaive_drift': 14,
+    'holt_winters': 24,
+    'prophet': 60,
+    'auto_theta': 10,
+}
 
 
 class AdaptiveModelSelector:
@@ -15,44 +39,15 @@ class AdaptiveModelSelector:
 
     Prioritizes seasonal-forcing models (e.g. Seasonal Naive) when flat prediction
     risk is high, and uses Auto models when risk is low.
+
+    FLAT_RESISTANCE and MIN_DATA are populated from engine/registry.py at init time.
+    Extra entries for unregistered models (snaive_drift, holt_winters, prophet, auto_theta)
+    are provided as fallbacks.
     """
 
-    FLAT_RESISTANCE = {
-        'seasonal_naive': 0.95,
-        'snaive_drift': 0.90,
-        'mstl': 0.85,
-        'holt_winters': 0.80,
-        'theta': 0.75,
-        'prophet': 0.70,
-        'auto_arima': 0.60,
-        'auto_ets': 0.55,
-        'auto_theta': 0.70,
-        'auto_ces': 0.65,
-        'naive': 0.10,
-        'mean': 0.05,
-        'rwd': 0.60,
-        'window_avg': 0.15,
-    }
-
-    MIN_DATA = {
-        'seasonal_naive': 14,
-        'snaive_drift': 14,
-        'mstl': 50,
-        'holt_winters': 24,
-        'theta': 10,
-        'prophet': 60,
-        'auto_arima': 30,
-        'auto_ets': 20,
-        'auto_theta': 10,
-        'auto_ces': 20,
-        'naive': 2,
-        'mean': 2,
-        'rwd': 5,
-        'window_avg': 5,
-    }
-
     def __init__(self):
-        pass
+        self.FLAT_RESISTANCE = _buildFromRegistry('flatResistance', _EXTRA_FLAT_RESISTANCE)
+        self.MIN_DATA = _buildFromRegistry('minData', _EXTRA_MIN_DATA)
 
     def selectModels(
         self,

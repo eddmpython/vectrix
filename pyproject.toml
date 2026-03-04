@@ -58,6 +58,7 @@ foundation = [
 neural = [
     "neuralforecast>=1.7",
 ]
+viz = ["plotly>=5.0"]
 mcp = ["mcp[cli]>=1.0"]
 dev = [
     "pytest>=7.0",
@@ -70,7 +71,7 @@ docs = [
     "mkdocstrings[python]>=0.24",
     "mkdocs-static-i18n>=1.2",
 ]
-all = ["vectrix[numba,ml,foundation,neural]"]
+all = ["vectrix[numba,ml,foundation,neural,viz]"]
 
 [project.urls]
 Homepage = "https://github.com/eddmpython/vectrix"

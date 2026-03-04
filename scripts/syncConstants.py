@@ -178,18 +178,6 @@ def syncHomeHtml(c):
     return p
 
 
-def syncHomeKoHtml(c):
-    p = FilePatcher(ROOT / "docs" / "overrides" / "home.ko.html")
-    p.replace(r"v[\d.]+ — 내장 Rust 엔진", f'v{c["version"]} — 내장 Rust 엔진')
-    p.replace(r"\d+개 핵심 핫 루프 Rust 가속", f'{c["rustFunctions"]}개 핵심 핫 루프 Rust 가속')
-    p.replace(r"\d+개 핵심 핫 루프가 Rust로 가속", f'{c["rustFunctions"]}개 핵심 핫 루프가 Rust로 가속')
-    p.replace(
-        r"<strong>\d+개 테스트</strong>",
-        f'<strong>{c["testCount"]}개 테스트</strong>',
-    )
-    return p
-
-
 def syncReadme(c):
     p = FilePatcher(ROOT / "README.md")
     p.replace(
@@ -198,23 +186,6 @@ def syncReadme(c):
     )
     p.replace(r"\d+ core hot loops", f'{c["rustFunctions"]} core hot loops')
     p.replace(r"\d+ accelerated functions", f'{c["rustFunctions"]} accelerated functions')
-    return p
-
-
-def syncReadmeKr(c):
-    p = FilePatcher(ROOT / "README_KR.md")
-    p.replace(
-        r"Tests-\d+%20passed",
-        f'Tests-{c["testCount"]}%20passed',
-    )
-    p.replace(
-        r"테스트-\d+개%20통과",
-        f'테스트-{c["testCount"]}개%20통과',
-    )
-    p.replace(r"\d+ core hot loops", f'{c["rustFunctions"]} core hot loops')
-    p.replace(r"\d+개 핵심 핫 루프", f'{c["rustFunctions"]}개 핵심 핫 루프')
-    p.replace(r"\d+ accelerated functions", f'{c["rustFunctions"]} accelerated functions')
-    p.replace(r"\d+개 가속 함수", f'{c["rustFunctions"]}개 가속 함수')
     return p
 
 
@@ -232,9 +203,7 @@ ALL_SYNCS = [
     ("landing Features.svelte", syncFeaturesSvelte),
     ("landing Performance.svelte", syncPerformanceSvelte),
     ("docs home.html", syncHomeHtml),
-    ("docs home.ko.html", syncHomeKoHtml),
     ("README.md", syncReadme),
-    ("README_KR.md", syncReadmeKr),
 ]
 
 

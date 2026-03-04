@@ -54,9 +54,7 @@ export const load: PageLoad = async ({ params }) => {
 
 	return {
 		enComponent: enModule.default,
-		koComponent: null,
 		enMeta: enModule.metadata ?? {},
-		koMeta: {},
 		slug
 	};
 };

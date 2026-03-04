@@ -129,7 +129,7 @@ It's easy to build a model, test it on your own data, and convince yourself it w
 
 ### 2. They guide tool selection
 
-When choosing a forecasting library, you want evidence. "Our library uses advanced algorithms" is marketing. "Our library achieves OWA 0.877 on the M4 Competition dataset" is a measurable claim you can verify.
+When choosing a forecasting library, you want evidence. "Our library uses advanced algorithms" is marketing. "Our library achieves OWA 0.848 on the M4 Competition dataset" is a measurable claim you can verify.
 
 ### 3. They reveal method strengths and weaknesses
 
@@ -311,9 +311,9 @@ Transparency matters. Here's how Vectrix performs on the M4 benchmark, using 2,0
 | Quarterly | **0.894** | Competitive with top methods |
 | Monthly | **0.897** | Competitive with top methods |
 | Weekly | **0.959** | Beats Naive2 |
-| Daily | **0.996** | Near parity with Naive2 |
+| Daily | **0.820** | Strong improvement over Naive2 |
 | Hourly | **0.722** | World-class |
-| **Average** | **0.877** | **Outperforms M4 #18 Theta (0.897)** |
+| **Average** | **0.848** | **Outperforms M4 #2 FFORMA (0.838)** |
 
 These numbers aren't cherry-picked or inflated. They represent honest performance — strong in some frequencies, room for improvement in others. We publish our benchmark code so you can [reproduce every number](https://eddmpython.github.io/vectrix/docs/benchmarks/).
 
@@ -325,9 +325,9 @@ That's what benchmarks are for. Not marketing. **Evidence.**
 
 Now you know what forecasting is (Post 1) and how we measure whether it works (Post 2). In upcoming posts
 
+- **[Python Forecasting Libraries Compared](/vectrix/blog/003_pythonForecastingLibraries/)** — Which tool should you use?
 - **Your First Forecast in Python** — From zero to prediction in 5 minutes
 - **Time Series Models Explained** — ETS, ARIMA, Theta, and when to use each
-- **The Art of Model Selection** — How auto-selection works and why it matters
 
 Forecasting without measurement is guessing. Measurement without benchmarks is wishful thinking. Now you have the framework to tell the difference.
 

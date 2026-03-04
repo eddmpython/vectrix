@@ -2,24 +2,10 @@
 	import { page } from '$app/state';
 	import { base } from '$app/paths';
 	import { navigation, type NavItem } from '$lib/docs/navigation';
-	import { locale, type Locale } from '$lib/docs/i18n';
-	import { Globe, Github, Menu, X, ChevronRight, ChevronDown } from 'lucide-svelte';
+	import { Github, Menu, X, ChevronRight, ChevronDown } from 'lucide-svelte';
 
 	let { children } = $props();
 	let mobileNavOpen = $state(false);
-
-	let currentLang: Locale = $state('en');
-	locale.subscribe(v => currentLang = v);
-
-	function toggleLang() {
-		const next: Locale = currentLang === 'en' ? 'ko' : 'en';
-		locale.set(next);
-		currentLang = next;
-	}
-
-	function getTitle(item: NavItem): string {
-		return currentLang === 'ko' && item.titleKo ? item.titleKo : item.title;
-	}
 
 	let currentPath = $derived(page.url.pathname.replace(base, ''));
 
@@ -78,10 +64,6 @@
 			</div>
 
 			<div class="vx-docs-header-right">
-				<button class="vx-docs-lang-btn" onclick={toggleLang}>
-					<Globe size={14} />
-					{currentLang === 'en' ? 'EN' : 'KO'}
-				</button>
 				<a href="https://github.com/eddmpython/vectrix" target="_blank" rel="noopener" class="vx-docs-icon-link">
 					<Github size={18} />
 				</a>
@@ -95,7 +77,7 @@
 			<nav class="vx-docs-mobile-nav">
 				{#each sidebarSections as section}
 					<div class="vx-docs-mobile-section">
-						<span class="vx-docs-mobile-section-title">{getTitle(section)}</span>
+						<span class="vx-docs-mobile-section-title">{section.title}</span>
 						{#each section.items ?? [] as item}
 							<a
 								href="{base}{item.href}"
@@ -103,7 +85,7 @@
 								class:active={currentPath === item.href || currentPath === item.href + '/'}
 								onclick={() => mobileNavOpen = false}
 							>
-								{getTitle(item)}
+								{item.title}
 							</a>
 						{/each}
 					</div>
@@ -115,7 +97,7 @@
 						class:active={currentPath === item.href}
 						onclick={() => mobileNavOpen = false}
 					>
-						{getTitle(item)}
+						{item.title}
 					</a>
 				{/each}
 			</nav>
@@ -133,7 +115,7 @@
 								class:active={currentSection === section}
 								onclick={() => toggleSection(section.href)}
 							>
-								<span>{getTitle(section)}</span>
+								<span>{section.title}</span>
 								{#if expandedSections.has(section.href)}
 									<ChevronDown size={14} />
 								{:else}
@@ -148,7 +130,7 @@
 											class="vx-sidebar-item"
 											class:active={currentPath === item.href || currentPath === item.href + '/'}
 										>
-											{getTitle(item)}
+											{item.title}
 										</a>
 									{/each}
 								</div>
@@ -162,7 +144,7 @@
 								class="vx-sidebar-item"
 								class:active={currentPath === item.href || currentPath === item.href + '/'}
 							>
-								{getTitle(item)}
+								{item.title}
 							</a>
 						{/each}
 					</div>
@@ -247,21 +229,6 @@
 		align-items: center;
 		gap: 0.5rem;
 	}
-
-	.vx-docs-lang-btn {
-		display: flex;
-		align-items: center;
-		gap: 0.25rem;
-		padding: 0.3rem 0.6rem;
-		border-radius: 6px;
-		border: 1px solid rgba(148, 163, 184, 0.15);
-		background: transparent;
-		color: #94a3b8;
-		font-size: 0.75rem;
-		cursor: pointer;
-		transition: all 0.15s;
-	}
-	.vx-docs-lang-btn:hover { border-color: #06b6d4; color: #06b6d4; }
 
 	.vx-docs-icon-link {
 		color: #64748b;

@@ -22,6 +22,16 @@ from typing import Dict, Optional, Tuple
 
 import numpy as np
 
+try:
+    from vectrix._core import (
+        sample_entropy as _rust_sample_entropy,
+        approximate_entropy as _rust_approximate_entropy,
+        hurst_exponent as _rust_hurst_exponent,
+    )
+    _RUST_DNA = True
+except ImportError:
+    _RUST_DNA = False
+
 
 class TSFeatureExtractor:
     """
@@ -598,10 +608,18 @@ class TSFeatureExtractor:
         H > 0.5: persistent (trending)
         H = 0.5: random walk
         H < 0.5: anti-persistent (mean-reverting)
+
+        Vectorized: each lag's R/S computed with array slicing instead of Python loops.
         """
         n = len(y)
         if n < 20:
             return 0.5
+
+        if _RUST_DNA:
+            try:
+                return float(np.clip(_rust_hurst_exponent(y, maxLag), 0, 1))
+            except Exception:
+                pass
 
         try:
             lags = range(2, min(maxLag + 1, n // 4))
@@ -609,21 +627,17 @@ class TSFeatureExtractor:
             lagValues = []
 
             for lag in lags:
-                subseries = [y[i:i + lag] for i in range(0, n - lag + 1, lag)]
-
-                rsLag = []
-                for sub in subseries:
-                    if len(sub) < 2:
-                        continue
-                    mean = np.mean(sub)
-                    cumDev = np.cumsum(sub - mean)
-                    R = np.max(cumDev) - np.min(cumDev)
-                    S = np.std(sub, ddof=1)
-                    if S > 1e-10:
-                        rsLag.append(R / S)
-
-                if len(rsLag) > 0:
-                    rsValues.append(np.mean(rsLag))
+                nBlocks = (n - lag + 1) // lag
+                if nBlocks < 1:
+                    continue
+                blocks = y[:nBlocks * lag].reshape(nBlocks, lag)
+                means = blocks.mean(axis=1, keepdims=True)
+                cumDev = np.cumsum(blocks - means, axis=1)
+                R = cumDev.max(axis=1) - cumDev.min(axis=1)
+                S = blocks.std(axis=1, ddof=1)
+                valid = S > 1e-10
+                if valid.any():
+                    rsValues.append(np.mean(R[valid] / S[valid]))
                     lagValues.append(lag)
 
             if len(lagValues) < 2:
@@ -642,6 +656,7 @@ class TSFeatureExtractor:
         Approximate Entropy
 
         Measures pattern complexity. Higher values indicate more irregularity.
+        Vectorized: O(n*m) memory, O(n^2*m) ops but all in numpy C loops.
         """
         n = len(y)
         if n < 10:
@@ -652,17 +667,18 @@ class TSFeatureExtractor:
         if r < 1e-10:
             return 0.0
 
+        if _RUST_DNA:
+            try:
+                return float(max(_rust_approximate_entropy(y, m, r), 0))
+            except Exception:
+                pass
+
         try:
             def phi(m_val):
-                templates = np.array([y[i:i + m_val] for i in range(n - m_val + 1)])
-                nTemplates = len(templates)
-                counts = np.zeros(nTemplates)
-
-                for i in range(nTemplates):
-                    # Chebyshev distance
-                    dists = np.max(np.abs(templates - templates[i]), axis=1)
-                    counts[i] = np.sum(dists <= r) / nTemplates
-
+                nT = n - m_val + 1
+                templates = np.lib.stride_tricks.sliding_window_view(y, m_val)[:nT]
+                dists = np.abs(templates[:, np.newaxis, :] - templates[np.newaxis, :, :]).max(axis=2)
+                counts = (dists <= r).sum(axis=1) / nT
                 return np.mean(np.log(counts + 1e-20))
 
             return float(max(phi(m) - phi(m + 1), 0))
@@ -674,6 +690,7 @@ class TSFeatureExtractor:
         Sample Entropy
 
         Bias-corrected version of approximate entropy.
+        Vectorized: upper-triangle pairwise Chebyshev distance via numpy broadcasting.
         """
         n = len(y)
         if n < 10:
@@ -684,17 +701,21 @@ class TSFeatureExtractor:
         if r < 1e-10:
             return 0.0
 
+        if _RUST_DNA:
+            try:
+                result = _rust_sample_entropy(y, m, r)
+                if result == 0.0 or np.isfinite(result):
+                    return float(result)
+            except Exception:
+                pass
+
         try:
             def countMatches(m_val):
-                templates = np.array([y[i:i + m_val] for i in range(n - m_val)])
-                nTemplates = len(templates)
-                count = 0
-
-                for i in range(nTemplates):
-                    for j in range(i + 1, nTemplates):
-                        if np.max(np.abs(templates[i] - templates[j])) <= r:
-                            count += 1
-                return count
+                nT = n - m_val
+                templates = np.lib.stride_tricks.sliding_window_view(y, m_val)[:nT]
+                dists = np.abs(templates[:, np.newaxis, :] - templates[np.newaxis, :, :]).max(axis=2)
+                iu = np.triu_indices(nT, k=1)
+                return int((dists[iu] <= r).sum())
 
             A = countMatches(m + 1)
             B = countMatches(m)

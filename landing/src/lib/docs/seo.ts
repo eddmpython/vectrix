@@ -1,6 +1,6 @@
 export const SITE_URL = 'https://eddmpython.github.io/vectrix';
 export const SITE_NAME = 'Vectrix';
-export const DEFAULT_DESCRIPTION = 'Zero-config time series forecasting for Python. 30+ models, one line of code, built-in Rust engine.';
+export const DEFAULT_DESCRIPTION = 'Zero-config time series forecasting for Python. Automatic model selection, built-in Rust engine.';
 export const OG_IMAGE = `${SITE_URL}/icon-512.png`;
 
 export const pageDescriptions: Record<string, string> = {
@@ -14,7 +14,7 @@ export const pageDescriptions: Record<string, string> = {
 	'/docs/guide/business': 'Business intelligence tools: anomaly detection, scenario analysis, backtesting, and forecast explanation.',
 	'/docs/guide/pipeline': 'Build forecasting pipelines combining preprocessing, model fitting, and post-processing steps.',
 	'/docs/guide/foundation': 'Use foundation models (TimesFM, Chronos, Moirai) with Vectrix for zero-shot time series forecasting.',
-	'/docs/guide/multivariate': 'Multivariate time series forecasting with ARIMAX, VAR, and exogenous variable support.',
+	'/docs/guide/multivariate': 'Multivariate time series forecasting with ARIMAX and exogenous variable support.',
 	'/docs/api/easy': 'Easy API reference — forecast(), analyze(), regress(), quick_report(). One function call for each task.',
 	'/docs/api/vectrix': 'Vectrix class API reference. Full control over model fitting, forecasting, and configuration.',
 	'/docs/api/adaptive': 'Adaptive forecasting API — RegimeDetector, SelfHealing, ConstraintEnforcer, and DNA profiling.',
@@ -23,12 +23,12 @@ export const pageDescriptions: Record<string, string> = {
 	'/docs/api/pipeline': 'Pipeline API — build and compose forecasting workflows with preprocessing and post-processing.',
 	'/docs/api/foundation': 'Foundation model API — integrate TimesFM, Chronos, and Moirai models with Vectrix.',
 	'/docs/api/types': 'Type definitions for Vectrix — ForecastResult, AnalysisResult, ModelInfo, and configuration types.',
-	'/docs/tutorials/quickstart': 'Step-by-step tutorial: your first forecast with Vectrix. Learn forecast(), analyze(), and result visualization.',
-	'/docs/tutorials/analyze': 'Tutorial: deep dive into time series analysis. DNA profiling, pattern detection, and automated insights.',
-	'/docs/tutorials/regression': 'Tutorial: regression analysis with Vectrix. Build models, run diagnostics, and interpret results.',
-	'/docs/tutorials/models': 'Tutorial: compare 30+ forecasting models. ETS, ARIMA, Theta, DOT, CES, and custom model selection.',
-	'/docs/tutorials/adaptive': 'Tutorial: adaptive forecasting with regime detection, self-healing data, and constraint enforcement.',
-	'/docs/tutorials/business': 'Tutorial: business intelligence with anomaly detection, scenario analysis, and backtesting.',
+	'/docs/tutorials/01_quickstart': 'Step-by-step tutorial: your first forecast with Vectrix. Learn forecast(), analyze(), and result visualization.',
+	'/docs/tutorials/02_analyze': 'Tutorial: deep dive into time series analysis. DNA profiling, pattern detection, and automated insights.',
+	'/docs/tutorials/03_regression': 'Tutorial: regression analysis with Vectrix. Build models, run diagnostics, and interpret results.',
+	'/docs/tutorials/04_models': 'Tutorial: compare 30+ forecasting models. ETS, ARIMA, Theta, DOT, CES, and custom model selection.',
+	'/docs/tutorials/05_adaptive': 'Tutorial: adaptive forecasting with regime detection, self-healing data, and constraint enforcement.',
+	'/docs/tutorials/06_business': 'Tutorial: business intelligence with anomaly detection, scenario analysis, and backtesting.',
 	'/blog': 'Learn forecasting from zero. Concepts, tutorials, benchmarks, and best practices for prediction with Python.',
 	'/blog/what-is-forecasting': 'What is forecasting? The one concept behind every business decision. Learn what it means, why it matters, and how it works.',
 	'/blog/how-we-know-forecasts-work': 'How do we know if a forecast is any good? Benchmarks, metrics, and the M Competitions explained. MAE, MAPE, MASE, OWA — and why they matter.',

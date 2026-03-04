@@ -28,7 +28,7 @@
 
 <p>
 <a href="https://eddmpython.github.io/vectrix/"><img src="https://img.shields.io/badge/Docs-eddmpython.github.io/vectrix-818cf8?style=for-the-badge&labelColor=0f172a&logo=readthedocs&logoColor=white" alt="Documentation"></a>
-<a href="https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/01_quickstart.ipynb"><img src="https://img.shields.io/badge/Open%20in-Colab-F9AB00?style=for-the-badge&labelColor=0f172a&logo=googlecolab&logoColor=white" alt="Open in Colab"></a>
+<a href="https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/tutorials/01_quickstart.ipynb"><img src="https://img.shields.io/badge/Open%20in-Colab-F9AB00?style=for-the-badge&labelColor=0f172a&logo=googlecolab&logoColor=white" alt="Open in Colab"></a>
 </p>
 
 <p>
@@ -372,11 +372,23 @@ sMAPE/MASE 상세 결과: [벤치마크 상세](https://eddmpython.github.io/vec
 
 설치 없이 바로 체험 — Google Colab에서 클릭 한 번으로 실행.
 
-| 노트북 | 설명 | 링크 |
-|:-------|:-----|:----:|
-| **Quick Start** | 예측, 분석, 회귀를 5분 안에 | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/01_quickstart.ipynb) |
-| **Models & DNA** | 30+ 모델 비교, DNA 프로파일링 심화 | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/02_models_and_dna.ipynb) |
-| **Try Your Data** | CSV 업로드만 하면 즉시 분석 | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/03_try_your_data.ipynb) |
+### 튜토리얼
+
+| 노트북 | 학습 내용 | |
+|:-------|:---------|:-:|
+| **01 Quickstart** | 리스트, DataFrame, CSV에서 예측 | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/tutorials/01_quickstart.ipynb) |
+| **02 Analysis & DNA** | DNA 프로파일링, 변화점, 이상치 | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/tutorials/02_analyze.ipynb) |
+| **03 Regression** | R-style 수식, 진단, 5가지 방법 | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/tutorials/03_regression.ipynb) |
+| **04 30+ Models** | 모델 비교, 엔진 직접 사용, Flat Defense | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/tutorials/04_models.ipynb) |
+| **05 Adaptive** | 레짐 감지, DNA, 자가치유, 제약 | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/tutorials/05_adaptive.ipynb) |
+| **06 Business** | 이상치, 시나리오, 백테스트, 메트릭 | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/tutorials/06_business.ipynb) |
+
+### 쇼케이스 (Plotly)
+
+| 노트북 | 결과물 | |
+|:-------|:------|:-:|
+| **Sales Dashboard** | 인터랙티브 예측 + DNA 레이더 + 시나리오 | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/showcase/01_sales_forecasting_dashboard.ipynb) |
+| **Demand Planning** | 전체 워크플로: 품질 체크 → 예측 → 예산 | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/showcase/02_demand_planning_workflow.ipynb) |
 
 <br>
 

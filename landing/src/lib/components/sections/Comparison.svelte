@@ -11,7 +11,7 @@
 		{ name: 'R-style regression', vectrix: true, statsforecast: false, prophet: false, darts: false },
 		{ name: 'Self-healing forecasts', vectrix: true, statsforecast: false, prophet: false, darts: false },
 		{ name: 'Foundation model wrappers', vectrix: true, statsforecast: false, prophet: false, darts: true },
-		{ name: 'VAR / VECM multivariate', vectrix: true, statsforecast: false, prophet: false, darts: true }
+		{ name: 'Interactive visualization', vectrix: true, statsforecast: false, prophet: true, darts: true }
 	];
 </script>
 

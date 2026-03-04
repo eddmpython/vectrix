@@ -4,6 +4,8 @@ title: "Tutorial 05 — Adaptive Intelligence"
 
 # Tutorial 05 — Adaptive Intelligence
 
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/tutorials/05_adaptive.ipynb)
+
 **These features are unique to Vectrix** — not available in statsforecast, Prophet, Darts, or any other forecasting library. Adaptive intelligence means your forecasts respond to changing conditions in real time: detecting regime shifts, self-correcting as new data arrives, respecting business constraints, and profiling data DNA for intelligent model selection.
 
 ## Regime Detection

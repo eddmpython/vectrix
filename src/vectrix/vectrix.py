@@ -140,6 +140,11 @@ class Vectrix:
             self.dropDetector = PeriodicDropDetector(minDropRatio=0.8, minDropDuration=3)
             hasPeriodicDrop = self.dropDetector.detect(values)
 
+            if hasPeriodicDrop and self.dropDetector.dropPeriod:
+                dp = self.dropDetector.dropPeriod
+                if dp == period or (period > 1 and dp % period == 0 and dp <= period * 2):
+                    hasPeriodicDrop = False
+
             if hasPeriodicDrop and self.verbose:
                 print(f"[Drop detected] Period: {self.dropDetector.dropPeriod}, "
                       f"Duration: {self.dropDetector.dropDuration}, "

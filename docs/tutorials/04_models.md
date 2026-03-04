@@ -4,6 +4,8 @@ title: "Tutorial 04 — 30+ Models"
 
 # Tutorial 04 — 30+ Models
 
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/tutorials/04_models.ipynb)
+
 **Vectrix ships with 30+ forecasting models** spanning exponential smoothing, ARIMA, decomposition, theta methods, intermittent demand, volatility, neural reservoirs, and pattern matching. Each model captures different aspects of time series dynamics — trend, seasonality, level shifts, nonlinear patterns — and Vectrix automatically selects the best one for your data.
 
 This tutorial shows how to compare models, use the `Vectrix` class for full control, access individual engines directly, and understand the model selection process.

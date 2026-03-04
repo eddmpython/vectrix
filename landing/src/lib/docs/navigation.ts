@@ -1,6 +1,5 @@
 export interface NavItem {
 	title: string;
-	titleKo?: string;
 	href: string;
 	items?: NavItem[];
 }
@@ -8,69 +7,62 @@ export interface NavItem {
 export const navigation: NavItem[] = [
 	{
 		title: 'Getting Started',
-		titleKo: '시작하기',
 		href: '/docs/getting-started',
 		items: [
-			{ title: 'Installation', titleKo: '설치', href: '/docs/getting-started/installation' },
-			{ title: 'Quickstart', titleKo: '빠른 시작', href: '/docs/getting-started/quickstart' }
+			{ title: 'Installation', href: '/docs/getting-started/installation' },
+			{ title: 'Quickstart', href: '/docs/getting-started/quickstart' }
 		]
 	},
 	{
 		title: 'User Guide',
-		titleKo: '사용자 가이드',
 		href: '/docs/guide',
 		items: [
-			{ title: 'Forecasting', titleKo: '예측', href: '/docs/guide/forecasting' },
-			{ title: 'Analysis & DNA', titleKo: '분석 & DNA', href: '/docs/guide/analysis' },
-			{ title: 'Regression', titleKo: '회귀분석', href: '/docs/guide/regression' },
-			{ title: 'Adaptive', titleKo: '적응형 예측', href: '/docs/guide/adaptive' },
-			{ title: 'Business', titleKo: '비즈니스', href: '/docs/guide/business' },
-			{ title: 'Pipeline', titleKo: '파이프라인', href: '/docs/guide/pipeline' },
-			{ title: 'Foundation Models', titleKo: '기초 모델', href: '/docs/guide/foundation' },
-			{ title: 'Multivariate', titleKo: '다변량', href: '/docs/guide/multivariate' }
+			{ title: 'Forecasting', href: '/docs/guide/forecasting' },
+			{ title: 'Analysis & DNA', href: '/docs/guide/analysis' },
+			{ title: 'Regression', href: '/docs/guide/regression' },
+			{ title: 'Adaptive', href: '/docs/guide/adaptive' },
+			{ title: 'Business', href: '/docs/guide/business' },
+			{ title: 'Pipeline', href: '/docs/guide/pipeline' },
+			{ title: 'Foundation Models', href: '/docs/guide/foundation' },
+			{ title: 'Multivariate', href: '/docs/guide/multivariate' }
 		]
 	},
 	{
 		title: 'API Reference',
-		titleKo: 'API 레퍼런스',
 		href: '/docs/api',
 		items: [
-			{ title: 'Easy API', titleKo: 'Easy API', href: '/docs/api/easy' },
-			{ title: 'Vectrix Class', titleKo: 'Vectrix 클래스', href: '/docs/api/vectrix' },
-			{ title: 'Adaptive', titleKo: '적응형', href: '/docs/api/adaptive' },
-			{ title: 'Business', titleKo: '비즈니스', href: '/docs/api/business' },
-			{ title: 'Regression', titleKo: '회귀분석', href: '/docs/api/regression' },
-			{ title: 'Pipeline', titleKo: '파이프라인', href: '/docs/api/pipeline' },
-			{ title: 'Foundation', titleKo: '기초 모델', href: '/docs/api/foundation' },
-			{ title: 'Types', titleKo: '타입', href: '/docs/api/types' }
+			{ title: 'Easy API', href: '/docs/api/easy' },
+			{ title: 'Vectrix Class', href: '/docs/api/vectrix' },
+			{ title: 'Adaptive', href: '/docs/api/adaptive' },
+			{ title: 'Business', href: '/docs/api/business' },
+			{ title: 'Regression', href: '/docs/api/regression' },
+			{ title: 'Pipeline', href: '/docs/api/pipeline' },
+			{ title: 'Foundation', href: '/docs/api/foundation' },
+			{ title: 'Types', href: '/docs/api/types' }
 		]
 	},
 	{
 		title: 'Tutorials',
-		titleKo: '튜토리얼',
 		href: '/docs/tutorials',
 		items: [
-			{ title: '1. Quickstart', titleKo: '1. 빠른 시작', href: '/docs/tutorials/quickstart' },
-			{ title: '2. Analysis', titleKo: '2. 분석', href: '/docs/tutorials/analyze' },
-			{ title: '3. Regression', titleKo: '3. 회귀분석', href: '/docs/tutorials/regression' },
-			{ title: '4. Models', titleKo: '4. 모델 비교', href: '/docs/tutorials/models' },
-			{ title: '5. Adaptive', titleKo: '5. 적응형', href: '/docs/tutorials/adaptive' },
-			{ title: '6. Business', titleKo: '6. 비즈니스', href: '/docs/tutorials/business' }
+			{ title: '1. Quickstart', href: '/docs/tutorials/01_quickstart/' },
+			{ title: '2. Analysis', href: '/docs/tutorials/02_analyze/' },
+			{ title: '3. Regression', href: '/docs/tutorials/03_regression/' },
+			{ title: '4. Models', href: '/docs/tutorials/04_models/' },
+			{ title: '5. Adaptive', href: '/docs/tutorials/05_adaptive/' },
+			{ title: '6. Business', href: '/docs/tutorials/06_business/' }
 		]
 	},
 	{
 		title: 'Blog',
-		titleKo: '블로그',
 		href: '/blog'
 	},
 	{
 		title: 'Benchmarks',
-		titleKo: '벤치마크',
 		href: '/docs/benchmarks'
 	},
 	{
 		title: 'Changelog',
-		titleKo: '변경 로그',
 		href: '/docs/changelog'
 	}
 ];

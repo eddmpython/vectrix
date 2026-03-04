@@ -54,7 +54,7 @@ pip install "vectrix[all]"           # Everything
 
 ## Built-in Rust Engine
 
-26 core forecasting hot loops are Rust-accelerated and compiled into every wheel. Pre-built binary wheels are available for all major platforms
+29 core forecasting hot loops are Rust-accelerated and compiled into every wheel. Pre-built binary wheels are available for all major platforms
 
 - **Linux** x86_64 (manylinux)
 - **macOS** Apple Silicon (ARM64) + x86_64

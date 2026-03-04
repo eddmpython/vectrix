@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { locale } from '$lib/docs/i18n';
 	import { base } from '$app/paths';
 	import { navigation, findPrevNext } from '$lib/docs/navigation';
 	import { getDescription, getCanonicalUrl, SITE_NAME, OG_IMAGE, SITE_URL } from '$lib/docs/seo';
@@ -8,8 +7,6 @@
 	import { onMount, tick } from 'svelte';
 
 	let { data } = $props();
-	let currentLang = $state('en');
-	locale.subscribe(v => currentLang = v);
 
 	interface TocItem {
 		id: string;
@@ -110,12 +107,8 @@
 		});
 	});
 
-	let Component = $derived(
-		currentLang === 'ko' && data.koComponent ? data.koComponent : data.enComponent
-	);
-	let meta = $derived(
-		currentLang === 'ko' && data.koMeta?.title ? data.koMeta : (data.enMeta ?? {})
-	);
+	let Component = $derived(data.enComponent);
+	let meta = $derived(data.enMeta ?? {});
 
 	let prevNext = $derived(findPrevNext(page.url.pathname.replace(base, ''), navigation));
 
@@ -172,7 +165,7 @@
 		"author": { "@type": "Person", "name": "eddmpython", "url": "https://github.com/eddmpython" },
 		"publisher": { "@type": "Organization", "name": "Vectrix", "logo": { "@type": "ImageObject", "url": OG_IMAGE } },
 		"mainEntityOfPage": { "@type": "WebPage", "@id": canonicalUrl },
-		"inLanguage": currentLang === "ko" ? "ko" : "en"
+		"inLanguage": "en"
 	})}</script>`}
 
 	{@html `<script type="application/ld+json">${JSON.stringify({
@@ -207,7 +200,7 @@
 							<ChevronLeft size={16} />
 							<div>
 								<span class="doc-pagination-label">Previous</span>
-								<span class="doc-pagination-title">{currentLang === 'ko' && prevNext.prev.titleKo ? prevNext.prev.titleKo : prevNext.prev.title}</span>
+								<span class="doc-pagination-title">{prevNext.prev.title}</span>
 							</div>
 						</a>
 					{:else}
@@ -217,7 +210,7 @@
 						<a href="{base}{prevNext.next.href}" class="doc-pagination-link next">
 							<div>
 								<span class="doc-pagination-label">Next</span>
-								<span class="doc-pagination-title">{currentLang === 'ko' && prevNext.next.titleKo ? prevNext.next.titleKo : prevNext.next.title}</span>
+								<span class="doc-pagination-title">{prevNext.next.title}</span>
 							</div>
 							<ChevronRight size={16} />
 						</a>

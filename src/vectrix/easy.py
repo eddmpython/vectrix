@@ -536,13 +536,22 @@ class EasyForecastResult:
         }
 
     def plot(self, figsize=(12, 5), showHistory=True, showCI=True, title=None):
-        """Plot forecast with matplotlib (optional dependency)."""
+        """
+        Plot forecast with matplotlib (optional dependency).
+
+        For interactive Plotly charts with dark theme, use vectrix.viz instead:
+            pip install vectrix[viz]
+            from vectrix.viz import forecastChart
+            forecastChart(result, historical=df).show()
+        """
         try:
             import matplotlib.pyplot as plt
         except ImportError:
             raise ImportError(
                 "matplotlib is required for plotting.\n"
-                "Install: pip install matplotlib"
+                "Install: pip install matplotlib\n\n"
+                "For interactive Plotly charts: pip install vectrix[viz]\n"
+                "  from vectrix.viz import forecastChart"
             )
 
         fig, ax = plt.subplots(figsize=figsize)

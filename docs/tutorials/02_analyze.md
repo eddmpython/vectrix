@@ -4,6 +4,8 @@ title: "Tutorial 02 — Analysis & DNA"
 
 # Tutorial 02 — Analysis & DNA
 
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/tutorials/02_analyze.ipynb)
+
 **Understand your data before you forecast it.** Every time series has a unique statistical fingerprint — its "DNA." Vectrix extracts 65+ features from your data to build a profile that reveals trend direction, seasonal patterns, volatility regime, structural breaks, and forecasting difficulty. This profile drives automatic model selection and helps you make better decisions.
 
 ## Basic Analysis

@@ -4,6 +4,8 @@ title: "Tutorial 03 — Regression"
 
 # Tutorial 03 — Regression
 
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/tutorials/03_regression.ipynb)
+
 **Full-featured regression analysis in a single function call.** Vectrix supports R-style formula syntax (`y ~ x1 + x2`), automatic diagnostics (heteroscedasticity, normality, multicollinearity), multiple methods (OLS, Ridge, Lasso, Robust), and prediction intervals — without leaving the Python ecosystem.
 
 ## Direct Input

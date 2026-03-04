@@ -11,7 +11,7 @@
 
 ```python
 forecast(
-    data,                    # str | DataFrame | ndarray | list | Series | dict
+    data,                    # str | DataFrame | ndarray | list | tuple | Series | dict
     date=None,               # str — date column name
     value=None,              # str — value column name
     steps=30,                # int — forecast horizon
@@ -28,14 +28,15 @@ forecast(
 
 ```python
 analyze(
-    data,                    # str | DataFrame | ndarray | list | Series | dict
+    data,                    # str | DataFrame | ndarray | list | tuple | Series | dict
     date=None,               # str
     value=None,              # str
     period=None,             # int | None — seasonal period (auto if None)
     features=True,           # bool
     changepoints=True,       # bool
     anomalies=True,          # bool
-    anomalyThreshold=3.0     # float — z-score threshold
+    anomalyThreshold=3.0,    # float — z-score threshold
+    anomaly_threshold=None   # float | None — snake_case alias for anomalyThreshold
 ) -> EasyAnalysisResult
 ```
 
@@ -43,7 +44,7 @@ analyze(
 
 ```python
 regress(
-    y=None,                  # ndarray | Series | None (direct mode)
+    y=None,                  # ndarray | Series | str | None (direct mode)
     X=None,                  # ndarray | DataFrame | None (direct mode)
     data=None,               # DataFrame | None (formula mode)
     formula=None,            # str | None — "y ~ x1 + x2"
@@ -262,6 +263,317 @@ vx.analyze(
 
 ---
 
+## Engine Models
+
+All models follow the same interface:
+
+```python
+model.fit(y)                            # y: np.ndarray, returns self
+predictions, lower, upper = model.predict(steps)  # all np.ndarray
+model.refit(newData)                    # re-fit with cached hyperparams, returns self
+```
+
+### Import paths
+
+```python
+from vectrix.engine.ets import AutoETS
+from vectrix.engine.arima import AutoARIMA, ARIMAModel
+from vectrix.engine.theta import OptimizedTheta
+from vectrix.engine.dot import DynamicOptimizedTheta
+from vectrix.engine.ces import AutoCES
+from vectrix.engine.mstl import AutoMSTL
+from vectrix.engine.tbats import AutoTBATS
+from vectrix.engine.garch import GARCHModel, EGARCHModel, GJRGARCHModel
+from vectrix.engine.croston import AutoCroston
+from vectrix.engine.fourTheta import AdaptiveThetaEnsemble
+from vectrix.engine.dtsf import DynamicTimeScanForecaster
+from vectrix.engine.esn import EchoStateForecaster
+from vectrix.engine.baselines import NaiveModel, SeasonalNaiveModel, MeanModel, RandomWalkDrift, WindowAverage
+```
+
+### Model catalog
+
+| modelId | Class | needsPeriod | minData | Best for |
+|---------|-------|-------------|---------|----------|
+| `auto_ets` | AutoETS | Yes | 20 | Stable patterns, short-term |
+| `auto_arima` | AutoARIMA | No | 30 | Stationary with complex autocorrelation |
+| `theta` | OptimizedTheta | Yes | 10 | Simple trend extrapolation |
+| `dot` | DynamicOptimizedTheta | Yes | 10 | General purpose (M4 OWA 0.848) |
+| `auto_ces` | AutoCES | Yes | 20 | Nonlinear, complex seasonality |
+| `auto_mstl` | AutoMSTL | No | 50 | Multiple seasonality |
+| `mstl` | MSTLDecomposition | Yes | 50 | Multiple seasonality (explicit period) |
+| `tbats` | AutoTBATS | Yes | 30 | Complex multi-seasonal |
+| `four_theta` | AdaptiveThetaEnsemble | Yes | 10 | M4-validated ensemble (Yearly OWA 0.879) |
+| `dtsf` | DynamicTimeScanForecaster | No | 30 | Pattern matching, hourly data |
+| `esn` | EchoStateForecaster | No | 20 | Ensemble diversity (not standalone) |
+| `garch` | GARCHModel | No | 50 | Financial volatility |
+| `egarch` | EGARCHModel | No | 50 | Asymmetric volatility |
+| `gjr_garch` | GJRGARCHModel | No | 50 | Leverage effect |
+| `croston` | AutoCroston | No | 10 | Intermittent/lumpy demand |
+| `ets_aan` | ETSModel('A','A','N') | Yes | 10 | Trending data |
+| `ets_aaa` | ETSModel('A','A','A') | Yes | 20 | Seasonal data |
+| `naive` | NaiveModel | No | 2 | Baseline |
+| `seasonal_naive` | SeasonalNaiveModel | Yes | 14 | Seasonal baseline |
+| `mean` | MeanModel | No | 2 | Baseline |
+| `rwd` | RandomWalkDrift | No | 5 | Trending data baseline |
+| `window_avg` | WindowAverage | Yes | 5 | Stable data baseline |
+
+### Registry API
+
+```python
+from vectrix.engine.registry import getRegistry, getModelSpec, listModelIds, createModel, getModelInfo
+
+getRegistry()              # -> Dict[str, ModelSpec]
+getModelSpec('dot')        # -> ModelSpec or None
+listModelIds()             # -> List[str]
+createModel('dot', period=12)  # -> model instance
+getModelInfo()             # -> backward-compatible MODEL_INFO dict
+```
+
+---
+
+## Business Intelligence
+
+```python
+from vectrix.business import (
+    AnomalyDetector, ForecastExplainer, WhatIfAnalyzer,
+    Backtester, BusinessMetrics, ReportGenerator, HTMLReportGenerator
+)
+```
+
+### AnomalyDetector
+
+```python
+detector = AnomalyDetector()
+result = detector.detect(
+    y,                    # np.ndarray
+    method='auto',        # 'zscore', 'iqr', 'seasonal', 'rolling', 'auto'
+    threshold=3.0,        # float
+    period=1              # int — seasonal period
+) -> AnomalyResult
+```
+
+**AnomalyResult attributes:** `indices`, `scores`, `method`, `threshold`, `nAnomalies`, `anomalyRatio`, `details`
+
+### ForecastExplainer
+
+```python
+explainer = ForecastExplainer()
+result = explainer.explain(
+    y,                    # np.ndarray — historical data
+    predictions,          # np.ndarray — forecast values
+    period=7,             # int
+    locale='ko'           # str — 'ko' or 'en'
+) -> dict
+```
+
+**Returned dict keys:** `drivers`, `narrative`, `decomposition`, `confidence`, `summary`
+
+### WhatIfAnalyzer
+
+```python
+analyzer = WhatIfAnalyzer()
+results = analyzer.analyze(
+    basePredictions,      # np.ndarray
+    historicalData,       # np.ndarray
+    scenarios,            # List[dict] — each with 'name', 'trend_change', etc.
+    period=7              # int
+) -> List[ScenarioResult]
+
+summary = analyzer.compareSummary(results)  # -> str
+```
+
+**Scenario dict keys:** `name`, `trend_change`, `seasonal_multiplier`, `shock_at`, `shock_magnitude`, `shock_duration`, `level_shift`
+
+**ScenarioResult attributes:** `name`, `predictions`, `baselinePredictions`, `difference`, `percentChange`, `impact`
+
+### Backtester
+
+```python
+bt = Backtester(
+    nFolds=5,             # int
+    horizon=30,           # int
+    strategy='expanding', # 'expanding' or 'sliding'
+    minTrainSize=50,      # int
+    stepSize=None         # int | None
+)
+result = bt.run(y, modelFactory=AutoETS)  # -> BacktestResult
+summary = bt.summary(result)              # -> str
+```
+
+**BacktestResult attributes:** `nFolds`, `avgMAPE`, `avgRMSE`, `avgMAE`, `avgSMAPE`, `avgBias`, `mapeStd`, `folds`, `bestFold`, `worstFold`
+
+### BusinessMetrics
+
+```python
+metrics = BusinessMetrics()
+result = metrics.calculate(actual, predicted)  # -> dict
+```
+
+**Returned dict keys:** `bias`, `biasPercent`, `trackingSignal`, `wape`, `mase`, `overForecastRatio`, `underForecastRatio`, `forecastAccuracy`, `fillRateImpact`
+
+### ReportGenerator / HTMLReportGenerator
+
+```python
+rg = ReportGenerator(locale='ko')
+report = rg.generate(historicalData, predictions, lower95, upper95, period=7, modelName='Vectrix', dates=None)  # -> dict
+
+html = HTMLReportGenerator()
+path = html.generate(historicalData, predictions, lower95, upper95, modelName='Auto', title='Report', outputPath='report.html')  # -> str (file path)
+```
+
+---
+
+## Prediction Intervals
+
+```python
+from vectrix.intervals import ConformalInterval, BootstrapInterval
+from vectrix.intervals.distribution import ForecastDistribution, DistributionFitter, empiricalCRPS
+```
+
+### ConformalInterval
+
+```python
+ci = ConformalInterval(
+    method='split',           # 'split' or 'jackknife'
+    coverageLevel=0.95,       # float
+    calibrationRatio=0.2      # float
+)
+ci.calibrate(y, modelFactory, steps=1)  # returns self
+lower, upper = ci.predict(pointPredictions)
+```
+
+### BootstrapInterval
+
+```python
+bi = BootstrapInterval(
+    nBoot=100,                # int
+    coverageLevel=0.95        # float
+)
+bi.calibrate(y, modelFactory, steps=1)  # returns self
+lower, upper = bi.predict(pointPredictions)
+```
+
+### DistributionFitter
+
+```python
+fitter = DistributionFitter()
+dist = fitter.fit(residuals)  # -> ForecastDistribution
+q50 = dist.quantile(0.5)
+crps = dist.crps(actual)
+score = empiricalCRPS(actual, samples)
+```
+
+---
+
+## Hierarchical Reconciliation
+
+```python
+from vectrix.hierarchy import BottomUp, TopDown, MinTrace
+```
+
+### BottomUp
+
+```python
+bu = BottomUp()
+reconciled = bu.reconcile(
+    bottomForecasts,      # np.ndarray [nBottom, steps]
+    summingMatrix         # np.ndarray [nTotal, nBottom]
+) -> np.ndarray           # [nTotal, steps]
+```
+
+### TopDown
+
+```python
+td = TopDown(method='proportions')  # 'proportions' or 'forecast_proportions'
+reconciled = td.reconcile(
+    topForecast,          # np.ndarray [steps]
+    proportions,          # np.ndarray [nBottom]
+    summingMatrix         # np.ndarray [nTotal, nBottom]
+) -> np.ndarray           # [nTotal, steps]
+
+proportions = TopDown.computeProportions(historicalBottom)  # static method
+```
+
+### MinTrace
+
+```python
+mt = MinTrace(method='ols')  # 'ols' or 'wls'
+reconciled = mt.reconcile(
+    forecasts,            # np.ndarray [nTotal, steps]
+    summingMatrix,        # np.ndarray [nTotal, nBottom]
+    residuals=None        # np.ndarray [nTotal, T] — required for WLS
+) -> np.ndarray           # [nTotal, steps]
+
+S = MinTrace.buildSummingMatrix(structure)  # static, {parent: [children]}
+```
+
+---
+
+## Pipeline System
+
+```python
+from vectrix.pipeline import (
+    ForecastPipeline, Differencer, LogTransformer, BoxCoxTransformer,
+    Scaler, Deseasonalizer, Detrend, OutlierClipper, MissingValueImputer
+)
+```
+
+### Transformers
+
+All transformers implement: `fit(y)`, `transform(y)`, `inverseTransform(y)`, `fitTransform(y)`
+
+| Transformer | Constructor | Description |
+|-------------|------------|-------------|
+| Differencer | `Differencer(d=1)` | d-th order differencing |
+| LogTransformer | `LogTransformer(shift=None)` | log(1+y), auto-shift for negatives |
+| BoxCoxTransformer | `BoxCoxTransformer(lmbda=None)` | Auto Box-Cox lambda |
+| Scaler | `Scaler(method='zscore')` | 'zscore' or 'minmax' |
+| Deseasonalizer | `Deseasonalizer(period=7)` | Remove seasonal component |
+| Detrend | `Detrend()` | Remove linear trend |
+| OutlierClipper | `OutlierClipper(factor=3.0)` | IQR-based clipping |
+| MissingValueImputer | `MissingValueImputer(method='linear')` | 'linear', 'mean', 'ffill' |
+
+### ForecastPipeline
+
+```python
+pipe = ForecastPipeline([
+    ("log", LogTransformer()),
+    ("deseason", Deseasonalizer(period=12)),
+    ("model", AutoETS()),
+])
+pipe.fit(y)
+pred, lower, upper = pipe.predict(steps=12)
+```
+
+**Methods:** `fit(y)`, `predict(steps)`, `transform(y)`, `inverseTransform(y)`, `getStep(name)`, `getParams()`, `listSteps()`
+
+---
+
+## Datasets
+
+```python
+from vectrix import loadSample, listSamples
+```
+
+### loadSample(name) -> DataFrame
+
+| name | frequency | rows | date col | value col |
+|------|-----------|------|----------|-----------|
+| `'airline'` | monthly | 144 | date | passengers |
+| `'retail'` | daily | 730 | date | sales |
+| `'stock'` | business_daily | 252 | date | close |
+| `'temperature'` | daily | 1095 | date | temperature |
+| `'energy'` | hourly | 720 | date | consumption_kwh |
+| `'web'` | daily | 180 | date | pageviews |
+| `'intermittent'` | daily | 365 | date | demand |
+
+### listSamples() -> DataFrame
+
+Returns DataFrame with columns: `name`, `description`, `valueCol`, `frequency`, `rows`
+
+---
+
 ## Naming Convention Summary
 
 | Layer | Parameters | Attributes | Methods |
@@ -322,6 +634,43 @@ result = cv.evaluate(y, modelFactory, period=7)  # -> dict
 ```
 
 **evaluate() return dict keys:** `'mape'`, `'rmse'`, `'mae'`, `'smape'`, `'foldResults'`, `'nFolds'`
+
+## Visualization API (from vectrix.viz import ...)
+
+> **Optional dependency.** Install with: `pip install vectrix[viz]`
+
+### Individual Charts
+
+```python
+from vectrix.viz import forecastChart, dnaRadar, modelHeatmap, scenarioChart, backtestChart, metricsCard
+
+forecastChart(forecastResult, historical=None, title=None)   # -> go.Figure
+dnaRadar(analysisResult, title=None)                         # -> go.Figure
+modelHeatmap(comparisonDf, top=10, title=None)               # -> go.Figure
+scenarioChart(scenarios, title=None)                         # -> go.Figure
+backtestChart(backtestResult, title=None)                    # -> go.Figure
+metricsCard(metricsDict, title=None)                         # -> go.Figure
+```
+
+### Composite Reports
+
+```python
+from vectrix.viz import forecastReport, analysisReport
+
+forecastReport(forecastResult, historical=None, title=None)  # -> go.Figure (2-row: forecast + metrics)
+analysisReport(analysisResult, title=None)                   # -> go.Figure (2x2: radar + bars + summary)
+```
+
+### Theme Utilities
+
+```python
+from vectrix.viz import COLORS, PALETTE, LAYOUT, applyTheme
+
+COLORS     # dict — 10 brand colors (primary, accent, positive, negative, warning, muted, bg, card, text, grid)
+PALETTE    # list — 10 cycling colors for multi-series charts
+LAYOUT     # dict — Plotly layout defaults (dark theme, Inter font)
+applyTheme(fig, title=None, height=450)  # -> go.Figure — apply brand theme to any figure
+```
 
 ---
 

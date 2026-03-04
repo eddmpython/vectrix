@@ -1,15 +1,7 @@
 <script lang="ts">
 	import { base } from '$app/paths';
 	import { navigation, type NavItem } from '$lib/docs/navigation';
-	import { locale, type Locale } from '$lib/docs/i18n';
 	import { BookOpen, Code2, Layers, Sparkles, Briefcase, GitBranch, BarChart3, FileText, Rocket, GraduationCap, Activity } from 'lucide-svelte';
-
-	let currentLang: Locale = $state('en');
-	locale.subscribe(v => currentLang = v);
-
-	function t(item: NavItem) {
-		return currentLang === 'ko' && item.titleKo ? item.titleKo : item.title;
-	}
 
 	const sectionIcons: Record<string, any> = {
 		'Getting Started': Rocket,
@@ -21,14 +13,14 @@
 		'Changelog': FileText,
 	};
 
-	const sectionDescriptions: Record<string, { en: string; ko: string }> = {
-		'Getting Started': { en: 'Install and run your first forecast in 30 seconds', ko: '30\ucd08 \uc548\uc5d0 \uc124\uce58\ud558\uace0 \uccab \uc608\uce21\uc744 \uc2e4\ud589\ud558\uc138\uc694' },
-		'User Guide': { en: 'Deep-dive into forecasting, analysis, regression, and more', ko: '\uc608\uce21, \ubd84\uc11d, \ud68c\uadc0\ubd84\uc11d \ub4f1 \uc2ec\uce35 \uac00\uc774\ub4dc' },
-		'API Reference': { en: 'Every class, function, and parameter documented', ko: '\ubaa8\ub4e0 \ud074\ub798\uc2a4, \ud568\uc218, \ub9e4\uac1c\ubcc0\uc218 \ubb38\uc11c' },
-		'Tutorials': { en: 'Step-by-step walkthroughs from basics to advanced', ko: '\uae30\ucd08\ubd80\ud130 \uace0\uae09\uae4c\uc9c0 \ub2e8\uacc4\ubcc4 \ud29c\ud1a0\ub9ac\uc5bc' },
-		'Blog': { en: 'Learn forecasting from fundamentals to advanced techniques', ko: '\uae30\ucd08 \uac1c\ub150\ubd80\ud130 \uace0\uae09 \uae30\ubc95\uae4c\uc9c0 \uc608\uce21 \ubc30\uc6b0\uae30' },
-		'Benchmarks': { en: 'M3/M4 competition results and speed comparisons', ko: 'M3/M4 \ub300\ud68c \uacb0\uacfc \ubc0f \uc18d\ub3c4 \ube44\uad50' },
-		'Changelog': { en: 'Version history and release notes', ko: '\ubc84\uc804 \uc774\ub825 \ubc0f \ub9b4\ub9ac\uc2a4 \ub178\ud2b8' },
+	const sectionDescriptions: Record<string, string> = {
+		'Getting Started': 'Install and run your first forecast in 30 seconds',
+		'User Guide': 'Deep-dive into forecasting, analysis, regression, and more',
+		'API Reference': 'Every class, function, and parameter documented',
+		'Tutorials': 'Step-by-step walkthroughs from basics to advanced',
+		'Blog': 'Learn forecasting from fundamentals to advanced techniques',
+		'Benchmarks': 'M3/M4 competition results and speed comparisons',
+		'Changelog': 'Version history and release notes',
 	};
 </script>
 
@@ -47,8 +39,8 @@
 
 <div class="docs-index">
 	<div class="docs-hero">
-		<h1>{currentLang === 'ko' ? 'Vectrix \ubb38\uc11c' : 'Vectrix Documentation'}</h1>
-		<p>{currentLang === 'ko' ? '\ud55c \uc904\uc758 \ucf54\ub4dc\ub85c \uc2dc\uc791\ud558\ub294 \uc2dc\uacc4\uc5f4 \uc608\uce21' : 'Zero-config time series forecasting for Python'}</p>
+		<h1>Vectrix Documentation</h1>
+		<p>Zero-config time series forecasting for Python</p>
 	</div>
 
 	<div class="docs-grid">
@@ -61,10 +53,10 @@
 					<Icon size={22} />
 				</div>
 				<div class="docs-card-body">
-					<h3>{t(section)}</h3>
-					<p>{desc ? (currentLang === 'ko' ? desc.ko : desc.en) : ''}</p>
+					<h3>{section.title}</h3>
+					<p>{desc ?? ''}</p>
 					{#if section.items}
-						<span class="docs-card-count">{section.items.length} {currentLang === 'ko' ? '\ud398\uc774\uc9c0' : 'pages'}</span>
+						<span class="docs-card-count">{section.items.length} pages</span>
 					{/if}
 				</div>
 			</a>

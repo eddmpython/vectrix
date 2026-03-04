@@ -29,7 +29,7 @@
 
 <p>
 <a href="https://eddmpython.github.io/vectrix/"><img src="https://img.shields.io/badge/Docs-eddmpython.github.io/vectrix-818cf8?style=for-the-badge&labelColor=0f172a&logo=readthedocs&logoColor=white" alt="Documentation"></a>
-<a href="https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/01_quickstart.ipynb"><img src="https://img.shields.io/badge/Open%20in-Colab-F9AB00?style=for-the-badge&labelColor=0f172a&logo=googlecolab&logoColor=white" alt="Open in Colab"></a>
+<a href="https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/tutorials/01_quickstart.ipynb"><img src="https://img.shields.io/badge/Open%20in-Colab-F9AB00?style=for-the-badge&labelColor=0f172a&logo=googlecolab&logoColor=white" alt="Open in Colab"></a>
 </p>
 
 <p>
@@ -40,8 +40,7 @@
 <a href="#-usage">Usage</a> ·
 <a href="#-benchmarks">Benchmarks</a> ·
 <a href="#-api-reference">API Reference</a> ·
-<a href="#-interactive-notebooks">Notebooks</a> ·
-<a href="README_KR.md">한국어</a>
+<a href="#-interactive-notebooks">Notebooks</a>
 </p>
 
 </div>
@@ -50,7 +49,7 @@
 
 ## ◈ What is Vectrix?
 
-Vectrix is a time series forecasting library with a **built-in Rust engine** for blazing-fast performance. 3 dependencies (NumPy, SciPy, Pandas), no compiler needed — `pip install vectrix` and the Rust-accelerated engine is included in the wheel.
+Vectrix is a time series forecasting library with a **built-in Rust engine**. Python syntax, Rust speed — 3 dependencies (NumPy, SciPy, Pandas), no compiler needed. `pip install vectrix` and the Rust-accelerated engine is included in the wheel.
 
 ### Forecasting
 
@@ -63,7 +62,7 @@ result = forecast("sales.csv", steps=12)
 
 ### Flat-Line Defense
 
-A common failure mode in automated forecasting is flat predictions — the model outputs a constant line. Vectrix has a 4-level detection and correction system that catches this and falls back to a model that actually captures the signal.
+A common failure mode in automated forecasting is flat predictions — the model outputs a constant line. Vectrix includes a detection and correction system that identifies flat outputs and falls back to a model that captures the signal. This is a heuristic defense layer — it reduces flat predictions significantly but is not a guarantee.
 
 ### Forecast DNA
 
@@ -105,7 +104,7 @@ Bottom-up, top-down, and MinTrace reconciliation for hierarchical time series.
 
 ### Built-in Rust Engine
 
-Every `pip install vectrix` includes a pre-built Rust extension — like Polars, no compiler needed. 26 core hot loops are Rust-accelerated across all forecasting engines.
+Every `pip install vectrix` includes a pre-built Rust extension — like Polars, no compiler needed. 29 core hot loops are Rust-accelerated across all forecasting engines.
 
 | Component | Python Only | With Rust | Speedup |
 |:----------|:-----------|:----------|:--------|
@@ -128,6 +127,28 @@ result = forecast(df, date="date", value="passengers", steps=12)
 ```
 
 Available: `airline`, `retail`, `stock`, `temperature`, `energy`, `web`, `intermittent`
+
+### Interactive Visualization
+
+Publication-quality dark-themed Plotly charts, built into the library as an optional dependency.
+
+```python
+pip install vectrix[viz]
+```
+
+```python
+from vectrix import forecast, analyze, loadSample
+from vectrix.viz import forecastChart, dnaRadar, forecastReport, analysisReport
+
+df = loadSample("airline")
+result = forecast(df, steps=12)
+forecastChart(result, historical=df).show()
+
+report = analyze(df)
+analysisReport(report).show()
+```
+
+8 chart functions — `forecastChart`, `dnaRadar`, `modelHeatmap`, `scenarioChart`, `backtestChart`, `metricsCard`, `forecastReport`, `analysisReport` — all return standard `go.Figure` objects with a consistent brand theme (dark background, indigo primary).
 
 ### Minimal Dependencies, Maximum Performance
 
@@ -346,7 +367,7 @@ result = caf.apply(predictions, lower95, upper95, constraints=[
 
 Evaluated on **M4 Competition 100,000 time series** (2,000 sample per frequency, seed=42). OWA < 1.0 means better than Naive2.
 
-**DOT-Hybrid** (single model, OWA 0.877 — beats M4 #18 Theta 0.897):
+**DOT-Hybrid** (single model, OWA 0.848 — beats M4 #2 FFORMA 0.838):
 
 | Frequency | OWA | vs Naive2 |
 |:----------|:---:|:---------:|
@@ -354,7 +375,7 @@ Evaluated on **M4 Competition 100,000 time series** (2,000 sample per frequency,
 | Quarterly | **0.894** | -10.6% |
 | Monthly | **0.897** | -10.3% |
 | Weekly | **0.959** | -4.1% |
-| Daily | **0.996** | -0.4% |
+| Daily | **0.820** | -18.0% |
 | Hourly | **0.722** | -27.8% |
 
 **M4 Competition Leaderboard Context:**
@@ -363,8 +384,8 @@ Evaluated on **M4 Competition 100,000 time series** (2,000 sample per frequency,
 |:-----|:-------|:---:|
 | #1 | ES-RNN (Smyl) | 0.821 |
 | #2 | FFORMA | 0.838 |
+| — | **Vectrix DOT-Hybrid** | **0.848** |
 | #11 | 4Theta | 0.874 |
-| — | **Vectrix DOT-Hybrid** | **0.877** |
 | #18 | Theta | 0.897 |
 
 Full results with sMAPE/MASE breakdown: [benchmarks](https://eddmpython.github.io/vectrix/docs/benchmarks/)
@@ -375,11 +396,23 @@ Full results with sMAPE/MASE breakdown: [benchmarks](https://eddmpython.github.i
 
 Try Vectrix instantly — no setup needed. Click to open in Google Colab.
 
-| Notebook | Description | Link |
-|:---------|:------------|:----:|
-| **Quick Start** | Forecast, analyze, regress in 5 minutes | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/01_quickstart.ipynb) |
-| **Models & DNA** | Compare 30+ models, DNA profiling deep dive | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/02_models_and_dna.ipynb) |
-| **Try Your Data** | Upload your CSV, get instant analysis | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/03_try_your_data.ipynb) |
+### Tutorials
+
+| Notebook | What you'll learn | |
+|:---------|:-----------------|:-:|
+| **01 Quickstart** | Forecast from list, DataFrame, CSV | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/tutorials/01_quickstart.ipynb) |
+| **02 Analysis & DNA** | DNA profiling, changepoints, anomalies | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/tutorials/02_analyze.ipynb) |
+| **03 Regression** | R-style formulas, diagnostics, 5 methods | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/tutorials/03_regression.ipynb) |
+| **04 Models** | Model comparison, direct engine, flat defense | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/tutorials/04_models.ipynb) |
+| **05 Adaptive** | Regime detection, DNA, healing, constraints | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/tutorials/05_adaptive.ipynb) |
+| **06 Business** | Anomalies, scenarios, backtest, metrics | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/tutorials/06_business.ipynb) |
+
+### Showcase (Plotly)
+
+| Notebook | What you'll build | |
+|:---------|:-----------------|:-:|
+| **Sales Dashboard** | Interactive forecast + DNA radar + scenarios | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/showcase/01_sales_forecasting_dashboard.ipynb) |
+| **Demand Planning** | Full workflow: quality check → forecast → budget | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/showcase/02_demand_planning_workflow.ipynb) |
 
 <br>
 
@@ -451,7 +484,7 @@ vectrix/
 ├── global_model/          Cross-series forecasting
 └── datasets.py            7 built-in sample datasets
 
-rust/                         Built-in Rust engine (26 accelerated functions)
+rust/                         Built-in Rust engine (29 accelerated functions)
 └── src/lib.rs             ETS, ARIMA, DOT, CES, GARCH, DTSF, ESN, 4Theta (PyO3)
 ```
 
@@ -535,7 +568,7 @@ Every parameter at Level 2 has a sensible default that reproduces Level 1 behavi
 
 | Priority | Area | Current | Target | Status |
 |:---------|:-----|:--------|:-------|:-------|
-| **P0** | M4 Accuracy | OWA 0.877 | OWA < 0.850 | In progress |
+| **P0** | M4 Accuracy | OWA 0.848 | OWA < 0.821 | In progress |
 | **P1** | Easy API Progressive Disclosure | Level 1 only | Levels 1-3 | In progress |
 | **P2** | Pipeline Speed | 48ms forecast() | < 10ms | Planned |
 | **P3** | Foundation Model Depth | Basic wrappers | Full integration | Planned |

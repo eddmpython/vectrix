@@ -4,6 +4,8 @@ title: "Tutorial 01 — Quickstart"
 
 # Tutorial 01 — Quickstart
 
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/tutorials/01_quickstart.ipynb)
+
 **Build your first forecast in under a minute.** No configuration, no boilerplate, no model selection — just pass your data and get predictions with confidence intervals.
 
 Vectrix is a zero-config time series forecasting library. It evaluates 30+ statistical models (ETS, ARIMA, Theta, CES, DOT, and more), validates each on a holdout set, and returns the best one — all in a single function call.

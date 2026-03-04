@@ -4,6 +4,8 @@ title: "Tutorial 06 — Business Intelligence"
 
 # Tutorial 06 — Business Intelligence
 
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/tutorials/06_business.ipynb)
+
 **Forecasting is only the first step.** Real-world decision-making requires anomaly detection to clean your data, what-if scenarios for planning, backtesting to validate your approach, and business-specific accuracy metrics that go beyond MAPE.
 
 Vectrix's Business Intelligence module provides all four — designed for operations managers, analysts, and data scientists who need production-ready forecasting workflows.

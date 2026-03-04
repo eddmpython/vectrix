@@ -29,13 +29,13 @@
 		</h1>
 
 		<p class="text-lg md:text-xl text-vx-text-muted font-light max-w-xl mx-auto mb-8 leading-relaxed">
-			One line of code. 30+ models. Zero configuration.<br />
-			Built-in Rust engine — blazing fast out of the box.
+			One line of code. Automatic model selection. Zero configuration.<br />
+			Built-in Rust engine — Python syntax, Rust speed.
 		</p>
 
 		<div class="flex justify-center gap-6 mb-10 flex-wrap">
 			{#each [
-				{ value: '30+', label: 'Models' },
+				{ value: '0.848', label: 'M4 OWA' },
 				{ value: '3', label: 'Dependencies' },
 				{ value: '67x', label: 'Rust Engine' },
 				{ value: '573', label: 'Tests' }

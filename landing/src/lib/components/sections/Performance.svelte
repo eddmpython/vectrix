@@ -16,7 +16,7 @@
 	<span class="text-xs font-semibold uppercase tracking-widest text-vx-primary mb-3 block">Performance</span>
 	<h2 class="text-3xl md:text-4xl font-bold tracking-tight text-vx-text mb-3">Built-in Rust Engine</h2>
 	<p class="text-vx-text-muted max-w-xl mx-auto mb-12">
-		26 Rust-accelerated core loops compiled into every wheel. Like Polars — <code class="text-vx-primary">pip install</code> and it's fast.
+		29 Rust-accelerated core loops compiled into every wheel. Like Polars — <code class="text-vx-primary">pip install</code> and it's fast.
 	</p>
 
 	<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">

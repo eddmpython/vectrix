@@ -1,18 +1,18 @@
 {
   "version": "0.0.14",
-  "rustFunctions": 26,
+  "rustFunctions": 29,
   "testCount": 573,
   "modelCount": "30+",
   "dependencies": 3,
   "maxSpeedup": "67x",
   "pythonMin": "3.10",
   "m4": {
-    "avgOwa": "0.877",
+    "avgOwa": "0.848",
     "yearly": "0.797",
     "quarterly": "0.894",
     "monthly": "0.897",
     "weekly": "0.959",
-    "daily": "0.996",
+    "daily": "0.820",
     "hourly": "0.722"
   }
 }

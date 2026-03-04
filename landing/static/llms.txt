@@ -12,7 +12,7 @@ Vectrix is a Python library for time series forecasting. It evaluates 30+ statis
 - **30+ models**: Exponential smoothing, ARIMA, Theta, decomposition, intermittent demand, volatility, neural reservoir, pattern matching.
 - **Adaptive intelligence**: Regime detection, self-healing forecasts, constraint enforcement, DNA-based meta-learning.
 - **Business intelligence**: Anomaly detection, what-if scenarios, backtesting, business-specific accuracy metrics.
-- **Built-in Rust engine**: 26 core hot loops Rust-accelerated (5-67x). Compiled into every wheel — like Polars.
+- **Built-in Rust engine**: 29 core hot loops Rust-accelerated (5-67x). Compiled into every wheel — like Polars.
 - **Lightweight**: Only 3 dependencies (NumPy, pandas, SciPy).
 
 ## Installation
@@ -35,7 +35,7 @@ print(result.mape)         # Validation MAPE (%)
 
 - Documentation: https://eddmpython.github.io/vectrix/docs/getting-started/installation
 - API Reference: https://eddmpython.github.io/vectrix/docs/api/easy
-- Tutorials: https://eddmpython.github.io/vectrix/docs/tutorials/quickstart
+- Tutorials: https://eddmpython.github.io/vectrix/docs/tutorials/01_quickstart/
 - Benchmarks: https://eddmpython.github.io/vectrix/docs/benchmarks
 - GitHub: https://github.com/eddmpython/vectrix
 - PyPI: https://pypi.org/project/vectrix/

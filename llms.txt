@@ -1,6 +1,6 @@
 # Vectrix
 
-> Zero-config time series forecasting library for Python. 30+ statistical models, automatic selection, built-in Rust engine. NumPy/SciPy/Pandas with adaptive intelligence, regression, and business analytics.
+> Zero-config time series forecasting library for Python. Automatic model selection with built-in Rust engine. NumPy/SciPy/Pandas with adaptive intelligence, regression, and business analytics.
 
 - Version: 0.0.14
 - Python: 3.10+
@@ -45,11 +45,11 @@ M4 Competition 100,000 time series (DOT-Hybrid single model):
 | Quarterly | 0.894 |
 | Monthly | 0.897 |
 | Weekly | 0.959 |
-| Daily | 0.996 |
+| Daily | 0.820 |
 | Hourly | 0.722 |
-| **AVG** | **0.877** |
+| **AVG** | **0.848** |
 
-Beats M4 #18 Theta (0.897). Full results: [benchmarks](https://eddmpython.github.io/vectrix/docs/benchmarks/)
+Beats M4 #2 FFORMA (0.838). Full results: [benchmarks](https://eddmpython.github.io/vectrix/docs/benchmarks/)
 
 ## API Reference
 
@@ -64,7 +64,7 @@ Beats M4 #18 Theta (0.897). Full results: [benchmarks](https://eddmpython.github
 - [01 Quickstart](https://eddmpython.github.io/vectrix/docs/tutorials/01_quickstart/): One-line forecasting
 - [02 Analysis & DNA](https://eddmpython.github.io/vectrix/docs/tutorials/02_analyze/): Feature fingerprinting
 - [03 Regression](https://eddmpython.github.io/vectrix/docs/tutorials/03_regression/): R-style formula regression
-- [04 30+ Models](https://eddmpython.github.io/vectrix/docs/tutorials/04_models/): Model comparison workflow
+- [04 Models](https://eddmpython.github.io/vectrix/docs/tutorials/04_models/): Model comparison workflow
 - [05 Adaptive](https://eddmpython.github.io/vectrix/docs/tutorials/05_adaptive/): Regime, constraints, DNA
 - [06 Business](https://eddmpython.github.io/vectrix/docs/tutorials/06_business/): Anomaly, what-if, backtesting
 

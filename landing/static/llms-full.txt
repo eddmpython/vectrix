@@ -40,7 +40,7 @@ print(result.rmse)         # Validation RMSE
 - **30+ models**: Exponential smoothing, ARIMA, Theta, decomposition, intermittent demand, volatility, neural reservoir, pattern matching.
 - **Adaptive intelligence**: Regime detection, self-healing forecasts, constraint enforcement, DNA-based meta-learning.
 - **Business intelligence**: Anomaly detection, what-if scenarios, backtesting, business-specific accuracy metrics.
-- **Built-in Rust engine**: 26 core hot loops Rust-accelerated (5-67x). Compiled into every wheel — like Polars.
+- **Built-in Rust engine**: 29 core hot loops Rust-accelerated (5-67x). Compiled into every wheel — like Polars.
 - **Lightweight**: Only 3 dependencies (NumPy, pandas, SciPy).
 
 ## Model Catalog (30+ models)
@@ -306,7 +306,7 @@ result = tsr.fit(df, formula="y ~ x1 + x2", dateCol="date")
 
 ## Built-in Rust Engine
 
-26 accelerated functions compiled into every wheel (5-67x speedup):
+29 accelerated functions compiled into every wheel (5-67x speedup):
 - ets_filter, ets_loglik, batch_ets_filter — ETS core loops
 - arima_css, css_objective, seasonal_css_objective — ARIMA optimization
 - theta_decompose — Theta decomposition
@@ -320,6 +320,7 @@ result = tsr.fit(df, formula="y ~ x1 + x2", dateCol="date")
 - croston_tsb_filter — Croston TSB intermittent demand
 - esn_reservoir_update — ESN reservoir computing
 - four_theta_fitted, four_theta_deseasonalize — 4Theta ensemble
+- sample_entropy, approximate_entropy, hurst_exponent — DNA feature extraction
 
 Check engine status:
 ```python
@@ -351,7 +352,7 @@ Built-in datasets: airline_passengers, australian_wine, and more.
 
 - Documentation: https://eddmpython.github.io/vectrix/docs/getting-started/installation
 - API Reference: https://eddmpython.github.io/vectrix/docs/api/easy
-- Tutorials: https://eddmpython.github.io/vectrix/docs/tutorials/quickstart
+- Tutorials: https://eddmpython.github.io/vectrix/docs/tutorials/01_quickstart/
 - Benchmarks: https://eddmpython.github.io/vectrix/docs/benchmarks
 - GitHub: https://github.com/eddmpython/vectrix
 - PyPI: https://pypi.org/project/vectrix/

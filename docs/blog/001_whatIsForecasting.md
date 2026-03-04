@@ -160,10 +160,10 @@ The goal isn't perfection. The goal is to be **less wrong** than the alternative
 
 This post covered the "what" and "why" of forecasting. In upcoming posts, we'll dive deeper
 
-- **[How Do We Know If a Forecast Is Any Good?](/vectrix/blog/how-we-know-forecasts-work)** — Benchmarks, metrics, and the M Competitions
+- **[How Do We Know If a Forecast Is Any Good?](/vectrix/blog/002_howWeKnowForecastsWork/)** — Benchmarks, metrics, and the M Competitions
+- **[Python Forecasting Libraries Compared](/vectrix/blog/003_pythonForecastingLibraries/)** — Which tool should you use?
 - **Your First Forecast in Python** — From data to prediction in 5 minutes
 - **Time Series Models Explained** — ETS, ARIMA, Theta, and when to use each
-- **The Art of Model Selection** — How auto-selection works and why it matters
 
 Forecasting is a journey from intuition to evidence. Welcome aboard.
 

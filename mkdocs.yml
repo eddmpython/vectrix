@@ -53,6 +53,9 @@ extra:
 extra_css:
   - stylesheets/theme.css
 
+exclude_docs: |
+  **/*.ko.md
+
 plugins:
   - search
   - mkdocstrings:
@@ -73,6 +76,14 @@ nav:
   - Getting Started:
     - Installation: getting-started/installation.md
     - Quickstart: getting-started/quickstart.md
+  - Tutorials:
+    - tutorials/index.md
+    - Quickstart: tutorials/01_quickstart.md
+    - Analysis & DNA: tutorials/02_analyze.md
+    - Regression: tutorials/03_regression.md
+    - 30+ Models: tutorials/04_models.md
+    - Adaptive Intelligence: tutorials/05_adaptive.md
+    - Business Intelligence: tutorials/06_business.md
   - User Guide:
     - Forecasting: guide/forecasting.md
     - Analysis & DNA: guide/analysis.md

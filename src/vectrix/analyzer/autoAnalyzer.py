@@ -127,51 +127,22 @@ class AutoAnalyzer:
         freq: Frequency,
         basePeriod: int
     ) -> List[int]:
-        """FFT-based seasonal period detection"""
-        n = len(values)
+        """Frequency-based seasonal period detection.
 
-        if n < 20:
-            return [basePeriod]
-
-        periods = []
-
-        try:
-            # Detrend
-            detrended = values - np.linspace(values[0], values[-1], n)
-
-            # FFT
-            fft = np.fft.fft(detrended)
-            magnitudes = np.abs(fft)
-            magnitudes[0] = 0
-            magnitudes[n // 2:] = 0
-
-            # Detect significant frequencies
-            threshold = np.mean(magnitudes) + 2 * np.std(magnitudes)
-
-            for i in range(1, min(n // 2, 100)):
-                if magnitudes[i] > threshold:
-                    period = int(round(n / i))
-                    if 2 <= period <= n // 2:
-                        periods.append(period)
-
-            periods = sorted(set(periods))[:3]
-
-        except Exception:
-            pass
-
-        # Add default periods
-        if not periods:
-            defaultPeriods = {
-                Frequency.DAILY: [7],
-                Frequency.WEEKLY: [13, 52],
-                Frequency.MONTHLY: [12],
-                Frequency.QUARTERLY: [4],
-                Frequency.YEARLY: [1],
-                Frequency.HOURLY: [24]
-            }
-            periods = defaultPeriods.get(freq, [basePeriod])
-
-        return periods
+        Uses the known data frequency to determine the correct seasonal period.
+        FFT-based detection was removed after E053 showed it produces spurious
+        periods (e.g. 53, 144, 168 for Daily data) that degrade forecast accuracy
+        across all M4 frequency groups.
+        """
+        defaultPeriods = {
+            Frequency.DAILY: [7],
+            Frequency.WEEKLY: [52],
+            Frequency.MONTHLY: [12],
+            Frequency.QUARTERLY: [4],
+            Frequency.YEARLY: [1],
+            Frequency.HOURLY: [24],
+        }
+        return defaultPeriods.get(freq, [basePeriod])
 
     def _analyzeSeasonality(
         self,
