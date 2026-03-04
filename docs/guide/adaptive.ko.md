@@ -4,7 +4,7 @@ Vectrix만의 차별화 기능 — 다른 예측 라이브러리에는 없습니
 
 ## 레짐 감지
 
-HMM 기반 레짐 전환 감지 (상승/하락/횡보, 성수기/비수기):
+HMM 기반 레짐 전환 감지 (상승/하락/횡보, 성수기/비수기)
 
 ```python
 from vectrix import RegimeDetector
@@ -19,7 +19,7 @@ for label, stats in result.regimeStats.items():
 
 ## 레짐 인식 예측
 
-레짐별로 최적 모델을 자동 전환:
+레짐별로 최적 모델을 자동 전환
 
 ```python
 from vectrix import RegimeAwareForecaster
@@ -32,7 +32,7 @@ print(result.modelPerRegime)
 
 ## 자가 치유 예측
 
-실시간 오차 모니터링 및 자동 교정:
+실시간 오차 모니터링 및 자동 교정
 
 ```python
 from vectrix import SelfHealingForecast
@@ -49,7 +49,7 @@ updated = healer.getUpdatedForecast()
 
 ## 제약 조건 인식 예측
 
-비즈니스 제약 조건 적용:
+비즈니스 제약 조건 적용
 
 ```python
 from vectrix import ConstraintAwareForecaster, Constraint
@@ -78,7 +78,7 @@ result = caf.apply(predictions, lower, upper, constraints=[
 
 ## Forecast DNA
 
-메타러닝을 위한 시계열 핑거프린트:
+메타러닝을 위한 시계열 핑거프린트
 
 ```python
 from vectrix import ForecastDNA

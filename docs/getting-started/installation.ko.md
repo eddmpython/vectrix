@@ -32,7 +32,7 @@ pip install "vectrix[all]"           # 전체
 
 ## 내장 Rust 엔진
 
-25개 핵심 예측 핫 루프가 Rust로 가속되어 모든 wheel에 컴파일됩니다:
+25개 핵심 예측 핫 루프가 Rust로 가속되어 모든 wheel에 컴파일됩니다
 
 - Linux (x86_64, manylinux)
 - macOS (Apple Silicon ARM + x86_64)
@@ -58,7 +58,7 @@ result = forecast([100, 120, 130, 115, 140], steps=3)
 print(result.predictions)
 ```
 
-Rust 엔진 활성화 확인:
+Rust 엔진 활성화 확인
 
 ```python
 print(vectrix.TURBO_AVAILABLE)  # True
@@ -66,7 +66,7 @@ print(vectrix.TURBO_AVAILABLE)  # True
 
 ## 핵심 의존성
 
-Vectrix는 3개의 필수 의존성만 있습니다:
+Vectrix는 3개의 필수 의존성만 있습니다
 
 | 패키지 | 최소 버전 |
 |--------|----------|

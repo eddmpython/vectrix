@@ -46,7 +46,7 @@ print(f"추천 모델:  {', '.join(dna.recommendedModels[:3])}")
 추천 모델:  auto_ces, dot, four_theta
 ```
 
-DNA가 알려주는 것:
+DNA가 알려주는 것
 
 - **카테고리** — 시계열의 유형 (추세, 계절성, 정상, 간헐적 수요, …)
 - **난이도** — 예측 난이도 (0=매우 쉬움, 100=극히 어려움)
@@ -86,7 +86,7 @@ if len(report.anomalies) > 0:
 
 ## 5. 데이터 특성
 
-시계열의 세부 속성:
+시계열의 세부 속성
 
 ```python
 c = report.characteristics
@@ -110,7 +110,7 @@ print(f"예측 가능성: {c.predictabilityScore:.0f}/100")
 
 ## 6. 전체 요약
 
-하나의 포맷된 보고서로 모든 것을 확인하세요:
+하나의 포맷된 보고서로 모든 것을 확인하세요
 
 ```python
 print(report.summary())
@@ -148,7 +148,7 @@ print(report.summary())
 
 ## 7. 실전 활용: 분석 후 예측
 
-분석으로 데이터를 이해한 다음, 확신을 갖고 예측하세요:
+분석으로 데이터를 이해한 다음, 확신을 갖고 예측하세요
 
 ```python
 from vectrix import analyze, forecast
@@ -165,7 +165,7 @@ print(f"Vectrix 선택: {result.model}")
 
 ## 8. 여러 시계열 비교
 
-여러 시계열을 프로파일링해서 차이를 파악하세요:
+여러 시계열을 프로파일링해서 차이를 파악하세요
 
 ```python
 from vectrix import analyze

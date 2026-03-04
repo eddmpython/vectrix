@@ -8,7 +8,7 @@ Get your first forecast in 3 lines of Python. No configuration, no model selecti
 
 ## Forecast from a List
 
-The simplest possible usage. Pass any numeric sequence and the number of steps to predict:
+The simplest possible usage. Pass any numeric sequence and the number of steps to predict
 
 ```python
 from vectrix import forecast
@@ -23,7 +23,7 @@ Behind the scenes, Vectrix evaluates 30+ model candidates, validates each on a h
 
 ## Forecast from a DataFrame
 
-For real-world data with timestamps, pass a pandas DataFrame. Vectrix auto-detects date and value columns:
+For real-world data with timestamps, pass a pandas DataFrame. Vectrix auto-detects date and value columns
 
 ```python
 import pandas as pd
@@ -37,7 +37,7 @@ result.to_csv("forecast.csv")
 
 ## Forecast from a CSV File
 
-Skip the pandas step entirely — pass a file path and Vectrix reads it for you:
+Skip the pandas step entirely — pass a file path and Vectrix reads it for you
 
 ```python
 from vectrix import forecast
@@ -47,7 +47,7 @@ result = forecast("sales.csv", steps=12)
 
 ## Working with Results
 
-Every forecast returns an `EasyForecastResult` object with predictions, confidence intervals, metrics, and export methods:
+Every forecast returns an `EasyForecastResult` object with predictions, confidence intervals, metrics, and export methods
 
 | Attribute / Method | Description |
 |-------------------|-------------|
@@ -68,7 +68,7 @@ Every forecast returns an `EasyForecastResult` object with predictions, confiden
 
 ## Supported Input Formats
 
-Vectrix accepts five input formats — no manual conversion needed:
+Vectrix accepts five input formats — no manual conversion needed
 
 ```python
 forecast([1, 2, 3, 4, 5])                    # list
@@ -80,7 +80,7 @@ forecast("data.csv")                           # CSV file path
 
 ## Quick Analysis
 
-Profile your data before forecasting — understand its difficulty, seasonality, and recommended models:
+Profile your data before forecasting — understand its difficulty, seasonality, and recommended models
 
 ```python
 from vectrix import analyze
@@ -93,7 +93,7 @@ print(report.summary())
 
 ## Quick Regression
 
-R-style regression with automatic diagnostics:
+R-style regression with automatic diagnostics
 
 ```python
 from vectrix import regress

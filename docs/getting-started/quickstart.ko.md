@@ -33,7 +33,7 @@ result = forecast("sales.csv", steps=12)
 
 ## 결과 활용
 
-`EasyForecastResult` 제공 기능:
+`EasyForecastResult` 제공 기능
 
 | 속성 / 메서드 | 설명 |
 |--------------|------|

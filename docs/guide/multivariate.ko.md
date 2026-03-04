@@ -22,7 +22,7 @@ predictions, lower, upper = model.predict(steps=12)
 
 ### 자동 시차 선택
 
-모델이 1부터 `maxLag`까지 모든 시차 차수를 테스트하고, 정보 기준에 따라 최적 차수를 선택합니다:
+모델이 1부터 `maxLag`까지 모든 시차 차수를 테스트하고, 정보 기준에 따라 최적 차수를 선택합니다
 
 ```python
 model = VARModel(maxLag=8, criterion="aic")   # Akaike IC (기본값)
@@ -34,7 +34,7 @@ print(f"선택된 시차 차수: {model.order}")
 
 ### Granger 인과성
 
-한 변수가 다른 변수의 예측에 도움이 되는지 검정:
+한 변수가 다른 변수의 예측에 도움이 되는지 검정
 
 ```python
 model = VARModel()
@@ -74,7 +74,7 @@ predictions, lower, upper = model.predict(steps=10)
 
 ### 공적분 랭크
 
-VECM은 공적분 랭크(독립 공적분 관계 수)를 자동 추정합니다:
+VECM은 공적분 랭크(독립 공적분 관계 수)를 자동 추정합니다
 
 ```python
 model = VECMModel(maxLag=4, rank=None)  # 자동 감지

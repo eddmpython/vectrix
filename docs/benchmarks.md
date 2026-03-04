@@ -8,7 +8,7 @@ Vectrix is benchmarked against the M3 and M4 Competition datasets, the gold stan
 
 ## M4 Competition Results — DOT-Hybrid Engine
 
-The [M4 Competition](https://www.sciencedirect.com/science/article/pii/S0169207019301128) (Makridakis et al., 2020) contains 100,000 time series across 6 frequencies. Results from **DOT-Hybrid** (DynamicOptimizedTheta with 8-way auto-select), evaluated on 2,000 randomly sampled series per frequency (seed=42):
+The [M4 Competition](https://www.sciencedirect.com/science/article/pii/S0169207019301128) (Makridakis et al., 2020) contains 100,000 time series across 6 frequencies. Results from **DOT-Hybrid** (DynamicOptimizedTheta with 8-way auto-select), evaluated on 2,000 randomly sampled series per frequency (seed=42)
 
 | Frequency | DOT-Hybrid OWA | M4 Context |
 |-----------|:--------------:|------------|

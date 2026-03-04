@@ -3,7 +3,7 @@
 Vectrix는 최신 사전학습 예측 모델의 래퍼를 선택적으로 제공합니다. 이 모델들은 **제로샷 예측**을 수행합니다 — 특정 데이터에 대한 학습이 필요 없습니다.
 
 !!! note "선택적 의존성"
-    파운데이션 모델 래퍼는 추가 패키지가 필요합니다:
+    파운데이션 모델 래퍼는 추가 패키지가 필요합니다
     ```bash
     pip install "vectrix[foundation]"
     ```
@@ -46,7 +46,7 @@ quantiles = model.predictQuantiles(
 
 ### 배치 예측
 
-여러 시리즈를 한 번에 예측:
+여러 시리즈를 한 번에 예측
 
 ```python
 series = [y1, y2, y3]
@@ -71,7 +71,7 @@ predictions, lower, upper = model.predict(steps=12)
 
 ### 공변량 지원
 
-TimesFM은 외생 변수(공변량)를 지원합니다:
+TimesFM은 외생 변수(공변량)를 지원합니다
 
 ```python
 predictions, lower, upper = model.predictWithCovariates(

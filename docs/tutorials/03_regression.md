@@ -8,7 +8,7 @@ title: "Tutorial 03 — Regression"
 
 ## Direct Input
 
-The simplest form: pass `y` and `X` directly as numpy arrays. Vectrix runs OLS by default with automatic constant term:
+The simplest form: pass `y` and `X` directly as numpy arrays. Vectrix runs OLS by default with automatic constant term
 
 ```python
 import numpy as np

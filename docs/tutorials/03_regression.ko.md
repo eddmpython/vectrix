@@ -6,7 +6,7 @@ Vectrix의 `regress()` 함수는 R 스타일 공식, 다양한 방법(OLS, Ridge
 
 ## 1. 직접 입력 모드
 
-y(종속변수)와 X(독립변수) 배열을 직접 전달합니다:
+y(종속변수)와 X(독립변수) 배열을 직접 전달합니다
 
 ```python
 import numpy as np
@@ -46,7 +46,7 @@ P-값:        [0.000 0.000 0.001]
 
 ## 2. 공식 모드
 
-R 스타일 공식 문자열과 DataFrame을 사용합니다 — 더 읽기 쉽고 강력합니다:
+R 스타일 공식 문자열과 DataFrame을 사용합니다 — 더 읽기 쉽고 강력합니다
 
 ```python
 import pandas as pd
@@ -81,7 +81,7 @@ result = regress(data=df, formula="y ~ x + I(x**2)")
 
 ## 3. 진단
 
-VIF, 정규성, 등분산성, 자기상관, 영향력 분석을 한 번에 실행합니다:
+VIF, 정규성, 등분산성, 자기상관, 영향력 분석을 한 번에 실행합니다
 
 ```python
 print(result.diagnose())
@@ -116,7 +116,7 @@ print(result.diagnose())
 
 ## 4. 예측
 
-새 데이터에 대해 신뢰구간 또는 예측구간과 함께 예측합니다:
+새 데이터에 대해 신뢰구간 또는 예측구간과 함께 예측합니다
 
 ```python
 X_new = np.array([[30, 5], [40, 3], [25, 8]])
@@ -152,7 +152,7 @@ result_quant  = regress(y, X, method="quantile") # 중앙값 회귀
 
 ## 6. 자동 출력 끄기
 
-기본적으로 `regress()`는 요약을 자동 출력합니다. 끄려면:
+기본적으로 `regress()`는 요약을 자동 출력합니다. 끄려면
 
 ```python
 result = regress(y, X, summary=False)

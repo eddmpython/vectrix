@@ -8,7 +8,7 @@ title: Analysis & DNA
 
 ## Quick Analysis
 
-The `analyze()` function accepts the same input formats as `forecast()` — lists, arrays, DataFrames, Series, or CSV paths:
+The `analyze()` function accepts the same input formats as `forecast()` — lists, arrays, DataFrames, Series, or CSV paths
 
 ```python
 from vectrix import analyze
@@ -18,7 +18,7 @@ report = analyze(df, date="date", value="sales")
 
 ## DNA Profile
 
-Every time series has a unique statistical fingerprint — its "DNA." Vectrix extracts 65+ features (autocorrelation structure, Hurst exponent, entropy, volatility clustering, seasonal strength, and more) to create a deterministic profile that drives model selection and difficulty estimation:
+Every time series has a unique statistical fingerprint — its "DNA." Vectrix extracts 65+ features (autocorrelation structure, Hurst exponent, entropy, volatility clustering, seasonal strength, and more) to create a deterministic profile that drives model selection and difficulty estimation
 
 ```python
 dna = report.dna
@@ -38,7 +38,7 @@ print(f"Recommended: {dna.recommendedModels[:3]}")
 
 ## Data Characteristics
 
-The `characteristics` object provides a comprehensive statistical profile — trend direction and strength, seasonal patterns, volatility level, and predictability score:
+The `characteristics` object provides a comprehensive statistical profile — trend direction and strength, seasonal patterns, volatility level, and predictability score
 
 ```python
 c = report.characteristics
@@ -53,7 +53,7 @@ print(f"Outliers: {c.outlierCount} ({c.outlierRatio:.1%})")
 
 ## Changepoints & Anomalies
 
-**Changepoints** are locations where the time series undergoes a structural shift (sudden change in mean, variance, or trend). **Anomalies** are isolated observations that deviate from the expected pattern:
+**Changepoints** are locations where the time series undergoes a structural shift (sudden change in mean, variance, or trend). **Anomalies** are isolated observations that deviate from the expected pattern
 
 ```python
 print(f"Changepoints: {report.changepoints}")
@@ -62,7 +62,7 @@ print(f"Anomalies: {report.anomalies}")
 
 ## Quick Report
 
-Run analysis and forecasting in a single call. DNA profiling, feature extraction, model selection, and forecasting — all at once:
+Run analysis and forecasting in a single call. DNA profiling, feature extraction, model selection, and forecasting — all at once
 
 ```python
 from vectrix import quick_report
@@ -75,7 +75,7 @@ analysis_result = report['analysis']
 
 ## Direct ForecastDNA Access
 
-For lower-level control — such as building custom model selection logic or caching DNA profiles — use the `ForecastDNA` class directly:
+For lower-level control — such as building custom model selection logic or caching DNA profiles — use the `ForecastDNA` class directly
 
 ```python
 from vectrix.adaptive import ForecastDNA

@@ -2,7 +2,7 @@
 
 ## Easy API
 
-가장 간단한 예측 방법:
+가장 간단한 예측 방법
 
 ```python
 from vectrix import forecast
@@ -14,7 +14,7 @@ result = forecast(data, steps=30)
 
 ## Vectrix 클래스
 
-더 세밀한 제어가 필요할 때 `Vectrix` 클래스를 직접 사용합니다:
+더 세밀한 제어가 필요할 때 `Vectrix` 클래스를 직접 사용합니다
 
 ```python
 from vectrix import Vectrix
@@ -56,7 +56,7 @@ for modelId, mr in result.allModelResults.items():
 
 ## Flat Defense 시스템
 
-Vectrix만의 4단계 평탄 예측 방어 시스템:
+Vectrix만의 4단계 평탄 예측 방어 시스템
 
 1. **FlatRiskDiagnostic** — 평탄 예측 위험도 사전 평가
 2. **AdaptiveModelSelector** — 위험도 기반 모델 선택
@@ -72,7 +72,7 @@ print(f"전략: {fr.recommendedStrategy}")
 
 ## 엔진 직접 접근
 
-개별 모델을 직접 사용:
+개별 모델을 직접 사용
 
 ```python
 from vectrix.engine import AutoETS, AutoARIMA, ThetaModel

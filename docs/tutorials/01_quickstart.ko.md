@@ -27,7 +27,7 @@ sales = [
 result = forecast(sales, steps=10)
 ```
 
-이게 전부입니다. Vectrix가 자동으로:
+이게 전부입니다. Vectrix가 자동으로
 
 - 날짜를 생성하고 (오늘 기준으로 역산)
 - 여러 모델을 시도하고 (ETS, ARIMA, Theta, CES, DOT, …)
@@ -42,7 +42,7 @@ print(result.predictions)   # 10개의 예측값 배열
 print(result.mape)          # 검증 MAPE (%)
 ```
 
-출력 예시:
+출력 예시
 
 ```
 Dynamic Optimized Theta
@@ -74,7 +74,7 @@ df = pd.DataFrame({
 result = forecast(df, steps=12)
 ```
 
-컬럼 이름이 명확하지 않으면 직접 지정할 수 있습니다:
+컬럼 이름이 명확하지 않으면 직접 지정할 수 있습니다
 
 ```python
 result = forecast(df, date="date", value="sales", steps=12)
@@ -136,7 +136,7 @@ result.to_json("forecast.json")
 
 ## 4. 모든 모델 비교
 
-모든 모델의 성능을 한눈에 확인하세요:
+모든 모델의 성능을 한눈에 확인하세요
 
 ```python
 print(result.compare())
@@ -168,7 +168,7 @@ print(all_df.head())
 
 ## 5. 예측 기간 변경
 
-예측 기간(steps)을 바꾸면 모델 선택과 결과가 달라질 수 있습니다:
+예측 기간(steps)을 바꾸면 모델 선택과 결과가 달라질 수 있습니다
 
 ```python
 for steps in [7, 14, 30]:

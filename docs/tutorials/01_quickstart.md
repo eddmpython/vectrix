@@ -16,7 +16,7 @@ pip install vectrix
 
 ## Forecast from a List
 
-The simplest possible forecast. Pass a Python list and the number of future steps to predict:
+The simplest possible forecast. Pass a Python list and the number of future steps to predict
 
 ```python
 from vectrix import forecast
@@ -37,7 +37,7 @@ AutoETS
 4.23
 ```
 
-What happened behind the scenes:
+What happened behind the scenes
 1. Vectrix inferred dates from the data length (daily frequency by default)
 2. Split data into training (80%) and validation (20%) sets
 3. Fitted 30+ models on the training portion
@@ -46,7 +46,7 @@ What happened behind the scenes:
 
 ## Forecast from a DataFrame
 
-Real-world data usually comes as a DataFrame with a date column and a value column. Vectrix auto-detects both, or you can specify them explicitly:
+Real-world data usually comes as a DataFrame with a date column and a value column. Vectrix auto-detects both, or you can specify them explicitly
 
 ```python
 import pandas as pd
@@ -76,7 +76,7 @@ Predictions:
 
 ## Forecast from a CSV File
 
-Skip the pandas step entirely. Pass a file path and Vectrix reads it, detects columns, and forecasts — all in one call:
+Skip the pandas step entirely. Pass a file path and Vectrix reads it, detects columns, and forecasts — all in one call
 
 ```python
 from vectrix import forecast
@@ -88,7 +88,7 @@ print(result.predictions)
 
 ## Full Text Summary
 
-The `.summary()` method returns a human-readable report with the selected model, accuracy metrics, and predictions with confidence intervals:
+The `.summary()` method returns a human-readable report with the selected model, accuracy metrics, and predictions with confidence intervals
 
 ```python
 result = forecast([100, 120, 130, 115, 140, 160, 150, 170], steps=5)
@@ -97,7 +97,7 @@ print(result.summary())
 
 ## Compare All Models
 
-Every forecast evaluates 30+ models internally. You can see the full ranking to understand how close the competition was:
+Every forecast evaluates 30+ models internally. You can see the full ranking to understand how close the competition was
 
 ```python
 result = forecast(data, steps=5)
@@ -118,7 +118,7 @@ print(comparison)
 ...
 ```
 
-The standalone `compare()` function provides an even quicker way to rank models without storing the full forecast result:
+The standalone `compare()` function provides an even quicker way to rank models without storing the full forecast result
 
 ```python
 from vectrix import compare
@@ -129,7 +129,7 @@ print(ranking)
 
 ## Get All Model Forecasts
 
-Sometimes you want predictions from every model, not just the winner. This is useful for ensemble building or understanding model disagreement:
+Sometimes you want predictions from every model, not just the winner. This is useful for ensemble building or understanding model disagreement
 
 ```python
 all_preds = result.all_forecasts()
@@ -148,7 +148,7 @@ print(all_preds)
 
 ## Export Results
 
-Convert results to DataFrame, CSV, or JSON for downstream use in dashboards, reports, or other systems:
+Convert results to DataFrame, CSV, or JSON for downstream use in dashboards, reports, or other systems
 
 ```python
 df_result = result.to_dataframe()
@@ -198,7 +198,7 @@ print(json_str[:100])
 
 ## Supported Input Formats
 
-Vectrix accepts five input formats out of the box. No manual conversion or preprocessing needed:
+Vectrix accepts five input formats out of the box. No manual conversion or preprocessing needed
 
 ```python
 import numpy as np
@@ -224,7 +224,7 @@ forecast("data.csv", steps=3)                           # CSV file path
 
 ## Complete Example
 
-A full end-to-end workflow: forecast, inspect metrics, export results, and compare all models:
+A full end-to-end workflow: forecast, inspect metrics, export results, and compare all models
 
 ```python
 from vectrix import forecast

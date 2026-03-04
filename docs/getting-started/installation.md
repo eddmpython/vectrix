@@ -13,7 +13,7 @@ Vectrix ships with a **built-in Rust engine** — like Polars, the Rust extensio
 
 ## Install
 
-Choose your preferred package manager:
+Choose your preferred package manager
 
 **pip** (most common)
 
@@ -37,7 +37,7 @@ This installs Vectrix with its 3 core dependencies (NumPy, pandas, SciPy) **and 
 
 ## Optional Extras
 
-Vectrix follows a modular design — install only what you need:
+Vectrix follows a modular design — install only what you need
 
 ```bash
 pip install vectrix                  # All 30+ models + built-in Rust engine
@@ -54,7 +54,7 @@ pip install "vectrix[all]"           # Everything
 
 ## Built-in Rust Engine
 
-25 core forecasting hot loops are Rust-accelerated and compiled into every wheel. Pre-built binary wheels are available for all major platforms:
+25 core forecasting hot loops are Rust-accelerated and compiled into every wheel. Pre-built binary wheels are available for all major platforms
 
 - **Linux** x86_64 (manylinux)
 - **macOS** Apple Silicon (ARM64) + x86_64
@@ -72,7 +72,7 @@ No Rust compiler is needed. The acceleration is completely transparent — your 
 
 ## Verify Installation
 
-After installing, confirm everything works:
+After installing, confirm everything works
 
 ```python
 import vectrix
@@ -82,7 +82,7 @@ result = forecast([100, 120, 130, 115, 140], steps=3)
 print(result.predictions)
 ```
 
-Check that the Rust engine loaded:
+Check that the Rust engine loaded
 
 ```python
 import vectrix
@@ -91,7 +91,7 @@ print(vectrix.TURBO_AVAILABLE)  # True if Rust engine is active
 
 ## Core Dependencies
 
-Vectrix is designed to be lightweight. Only 3 packages are required — all widely used, well-maintained scientific Python libraries:
+Vectrix is designed to be lightweight. Only 3 packages are required — all widely used, well-maintained scientific Python libraries
 
 | Package | Minimum Version | Purpose |
 |---------|----------------|---------|

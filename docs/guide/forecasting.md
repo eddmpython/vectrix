@@ -8,7 +8,7 @@ Vectrix provides two APIs for forecasting: the **Easy API** for quick, one-line 
 
 ## Easy API
 
-The simplest way to forecast. One function call evaluates 30+ models, selects the best, and returns predictions with 95% confidence intervals:
+The simplest way to forecast. One function call evaluates 30+ models, selects the best, and returns predictions with 95% confidence intervals
 
 ```python
 from vectrix import forecast
@@ -20,7 +20,7 @@ result = forecast(data, steps=30)
 
 ## Vectrix Class
 
-For full access to all model results, flat risk diagnostics, ensemble weights, and per-model metrics, use the `Vectrix` class directly:
+For full access to all model results, flat risk diagnostics, ensemble weights, and per-model metrics, use the `Vectrix` class directly
 
 ```python
 from vectrix import Vectrix
@@ -47,7 +47,7 @@ for modelId, mr in result.allModelResults.items():
 
 ## Model Categories
 
-Vectrix evaluates models across 10 categories. Each category captures different time series dynamics:
+Vectrix evaluates models across 10 categories. Each category captures different time series dynamics
 
 | Category | Models | Best For |
 |----------|--------|----------|
@@ -64,7 +64,7 @@ Vectrix evaluates models across 10 categories. Each category captures different 
 
 ## Flat Defense System
 
-A common failure in statistical forecasting is flat (constant) predictions. Vectrix includes a unique 4-level defense system that detects and corrects this automatically:
+A common failure in statistical forecasting is flat (constant) predictions. Vectrix includes a unique 4-level defense system that detects and corrects this automatically
 
 1. **FlatRiskDiagnostic** -- Pre-assessment of flat prediction risk
 2. **AdaptiveModelSelector** -- Risk-based model selection
@@ -80,7 +80,7 @@ print(f"Strategy: {fr.recommendedStrategy}")
 
 ## Direct Engine Access
 
-For fine-grained control, use individual model engines. Every engine follows the same `fit()` → `predict()` interface:
+For fine-grained control, use individual model engines. Every engine follows the same `fit()` → `predict()` interface
 
 ```python
 from vectrix.engine.ets import AutoETS

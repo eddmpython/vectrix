@@ -63,7 +63,7 @@ print(f"추천 모델:  {profile.recommendedModels[:3]}")
 
 ### DNA 특성
 
-DNA 프로파일은 데이터를 특징짓는 통계적 특성을 추출합니다:
+DNA 프로파일은 데이터를 특징짓는 통계적 특성을 추출합니다
 
 ```python
 for key, value in list(profile.features.items())[:5]:
@@ -74,7 +74,7 @@ for key, value in list(profile.features.items())[:5]:
 
 ## 3. 자가치유 예측
 
-실제 데이터가 예측과 다를 때, 자가치유 시스템이 자동으로 교정합니다:
+실제 데이터가 예측과 다를 때, 자가치유 시스템이 자동으로 교정합니다
 
 ```python
 from vectrix import SelfHealingForecast
@@ -101,7 +101,7 @@ print(f"교정된 예측: {report.correctedForecast}")
 교정된 예측: [100.  112.  125.  128.5 133.2]
 ```
 
-자가치유 과정:
+자가치유 과정
 
 1. 실측값과 원래 예측을 비교
 2. 체계적 편향 감지 (과소/과대 예측)
@@ -110,7 +110,7 @@ print(f"교정된 예측: {report.correctedForecast}")
 
 ## 4. 비즈니스 제약 조건
 
-예측에 실무 비즈니스 규칙을 적용하세요:
+예측에 실무 비즈니스 규칙을 적용하세요
 
 ```python
 from vectrix import ConstraintAwareForecaster, Constraint
@@ -146,7 +146,7 @@ print(f"제약 적용: {constrained}")
 
 ## 5. 통합 활용
 
-완전한 적응형 워크플로우:
+완전한 적응형 워크플로우
 
 ```python
 import numpy as np

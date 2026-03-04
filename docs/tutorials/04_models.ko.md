@@ -6,7 +6,7 @@
 
 ## 1. 한 줄 모델 비교
 
-모든 모델을 비교하는 가장 쉬운 방법:
+모든 모델을 비교하는 가장 쉬운 방법
 
 ```python
 from vectrix import compare
@@ -29,7 +29,7 @@ print(df)
 
 ## 2. Vectrix 클래스
 
-완전한 제어를 위해 `Vectrix` 클래스를 직접 사용하세요:
+완전한 제어를 위해 `Vectrix` 클래스를 직접 사용하세요
 
 ```python
 import numpy as np
@@ -88,7 +88,7 @@ for modelId, m in result.allModelResults.items():
 
 ## 3. 사용 가능한 모델
 
-Vectrix에 포함된 모델 패밀리:
+Vectrix에 포함된 모델 패밀리
 
 | 카테고리 | 모델 | 강점 |
 |----------|------|------|
@@ -126,7 +126,7 @@ if result.flatInfo and result.flatInfo.isFlat:
 
 ## 5. 데이터 특성
 
-`Vectrix` 클래스는 예측 전에 데이터를 분석합니다:
+`Vectrix` 클래스는 예측 전에 데이터를 분석합니다
 
 ```python
 c = result.characteristics
@@ -138,7 +138,7 @@ print(f"계절성: {c.hasSeasonality}")
 
 ## 6. 앙상블 전략
 
-여러 모델이 좋은 성능을 보이면, Vectrix는 분산 보존 앙상블을 생성합니다:
+여러 모델이 좋은 성능을 보이면, Vectrix는 분산 보존 앙상블을 생성합니다
 
 ```python
 if result.bestModelId == "ensemble":
@@ -146,7 +146,7 @@ if result.bestModelId == "ensemble":
     print(f"앙상블 모델: {result.bestModelName}")
 ```
 
-앙상블 로직:
+앙상블 로직
 
 1. 상위 3개 모델을 전체 데이터로 재학습
 2. MAPE 역수 가중 조합
@@ -154,7 +154,7 @@ if result.bestModelId == "ensemble":
 
 ## 7. 상세 모드
 
-과정의 모든 단계를 확인하세요:
+과정의 모든 단계를 확인하세요
 
 ```python
 fx = Vectrix(verbose=True)

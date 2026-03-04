@@ -10,7 +10,7 @@ Vectrix's Business Intelligence module provides all four — designed for operat
 
 ## Anomaly Detection
 
-Before forecasting, identify and understand unusual observations in your historical data. Anomalies can distort model training and lead to biased predictions:
+Before forecasting, identify and understand unusual observations in your historical data. Anomalies can distort model training and lead to biased predictions
 
 ```python
 from vectrix.business import AnomalyDetector
@@ -70,7 +70,7 @@ print(f"Rolling method found: {result_rolling.nAnomalies} anomalies")
 
 ## What-If Analysis
 
-What-if analysis lets you explore hypothetical scenarios against your baseline forecast — essential for budget planning, risk assessment, and stakeholder presentations. Define optimistic, pessimistic, and shock scenarios, then compare their impact:
+What-if analysis lets you explore hypothetical scenarios against your baseline forecast — essential for budget planning, risk assessment, and stakeholder presentations. Define optimistic, pessimistic, and shock scenarios, then compare their impact
 
 ```python
 from vectrix.business import WhatIfAnalyzer
@@ -128,7 +128,7 @@ Level Shift: mean=525.00, impact=+5.0%
 
 ## Backtesting
 
-How do you know if your forecasting approach actually works? **Backtesting** (walk-forward validation) simulates how well your model would have performed on historical data by repeatedly training on past data and predicting the next window:
+How do you know if your forecasting approach actually works? **Backtesting** (walk-forward validation) simulates how well your model would have performed on historical data by repeatedly training on past data and predicting the next window
 
 ```python
 from vectrix.business import Backtester
@@ -213,7 +213,7 @@ Fold 3:       [====TRAIN====][TEST]
 
 ## Business Metrics
 
-MAPE and RMSE tell you about statistical accuracy, but businesses care about different things: **Are we systematically over- or under-forecasting? What's our volume-weighted error? Does our model beat a naive baseline?** `BusinessMetrics` answers these questions:
+MAPE and RMSE tell you about statistical accuracy, but businesses care about different things: **Are we systematically over- or under-forecasting? What's our volume-weighted error? Does our model beat a naive baseline?** `BusinessMetrics` answers these questions
 
 ```python
 from vectrix.business import BusinessMetrics
@@ -270,7 +270,7 @@ MASE (Mean Absolute Scaled Error) compares your model to a Naive baseline
 
 ## Combining Business Tools
 
-In practice, these tools work together as a complete business forecasting workflow — detect anomalies, backtest your approach, generate the forecast, then explore scenarios:
+In practice, these tools work together as a complete business forecasting workflow — detect anomalies, backtest your approach, generate the forecast, then explore scenarios
 
 ```python
 import numpy as np
@@ -303,7 +303,7 @@ for s in scenarios:
 
 ## Complete Example: Monthly Sales Review
 
-A realistic example — evaluating last month's forecast accuracy using business metrics to decide if the model needs recalibration:
+A realistic example — evaluating last month's forecast accuracy using business metrics to decide if the model needs recalibration
 
 ```python
 import numpy as np

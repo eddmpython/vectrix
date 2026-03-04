@@ -8,7 +8,7 @@ title: Business Intelligence
 
 ## Anomaly Detection
 
-Before forecasting, identify unusual observations that could distort model training:
+Before forecasting, identify unusual observations that could distort model training
 
 ```python
 from vectrix.business import AnomalyDetector
@@ -26,7 +26,7 @@ Methods: `auto`, `zscore`, `iqr`, `rolling`
 
 ## What-If Analysis
 
-Explore hypothetical scenarios against your baseline forecast — essential for budget planning, risk assessment, and stakeholder presentations:
+Explore hypothetical scenarios against your baseline forecast — essential for budget planning, risk assessment, and stakeholder presentations
 
 ```python
 from vectrix.business import WhatIfAnalyzer
@@ -45,7 +45,7 @@ for sr in results:
 
 ## Backtesting
 
-How do you know your forecasting approach works? **Walk-forward validation** simulates historical performance by repeatedly training and predicting:
+How do you know your forecasting approach works? **Walk-forward validation** simulates historical performance by repeatedly training and predicting
 
 ```python
 from vectrix.business import Backtester

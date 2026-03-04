@@ -8,7 +8,7 @@ title: "Tutorial 05 — Adaptive Intelligence"
 
 ## Regime Detection
 
-Real-world data rarely follows a single pattern throughout its history. Markets alternate between bull and bear phases, retail demand shifts between peak and off-season, and business metrics change after product launches or policy changes. Vectrix detects these **regimes** automatically using Hidden Markov Models:
+Real-world data rarely follows a single pattern throughout its history. Markets alternate between bull and bear phases, retail demand shifts between peak and off-season, and business metrics change after product launches or policy changes. Vectrix detects these **regimes** automatically using Hidden Markov Models
 
 ```python
 from vectrix import RegimeDetector
@@ -55,7 +55,7 @@ Number of regimes: 3
 
 ## Regime-Aware Forecasting
 
-Traditional forecasters use one model for all data — even if the data's behavior changed dramatically midway. `RegimeAwareForecaster` does something smarter: it identifies which regime the series is currently in and uses the model that performed best during similar past regimes:
+Traditional forecasters use one model for all data — even if the data's behavior changed dramatically midway. `RegimeAwareForecaster` does something smarter: it identifies which regime the series is currently in and uses the model that performed best during similar past regimes
 
 ```python
 from vectrix import RegimeAwareForecaster
@@ -83,7 +83,7 @@ The forecaster detects which regime the series is currently in and uses the mode
 
 ## Forecast DNA
 
-Every time series has a unique statistical signature. **DNA profiling** extracts 65+ features — autocorrelation structure, Hurst exponent, entropy, volatility clustering, seasonal strength, and more — to create a deterministic fingerprint. This fingerprint drives intelligent model selection and difficulty estimation:
+Every time series has a unique statistical signature. **DNA profiling** extracts 65+ features — autocorrelation structure, Hurst exponent, entropy, volatility clustering, seasonal strength, and more — to create a deterministic fingerprint. This fingerprint drives intelligent model selection and difficulty estimation
 
 ```python
 from vectrix import ForecastDNA
@@ -140,7 +140,7 @@ else:
 
 ## Self-Healing Forecast
 
-Forecasts degrade over time — the further out you predict, the less accurate the results. **Self-healing** solves this by monitoring errors as actual values arrive and automatically adjusting the remaining predictions. If your forecast was too optimistic for the first 3 days, the healer compensates for the remaining days:
+Forecasts degrade over time — the further out you predict, the less accurate the results. **Self-healing** solves this by monitoring errors as actual values arrive and automatically adjusting the remaining predictions. If your forecast was too optimistic for the first 3 days, the healer compensates for the remaining days
 
 ```python
 from vectrix import SelfHealingForecast, forecast
@@ -199,7 +199,7 @@ print(f"Updated remaining:  {updated_preds[5:].round(1)}")
 
 ## Constraint-Aware Forecasting
 
-Statistical models don't know about your business rules. Predictions can go negative (impossible for unit sales), exceed warehouse capacity, or show unrealistic year-over-year swings. **Constraint-aware forecasting** applies domain knowledge as post-processing rules — without modifying the underlying model:
+Statistical models don't know about your business rules. Predictions can go negative (impossible for unit sales), exceed warehouse capacity, or show unrealistic year-over-year swings. **Constraint-aware forecasting** applies domain knowledge as post-processing rules — without modifying the underlying model
 
 ```python
 from vectrix import ConstraintAwareForecaster, Constraint, forecast
@@ -283,7 +283,7 @@ constrained = caf.apply(
 
 ## Complete Example
 
-A full adaptive forecasting workflow — profile the data, detect regimes, generate a forecast, and apply business constraints:
+A full adaptive forecasting workflow — profile the data, detect regimes, generate a forecast, and apply business constraints
 
 ```python
 import numpy as np

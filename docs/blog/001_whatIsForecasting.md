@@ -16,7 +16,7 @@ That's it. No complex formulas needed to understand the concept. But beneath thi
 
 ## Why Forecasting Matters
 
-Consider these numbers:
+Consider these numbers
 
 - A **1% improvement** in demand forecasting can save a retailer **$10 million** annually in reduced waste and stockouts
 - Airlines use forecasting to set prices for over **3 billion** passenger trips each year
@@ -39,7 +39,7 @@ Broadly, forecasting approaches fall into two camps.
 
 ### Qualitative Forecasting
 
-This relies on human judgment, expertise, and intuition. Examples include:
+This relies on human judgment, expertise, and intuition. Examples include
 
 - **Expert opinion**: A seasoned retail buyer predicting next season's trends
 - **Delphi method**: A panel of experts iteratively refining their predictions
@@ -50,7 +50,7 @@ Qualitative methods shine when **data is scarce or nonexistent** — launching a
 
 ### Quantitative Forecasting
 
-This uses mathematical models applied to historical data. This is where tools like Vectrix live. Examples include:
+This uses mathematical models applied to historical data. This is where tools like Vectrix live. Examples include
 
 - **Time series models**: Analyzing patterns in sequential data (ETS, ARIMA, Theta)
 - **Regression models**: Finding relationships between variables ("sales increase by X when temperature rises by Y")
@@ -65,7 +65,7 @@ In practice, the best forecasters combine both. Numbers inform judgment; judgmen
 
 ## The Three Patterns Every Forecaster Must Know
 
-When you look at any time series data, you're looking for three fundamental patterns:
+When you look at any time series data, you're looking for three fundamental patterns
 
 ### 1. Trend
 
@@ -81,7 +81,7 @@ Are there repeating patterns at regular intervals?
 
 Ice cream sales peak every summer. E-commerce traffic spikes every Black Friday. Hospital admissions rise every flu season. These are **seasonal patterns** — they repeat at predictable intervals.
 
-Seasonality can be:
+Seasonality can be
 - **Daily**: Restaurant traffic peaks at lunch and dinner
 - **Weekly**: Gym attendance drops on weekends
 - **Monthly**: Rent payments on the 1st of each month
@@ -103,7 +103,7 @@ That's the fundamental equation. Every forecasting model, from the simplest to t
 
 ## How Forecasting Actually Works (The 10,000-Foot View)
 
-Here's the process, stripped to its essence:
+Here's the process, stripped to its essence
 
 ![The 6-step forecasting process](/vectrix/blog/forecasting-process.svg)
 
@@ -148,7 +148,7 @@ Let's be upfront about what forecasting can and cannot do.
 - Work well without sufficient historical data
 - Predict the future when the future is fundamentally different from the past
 
-The legendary statistician George Box said it best:
+The legendary statistician George Box said it best
 
 > "All models are wrong, but some are useful."
 
@@ -158,7 +158,7 @@ The goal isn't perfection. The goal is to be **less wrong** than the alternative
 
 ## What's Next?
 
-This post covered the "what" and "why" of forecasting. In upcoming posts, we'll dive deeper:
+This post covered the "what" and "why" of forecasting. In upcoming posts, we'll dive deeper
 
 - **Time Series 101**: The building blocks of sequential data
 - **Your First Forecast in Python**: From data to prediction in 5 minutes
