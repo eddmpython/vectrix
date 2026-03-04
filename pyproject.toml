@@ -96,6 +96,7 @@ dev = [
     "ruff>=0.1.0",
     "marimo>=0.1.0",
     "matplotlib>=3.5.0",
+    "scikit-learn>=1.7.2",
 ]
 
 [tool.ruff]

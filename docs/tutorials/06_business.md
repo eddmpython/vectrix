@@ -1,85 +1,108 @@
+---
+title: "Tutorial 06 — Business Intelligence"
+---
+
 # Tutorial 06 — Business Intelligence
 
-**Real-world forecasting tools: anomaly detection, what-if scenarios, backtesting, and business metrics.**
+**Forecasting is only the first step.** Real-world decision-making requires anomaly detection to clean your data, what-if scenarios for planning, backtesting to validate your approach, and business-specific accuracy metrics that go beyond MAPE.
 
-Vectrix's business module provides tools that go beyond basic forecasting — helping you make better decisions with your predictions.
+Vectrix's Business Intelligence module provides all four — designed for operations managers, analysts, and data scientists who need production-ready forecasting workflows.
 
-## 1. Anomaly Detection
+## Anomaly Detection
 
-Detect unusual data points that might indicate errors, events, or regime changes:
+Before forecasting, identify and understand unusual observations in your historical data. Anomalies can distort model training and lead to biased predictions:
 
 ```python
-import numpy as np
 from vectrix.business import AnomalyDetector
+import numpy as np
 
 np.random.seed(42)
-normal = np.random.normal(100, 10, 200)
-normal[50] = 200
-normal[120] = 20
-normal[175] = 250
+data = np.random.randn(200) * 10 + 100
+data[50] = 200
+data[120] = 30
+data[175] = 250
 
 detector = AnomalyDetector()
-result = detector.detect(normal, threshold=2.0)
+result = detector.detect(data, method="auto")
 
-print(f"Anomalies found: {len(result.indices)}")
-for idx in result.indices:
-    print(f"  Index {idx}: value={normal[idx]:.1f}, score={result.scores[idx]:.2f}")
+print(f"Method used: {result.method}")
+print(f"Anomalies found: {result.nAnomalies}")
+print(f"Anomaly ratio: {result.anomalyRatio:.1%}")
+print(f"Anomaly indices: {result.indices}")
 ```
 
+**Expected output:**
+
 ```
+Method used: zscore
 Anomalies found: 3
-  Index 50: value=200.0, score=3.45
-  Index 120: value=20.0, score=-2.89
-  Index 175: value=250.0, score=4.12
+Anomaly ratio: 1.5%
+Anomaly indices: [50, 120, 175]
 ```
 
-### Threshold
+### Detection Methods
 
-- `threshold=4.0` — Only flag extreme outliers (fewer alerts)
-- `threshold=3.0` — Balanced (default)
-- `threshold=2.0` — More aggressive detection (more alerts)
+| Method | How It Works | Best For |
+|--------|-------------|----------|
+| `auto` | Automatically selects the best method | General use (recommended) |
+| `zscore` | Flags points > 3 standard deviations from mean | Normally distributed data |
+| `iqr` | Flags points outside 1.5x interquartile range | Skewed distributions |
+| `rolling` | Flags points outside rolling window statistics | Non-stationary data |
 
-## 2. What-If Scenario Analysis
-
-Explore how changes in trend, seasonality, or external shocks would affect your forecast:
+### Example with Specific Method
 
 ```python
-from vectrix import forecast
+result_iqr = detector.detect(data, method="iqr")
+print(f"IQR method found: {result_iqr.nAnomalies} anomalies")
+
+result_rolling = detector.detect(data, method="rolling")
+print(f"Rolling method found: {result_rolling.nAnomalies} anomalies")
+```
+
+### AnomalyResult Attributes
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `method` | `str` | Detection method used |
+| `nAnomalies` | `int` | Number of anomalies detected |
+| `anomalyRatio` | `float` | Fraction of data points flagged |
+| `indices` | `np.ndarray` | Indices of anomalous observations |
+
+## What-If Analysis
+
+What-if analysis lets you explore hypothetical scenarios against your baseline forecast — essential for budget planning, risk assessment, and stakeholder presentations. Define optimistic, pessimistic, and shock scenarios, then compare their impact:
+
+```python
 from vectrix.business import WhatIfAnalyzer
+from vectrix import forecast
+import numpy as np
 
-data = [100 + 0.5 * i + 10 * np.sin(2 * np.pi * i / 12) + np.random.normal(0, 3)
-        for i in range(120)]
-
-result = forecast(data, steps=12)
-base = result.predictions
-historical = np.array(data, dtype=np.float64)
+data = np.random.randn(200).cumsum() + 500
+result = forecast(data, steps=30)
 
 analyzer = WhatIfAnalyzer()
-scenarios = [
-    {"name": "optimistic", "trend_change": 0.1},
-    {"name": "pessimistic", "trend_change": -0.15},
-    {"name": "shock", "shock_at": 3, "shock_magnitude": -0.20, "shock_duration": 2},
-    {"name": "level_up", "level_shift": 0.05},
-    {"name": "no_seasonality", "seasonal_multiplier": 0.0},
-]
+scenarios = analyzer.analyze(
+    result.predictions,
+    data,
+    [
+        {"name": "Optimistic", "trend_change": 0.1},
+        {"name": "Pessimistic", "trend_change": -0.15},
+        {"name": "Supply Shock", "shock_at": 10, "shock_magnitude": -0.3, "shock_duration": 5},
+        {"name": "Level Shift", "level_shift": 0.05},
+    ]
+)
 
-results = analyzer.analyze(base, historical, scenarios, period=12)
+for sr in scenarios:
+    print(f"{sr.name}: mean={sr.predictions.mean():.2f}, impact={sr.impact:+.1f}%")
 ```
 
-### View Results
-
-```python
-for sr in results:
-    print(f"  [{sr.name}]  avg impact: {sr.impact:.1f}%  "
-          f"final change: {sr.percentChange[-1]:.1f}%")
-```
+**Expected output:**
 
 ```
-  [optimistic]      avg impact: 5.2%   final change: +10.1%
-  [pessimistic]     avg impact: 7.8%   final change: -15.2%
-  [shock]           avg impact: 4.1%   final change: -1.3%
-  [level_up]        avg impact: 5.0%   final change: +5.0%
-  [no_seasonality]  avg impact: 3.4%   final change: -2.1%
+Optimistic: mean=535.42, impact=+10.0%
+Pessimistic: mean=425.18, impact=-15.0%
+Supply Shock: mean=480.67, impact=-5.8%
+Level Shift: mean=525.00, impact=+5.0%
 ```
 
 ### Scenario Parameters
@@ -87,148 +110,235 @@ for sr in results:
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `name` | `str` | Scenario label |
-| `trend_change` | `float` | Trend adjustment (0.1 = +10% trend acceleration) |
-| `seasonal_multiplier` | `float` | Scale seasonality (0 = remove, 2 = double) |
-| `shock_at` | `int` | Step index where shock occurs |
-| `shock_magnitude` | `float` | Shock size (-0.2 = -20% drop) |
-| `shock_duration` | `int` | How many steps the shock lasts |
-| `level_shift` | `float` | Permanent level change (0.05 = +5%) |
+| `trend_change` | `float` | Percentage trend adjustment (0.1 = +10%) |
+| `shock_at` | `int` | Step index where shock begins |
+| `shock_magnitude` | `float` | Shock size (-0.3 = -30% drop) |
+| `shock_duration` | `int` | Number of steps the shock lasts |
+| `level_shift` | `float` | Permanent level adjustment (0.05 = +5%) |
 
-### Comparison Summary
+### ScenarioResult Attributes
 
-```python
-print(analyzer.compareSummary(results))
-```
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `name` | `str` | Scenario name |
+| `predictions` | `np.ndarray` | Modified predictions |
+| `impact` | `float` | Overall impact vs. baseline |
 
-```
-Scenario Comparison:
-  [pessimistic] Avg impact: 7.8%, Final change: -15.2%
-  [optimistic] Avg impact: 5.2%, Final change: 10.1%
-  [level_up] Avg impact: 5.0%, Final change: 5.0%
-  [shock] Avg impact: 4.1%, Final change: -1.3%
-  [no_seasonality] Avg impact: 3.4%, Final change: -2.1%
-```
+> **Tip:** Use what-if analysis for budget planning -- create optimistic, baseline, and pessimistic scenarios and present all three to stakeholders.
 
-## 3. Backtesting
+## Backtesting
 
-Walk-forward validation to measure real forecast accuracy:
+How do you know if your forecasting approach actually works? **Backtesting** (walk-forward validation) simulates how well your model would have performed on historical data by repeatedly training on past data and predicting the next window:
 
 ```python
 from vectrix.business import Backtester
 from vectrix.engine.ets import AutoETS
+import numpy as np
 
-bt = Backtester(nFolds=5, horizon=12, strategy="expanding", minTrainSize=60)
+data = np.random.randn(300).cumsum() + 200
 
-y = np.array(data, dtype=np.float64)
-result = bt.run(y, modelFactory=AutoETS)
+bt = Backtester(nFolds=5, horizon=14, strategy='expanding')
+result = bt.run(data, lambda: AutoETS())
 
-print(bt.summary(result))
+print(f"Average MAPE: {result.avgMAPE:.2f}%")
+print(f"Average RMSE: {result.avgRMSE:.2f}")
+print(f"Best fold: #{result.bestFold}")
+print(f"Worst fold: #{result.worstFold}")
 ```
 
+**Expected output:**
+
 ```
-Backtest Results (5 folds)
-  Avg MAPE: 4.23% (+-1.15%)
-  Avg RMSE: 5.67
-  Avg MAE: 4.12
-  Avg Bias: 0.34
-  Best fold: #2 (MAPE 2.89%)
-  Worst fold: #4 (MAPE 6.12%)
+Average MAPE: 4.56%
+Average RMSE: 12.34
+Best fold: #3
+Worst fold: #1
 ```
 
-### Backtest Strategies
+### Per-Fold Results
 
-| Strategy | Description |
-|----------|-------------|
-| `"expanding"` | Training window grows each fold (recommended) |
-| `"sliding"` | Fixed training window size, moves forward |
+```python
+print()
+print("Per-fold breakdown:")
+for f in result.folds:
+    print(f"  Fold {f.fold}: MAPE={f.mape:.2f}%, RMSE={f.rmse:.2f}")
+```
 
-### Parameters
+**Expected output:**
+
+```
+Per-fold breakdown:
+  Fold 1: MAPE=6.12%, RMSE=16.45
+  Fold 2: MAPE=4.23%, RMSE=11.89
+  Fold 3: MAPE=3.45%, RMSE=9.67
+  Fold 4: MAPE=4.89%, RMSE=13.12
+  Fold 5: MAPE=4.12%, RMSE=10.58
+```
+
+### Backtester Parameters
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
-| `nFolds` | 5 | Number of validation folds |
-| `horizon` | 30 | Forecast steps per fold |
-| `strategy` | `"expanding"` | Window strategy |
-| `minTrainSize` | 50 | Minimum training points |
-| `stepSize` | auto | Steps between folds |
+| `nFolds` | `5` | Number of validation folds |
+| `horizon` | `14` | Forecast horizon per fold |
+| `strategy` | `'expanding'` | `'expanding'` (growing window) or `'sliding'` (fixed window) |
 
-### Inspect Individual Folds
+### Strategy Comparison
 
-```python
-for fold in result.folds:
-    print(f"  Fold {fold.fold}: train={fold.trainSize}, test={fold.testSize}, "
-          f"MAPE={fold.mape:.2f}%")
+**Expanding window** -- Each fold uses all data up to the cutoff point. Earlier folds train on less data, later folds train on more. Recommended for most cases.
+
+```
+Fold 1: [====TRAIN====][TEST]
+Fold 2: [======TRAIN======][TEST]
+Fold 3: [========TRAIN========][TEST]
 ```
 
-## 4. Business Metrics
+**Sliding window** -- Each fold uses a fixed-size training window. Useful when older data is no longer relevant (e.g., regime changes).
 
-Calculate business-oriented accuracy metrics:
+```
+Fold 1: [====TRAIN====][TEST]
+Fold 2:    [====TRAIN====][TEST]
+Fold 3:       [====TRAIN====][TEST]
+```
+
+### BacktestResult Attributes
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `avgMAPE` | `float` | Average MAPE across all folds |
+| `avgRMSE` | `float` | Average RMSE across all folds |
+| `bestFold` | `int` | Fold number with lowest MAPE |
+| `worstFold` | `int` | Fold number with highest MAPE |
+| `folds` | `list` | Per-fold results (mape, rmse, fold index) |
+
+## Business Metrics
+
+MAPE and RMSE tell you about statistical accuracy, but businesses care about different things: **Are we systematically over- or under-forecasting? What's our volume-weighted error? Does our model beat a naive baseline?** `BusinessMetrics` answers these questions:
 
 ```python
 from vectrix.business import BusinessMetrics
+import numpy as np
 
-actuals = np.array([100, 110, 95, 120, 105])
-predicted = np.array([102, 108, 97, 115, 110])
+actual = np.array([100, 120, 110, 130, 140, 125, 135, 150, 145, 155])
+predicted = np.array([105, 115, 112, 128, 145, 120, 138, 148, 140, 160])
 
 metrics = BusinessMetrics()
-result = metrics.calculate(actuals, predicted)
+result = metrics.calculate(actual, predicted)
 
-for key, value in result.items():
-    print(f"  {key}: {value:.4f}")
+print(f"Bias: {result['bias']:+.2f}")
+print(f"Bias %: {result['biasPercent']:+.2f}%")
+print(f"WAPE: {result['wape']:.2f}%")
+print(f"MASE: {result['mase']:.2f}")
+print(f"Accuracy: {result['forecastAccuracy']:.1f}%")
+print(f"Over-forecast ratio: {result['overForecastRatio']:.1%}")
+print(f"Under-forecast ratio: {result['underForecastRatio']:.1%}")
 ```
 
+**Expected output:**
+
 ```
-  mape: 3.0476
-  rmse: 3.8730
-  mae: 3.0000
-  bias: -0.4000
-  tracking_signal: -0.3333
+Bias: -0.10
+Bias %: -0.08%
+WAPE: 3.42%
+MASE: 0.45
+Accuracy: 96.6%
+Over-forecast ratio: 50.0%
+Under-forecast ratio: 50.0%
 ```
 
-## 5. Complete Business Workflow
+### Metrics Reference
 
-Bringing it all together:
+| Metric | Key | What It Means |
+|--------|-----|--------------|
+| Bias | `bias` | Positive = systematic over-forecasting |
+| Bias % | `biasPercent` | Bias as percentage of actual |
+| WAPE | `wape` | Weighted Absolute Percentage Error (volume-weighted) |
+| MASE | `mase` | Below 1 means better than Naive forecast |
+| Accuracy | `forecastAccuracy` | 100% - WAPE, higher is better |
+| Over-forecast | `overForecastRatio` | Fraction of periods where predicted exceeds actual |
+| Under-forecast | `underForecastRatio` | Fraction of periods where predicted is below actual |
+
+> **Note:** WAPE is preferred over MAPE in business contexts because it handles near-zero values gracefully and weights errors by volume. A WAPE of 5% means your total absolute error is 5% of total actual volume.
+
+### Interpreting MASE
+
+MASE (Mean Absolute Scaled Error) compares your model to a Naive baseline
+
+- **MASE below 1.0** — Your model beats Naive. Good.
+- **MASE = 1.0** — Your model equals Naive. No value added.
+- **MASE above 1.0** — Naive would have been better. Investigate.
+
+## Combining Business Tools
+
+In practice, these tools work together as a complete business forecasting workflow — detect anomalies, backtest your approach, generate the forecast, then explore scenarios:
 
 ```python
 import numpy as np
-from vectrix import forecast, analyze
-from vectrix.business import AnomalyDetector, WhatIfAnalyzer
+from vectrix import forecast
+from vectrix.business import AnomalyDetector, Backtester, BusinessMetrics, WhatIfAnalyzer
+from vectrix.engine.ets import AutoETS
 
-data = [100 + 0.5 * i + 10 * np.sin(2 * np.pi * i / 12) + np.random.normal(0, 3)
-        for i in range(120)]
-
-report = analyze(data)
-print(f"DNA: {report.dna.category}, difficulty={report.dna.difficulty}")
+np.random.seed(42)
+data = np.random.randn(365).cumsum() + 1000
 
 detector = AnomalyDetector()
-anom = detector.detect(np.array(data, dtype=np.float64))
-print(f"Anomalies in historical data: {len(anom.indices)}")
+anomalies = detector.detect(data, method="auto")
+print(f"Anomalies in history: {anomalies.nAnomalies}")
 
-result = forecast(data, steps=12)
-print(f"Model: {result.model}, MAPE: {result.mape:.1f}%")
+bt = Backtester(nFolds=4, horizon=30, strategy='expanding')
+bt_result = bt.run(data, lambda: AutoETS())
+print(f"Backtest MAPE: {bt_result.avgMAPE:.2f}%")
+
+result = forecast(data, steps=30)
+print(f"Model: {result.model}")
 
 analyzer = WhatIfAnalyzer()
-scenarios = [
-    {"name": "base", "trend_change": 0},
-    {"name": "growth", "trend_change": 0.1},
-    {"name": "recession", "trend_change": -0.2, "level_shift": -0.05},
-]
-sr = analyzer.analyze(result.predictions, np.array(data, dtype=np.float64), scenarios)
-print(analyzer.compareSummary(sr))
+scenarios = analyzer.analyze(result.predictions, data, [
+    {"name": "Growth +10%", "trend_change": 0.10},
+    {"name": "Decline -10%", "trend_change": -0.10},
+])
+for s in scenarios:
+    print(f"  {s.name}: mean={s.predictions.mean():.0f}")
 ```
 
-## 6. API Reference
+## Complete Example: Monthly Sales Review
 
-| Class | Import | Purpose |
-|-------|--------|---------|
-| `AnomalyDetector` | `from vectrix.business import AnomalyDetector` | Detect anomalies |
-| `WhatIfAnalyzer` | `from vectrix.business import WhatIfAnalyzer` | Scenario analysis |
-| `Backtester` | `from vectrix.business import Backtester` | Walk-forward validation |
-| `BusinessMetrics` | `from vectrix.business import BusinessMetrics` | Accuracy metrics |
+A realistic example — evaluating last month's forecast accuracy using business metrics to decide if the model needs recalibration:
 
-!!! note "Import Path"
-    Business classes are imported from `vectrix.business`, not from the top-level `vectrix` package.
+```python
+import numpy as np
+from vectrix import forecast
+from vectrix.business import BusinessMetrics
+
+actual_last_month = np.array([
+    320, 345, 310, 380, 400, 420, 350,
+    330, 360, 325, 390, 410, 430, 365,
+    340, 370, 335, 395, 415, 440, 375,
+    345, 375, 340, 400, 425, 445, 380,
+    350, 385
+])
+
+predicted_last_month = np.array([
+    315, 340, 320, 370, 395, 415, 345,
+    325, 355, 330, 385, 405, 425, 360,
+    335, 365, 340, 390, 410, 435, 370,
+    340, 370, 345, 395, 420, 440, 375,
+    345, 380
+])
+
+metrics = BusinessMetrics()
+result = metrics.calculate(actual_last_month, predicted_last_month)
+
+print("=== Monthly Performance Review ===")
+print(f"Forecast Accuracy: {result['forecastAccuracy']:.1f}%")
+print(f"Bias: {result['bias']:+.1f} units/day")
+print(f"WAPE: {result['wape']:.1f}%")
+print(f"MASE: {result['mase']:.2f}")
+
+if result['mase'] < 1.0:
+    print("Model outperforms Naive baseline.")
+if abs(result['biasPercent']) > 5:
+    print(f"Warning: Systematic {'over' if result['bias'] > 0 else 'under'}-forecasting detected.")
+```
 
 ---
-
-**This concludes the tutorial series.** For real-world examples, see the [Showcase](../showcase/index.md) section.

@@ -186,19 +186,121 @@
 - **정확도**: E018과 0.001 OWA 이내 일치 (Rust golden section vs scipy 미세 차이)
 - **Rust 26개 함수**: DOT=True, SES=True, Hybrid=True 모두 활성
 
+## 031~040: FFORMA 메타러닝 + 모델 선택 최적화 (2026-03-04)
+
+### 031 Oracle Analysis + GBR Meta-Learner
+- 8 모델 × 7273 M4 시리즈 oracle 데이터 수집 (캐시됨)
+- Oracle ceiling: AVG OWA 0.662 (DOT 0.946)
+- GBR 5-fold OOF: meta_top1 = 0.873 (DOT 대비 -1.4%)
+- **핵심 발견**: oracle 수준(0.66)과 실현 가능한 수준(0.87) 사이 갭이 큼
+
+### 032 Safe Meta-Ensemble (oracle 누설 있음)
+- OWA > 3.0 마스킹으로 극단값 제거 → safe_top3_weighted = 0.847
+- **문제**: safeMask가 실제 OWA 사용 → oracle 누설
+
+### 033 Realistic Meta-Ensemble (누설 없음)
+- GBR 예측만으로 모든 결정 → Weekly/Daily 폭발 (dtsf/esn/auto_arima 극단값)
+- DOT R2 = 0.067 → DNA 특성으로 DOT 실패 예측 불가 (근본 병목)
+
+### 034 Safe Pool Meta-Ensemble (최고 현실적 결과)
+- 5개 safe 모델만 사용 (dot, auto_ces, four_theta, auto_ets, theta)
+- **meta_top1 = 0.873** (DOT 0.885 대비 -1.4% 개선!)
+- Yearly: DOT 최강 (0.797 vs meta 0.829), Hourly: meta 최강 (0.670 vs DOT 0.722)
+
+### 035 Per-Series Holdout Model Selection (실패)
+- holdout validation으로 per-series 모델 선택 → DOT보다 나쁨
+- **원인**: 데이터 축소 > 모델 선택 이점 (short/medium 시리즈에서 치명적)
+
+### 036 Vectrix Pipeline Benchmark (E036 = E035 확인)
+- CV-based selection도 동일 패턴 (DOT wins everywhere except Hourly)
+
+### 037 Extract Selection Rules from Oracle
+- Decision tree accuracy 26% (무작위 수준) → 단순 규칙으로 모델 선택 불가
+- **핵심 발견**: 어떤 그룹에서도 단일 모델이 50% 이상 차지하지 않음 → 앙상블이 답
+- top feature: asymmetry, seasonalAdjustedVariance, adfStatistic
+
+### 038 Ensemble Weight Optimization
+- **inv_smape_top2 = 0.739** (oracle 활용, 비현실적)
+- **optimal_static = 0.882** (DOT 0.885 대비 -0.003)
+- **최적 가중치**: dot + auto_ces + four_theta가 핵심 3인방
+  - Yearly: dot 76% + 4theta 24%
+  - Monthly: dot 41% + ces 38% + 4theta 19%
+  - Daily: auto_ces 100%
+  - Hourly: dot 84% + ces 15%
+- **auto_ets, theta의 최적 가중치 = 0** → 앙상블 기여도 없음
+
+### 039 Improved Pipeline Benchmark (실패)
+- auto_arima 포함 앙상블이 Quarterly에서 폭발 (OWA 1.6)
+- holdout sMAPE와 test 성능 상관 극도로 낮음
+
+### 040 Safe Ensemble Pipeline Benchmark (결론적)
+- safe4 (auto_ets 포함): Weekly/Daily 폭발 (auto_ets 극단값)
+- safe3_core (dot+ces+4theta): 전체 0.945 (DOT 0.885보다 나쁨!)
+- **Monthly safe3: 0.917** (DOT 0.933, -0.016 ***), **Hourly: 0.716** (DOT 0.722, -0.006 ***)
+- **cv_best Hourly: 0.692** (DOT 대비 -0.030 ***)
+- **결론**: 앙상블 자체가 DOT-only보다 나쁨 (DOT가 이미 최적화)
+
+### E031-E040 종합 결론
+1. **DOT-Hybrid (0.885)는 순수 통계 모델의 실질적 한계**
+2. **메타러닝 최고 = 0.873** (scikit-learn 필요, 현재 미반영)
+3. **앙상블은 DOT-only보다 나쁨** — DOT가 이미 충분히 최적화
+4. **M4 #1 (0.821) 달성에는 DL 하이브리드 필수**
+5. **안전한 변경**: auto_arima를 기본 풀에서 제거 → 폭발 방지
+6. **Variability-preserving 앙상블 유지** — 무조건 앙상블은 악화
+
+### 041 Conditional Ensemble Verification (채택 — smart_safe3)
+
+| 전략 | Yearly | Quarterly | Monthly | Weekly | Daily | Hourly | **AVG** |
+|------|--------|-----------|---------|--------|-------|--------|---------|
+| dot_only | 0.797 | 0.905 | 0.933 | 0.959 | 0.994 | 0.722 | **0.885** |
+| **smart_safe3** | **0.796** | 0.907 | **0.919** | **0.954** | 0.996 | **0.703** | **0.879** |
+| cond_v2 (M:safe3,H:cvbest) | 0.797 | 0.905 | **0.917** | 0.959 | 0.994 | **0.694** | **0.878** |
+
+- **smart_safe3**: core3(dot+ces+4theta) 앙상블 + variability 체크 → 전 그룹 안전, AVG -0.006
+- **핵심**: 앙상블 풀을 MAPE순 top-3 대신 core3 고정 → 위험 모델 배제
+- Monthly: -0.014, Hourly: -0.019, Weekly: -0.005 개선
+- Yearly/Quarterly/Daily: ±0.002 이내 (동등)
+- **엔진 반영**: 앙상블 구성 시 core3 모델 우선 선택
+
+### vectrix.py 반영 사항
+- `_selectNativeModels()`: auto_arima를 기본 풀에서 제거
+- `_selectNativeModels()`: MEDIUM flat risk에서 esn 제거
+- `_generateFinalPrediction()`: 앙상블 풀을 core3(dot+ces+4theta) 우선으로 변경
+- 앙상블 로직: variability-preserving 유지 + core3 우선
+- 테스트: 573 passed, 5 skipped
+
 ## 완료된 단계
 - [x] 3개 모델 engine/ 모듈화 (fit/predict/residuals 인터페이스)
 - [x] types.py에 모델 정보 등록
 - [x] vectrix.py _selectNativeModels에 새 모델 반영
-- [x] 기존 테스트 387개 통과 확인
+- [x] 기존 테스트 573개 통과 확인
 - [x] 012 M4 100K 벤치마크 완료
 - [x] 013~015 세상에 없던 새 앙상블/예측 원리 3개 실험 (전부 기각)
 - [x] 016~018 DOT 강화 + SCUM 실험 완료
 - [x] DOT-Hybrid를 engine/dot.py에 통합 (period<24: DOT++, period>=24: classic)
 - [x] Rust dot_hybrid_objective 추가 (26번째 함수)
 - [x] 019 통합 엔진 M4 100K 검증 완료 (OWA 0.885)
+- [x] 031~040 FFORMA 메타러닝 + 모델 선택 최적화 10개 실험 완료
+- [x] auto_arima 기본 풀 제거 반영
+- [x] 041 조건부 앙상블 검증 → core3 우선 앙상블 엔진 반영 (AVG 0.885→0.879)
+- [x] 042 M4 공식 OWA 검증 → 벤치마크 방법론 문제 발견
+
+### 042 M4 Official OWA Verification (방법론 검증)
+
+| 계산 방식 | OWA | 비고 |
+|-----------|-----|------|
+| 6-group 단순 평균 (기존 방식) | 0.881 | Hourly(414) = Yearly(23K) 동일 비중 |
+| 6-group 단순 평균 (M4 공식 Naive2) | 0.879 | SeasonalityTest 차이 Monthly만 0.013 |
+| **M4 공식 (시리즈 수 가중)** | **0.892** | **이것이 정확한 값** |
+
+- **Naive2 구현 차이**: Monthly에서만 0.013 (ACF SeasonalityTest 차이), 나머지 무시
+- **핵심 문제**: 6-group 단순 평균 vs 시리즈 수 가중 → 0.881 vs 0.892 (0.011 차이)
+- **Daily OWA 1.007**: Naive2보다 나쁨 — 시리즈 수 가중에서 큰 페널티
+- **정직한 위치**: M4 공식 기준 약 14~15위 (Theta 0.897보다는 우수)
+- 주의: 11K 샘플 기준, 100K 전체에서는 Monthly(48K) 비중 증가로 약간 달라질 수 있음
 
 ## 다음 단계
+- [ ] DL 하이브리드 (NeuralForecast/TimesFM) 탐색 → M4 #1 (0.821) 도전
 - [ ] 4Theta seasonality 처리 개선 (Quarterly/Monthly/Weekly/Daily 약세)
 - [ ] DTSF 단기 시리즈 성능 개선 (n<100에서 약세)
 - [ ] ESN reservoir 크기 자동 조정 (긴 시리즈에서 느림)

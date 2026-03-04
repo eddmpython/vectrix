@@ -1,3 +1,7 @@
+---
+title: Regression
+---
+
 # Regression
 
 ## R-style Formula
@@ -26,8 +30,8 @@ model = regress(data=df, formula="sales ~ ads + price", method="ridge")
 ## Results
 
 ```python
-print(model.r_squared)        # R²
-print(model.adj_r_squared)    # Adjusted R²
+print(model.r_squared)        # R-squared
+print(model.adj_r_squared)    # Adjusted R-squared
 print(model.f_stat)           # F-statistic
 print(model.coefficients)     # Coefficient array
 print(model.pvalues)          # P-values array
@@ -39,7 +43,7 @@ print(model.pvalues)          # P-values array
 print(model.diagnose())
 ```
 
-Returns a text report with:
+Returns a text report with
 
 - **VIF**: Multicollinearity check (>10 is problematic)
 - **Breusch-Pagan**: Heteroscedasticity test

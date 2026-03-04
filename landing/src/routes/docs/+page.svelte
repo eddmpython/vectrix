@@ -2,7 +2,7 @@
 	import { base } from '$app/paths';
 	import { navigation, type NavItem } from '$lib/docs/navigation';
 	import { locale, type Locale } from '$lib/docs/i18n';
-	import { BookOpen, Code2, Layers, Sparkles, Briefcase, GitBranch, BarChart3, FileText, Rocket, GraduationCap, FlaskConical, Activity } from 'lucide-svelte';
+	import { BookOpen, Code2, Layers, Sparkles, Briefcase, GitBranch, BarChart3, FileText, Rocket, GraduationCap, Activity } from 'lucide-svelte';
 
 	let currentLang: Locale = $state('en');
 	locale.subscribe(v => currentLang = v);
@@ -16,7 +16,7 @@
 		'User Guide': BookOpen,
 		'API Reference': Code2,
 		'Tutorials': GraduationCap,
-		'Showcase': FlaskConical,
+		'Blog': FileText,
 		'Benchmarks': BarChart3,
 		'Changelog': FileText,
 	};
@@ -26,7 +26,7 @@
 		'User Guide': { en: 'Deep-dive into forecasting, analysis, regression, and more', ko: '\uc608\uce21, \ubd84\uc11d, \ud68c\uadc0\ubd84\uc11d \ub4f1 \uc2ec\uce35 \uac00\uc774\ub4dc' },
 		'API Reference': { en: 'Every class, function, and parameter documented', ko: '\ubaa8\ub4e0 \ud074\ub798\uc2a4, \ud568\uc218, \ub9e4\uac1c\ubcc0\uc218 \ubb38\uc11c' },
 		'Tutorials': { en: 'Step-by-step walkthroughs from basics to advanced', ko: '\uae30\ucd08\ubd80\ud130 \uace0\uae09\uae4c\uc9c0 \ub2e8\uacc4\ubcc4 \ud29c\ud1a0\ub9ac\uc5bc' },
-		'Showcase': { en: 'Real-world examples with Korean economic data', ko: '\ud55c\uad6d \uacbd\uc81c \ub370\uc774\ud130\ub85c \ubcf4\ub294 \uc2e4\uc804 \uc608\uc2dc' },
+		'Blog': { en: 'Learn forecasting from fundamentals to advanced techniques', ko: '\uae30\ucd08 \uac1c\ub150\ubd80\ud130 \uace0\uae09 \uae30\ubc95\uae4c\uc9c0 \uc608\uce21 \ubc30\uc6b0\uae30' },
 		'Benchmarks': { en: 'M3/M4 competition results and speed comparisons', ko: 'M3/M4 \ub300\ud68c \uacb0\uacfc \ubc0f \uc18d\ub3c4 \ube44\uad50' },
 		'Changelog': { en: 'Version history and release notes', ko: '\ubc84\uc804 \uc774\ub825 \ubc0f \ub9b4\ub9ac\uc2a4 \ub178\ud2b8' },
 	};

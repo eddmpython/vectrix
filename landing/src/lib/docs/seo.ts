@@ -29,10 +29,8 @@ export const pageDescriptions: Record<string, string> = {
 	'/docs/tutorials/models': 'Tutorial: compare 30+ forecasting models. ETS, ARIMA, Theta, DOT, CES, and custom model selection.',
 	'/docs/tutorials/adaptive': 'Tutorial: adaptive forecasting with regime detection, self-healing data, and constraint enforcement.',
 	'/docs/tutorials/business': 'Tutorial: business intelligence with anomaly detection, scenario analysis, and backtesting.',
-	'/docs/showcase/korean-economy': 'Showcase: forecasting Korean economic indicators (GDP, CPI, trade) with Vectrix.',
-	'/docs/showcase/korean-regression': 'Showcase: regression analysis on Korean economic data with R-style formulas.',
-	'/docs/showcase/model-comparison': 'Showcase: comparing 30+ forecasting models on real-world datasets. Side-by-side accuracy benchmarks.',
-	'/docs/showcase/business-intelligence': 'Showcase: business intelligence pipeline with anomaly detection, scenarios, and automated reporting.',
+	'/blog': 'Learn forecasting from zero. Concepts, tutorials, benchmarks, and best practices for prediction with Python.',
+	'/blog/whatIsForecasting': 'What is forecasting? The one concept behind every business decision. Learn what it means, why it matters, and how it works.',
 	'/docs/benchmarks': 'M3 & M4 Competition benchmark results. Vectrix OWA scores vs Naive2 baseline across all frequencies.',
 	'/docs/changelog': 'Vectrix changelog — version history, new features, bug fixes, and breaking changes.'
 };

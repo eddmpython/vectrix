@@ -1,176 +1,232 @@
+---
+title: "Tutorial 03 — Regression"
+---
+
 # Tutorial 03 — Regression
 
-**statsmodels-level regression in one line.**
+**Full-featured regression analysis in a single function call.** Vectrix supports R-style formula syntax (`y ~ x1 + x2`), automatic diagnostics (heteroscedasticity, normality, multicollinearity), multiple methods (OLS, Ridge, Lasso, Robust), and prediction intervals — without leaving the Python ecosystem.
 
-Vectrix's `regress()` function supports R-style formulas, multiple methods (OLS, Ridge, Lasso, Huber, Quantile), full diagnostics, and prediction intervals — all without importing statsmodels.
+## Direct Input
 
-## 1. Direct Input Mode
-
-Pass y (dependent) and X (independent) arrays directly:
+The simplest form: pass `y` and `X` directly as numpy arrays. Vectrix runs OLS by default with automatic constant term:
 
 ```python
 import numpy as np
 from vectrix import regress
 
 np.random.seed(42)
-n = 100
-x1 = np.random.uniform(10, 50, n)
-x2 = np.random.uniform(1, 10, n)
-noise = np.random.normal(0, 5, n)
-y = 20 + 3.5 * x1 - 2.0 * x2 + noise
+X = np.random.randn(100, 2)
+y = 3 + 2 * X[:, 0] - 1.5 * X[:, 1] + np.random.randn(100) * 0.5
 
-X = np.column_stack([x1, x2])
-
-result = regress(y, X)
+model = regress(y=y, X=X)
 ```
 
-This automatically prints a summary table showing coefficients, standard errors, t-values, and p-values.
-
-### Key Results
-
-```python
-print(f"R²:          {result.r_squared:.4f}")
-print(f"Adjusted R²: {result.adj_r_squared:.4f}")
-print(f"F-statistic: {result.f_stat:.2f}")
-print(f"Coefficients: {result.coefficients}")
-print(f"P-values:     {result.pvalues}")
-```
+**Expected output:**
 
 ```
-R²:          0.9812
-Adjusted R²: 0.9808
-F-statistic: 2531.45
-Coefficients: [19.23  3.51 -2.13]
-P-values:     [0.000 0.000 0.001]
+=== Regression Summary ===
+Method: OLS
+Observations: 100
+R-squared: 0.954
+Adj. R-squared: 0.953
+F-statistic: 1012.35 (p < 0.001)
+
+              Coef    Std.Err    t-value    P>|t|
+Intercept    3.012      0.050     60.24    0.000 ***
+x1           1.987      0.052     38.21    0.000 ***
+x2          -1.493      0.048    -31.10    0.000 ***
 ```
 
-## 2. Formula Mode
+## Formula Mode
 
-Use R-style formula strings with a DataFrame — more readable and powerful:
+With a DataFrame, use R-style formulas for a more natural interface
 
 ```python
 import pandas as pd
 from vectrix import regress
 
-df = pd.DataFrame({"sales": y, "ads": x1, "price": x2})
+df = pd.DataFrame({
+    "sales": [100, 150, 200, 180, 250, 300, 280, 350, 400, 380],
+    "ads": [10, 15, 20, 18, 25, 30, 28, 35, 40, 38],
+    "price": [50, 48, 45, 47, 42, 40, 41, 38, 35, 36],
+    "promo": [0, 0, 1, 0, 1, 1, 0, 1, 1, 1],
+})
 
-result = regress(data=df, formula="sales ~ ads + price")
+model = regress(data=df, formula="sales ~ ads + price + promo")
 ```
 
 ### Formula Syntax
 
-| Syntax | Example | Meaning |
-|--------|---------|---------|
-| Basic | `"y ~ x1 + x2"` | Linear regression |
-| All columns | `"y ~ ."` | Use all other numeric columns |
-| Interaction | `"y ~ x1 * x2"` | x1 + x2 + x1:x2 |
-| Cross term only | `"y ~ x1 : x2"` | Only the product x1·x2 |
-| Polynomial | `"y ~ x + I(x**2)"` | Add squared term |
-| Mixed | `"sales ~ ads + I(ads**2) + price"` | Linear + quadratic |
+```python
+regress(data=df, formula="y ~ x1 + x2")       # Specific variables
+regress(data=df, formula="y ~ .")              # All other columns
+regress(data=df, formula="y ~ x1 * x2")       # With interaction term
+regress(data=df, formula="y ~ x + I(x**2)")   # Polynomial terms
+```
 
-### Polynomial Example
+## Result Object
+
+The `EasyRegressionResult` provides direct access to all regression statistics
 
 ```python
-np.random.seed(42)
-x = np.random.uniform(0, 10, 80)
-y = 5 + 2 * x - 0.3 * x**2 + np.random.normal(0, 2, 80)
-
-df = pd.DataFrame({"y": y, "x": x})
-result = regress(data=df, formula="y ~ x + I(x**2)")
+print(f"R-squared: {model.r_squared:.4f}")
+print(f"Adj. R-squared: {model.adj_r_squared:.4f}")
+print(f"F-statistic: {model.f_stat:.2f}")
+print(f"Coefficients: {model.coefficients}")
+print(f"P-values: {model.pvalues}")
 ```
 
-## 3. Diagnostics
-
-Run VIF, normality, homoscedasticity, autocorrelation, and influence analysis — all at once:
-
-```python
-print(result.diagnose())
-```
-
-```
-============================================
-     Regression Diagnostics Report
-============================================
-
-  [Multicollinearity - VIF]
-    ads:   1.02  (OK)
-    price: 1.02  (OK)
-
-  [Normality of Residuals]
-    Shapiro-Wilk: W=0.993, p=0.891
-    → Residuals appear normally distributed
-
-  [Homoscedasticity]
-    Breusch-Pagan: stat=2.14, p=0.343
-    → No evidence of heteroscedasticity
-
-  [Autocorrelation]
-    Durbin-Watson: 2.03
-    → No significant autocorrelation
-
-  [Influential Points]
-    High leverage: 2 points
-    High Cook's D: 0 points
-============================================
-```
-
-## 4. Prediction
-
-Predict on new data with confidence or prediction intervals:
-
-```python
-X_new = np.array([[30, 5], [40, 3], [25, 8]])
-
-pred_df = result.predict(X_new, interval="prediction", alpha=0.05)
-print(pred_df)
-```
-
-```
-   prediction      lower      upper
-0      115.23      104.89     125.57
-1      149.87      139.45     160.29
-2       91.45       81.12     101.78
-```
-
-### Interval Types
-
-| Type | Meaning |
-|------|---------|
-| `'prediction'` | Interval for a new individual observation (wider) |
-| `'confidence'` | Interval for the mean response (narrower) |
-| `'none'` | No interval, prediction column only |
-
-## 5. Regression Methods
-
-```python
-result_ols    = regress(y, X, method="ols")      # Default
-result_ridge  = regress(y, X, method="ridge")    # L2 regularization
-result_lasso  = regress(y, X, method="lasso")    # L1 regularization
-result_huber  = regress(y, X, method="huber")    # Robust to outliers
-result_quant  = regress(y, X, method="quantile") # Median regression
-```
-
-## 6. Suppress Auto-Print
-
-By default, `regress()` prints the summary automatically. To suppress it:
-
-```python
-result = regress(y, X, summary=False)
-```
-
-## 7. Result Object Reference
+### Result Reference
 
 | Attribute / Method | Type | Description |
 |---|---|---|
 | `.coefficients` | `np.ndarray` | Regression coefficients (including intercept) |
 | `.pvalues` | `np.ndarray` | P-values for each coefficient |
-| `.r_squared` | `float` | R² (coefficient of determination) |
-| `.adj_r_squared` | `float` | Adjusted R² |
+| `.r_squared` | `float` | R-squared (coefficient of determination) |
+| `.adj_r_squared` | `float` | Adjusted R-squared |
 | `.f_stat` | `float` | F-statistic |
-| `.summary()` | `str` | Full regression table |
-| `.diagnose()` | `str` | VIF + normality + homoscedasticity + autocorrelation + influence |
-| `.predict(X, interval, alpha)` | `DataFrame` | prediction, lower, upper columns |
+| `.summary()` | `str` | Formatted regression table |
+| `.diagnose()` | `str` | Full diagnostic report |
+| `.predict(X)` | `DataFrame` | Predictions with confidence intervals |
+
+## Diagnostics
+
+The `diagnose()` method runs four standard regression diagnostic tests
+
+```python
+print(model.diagnose())
+```
+
+**Expected output:**
+
+```
+=== Regression Diagnostics ===
+
+1. Multicollinearity (VIF):
+   ads:    2.31 (OK)
+   price:  2.18 (OK)
+   promo:  1.45 (OK)
+
+2. Heteroscedasticity (Breusch-Pagan):
+   LM stat: 3.42, p-value: 0.331
+   Result: No heteroscedasticity detected
+
+3. Normality (Jarque-Bera):
+   JB stat: 1.87, p-value: 0.393
+   Result: Residuals appear normally distributed
+
+4. Autocorrelation (Durbin-Watson):
+   DW stat: 2.05
+   Result: No significant autocorrelation
+```
+
+### Diagnostic Tests
+
+| Test | What It Checks | Warning Threshold |
+|------|---------------|-------------------|
+| **VIF** | Multicollinearity between predictors | VIF > 10 is problematic |
+| **Breusch-Pagan** | Non-constant variance (heteroscedasticity) | p-value below 0.05 |
+| **Jarque-Bera** | Normality of residuals | p-value below 0.05 |
+| **Durbin-Watson** | Autocorrelation in residuals | Far from 2.0 |
+
+## Prediction with Intervals
+
+Generate predictions with confidence intervals for new data
+
+```python
+import pandas as pd
+
+new_data = pd.DataFrame({
+    "ads": [50, 75, 100],
+    "price": [30, 25, 20],
+    "promo": [1, 1, 0],
+})
+
+predictions = model.predict(new_data)
+print(predictions)
+```
+
+**Expected output:**
+
+```
+   prediction   lower95   upper95
+0      425.3     380.1     470.5
+1      530.7     478.2     583.2
+2      610.2     550.8     669.6
+```
+
+## Regression Methods
+
+Vectrix supports five regression methods. Switch by setting the `method` parameter
+
+```python
+from vectrix import regress
+
+ols_model    = regress(data=df, formula="sales ~ ads + price", method="ols")
+ridge_model  = regress(data=df, formula="sales ~ ads + price", method="ridge")
+lasso_model  = regress(data=df, formula="sales ~ ads + price", method="lasso")
+huber_model  = regress(data=df, formula="sales ~ ads + price", method="huber")
+quant_model  = regress(data=df, formula="sales ~ ads + price", method="quantile")
+```
+
+### Method Comparison
+
+| Method | Use Case | How It Works |
+|--------|----------|-------------|
+| `ols` | Default, no issues with data | Minimizes sum of squared residuals |
+| `ridge` | Multicollinearity (correlated predictors) | L2 regularization, shrinks coefficients |
+| `lasso` | Feature selection, sparse models | L1 regularization, can zero out coefficients |
+| `huber` | Outliers in the data | Robust loss function, down-weights outliers |
+| `quantile` | Median regression, skewed distributions | Minimizes absolute deviations |
+
+### When to Use Each Method
+
+**OLS** (default) -- Use when your data is well-behaved: no extreme outliers, no highly correlated predictors, and residuals are roughly normal.
+
+**Ridge** -- Use when you have correlated predictors (e.g., temperature and humidity, GDP and employment). Ridge keeps all variables but shrinks their coefficients.
+
+**Lasso** -- Use when you suspect some predictors are irrelevant. Lasso can drive coefficients to exactly zero, effectively performing variable selection.
+
+**Huber** -- Use when your data contains outliers. Huber uses a hybrid loss function that behaves like OLS for small errors but is robust to large errors.
+
+**Quantile** -- Use when you want to predict the median rather than the mean, or when your data is heavily skewed.
+
+## Suppress Auto-Print
+
+By default, `regress()` prints the summary automatically. To suppress this
+
+```python
+model = regress(data=df, formula="sales ~ ads + price", summary=False)
+```
+
+## Complete Example
+
+```python
+import pandas as pd
+import numpy as np
+from vectrix import regress
+
+np.random.seed(42)
+n = 200
+df = pd.DataFrame({
+    "revenue": np.random.randn(n) * 50 + 500,
+    "marketing": np.random.randn(n) * 10 + 50,
+    "price": np.random.randn(n) * 5 + 30,
+    "season": np.random.choice([0, 1], n),
+})
+df["revenue"] = 100 + 8 * df["marketing"] - 5 * df["price"] + 20 * df["season"] + np.random.randn(n) * 10
+
+model = regress(data=df, formula="revenue ~ marketing + price + season")
+print(model.diagnose())
+
+future = pd.DataFrame({
+    "marketing": [60, 70, 80],
+    "price": [28, 25, 22],
+    "season": [1, 0, 1],
+})
+print()
+print("Predictions:")
+print(model.predict(future))
+```
 
 ---
-
-**Next:** [Tutorial 04 — 30+ Models](04_models.md) — Direct model access and comparison

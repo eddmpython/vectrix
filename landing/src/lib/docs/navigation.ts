@@ -59,15 +59,9 @@ export const navigation: NavItem[] = [
 		]
 	},
 	{
-		title: 'Showcase',
-		titleKo: '쇼케이스',
-		href: '/docs/showcase',
-		items: [
-			{ title: 'Korean Economy', titleKo: '한국 경제 예측', href: '/docs/showcase/korean-economy' },
-			{ title: 'Korean Regression', titleKo: '한국 회귀분석', href: '/docs/showcase/korean-regression' },
-			{ title: 'Model Comparison', titleKo: '모델 비교', href: '/docs/showcase/model-comparison' },
-			{ title: 'Business Intelligence', titleKo: '비즈니스 인텔리전스', href: '/docs/showcase/business-intelligence' }
-		]
+		title: 'Blog',
+		titleKo: '블로그',
+		href: '/blog'
 	},
 	{
 		title: 'Benchmarks',

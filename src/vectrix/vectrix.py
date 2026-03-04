@@ -314,7 +314,7 @@ class Vectrix:
             return ForecastResult(success=False, error=str(e))
 
     def _selectNativeModels(self) -> List[str]:
-        """Select native models based on data characteristics."""
+        """Select native models based on data characteristics and M4-validated pools."""
         riskLevel = self.flatRisk.riskLevel if self.flatRisk else RiskLevel.LOW
         n = self.characteristics.length if self.characteristics else 100
         period = self.characteristics.period if self.characteristics else 7
@@ -323,18 +323,16 @@ class Vectrix:
         freq = self.characteristics.frequency.value if self.characteristics else 'D'
 
         if freq == 'H' and n >= 100:
-            models = ['dot', 'auto_ces', 'dtsf', 'auto_mstl', 'esn']
+            models = ['dot', 'auto_ces', 'four_theta', 'auto_ets', 'dtsf']
         elif (hasMultiSeason or seasonalStrength > 0.4) and n >= 60:
-            models = ['dot', 'auto_ces', 'four_theta', 'auto_mstl', 'dtsf']
+            models = ['dot', 'auto_ces', 'four_theta', 'auto_mstl', 'auto_ets']
         elif riskLevel in [RiskLevel.CRITICAL, RiskLevel.HIGH]:
-            models = ['dot', 'four_theta', 'seasonal_naive', 'ets_aaa', 'esn']
-        elif riskLevel == RiskLevel.MEDIUM:
-            models = ['dot', 'auto_ces', 'four_theta', 'esn', 'dtsf']
+            models = ['dot', 'four_theta', 'auto_ces', 'auto_ets']
         else:
-            models = ['dot', 'auto_ces', 'four_theta', 'auto_ets', 'auto_arima']
+            models = ['dot', 'auto_ces', 'four_theta', 'auto_ets']
 
         if n < 30:
-            models = [m for m in models if m not in ['auto_arima', 'dtsf']]
+            models = [m for m in models if m not in ['dtsf']]
         if n < period * 2:
             models = [m for m in models if m not in ['ets_aaa', 'mstl', 'auto_mstl']]
 
@@ -746,11 +744,12 @@ class Vectrix:
 
         if len(validModels) >= 2:
             try:
+                coreModels = [m for m in ['dot', 'auto_ces', 'four_theta'] if m in validModels]
+                ensemblePool = coreModels + [m for m in validModels if m not in coreModels]
                 modelPredictions = {}
-                for mid in validModels[:3]:
+                for mid in ensemblePool[:3]:
                     modelPredictions[mid] = self.modelResults[mid].predictions
 
-                # Weighted ensemble
                 weights = []
                 for mid in modelPredictions.keys():
                     mape = self.modelResults[mid].mape

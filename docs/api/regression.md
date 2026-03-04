@@ -1,21 +1,57 @@
-# Regression
+---
+title: Regression API
+---
+
+# Regression API
 
 R-style formula regression with full diagnostics.
 
-## Linear Regression
+## LinearRegressor
 
-::: vectrix.regression.linear.LinearRegressor
+`LinearRegressor()`
 
-::: vectrix.regression.linear.RidgeRegressor
+OLS linear regression.
 
-::: vectrix.regression.linear.LassoRegressor
+### Methods
 
-## Robust Regression
+- `fit(y, X)` → self
+- `predict(X, interval='none', alpha=0.05)` → DataFrame
+- `summary()` → str
+- `diagnose()` → str
 
-::: vectrix.regression.robust.HuberRegressor
+## RidgeRegressor
 
-::: vectrix.regression.robust.QuantileRegressor
+`RidgeRegressor(alpha=1.0)`
 
-## Diagnostics
+L2 regularization.
 
-::: vectrix.regression.diagnostics.RegressionDiagnostics
+## LassoRegressor
+
+`LassoRegressor(alpha=1.0)`
+
+L1 regularization (sparse solutions).
+
+## HuberRegressor
+
+`HuberRegressor(delta=1.345)`
+
+Robust regression — resistant to outliers.
+
+## QuantileRegressor
+
+`QuantileRegressor(quantile=0.5)`
+
+Median regression (quantile=0.5) or arbitrary quantiles.
+
+## RegressionDiagnostics
+
+`RegressionDiagnostics()`
+
+### Methods
+
+- `vif(X)` → Variance Inflation Factors
+- `shapiroWilk(residuals)` → Normality test
+- `breuschPagan(residuals, X)` → Homoscedasticity test
+- `durbinWatson(residuals)` → Autocorrelation test
+- `cooksDistance(y, X)` → Influence analysis
+- `fullReport(y, X, residuals)` → Complete diagnostics string

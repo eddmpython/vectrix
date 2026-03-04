@@ -1,34 +1,45 @@
+---
+title: Foundation Models API
+---
+
 # Foundation Models API
 
-## Chronos
+## ChronosForecaster
 
-### ChronosForecaster
+`ChronosForecaster(modelId="amazon/chronos-bolt-small", device="cpu")`
 
-::: vectrix.ml.chronos_model.ChronosForecaster
+Amazon Chronos-2 wrapper.
 
-## TimesFM
+### Methods
 
-### TimesFMForecaster
+- `fit(y)` → self (stores context, no training)
+- `predict(steps)` → (predictions, lower, upper)
+- `predictQuantiles(steps, quantileLevels)` → ndarray
+- `predictBatch(series_list, steps)` → list of tuples
 
-::: vectrix.ml.timesfm_model.TimesFMForecaster
+## TimesFMForecaster
 
-## NeuralForecast
+`TimesFMForecaster(modelId="google/timesfm-2.5-200m-pytorch")`
 
-### NeuralForecaster
+Google TimesFM 2.5 wrapper.
 
-::: vectrix.ml.neuralforecast_model.NeuralForecaster
+### Methods
 
-### NBEATSForecaster
+- `fit(y)` → self
+- `predict(steps)` → (predictions, lower, upper)
+- `predictWithCovariates(steps, dynamicNumerical, dynamicCategorical)` → tuple
 
-::: vectrix.ml.neuralforecast_model.NBEATSForecaster
+## NeuralForecaster
 
-### NHITSForecaster
+`NeuralForecaster(architecture="nbeats", **kwargs)`
 
-::: vectrix.ml.neuralforecast_model.NHITSForecaster
+NeuralForecast wrapper.
 
-### TFTForecaster
+### Convenience Classes
 
-::: vectrix.ml.neuralforecast_model.TFTForecaster
+- `NBEATSForecaster(**kwargs)`
+- `NHITSForecaster(**kwargs)`
+- `TFTForecaster(**kwargs)`
 
 ## Availability Flags
 
@@ -36,4 +47,4 @@
 from vectrix import CHRONOS_AVAILABLE, TIMESFM_AVAILABLE, NEURALFORECAST_AVAILABLE
 ```
 
-These boolean flags indicate whether the optional dependencies are installed.
+Boolean flags indicating whether optional dependencies are installed.

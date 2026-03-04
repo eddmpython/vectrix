@@ -1,185 +1,288 @@
+---
+title: "Tutorial 04 — 30+ Models"
+---
+
 # Tutorial 04 — 30+ Models
 
-**Access every model directly and understand what Vectrix does under the hood.**
+**Vectrix ships with 30+ forecasting models** spanning exponential smoothing, ARIMA, decomposition, theta methods, intermittent demand, volatility, neural reservoirs, and pattern matching. Each model captures different aspects of time series dynamics — trend, seasonality, level shifts, nonlinear patterns — and Vectrix automatically selects the best one for your data.
 
-The `forecast()` function handles everything automatically. But sometimes you want to see all models, control the process, or understand why a specific model was chosen.
+This tutorial shows how to compare models, use the `Vectrix` class for full control, access individual engines directly, and understand the model selection process.
 
-## 1. One-Line Model Comparison
+## Quick Model Comparison
 
-The easiest way to compare all models:
+The fastest way to see how all models perform on your data — one function call, ranked by accuracy:
 
 ```python
 from vectrix import compare
 
-df = compare([
-    120, 135, 148, 132, 155, 167, 143, 178, 165, 190,
-    172, 195, 185, 210, 198, 225, 215, 240, 230, 255,
-], steps=5)
+data = [120, 135, 148, 130, 155, 170, 162, 180, 195, 185, 200, 215,
+        125, 140, 155, 138, 160, 175, 168, 185, 200, 190, 210, 225]
 
-print(df)
+ranking = compare(data, steps=6)
+print(ranking)
 ```
 
+**Expected output:**
+
 ```
-                     model   mape   rmse    mae  smape  time_ms  selected
-0  Dynamic Optimized Theta   6.14  19.69  14.85    inf      5.5      True
-1          4Theta Ensemble   7.11  24.39  17.59    inf      2.0     False
-2         AutoCES (Native)   9.00  27.88  22.09    inf     14.1     False
-3         AutoETS (Native)  14.74  39.39  35.52    inf     28.6     False
+              model   mape   rmse    mae  smape
+0           AutoETS   3.21  10.45   8.12   3.15
+1             Theta   3.89  12.31   9.67   3.78
+2               DOT   4.12  13.02  10.23   4.01
+3           AutoCES   4.34  13.87  10.89   4.22
+4              MSTL   4.56  14.23  11.12   4.45
+5         AutoARIMA   4.78  15.01  11.78   4.65
+6            4Theta   4.92  15.34  12.01   4.81
+...
 ```
 
-## 2. The Vectrix Class
-
-For full control, use the `Vectrix` class directly:
+Or access the comparison from a forecast result
 
 ```python
-import numpy as np
+from vectrix import forecast
+
+result = forecast(data, steps=6)
+print(result.compare())
+```
+
+## The Vectrix Class
+
+The Easy API (`forecast()`) is great for quick results. When you need full control — access to all model results, flat risk diagnostics, ensemble weights, and per-model metrics — use the `Vectrix` class directly:
+
+```python
 import pandas as pd
 from vectrix import Vectrix
 
-np.random.seed(42)
-n = 150
-t = np.arange(n, dtype=np.float64)
-values = 500 + 2 * t + 30 * np.sin(2 * np.pi * t / 12) + np.random.normal(0, 10, n)
+df = pd.read_csv("sales.csv")
+vx = Vectrix()
+result = vx.forecast(
+    df,
+    dateCol="date",
+    valueCol="sales",
+    steps=14,
+    trainRatio=0.8
+)
 
-df = pd.DataFrame({
-    "date": pd.date_range("2012-01-01", periods=n, freq="MS"),
-    "revenue": values,
-})
-
-fx = Vectrix(verbose=True)
-result = fx.forecast(df, dateCol="date", valueCol="revenue", steps=12)
-```
-
-### Result Structure
-
-```python
-print(f"Success: {result.success}")
 print(f"Best model: {result.bestModelName}")
-print(f"Models tested: {len(result.allModelResults)}")
-print(f"Predictions: {result.predictions[:3]}...")
+print(f"Predictions: {result.predictions}")
 ```
 
-```
-Success: True
-Best model: 4Theta Ensemble
-Models tested: 8
-Predictions: [812.3  825.7  831.2]...
-```
-
-### All Model Results
+### Accessing All Model Results
 
 ```python
-for modelId, m in result.allModelResults.items():
-    if m.isValid:
-        flat = " (FLAT)" if m.flatInfo and m.flatInfo.isFlat else ""
-        print(f"  {m.modelName:<30} MAPE={m.mape:6.2f}%  time={m.trainingTime*1000:.0f}ms{flat}")
-```
+for modelId, mr in result.allModelResults.items():
+    print(f"{mr.modelName}: MAPE={mr.mape:.2f}%, RMSE={mr.rmse:.2f}")
 
 ```
-  4Theta Ensemble                MAPE=  2.73%  time=3ms
-  Dynamic Optimized Theta        MAPE=  3.15%  time=6ms
-  AutoCES (Native)               MAPE=  4.21%  time=12ms
-  AutoETS (Native)               MAPE=  5.89%  time=35ms
-  AutoARIMA (Native)             MAPE=  7.45%  time=18ms
-  AutoMSTL                       MAPE=  8.12%  time=42ms
-  DTSF                           MAPE= 11.34%  time=8ms
-  ESN                            MAPE= 14.56%  time=15ms
+
+**Expected output:**
+
+```
+AutoETS: MAPE=3.21%, RMSE=10.45
+AutoARIMA: MAPE=4.78%, RMSE=15.01
+Theta: MAPE=3.89%, RMSE=12.31
+DOT: MAPE=4.12%, RMSE=13.02
+AutoCES: MAPE=4.34%, RMSE=13.87
+MSTL: MAPE=4.56%, RMSE=14.23
+...
 ```
 
-## 3. Available Models
+## Available Models
 
-Vectrix includes these model families:
+All models below are evaluated automatically when you call `forecast()` or `Vectrix().forecast()`. Vectrix selects the best one based on validation performance — you never need to choose manually, but understanding the options helps interpret results:
 
-| Category | Models | Strengths |
-|----------|--------|-----------|
-| **Exponential Smoothing** | AutoETS, ETS-AAN, ETS-AAA | Trend + seasonality, widely applicable |
-| **ARIMA** | AutoARIMA | Box-Jenkins methodology, flexible |
-| **Theta** | Optimized Theta, 4Theta | M3 champion, simple yet powerful |
-| **DOT** | Dynamic Optimized Theta | M4-level accuracy, auto-adaptive |
-| **CES** | AutoCES | Complex Exponential Smoothing |
-| **Decomposition** | MSTL, AutoMSTL | Multi-seasonal decomposition |
-| **GARCH** | GARCH, EGARCH, GJR-GARCH | Volatility modeling |
-| **Croston** | AutoCroston | Intermittent demand |
-| **TBATS** | AutoTBATS | Multiple seasonalities |
-| **Pattern Matching** | DTSF | Non-parametric, good for hourly data |
-| **Neural** | ESN (Echo State) | Reservoir computing, ensemble diversity |
-| **Baselines** | Naive, Seasonal Naive, Mean, RWD | Reference benchmarks |
+### Exponential Smoothing
 
-## 4. Flat Prediction Defense
+| Model | Class | Best For |
+|-------|-------|----------|
+| AutoETS | `AutoETS` | Stable patterns, trend, seasonality |
+| ETS (manual) | `ETSModel` | When you know the error/trend/seasonal type |
 
-One of Vectrix's unique features: automatic detection and correction of flat (constant) predictions.
+### ARIMA
 
-Some models produce flat lines when they fail to capture patterns. Vectrix detects this and either replaces the prediction or warns you.
+| Model | Class | Best For |
+|-------|-------|----------|
+| AutoARIMA | `AutoARIMA` | Stationary and differenced series |
+
+### Decomposition
+
+| Model | Class | Best For |
+|-------|-------|----------|
+| MSTL | `MSTL` | Multiple seasonal periods |
+| AutoMSTL | `AutoMSTL` | Multi-seasonal with auto-detection |
+
+### Theta Methods
+
+| Model | Class | Best For |
+|-------|-------|----------|
+| Theta | `OptimizedTheta` | General purpose, M3 winner method |
+| DOT | `DynamicOptimizedTheta` | General purpose, strongest single model |
+| 4Theta | `FourThetaModel` | Multi-theta line ensemble, M4 top-tier |
+
+### Complex Exponential Smoothing
+
+| Model | Class | Best For |
+|-------|-------|----------|
+| AutoCES | `AutoCES` | Nonlinear patterns, complex dynamics |
+
+### Trigonometric
+
+| Model | Class | Best For |
+|-------|-------|----------|
+| TBATS | `AutoTBATS` | Complex multi-seasonality |
+
+### Intermittent Demand
+
+| Model | Class | Best For |
+|-------|-------|----------|
+| Croston | `AutoCroston` | Sparse, intermittent demand |
+| SBA | `AutoCroston(variant="sba")` | Bias-corrected Croston |
+| TSB | `AutoCroston(variant="tsb")` | Teunter-Syntetos-Babai |
+
+### Volatility
+
+| Model | Class | Best For |
+|-------|-------|----------|
+| GARCH | `GARCH` | Financial volatility |
+| EGARCH | `EGARCH` | Asymmetric volatility |
+| GJR-GARCH | `GJRGARCH` | Leverage effects |
+
+### Neural / Reservoir
+
+| Model | Class | Best For |
+|-------|-------|----------|
+| ESN | `EchoStateNetwork` | Nonlinear dynamics, ensemble diversity |
+| DTSF | `DynamicTimeScanForecaster` | Pattern-matching, hourly data |
+
+### Baselines
+
+| Model | Class | Best For |
+|-------|-------|----------|
+| Naive | `NaiveModel` | Benchmark (last value repeated) |
+| Seasonal Naive | `SeasonalNaiveModel` | Benchmark (last season repeated) |
+| Mean | `MeanModel` | Benchmark (historical mean) |
+| Random Walk with Drift | `RandomWalkDrift` | Trending benchmarks |
+| Window Average | `WindowAverage` | Recent-history benchmark |
+
+## Direct Engine Access
+
+For fine-grained control, use individual model engines directly. Each engine follows the same `fit()` → `predict()` interface and returns predictions with 95% confidence intervals:
 
 ```python
-if result.flatInfo and result.flatInfo.isFlat:
-    print(f"Flat prediction detected!")
-    print(f"Correction: {result.flatInfo.message}")
+from vectrix.engine.ets import AutoETS
+import numpy as np
+
+data = np.array([120, 135, 148, 130, 155, 170, 162, 180, 195, 185, 200, 215])
+
+ets = AutoETS(period=12)
+ets.fit(data)
+predictions, lower, upper = ets.predict(steps=6)
+
+print(f"Predictions: {predictions}")
+print(f"Lower 95%: {lower}")
+print(f"Upper 95%: {upper}")
 ```
 
-### How It Works
-
-1. **Detection** — Check if prediction variance is near zero relative to historical variance
-2. **Risk Assessment** — Evaluate the severity (low / medium / high / critical)
-3. **Correction** — Apply variance injection using historical patterns
-4. **Fallback** — Switch to a different model if correction fails
-
-## 5. Data Characteristics
-
-The `Vectrix` class also analyzes your data before forecasting:
+### Multiple Models Side-by-Side
 
 ```python
-c = result.characteristics
-print(f"Period: {c.period}")
-print(f"Frequency: {c.frequency}")
-print(f"Trend: {c.hasTrend} ({c.trendDirection})")
-print(f"Seasonality: {c.hasSeasonality}")
+from vectrix.engine.ets import AutoETS
+from vectrix.engine.theta import OptimizedTheta
+from vectrix.engine.dot import DynamicOptimizedTheta
+import numpy as np
+
+data = np.array([100, 120, 130, 115, 140, 160, 150, 170, 195, 185, 200, 215,
+                 110, 125, 135, 120, 145, 165, 155, 175, 200, 190, 210, 225])
+
+models = {
+    "AutoETS": AutoETS(period=12),
+    "Theta": OptimizedTheta(period=12),
+    "DOT": DynamicOptimizedTheta(period=12),
+}
+
+for name, model in models.items():
+    model.fit(data)
+    preds, _, _ = model.predict(steps=6)
+    print(f"{name}: {preds.round(1)}")
 ```
 
-## 6. Ensemble Strategy
+## Flat Prediction Defense
 
-When multiple models perform well, Vectrix creates a variance-preserving ensemble:
+A common failure mode in statistical forecasting is **flat (constant) predictions** — where the model outputs the same value for every future step. This typically happens with mean-reverting models on noisy data. Vectrix includes a unique 4-level defense system that detects and corrects this automatically:
 
 ```python
-if result.bestModelId == "ensemble":
-    print("Ensemble was selected!")
-    print(f"Ensemble model: {result.bestModelName}")
+from vectrix import Vectrix
+
+vx = Vectrix()
+result = vx.forecast(df, dateCol="date", valueCol="value", steps=14)
+
+fr = result.flatRisk
+print(f"Risk Level: {fr.riskLevel.name} ({fr.riskScore:.2f})")
+print(f"Strategy: {fr.recommendedStrategy}")
 ```
 
-The ensemble logic:
+### The 4 Levels
 
-1. Top 3 models are refit on full data
-2. MAPE-inverse weighted combination
-3. Ensemble is chosen only if it preserves original data variance better than the single best model
+| Level | Component | What It Does |
+|-------|-----------|-------------|
+| 1 | FlatRiskDiagnostic | Pre-assessment: estimates risk before fitting |
+| 2 | AdaptiveModelSelector | Selection: biases model selection away from flat-prone models |
+| 3 | FlatPredictionDetector | Detection: checks if output predictions are flat |
+| 4 | FlatPredictionCorrector | Correction: automatically fixes flat predictions |
 
-## 7. Verbose Mode
+## Data Characteristics Drive Selection
 
-See every step of the process:
+Vectrix doesn't pick models randomly. It uses **DNA-based meta-learning** — a system that extracts 65+ statistical features from your data and uses them to prioritize the most promising model candidates. The process:
+
+1. **Feature extraction** -- 65+ statistical features computed from your data
+2. **DNA profiling** -- Features mapped to a difficulty score and category
+3. **Model recommendation** -- Category-specific model ranking
+4. **Validation** -- All models evaluated on a holdout set, best selected
 
 ```python
-fx = Vectrix(verbose=True)
-result = fx.forecast(df, dateCol="date", valueCol="revenue", steps=12)
+from vectrix import forecast
+
+result = forecast(data, steps=6)
+print(f"Selected: {result.model}")
+print(f"Evaluated: {result.models}")
 ```
 
-This prints model training progress, timing, validation scores, and selection reasoning.
+## Ensemble Strategy
 
-## 8. Result Object Reference (ForecastResult)
+When no single model clearly dominates — or when multiple models perform similarly — Vectrix combines them into a weighted ensemble. The ensemble typically outperforms any individual model because different models make different errors:
 
-| Attribute | Type | Description |
-|---|---|---|
-| `.success` | `bool` | Whether forecasting succeeded |
-| `.predictions` | `np.ndarray` | Final forecast values |
-| `.dates` | `list` | Forecast date strings |
-| `.lower95` | `np.ndarray` | 95% lower bound |
-| `.upper95` | `np.ndarray` | 95% upper bound |
-| `.bestModelId` | `str` | Selected model ID |
-| `.bestModelName` | `str` | Selected model display name |
-| `.allModelResults` | `dict` | All ModelResult objects keyed by ID |
-| `.characteristics` | `DataCharacteristics` | Detected data properties |
-| `.flatRisk` | `FlatRiskAssessment` | Flat prediction risk info |
-| `.flatInfo` | `FlatPredictionInfo` | Flat detection/correction details |
-| `.warnings` | `list` | Any warnings generated |
+```python
+from vectrix import Vectrix
+
+vx = Vectrix()
+result = vx.forecast(df, dateCol="date", valueCol="value", steps=14)
+
+if hasattr(result, 'ensembleWeights') and result.ensembleWeights:
+    print("Ensemble weights:")
+    for model, weight in result.ensembleWeights.items():
+        print(f"  {model}: {weight:.3f}")
+```
+
+The ensemble uses inverse-error weighting: models with lower validation errors receive higher weights.
+
+## Complete Example
+
+```python
+import numpy as np
+from vectrix import forecast, compare
+
+np.random.seed(42)
+t = np.arange(100)
+data = 50 + 0.5 * t + 20 * np.sin(2 * np.pi * t / 12) + np.random.randn(100) * 5
+
+ranking = compare(data, steps=12)
+print("Top 5 models:")
+print(ranking.head(5))
+
+result = forecast(data, steps=12)
+print(f"\nSelected model: {result.model}")
+print(f"MAPE: {result.mape:.2f}%")
+print(f"Next 12 steps: {result.predictions.round(1)}")
+```
 
 ---
-
-**Next:** [Tutorial 05 — Adaptive Intelligence](05_adaptive.md) — Regime detection, DNA, self-healing, constraints

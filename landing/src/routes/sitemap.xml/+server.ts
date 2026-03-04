@@ -29,10 +29,8 @@ const pages = [
 	'/docs/tutorials/models',
 	'/docs/tutorials/adaptive',
 	'/docs/tutorials/business',
-	'/docs/showcase/korean-economy',
-	'/docs/showcase/korean-regression',
-	'/docs/showcase/model-comparison',
-	'/docs/showcase/business-intelligence',
+	'/blog',
+	'/blog/whatIsForecasting',
 	'/docs/benchmarks',
 	'/docs/changelog'
 ];
@@ -47,8 +45,8 @@ export const GET: RequestHandler = () => {
 			(p) => `  <url>
     <loc>${SITE}${p}</loc>
     <lastmod>${lastmod}</lastmod>
-    <changefreq>${p === '/' ? 'weekly' : 'monthly'}</changefreq>
-    <priority>${p === '/' ? '1.0' : p.startsWith('/docs/getting-started') ? '0.9' : '0.7'}</priority>
+    <changefreq>${p === '/' || p.startsWith('/blog') ? 'weekly' : 'monthly'}</changefreq>
+    <priority>${p === '/' ? '1.0' : p.startsWith('/docs/getting-started') ? '0.9' : p.startsWith('/blog') ? '0.8' : '0.7'}</priority>
   </url>`
 		)
 		.join('\n');

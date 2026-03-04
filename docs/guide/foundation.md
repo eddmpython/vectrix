@@ -1,12 +1,12 @@
+---
+title: Foundation Models
+---
+
 # Foundation Models
 
 Vectrix provides optional wrappers for state-of-the-art pretrained forecasting models. These models perform **zero-shot forecasting** — no training required on your specific data.
 
-!!! note "Optional Dependencies"
-    Foundation model wrappers require additional packages:
-    ```bash
-    pip install "vectrix[foundation]"
-    ```
+> **Note:** Foundation model wrappers require additional packages: `pip install "vectrix[foundation]"`
 
 ## Amazon Chronos-2
 
@@ -46,7 +46,7 @@ quantiles = model.predictQuantiles(
 
 ### Batch Prediction
 
-Forecast multiple series at once:
+Forecast multiple series at once
 
 ```python
 series = [y1, y2, y3]
@@ -71,7 +71,7 @@ predictions, lower, upper = model.predict(steps=12)
 
 ### With Covariates
 
-TimesFM supports exogenous variables (covariates):
+TimesFM supports exogenous variables (covariates)
 
 ```python
 predictions, lower, upper = model.predictWithCovariates(
@@ -101,7 +101,3 @@ else:
 | Need explainability | Statistical models |
 | Many heterogeneous series | Foundation models |
 | Production latency constraints | Statistical models |
-
----
-
-**API Reference:** [Foundation Models API](../api/foundation.md)
