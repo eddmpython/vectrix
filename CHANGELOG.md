@@ -5,6 +5,62 @@ All notable changes to Vectrix will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.15] - 2026-03-05
+
+Accuracy & engine improvement release — FFT period detection bug fix eliminates spurious seasonal periods that degraded M4 Daily OWA from 0.820 to 0.996. Three new Rust DNA functions added. PeriodicDropDetector seasonal false positive fix. Visualization module (plotly). Overall M4 AVG OWA improved from 0.877 to 0.848.
+
+### Fixed
+
+**FFT Period Detection Bug (Root Cause of Daily OWA 0.996)**
+- `analyzer/autoAnalyzer.py`: `_detectSeasonalPeriods()` used FFT which produced spurious periods (53, 144, 168 for Daily data)
+- These wrong periods propagated through `forecast()` pipeline, degrading accuracy across all M4 frequency groups
+- Replaced FFT-based detection with frequency-based lookup table (Daily→7, Monthly→12, etc.)
+- M4 Daily OWA: 0.996 → 0.820 (17.7% improvement)
+- M4 AVG OWA: 0.877 → 0.848 (3.3% improvement)
+
+**PeriodicDropDetector Seasonal False Positives**
+- `vectrix.py`: Normal seasonal patterns (e.g., 24h Hourly cycle) were falsely detected as "periodic drops"
+- This triggered interpolation that destroyed training data, harming forecast accuracy
+- Added check: if detected drop period matches or aligns with seasonal period, skip drop correction
+
+**Ruff Lint Errors**
+- Fixed import sort order in `engine/tsfeatures.py`
+- Removed unused `numpy` imports in `viz/charts.py` and `viz/report.py`
+- Removed unused `make_subplots` import in `viz/charts.py`
+
+### Added
+
+**Rust DNA Functions (3 new, total 29)**
+- `sample_entropy`: Measures time series complexity/regularity
+- `approximate_entropy`: Similar to sample entropy with different algorithm
+- `hurst_exponent`: Long-range dependence measurement via R/S analysis
+- Python vectorized fallbacks using numpy broadcasting + stride_tricks
+- `engine/tsfeatures.py` auto-selects Rust or Python implementation
+
+**Visualization Module (`viz/`)**
+- `viz/charts.py`: Individual Plotly chart functions (forecastChart, analysisChart, etc.)
+- `viz/report.py`: Composite report generators combining multiple charts
+- `viz/theme.py`: Dark theme configuration with consistent color palette
+
+**Experiments (E047-E054)**
+- E047~E050: Speed optimization experiments (all rejected — Python overhead is not in hot loops)
+- E051: Daily diagnosis — DOT engine alone gives 0.605 but pipeline gives 0.908 (50% gap)
+- E052: Root cause identified — FFT produces spurious periods (53, 144, 168)
+- E053: basePeriod-only wins all 6 frequency groups (-19.3% avg improvement)
+- E054: Integrated pipeline benchmark with both fixes applied
+
+### Changed
+
+**AdaptiveModelSelector Registry-Based**
+- `models/selector.py`: Replaced hardcoded FLAT_RESISTANCE and MIN_DATA dicts with dynamic lookup from `engine/registry.py`
+
+**M4 Benchmark Numbers Updated Across All Files**
+- Daily OWA: 0.996 → 0.820 (12 files updated)
+- AVG OWA: 0.877 → 0.848 (12 files updated)
+- Files: constants.json, README.md, docs/benchmarks.md, llms.txt, llms-full.txt, landing components, blog posts, API_SPEC.md
+
+[0.0.15]: https://github.com/eddmpython/vectrix/compare/v0.0.14...v0.0.15
+
 ## [0.0.14] - 2026-03-04
 
 Model refit() interface — each model owns its own refit logic, eliminating the last model-specific if/elif chain in vectrix.py. GitHub Deployments fix.

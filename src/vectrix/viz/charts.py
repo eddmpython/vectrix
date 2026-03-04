@@ -4,14 +4,12 @@ Individual chart functions for Vectrix visualization.
 Each function takes a Vectrix result object and returns a Plotly figure.
 """
 
-import numpy as np
 import pandas as pd
 
 from .theme import COLORS, PALETTE, applyTheme
 
 try:
     import plotly.graph_objects as go
-    from plotly.subplots import make_subplots
 except ImportError:
     raise ImportError(
         "plotly is required for vectrix.viz. "

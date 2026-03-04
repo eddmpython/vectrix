@@ -4,7 +4,6 @@ Composite report generators that combine multiple charts.
 Each function returns a single Plotly figure with subplots.
 """
 
-import numpy as np
 import pandas as pd
 
 from .theme import COLORS, PALETTE, applyTheme

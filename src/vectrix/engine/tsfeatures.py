@@ -23,10 +23,10 @@ from typing import Dict, Optional, Tuple
 import numpy as np
 
 try:
-    from vectrix._core import (
-        sample_entropy as _rust_sample_entropy,
+    from vectrix._core import (  # noqa: I001
         approximate_entropy as _rust_approximate_entropy,
         hurst_exponent as _rust_hurst_exponent,
+        sample_entropy as _rust_sample_entropy,
     )
     _RUST_DNA = True
 except ImportError:
