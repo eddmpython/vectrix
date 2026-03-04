@@ -30,7 +30,7 @@ export const pageDescriptions: Record<string, string> = {
 	'/docs/tutorials/adaptive': 'Tutorial: adaptive forecasting with regime detection, self-healing data, and constraint enforcement.',
 	'/docs/tutorials/business': 'Tutorial: business intelligence with anomaly detection, scenario analysis, and backtesting.',
 	'/blog': 'Learn forecasting from zero. Concepts, tutorials, benchmarks, and best practices for prediction with Python.',
-	'/blog/whatIsForecasting': 'What is forecasting? The one concept behind every business decision. Learn what it means, why it matters, and how it works.',
+	'/blog/what-is-forecasting': 'What is forecasting? The one concept behind every business decision. Learn what it means, why it matters, and how it works.',
 	'/docs/benchmarks': 'M3 & M4 Competition benchmark results. Vectrix OWA scores vs Naive2 baseline across all frequencies.',
 	'/docs/changelog': 'Vectrix changelog — version history, new features, bug fixes, and breaking changes.'
 };

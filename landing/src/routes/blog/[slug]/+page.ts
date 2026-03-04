@@ -4,15 +4,18 @@ import { blogPosts } from '$lib/blog/posts';
 
 const modules = import.meta.glob('@docs/blog/*.md', { eager: true });
 
-function stripNumberPrefix(filename: string): string {
-	return filename.replace(/\/\d+_/g, '/');
+function toKebabSlug(filename: string): string {
+	return filename
+		.replace(/\/\d+_/g, '/')
+		.replace(/^.*\/blog\//, '')
+		.replace('.md', '')
+		.replace(/([a-z])([A-Z])/g, '$1-$2')
+		.toLowerCase();
 }
 
 const slugMap = new Map<string, string>();
 for (const rawPath of Object.keys(modules)) {
-	const slug = stripNumberPrefix(rawPath)
-		.replace(/^.*\/blog\//, '')
-		.replace('.md', '');
+	const slug = toKebabSlug(rawPath);
 	slugMap.set(slug, rawPath);
 }
 

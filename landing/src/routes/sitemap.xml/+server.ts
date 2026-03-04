@@ -30,7 +30,7 @@ const pages = [
 	'/docs/tutorials/adaptive',
 	'/docs/tutorials/business',
 	'/blog',
-	'/blog/whatIsForecasting',
+	'/blog/what-is-forecasting',
 	'/docs/benchmarks',
 	'/docs/changelog'
 ];

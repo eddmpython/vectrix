@@ -17,7 +17,7 @@ export const categories = {
 
 export const blogPosts: BlogPost[] = [
 	{
-		slug: 'whatIsForecasting',
+		slug: 'what-is-forecasting',
 		title: 'What Is Forecasting?',
 		description: 'The one concept behind every business decision. Learn what forecasting really means, why it matters, and how it works — no math required.',
 		category: 'fundamentals',
