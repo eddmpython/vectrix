@@ -8,7 +8,7 @@ Vectrix provides two APIs for forecasting: the **Easy API** for quick, one-line 
 
 ## Easy API
 
-The simplest way to forecast. One function call evaluates 30+ models, selects the best, and returns predictions with 95% confidence intervals
+The simplest way to forecast. One function call evaluates 30+ models, selects the best, and returns predictions with confidence intervals
 
 ```python
 from vectrix import forecast
@@ -17,6 +17,37 @@ result = forecast(data, steps=30)
 ```
 
 `forecast()` accepts lists, NumPy arrays, pandas DataFrames, Series, and CSV file paths. It automatically detects date/value columns, splits data for validation, and selects the model with the lowest validation error.
+
+### Full Parameters
+
+```python
+result = forecast(
+    data,
+    date=None,           # date column name
+    value=None,          # value column name
+    steps=30,            # forecast horizon
+    verbose=False,       # print progress
+    models=None,         # list of model IDs to evaluate
+    ensemble=None,       # 'mean', 'weighted', 'median', 'best'
+    confidence=0.95      # CI level: 0.80, 0.90, 0.95, 0.99
+)
+```
+
+### Model Selection
+
+Restrict evaluation to specific models
+
+```python
+result = forecast(data, steps=14, models=['dot', 'auto_ets', 'auto_ces'])
+```
+
+### Ensemble Methods
+
+Combine multiple models instead of selecting the single best
+
+```python
+result = forecast(data, steps=14, ensemble='weighted')
+```
 
 ## Vectrix Class
 
@@ -31,7 +62,10 @@ result = vx.forecast(
     dateCol="date",
     valueCol="sales",
     steps=14,
-    trainRatio=0.8
+    trainRatio=0.8,
+    models=None,             # list[str] | None
+    ensembleMethod=None,     # str | None
+    confidenceLevel=0.95     # float
 )
 
 print(result.bestModelName)
@@ -91,7 +125,3 @@ ets = AutoETS(period=7)
 ets.fit(data)
 predictions, lower, upper = ets.predict(steps=30)
 ```
-
----
-
-**Interactive tutorial:** `marimo run docs/tutorials/en/04_models.py`

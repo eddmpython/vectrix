@@ -43,6 +43,13 @@ Forecast using the current regime context.
 
 Profile time series characteristics for meta-learning.
 
+```python
+from vectrix import ForecastDNA
+
+dna = ForecastDNA()
+profile = dna.analyze(values, period=7)
+```
+
 ### Methods
 
 - `analyze(y, period=1)` → `DNAProfile`
@@ -51,12 +58,23 @@ Profile time series characteristics for meta-learning.
 
 | Attribute | Type | Description |
 |---|---|---|
-| `.category` | `str` | Series type |
-| `.difficulty` | `str` | 'easy', 'medium', 'hard' |
+| `.features` | `dict[str, float]` | 65+ statistical features |
+| `.fingerprint` | `str` | 8-char hex hash |
+| `.difficulty` | `str` | 'easy', 'medium', 'hard', 'very_hard' |
 | `.difficultyScore` | `float` | 0–100 score |
-| `.fingerprint` | `str` | Unique fingerprint code |
-| `.recommendedModels` | `list` | Recommended model IDs |
-| `.features` | `dict` | Extracted features |
+| `.recommendedModels` | `list[str]` | Sorted by fitness |
+| `.category` | `str` | 'trending', 'seasonal', 'stationary', etc. |
+| `.summary` | `str` | Natural language summary |
+
+!!! warning "Feature values are inside the `features` dict"
+    ```python
+    # CORRECT
+    profile.features['trendStrength']
+    profile.features['seasonalStrength']
+
+    # WRONG — AttributeError
+    profile.trendStrength
+    ```
 
 ## SelfHealingForecast
 

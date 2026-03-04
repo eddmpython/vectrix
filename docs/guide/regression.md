@@ -24,17 +24,41 @@ print(model.summary())
 | `quantile` | Quantile regression |
 
 ```python
-model = regress(data=df, formula="sales ~ ads + price", method="ridge")
+model = regress(data=df, formula="sales ~ ads + price", method="ridge", alpha=1.0)
+```
+
+## Full Parameters
+
+```python
+model = regress(
+    y=None,              # ndarray (direct mode)
+    X=None,              # ndarray (direct mode)
+    data=None,           # DataFrame (formula mode)
+    formula=None,        # "y ~ x1 + x2"
+    method='ols',        # 'ols', 'ridge', 'lasso', 'huber', 'quantile'
+    summary=True,        # auto-print summary
+    alpha=None,          # regularization strength
+    diagnostics=False    # auto-run diagnostics
+)
 ```
 
 ## Results
 
+camelCase is the primary naming. snake_case aliases are available for backward compatibility.
+
 ```python
-print(model.r_squared)        # R-squared
-print(model.adj_r_squared)    # Adjusted R-squared
-print(model.f_stat)           # F-statistic
+print(model.rSquared)         # R² (primary)
+print(model.adjRSquared)      # Adjusted R² (primary)
+print(model.fStat)            # F-statistic (primary)
+print(model.durbinWatson)     # Durbin-Watson (primary)
 print(model.coefficients)     # Coefficient array
 print(model.pvalues)          # P-values array
+
+# snake_case aliases also work
+print(model.r_squared)
+print(model.adj_r_squared)
+print(model.f_stat)
+print(model.durbin_watson)
 ```
 
 ## Diagnostics
@@ -60,7 +84,7 @@ new_data = pd.DataFrame({
     "price": [20, 15, 10],
     "promo": [0, 1, 1],
 })
-predictions = model.predict(new_data)  # Returns DataFrame
+predictions = model.predict(new_data)
 ```
 
 ## Formula Syntax
@@ -77,7 +101,3 @@ regress(data=df, formula="y ~ x + I(x**2)")   # Polynomial
 ```python
 model = regress(y=y_array, X=X_array)
 ```
-
----
-
-**Interactive tutorial:** `marimo run docs/tutorials/en/03_regression.py`

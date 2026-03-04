@@ -16,6 +16,21 @@ from vectrix import analyze
 report = analyze(df, date="date", value="sales")
 ```
 
+### Full Parameters
+
+```python
+report = analyze(
+    df,
+    date="date",
+    value="sales",
+    period=None,             # auto-detected if None
+    features=True,           # extract statistical features
+    changepoints=True,       # detect structural breaks
+    anomalies=True,          # detect anomalies
+    anomalyThreshold=3.0     # z-score threshold
+)
+```
+
 ## DNA Profile
 
 Every time series has a unique statistical fingerprint — its "DNA." Vectrix extracts 65+ features (autocorrelation structure, Hurst exponent, entropy, volatility clustering, seasonal strength, and more) to create a deterministic profile that drives model selection and difficulty estimation
@@ -35,6 +50,21 @@ print(f"Recommended: {dna.recommendedModels[:3]}")
 | `difficultyScore` | 0-100 numeric score |
 | `category` | seasonal, trending, volatile, intermittent, etc. |
 | `recommendedModels` | Ordered list of optimal models |
+| `features` | Dict of 65+ statistical features |
+| `summary` | Natural language summary |
+
+!!! warning "Feature values are inside the `features` dict"
+    ```python
+    # CORRECT
+    dna.features['trendStrength']
+    dna.features['seasonalStrength']
+    dna.features['hurstExponent']
+    dna.features['seasonalPeakPeriod']
+
+    # WRONG — AttributeError
+    dna.trendStrength
+    dna.seasonalStrength
+    ```
 
 ## Data Characteristics
 
@@ -60,32 +90,33 @@ print(f"Changepoints: {report.changepoints}")
 print(f"Anomalies: {report.anomalies}")
 ```
 
+!!! note "These are int index arrays"
+    Both `changepoints` and `anomalies` are `np.ndarray` of integer indices, not dicts.
+
 ## Quick Report
 
 Run analysis and forecasting in a single call. DNA profiling, feature extraction, model selection, and forecasting — all at once
 
 ```python
-from vectrix import quick_report
+from vectrix import quickReport
 
-report = quick_report(df, steps=14)
+report = quickReport(df, steps=14)
 print(report['summary'])
-forecast_result = report['forecast']
-analysis_result = report['analysis']
+forecastResult = report['forecast']
+analysisResult = report['analysis']
 ```
+
+`quick_report` is available as a snake_case alias for backward compatibility.
 
 ## Direct ForecastDNA Access
 
 For lower-level control — such as building custom model selection logic or caching DNA profiles — use the `ForecastDNA` class directly
 
 ```python
-from vectrix.adaptive import ForecastDNA
+from vectrix import ForecastDNA
 
 dna = ForecastDNA()
 profile = dna.analyze(data, period=7)
 print(profile.fingerprint)
 print(profile.recommendedModels)
 ```
-
----
-
-**Interactive tutorial:** `marimo run docs/tutorials/en/02_analyze.py`

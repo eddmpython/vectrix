@@ -32,7 +32,7 @@ from vectrix import forecast
 df = pd.read_csv("sales.csv")
 result = forecast(df, date="date", value="sales", steps=30)
 result.plot()
-result.to_csv("forecast.csv")
+result.toCsv("forecast.csv")
 ```
 
 ## Forecast from a CSV File
@@ -53,18 +53,21 @@ Every forecast returns an `EasyForecastResult` object with predictions, confiden
 |-------------------|-------------|
 | `.predictions` | Forecast values (numpy array) |
 | `.dates` | Forecast dates |
-| `.lower` | 95% lower bound |
-| `.upper` | 95% upper bound |
+| `.lower` | Lower CI bound |
+| `.upper` | Upper CI bound |
 | `.model` | Selected model name |
 | `.mape` | Validation MAPE (%) |
 | `.rmse` | Validation RMSE |
+| `.smape` | Validation sMAPE |
 | `.summary()` | Formatted text report |
 | `.compare()` | All models ranked by accuracy |
-| `.all_forecasts()` | Every model's predictions side-by-side |
-| `.to_dataframe()` | Convert to DataFrame |
-| `.to_csv(path)` | Export to CSV |
-| `.to_json()` | Export to JSON string |
+| `.toDataframe()` | Convert to DataFrame |
+| `.allForecasts()` | Every model's predictions side-by-side |
+| `.toCsv(path)` | Export to CSV |
+| `.toJson()` | Export to JSON string |
 | `.plot()` | Matplotlib visualization |
+
+snake_case aliases (`to_dataframe()`, `all_forecasts()`, `to_csv()`, `to_json()`) are also available.
 
 ## Supported Input Formats
 
@@ -105,10 +108,6 @@ print(model.diagnose())
 
 ## What's Next?
 
-- **[Tutorial 01 — Quickstart](/docs/tutorials/quickstart)** — Detailed walkthrough with expected outputs
-- **[Tutorial 02 — Analysis & DNA](/docs/tutorials/analyze)** — Understand your data's DNA fingerprint
-- **[Tutorial 04 — 30+ Models](/docs/tutorials/models)** — Deep dive into every model Vectrix offers
-
----
-
-**Interactive:** Run `marimo run docs/tutorials/en/01_quickstart.py` for the interactive version.
+- **[Forecasting Guide](../guide/forecasting.md)** — Full parameter reference and model categories
+- **[Analysis & DNA](../guide/analysis.md)** — Understand your data's DNA fingerprint
+- **[API Reference](../api/easy.md)** — Complete Easy API specification

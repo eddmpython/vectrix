@@ -91,9 +91,17 @@ dna = ForecastDNA()
 profile = dna.analyze(data, period=7)
 print(f"Fingerprint: {profile.fingerprint}")
 print(f"Difficulty: {profile.difficulty} ({profile.difficultyScore:.0f}/100)")
+print(f"Category: {profile.category}")
 print(f"Recommended: {profile.recommendedModels}")
+print(f"Summary: {profile.summary}")
 ```
 
----
+!!! warning "Feature values are inside the `features` dict"
+    ```python
+    # CORRECT
+    profile.features['trendStrength']
+    profile.features['seasonalStrength']
 
-**Interactive tutorial:** `marimo run docs/tutorials/en/05_adaptive.py`
+    # WRONG — AttributeError
+    profile.trendStrength
+    ```

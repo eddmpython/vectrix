@@ -8,7 +8,7 @@ Core data types and result objects used throughout Vectrix.
 
 ## ForecastResult
 
-Main result from `Vectrix.forecast()`.
+Main result from `Vectrix.forecast()`. Not the same as `EasyForecastResult` from the Easy API.
 
 | Field | Type | Description |
 |---|---|---|
@@ -19,12 +19,16 @@ Main result from `Vectrix.forecast()`.
 | `upper95` | `np.ndarray` | 95% upper bound |
 | `bestModelId` | `str` | Selected model ID |
 | `bestModelName` | `str` | Model display name |
-| `allModelResults` | `dict` | All model results |
+| `allModelResults` | `dict[str, ModelResult]` | All model results |
 | `characteristics` | `DataCharacteristics` | Data properties |
+
+!!! note "EasyForecastResult vs ForecastResult"
+    The Easy API returns `EasyForecastResult` with `.lower` / `.upper`.
+    The Vectrix class returns `ForecastResult` with `.lower95` / `.upper95`.
 
 ## ModelResult
 
-Per-model result.
+Per-model result stored in `ForecastResult.allModelResults`.
 
 | Field | Type | Description |
 |---|---|---|
@@ -32,6 +36,9 @@ Per-model result.
 | `modelName` | `str` | Display name |
 | `isValid` | `bool` | Whether model produced valid output |
 | `mape` | `float` | Validation MAPE |
+| `rmse` | `float` | Validation RMSE |
+| `mae` | `float` | Validation MAE |
+| `smape` | `float` | Validation sMAPE |
 | `predictions` | `np.ndarray` | Model predictions |
 | `lower95` | `np.ndarray` | Lower bound |
 | `upper95` | `np.ndarray` | Upper bound |
@@ -51,6 +58,34 @@ Per-model result.
 | `hasSeasonality` | `bool` | Whether seasonality detected |
 | `seasonalStrength` | `float` | 0–1 strength |
 | `predictabilityScore` | `float` | 0–100 score |
+
+## DNAProfile
+
+Returned by `analyze().dna` or `ForecastDNA().analyze()`.
+
+| Field | Type | Description |
+|---|---|---|
+| `features` | `dict[str, float]` | 65+ statistical features |
+| `fingerprint` | `str` | 8-char hex hash |
+| `difficulty` | `str` | 'easy', 'medium', 'hard', 'very_hard' |
+| `difficultyScore` | `float` | 0–100 score |
+| `recommendedModels` | `list[str]` | Sorted by fitness |
+| `category` | `str` | 'trending', 'seasonal', 'stationary', etc. |
+| `summary` | `str` | Natural language summary |
+
+!!! warning "Feature values are inside the `features` dict"
+    ```python
+    # CORRECT
+    dna.features['trendStrength']
+    dna.features['seasonalStrength']
+    dna.features['hurstExponent']
+
+    # WRONG — AttributeError
+    dna.trendStrength
+    dna.seasonalStrength
+    ```
+
+**Key feature names:** `trendStrength`, `seasonalStrength`, `seasonalPeakPeriod`, `hurstExponent`, `volatility`, `cv`, `skewness`, `kurtosis`, `adfStatistic`, `spectralEntropy`, `approximateEntropy`, `garchEffect`, `volatilityClustering`, `demandDensity`, `nonlinearAutocorr`, `forecastability`, `trendSlope`, `trendDirection`, `trendLinearity`, `trendCurvature`
 
 ## ModelInfo
 

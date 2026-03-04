@@ -8,117 +8,180 @@ The simplest way to use Vectrix. One function call for each task.
 
 ## Functions
 
-### `forecast(data, date=None, value=None, steps=30, frequency='auto', verbose=False)`
+### `forecast()`
 
-One-call forecasting with automatic model selection.
+```python
+forecast(
+    data,                    # str | DataFrame | ndarray | list | Series | dict
+    date=None,               # str — date column name
+    value=None,              # str — value column name
+    steps=30,                # int — forecast horizon
+    verbose=False,           # bool
+    models=None,             # list[str] | None — model IDs to evaluate
+    ensemble=None,           # str | None — 'mean', 'weighted', 'median', 'best'
+    confidence=0.95          # float — 0.80, 0.90, 0.95, 0.99
+) -> EasyForecastResult
+```
 
-**Parameters:**
-- `data` — Input data (list, ndarray, Series, DataFrame, dict, or CSV path)
-- `date` — Date column name (optional, auto-detected)
-- `value` — Value column name (optional, auto-detected)
-- `steps` — Number of forecast steps (default: 30)
-- `frequency` — Frequency hint (default: `'auto'`, auto-detected)
-- `verbose` — Print progress (default: False)
+**Available model IDs:** `'dot'`, `'auto_ets'`, `'auto_arima'`, `'auto_ces'`, `'four_theta'`, `'auto_mstl'`, `'tbats'`, `'theta'`, `'dtsf'`, `'esn'`, `'garch'`, `'croston'`, `'ets_aan'`, `'ets_aaa'`, `'naive'`, `'mean'`, `'rwd'`, `'window_avg'`, `'egarch'`, `'gjr_garch'`, `'seasonal_naive'`, `'mstl'`
 
-**Returns:** `EasyForecastResult`
+### `analyze()`
 
-### `analyze(data, date=None, value=None, period=None)`
+```python
+analyze(
+    data,                    # str | DataFrame | ndarray | list | Series | dict
+    date=None,               # str
+    value=None,              # str
+    period=None,             # int | None — seasonal period (auto if None)
+    features=True,           # bool
+    changepoints=True,       # bool
+    anomalies=True,          # bool
+    anomalyThreshold=3.0     # float — z-score threshold
+) -> EasyAnalysisResult
+```
 
-Time series DNA profiling, changepoint detection, anomaly identification.
+### `regress()`
 
-**Parameters:**
-- `data` — Input data (same formats as forecast)
-- `date` — Date column name (optional)
-- `value` — Value column name (optional)
-- `period` — Seasonal period (optional, auto-detected)
+```python
+regress(
+    y=None,                  # ndarray | Series | None (direct mode)
+    X=None,                  # ndarray | DataFrame | None (direct mode)
+    data=None,               # DataFrame | None (formula mode)
+    formula=None,            # str | None — "y ~ x1 + x2"
+    method='ols',            # str — 'ols', 'ridge', 'lasso', 'huber', 'quantile'
+    summary=True,            # bool — auto-print summary
+    alpha=None,              # float | None — regularization strength
+    diagnostics=False        # bool — auto-run diagnostics
+) -> EasyRegressionResult
+```
 
-**Returns:** `EasyAnalysisResult`
+### `compare()`
 
-### `regress(y=None, X=None, data=None, formula=None, method="ols", **kwargs)`
+```python
+compare(
+    data,                    # str | DataFrame | ndarray | list | Series | dict
+    date=None,               # str
+    value=None,              # str
+    steps=30,                # int
+    verbose=False,           # bool
+    models=None              # list[str] | None
+) -> pd.DataFrame           # Returns DataFrame directly, NOT a Result object
+```
 
-R-style formula regression with full diagnostics.
+**Returned DataFrame columns:** `model`, `mape`, `rmse`, `mae`, `smape`, `time_ms`, `selected`
 
-**Parameters:**
-- `y` — Dependent variable (ndarray)
-- `X` — Independent variables (ndarray)
-- `data` — DataFrame (use with formula)
-- `formula` — R-style formula string (e.g. `"y ~ x1 + x2"`)
-- `method` — `"ols"`, `"ridge"`, `"lasso"`, `"huber"`, `"quantile"`
-- `summary` — Print summary automatically (default: True)
+### `quickReport()`
 
-**Returns:** `EasyRegressionResult`
+```python
+quickReport(
+    data, date=None, value=None, steps=30
+) -> dict                   # Returns dict, NOT a Result object
+```
 
-### `compare(data, date=None, value=None, steps=30, verbose=False)`
+**Returned dict keys:** `'forecast'` (EasyForecastResult), `'analysis'` (EasyAnalysisResult), `'summary'` (str)
 
-Compare all models on the given data and return a ranked DataFrame.
+**Alias:** `quick_report` = `quickReport` (backward compatibility)
 
-**Returns:** `DataFrame` — Models ranked by accuracy (sMAPE, MAPE, RMSE, MAE)
+### `loadSample()`
 
-### `quick_report(data, date=None, value=None, steps=30)`
-
-Combined analysis + forecast report generation.
-
-**Returns:** `Dict[str, Any]` — Report dictionary with `'summary'`, `'forecast'`, `'analysis'` keys
-
-### `listSamples()`
-
-List available built-in sample datasets.
-
-**Returns:** `DataFrame` — Dataset names and descriptions
-
-### `loadSample(name)`
+```python
+loadSample(name: str) -> pd.DataFrame
+```
 
 Load a built-in sample dataset.
 
-**Parameters:**
-- `name` — Dataset name (e.g. `"airline"`, `"retail"`, `"stock"`)
+**Available samples:** `'airline'`, `'retail'`, `'stock'`, `'temperature'`, `'energy'`, `'web'`, `'intermittent'`
 
-**Returns:** `DataFrame`
+| Sample | date col | value col |
+|--------|----------|-----------|
+| airline | date | passengers |
+| retail | date | sales |
+| stock | date | close |
+| temperature | date | temperature |
+| energy | date | consumption_kwh |
+| web | date | pageviews |
+| intermittent | date | demand |
+
+### `listSamples()`
+
+```python
+listSamples() -> pd.DataFrame
+```
+
+List available built-in sample datasets.
 
 ## Result Classes
 
 ### EasyForecastResult
 
+**Attributes:**
+
 | Attribute | Type | Description |
 |---|---|---|
 | `.predictions` | `np.ndarray` | Forecast values |
-| `.dates` | `list` | Forecast date strings |
-| `.lower` | `np.ndarray` | 95% lower bound |
-| `.upper` | `np.ndarray` | 95% upper bound |
-| `.model` | `str` | Selected model name |
-| `.mape` | `float` | Validation MAPE (%) |
-| `.rmse` | `float` | Validation RMSE |
-| `.mae` | `float` | Validation MAE |
-| `.smape` | `float` | Validation sMAPE |
-| `.models` | `list` | All evaluated model names |
-| `.compare()` | `DataFrame` | All models ranked by MAPE |
-| `.all_forecasts()` | `DataFrame` | Every model's predictions |
-| `.summary()` | `str` | Formatted text summary |
-| `.to_dataframe()` | `DataFrame` | date, prediction, lower95, upper95 |
-| `.to_csv(path)` | `self` | Save to CSV |
-| `.to_json(path)` | `str` | Save to JSON |
-| `.describe()` | `DataFrame` | Pandas-style statistics |
+| `.dates` | `list[str]` | Forecast dates |
+| `.lower` | `np.ndarray` | Lower CI |
+| `.upper` | `np.ndarray` | Upper CI |
+| `.model` | `str` | Best model name |
+| `.mape` | `float` | MAPE % |
+| `.rmse` | `float` | RMSE |
+| `.mae` | `float` | MAE |
+| `.smape` | `float` | sMAPE |
+| `.models` | `list[str]` | All valid model names (sorted by MAPE) |
+
+**Methods:**
+
+| Method | Alias | Returns | Description |
+|--------|-------|---------|-------------|
+| `summary()` | — | `str` | Text summary |
+| `toDataframe()` | `to_dataframe()` | `DataFrame` | date, prediction, lower95, upper95 |
+| `compare()` | — | `DataFrame` | All models ranked by MAPE |
+| `allForecasts()` | `all_forecasts()` | `DataFrame` | date + one col per model |
+| `describe()` | — | `DataFrame` | `.describe()` style stats |
+| `toCsv(path)` | `to_csv(path)` | `self` | Save to CSV |
+| `toJson(path=None)` | `to_json(path=None)` | `str` | JSON string or save to file |
+| `save(path)` | — | `self` | Alias for `toJson(path)` |
+| `plot()` | — | `Figure` | matplotlib plot (optional dep) |
 
 ### EasyAnalysisResult
 
 | Attribute | Type | Description |
 |---|---|---|
 | `.dna` | `DNAProfile` | DNA profile object |
-| `.changepoints` | `np.ndarray` | Changepoint indices |
-| `.anomalies` | `np.ndarray` | Anomaly indices |
-| `.features` | `dict` | Extracted features |
-| `.characteristics` | `DataCharacteristics` | Data properties |
+| `.changepoints` | `np.ndarray` | Changepoint **int indices** (NOT dicts) |
+| `.anomalies` | `np.ndarray` | Anomaly **int indices** (NOT dicts) |
+| `.features` | `dict` | Statistical features dict |
+| `.characteristics` | `DataCharacteristics` | Data characteristics |
 | `.summary()` | `str` | Formatted report |
+
+!!! warning "anomalies/changepoints are int arrays"
+    ```python
+    # CORRECT
+    for idx in analysis.anomalies:
+        print(f"Anomaly at index {idx}")
+
+    # WRONG — will crash
+    for a in analysis.anomalies:
+        print(a['index'], a['value'])  # TypeError!
+    ```
 
 ### EasyRegressionResult
 
-| Attribute | Type | Description |
-|---|---|---|
-| `.coefficients` | `np.ndarray` | Regression coefficients |
-| `.pvalues` | `np.ndarray` | P-values |
-| `.r_squared` | `float` | R² |
-| `.adj_r_squared` | `float` | Adjusted R² |
-| `.f_stat` | `float` | F-statistic |
-| `.summary()` | `str` | Regression table |
-| `.diagnose()` | `str` | Full diagnostics |
-| `.predict(X)` | `DataFrame` | Predictions with intervals |
+**Attributes (camelCase primary, snake_case aliases):**
+
+| Primary | Alias | Type | Description |
+|---------|-------|------|-------------|
+| `coefficients` | — | `np.ndarray` | Including intercept |
+| `pvalues` | — | `np.ndarray` | P-values |
+| `rSquared` | `r_squared` | `float` | R² |
+| `adjRSquared` | `adj_r_squared` | `float` | Adjusted R² |
+| `fStat` | `f_stat` | `float` | F-statistic |
+| `durbinWatson` | `durbin_watson` | `float` | Durbin-Watson statistic |
+
+**Methods:**
+
+| Method | Returns | Description |
+|--------|---------|-------------|
+| `summary()` | `str` | Regression summary table |
+| `diagnose()` | `str` | Full diagnostics report |
+| `predict(X, interval, alpha)` | `DataFrame` | Predictions with intervals |
