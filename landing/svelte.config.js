@@ -33,7 +33,10 @@ const config = {
 			strict: false
 		}),
 		prerender: {
-			handleHttpError: 'warn'
+			handleHttpError: ({ path, message }) => {
+				if (path.startsWith('/vectrix/blog/') && !path.endsWith('.html')) return;
+				console.warn(message);
+			}
 		},
 		paths: {
 			base: process.env.BASE_PATH || ''

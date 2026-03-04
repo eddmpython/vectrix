@@ -85,9 +85,7 @@ A sudden spike in website traffic because a celebrity mentioned your product. An
 
 The goal of forecasting is to capture the **signal** (trend + seasonality) and accept the **noise** as irreducible uncertainty.
 
-```
-Data = Trend + Seasonality + Noise
-```
+![Time Series Decomposition — Data = Trend + Seasonality + Noise](/vectrix/blog/time-series-decomposition.svg)
 
 That's the fundamental equation. Every forecasting model, from the simplest to the most complex, is trying to separate signal from noise.
 
