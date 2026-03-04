@@ -468,7 +468,7 @@ class EasyForecastResult:
         lines.append("=" * 50)
         return "\n".join(lines)
 
-    def to_dataframe(self) -> pd.DataFrame:
+    def toDataframe(self) -> pd.DataFrame:
         """
         Convert forecast to a DataFrame.
 
@@ -483,6 +483,8 @@ class EasyForecastResult:
             'lower95': self.lower,
             'upper95': self.upper
         })
+
+    to_dataframe = toDataframe
 
     def __str__(self):
         n = len(self.predictions)
@@ -568,12 +570,14 @@ class EasyForecastResult:
         plt.tight_layout()
         return fig
 
-    def to_csv(self, path, **kwargs):
+    def toCsv(self, path, **kwargs):
         """Save results to a CSV file."""
-        self.to_dataframe().to_csv(path, index=False, **kwargs)
+        self.toDataframe().to_csv(path, index=False, **kwargs)
         return self
 
-    def to_json(self, path=None, **kwargs):
+    to_csv = toCsv
+
+    def toJson(self, path=None, **kwargs):
         """Return results as JSON string or save to file."""
         import json
         data = {
@@ -589,9 +593,11 @@ class EasyForecastResult:
                 f.write(jsonStr)
         return jsonStr
 
+    to_json = toJson
+
     def save(self, path):
-        """Save results to JSON (convenience wrapper for .to_json)."""
-        self.to_json(path)
+        """Save results to JSON (convenience wrapper for .toJson)."""
+        self.toJson(path)
         return self
 
     def compare(self) -> pd.DataFrame:
@@ -619,7 +625,7 @@ class EasyForecastResult:
             })
         return pd.DataFrame(rows).sort_values('mape', ignore_index=True)
 
-    def all_forecasts(self) -> pd.DataFrame:
+    def allForecasts(self) -> pd.DataFrame:
         """
         Get predictions from every evaluated model in one DataFrame.
 
@@ -648,6 +654,8 @@ class EasyForecastResult:
             else:
                 data[m.modelName] = preds[:nDates]
         return pd.DataFrame(data)
+
+    all_forecasts = allForecasts
 
     def describe(self):
         """Pandas .describe()-style summary statistics."""
@@ -778,12 +786,17 @@ class EasyRegressionResult:
     def __init__(self, result, diagnosticResult=None):
         self.coefficients = result.coefficients
         self.pvalues = result.pValues
-        self.r_squared = result.rSquared
-        self.adj_r_squared = result.adjustedRSquared
-        self.f_stat = result.fStatistic
+        self.rSquared = result.rSquared
+        self.adjRSquared = result.adjustedRSquared
+        self.fStat = result.fStatistic
+        self.durbinWatson = result.durbinWatson
         self._result = result
         self._diagResult = diagnosticResult
         self._olsEngine = None
+
+        self.r_squared = self.rSquared
+        self.adj_r_squared = self.adjRSquared
+        self.f_stat = self.fStat
 
     def summary(self) -> str:
         """
@@ -893,8 +906,8 @@ class EasyRegressionResult:
 
     def __repr__(self):
         return (
-            f"RegressionResult(R2={self.r_squared:.4f}, "
-            f"adjR2={self.adj_r_squared:.4f}, "
+            f"RegressionResult(R2={self.rSquared:.4f}, "
+            f"adjR2={self.adjRSquared:.4f}, "
             f"nCoefs={len(self.coefficients)})"
         )
 
@@ -1016,7 +1029,8 @@ def analyze(
     features: bool = True,
     changepoints: bool = True,
     anomalies: bool = True,
-    anomaly_threshold: float = 3.0
+    anomalyThreshold: float = 3.0,
+    anomaly_threshold: float = None
 ) -> EasyAnalysisResult:
     """
     One-line time series analysis (DNA + changepoints + anomalies + features).
@@ -1040,7 +1054,7 @@ def analyze(
         Detect structural changepoints (default: True).
     anomalies : bool
         Detect anomalies (default: True).
-    anomaly_threshold : float
+    anomalyThreshold : float
         Z-score threshold for anomaly detection (default: 3.0).
         Lower = more sensitive. Common values: 2.0, 2.5, 3.0, 4.0.
 
@@ -1055,8 +1069,11 @@ def analyze(
     >>> print(report.dna.difficulty)    # 'medium'
     >>> print(report.changepoints)      # [45, 120, 200]
     >>> print(report.summary())
-    >>> report = analyze(df, date="date", value="sales", anomaly_threshold=2.0)
+    >>> report = analyze(df, date="date", value="sales", anomalyThreshold=2.0)
     """
+    if anomaly_threshold is not None:
+        anomalyThreshold = anomaly_threshold
+
     from .adaptive.dna import ForecastDNA
     from .engine.changepoint import ChangePointDetector
     from .vectrix import Vectrix
@@ -1102,7 +1119,7 @@ def analyze(
                 valStd = np.std(values, ddof=1)
                 if valStd > 1e-10:
                     zScores = np.abs((values - valMean) / valStd)
-                    anomalyIndices = np.where(zScores > anomaly_threshold)[0]
+                    anomalyIndices = np.where(zScores > anomalyThreshold)[0]
         except Exception:
             pass
 
@@ -1116,6 +1133,70 @@ def analyze(
         characteristics=characteristics
     )
 
+
+def _injectCoefficients(olsResult, fittedModel, X, y, methodName):
+    from scipy import stats as _st
+    beta = np.concatenate([[fittedModel.intercept], fittedModel.coef])
+    n = len(y)
+    k = len(beta)
+    Xa = np.column_stack([np.ones(n), X])
+    yHat = Xa @ beta
+    residuals = y - yHat
+    ssRes = float(residuals @ residuals)
+    ssTot = float(np.sum((y - np.mean(y)) ** 2))
+    df = n - k
+    s2 = ssRes / max(df, 1)
+    sigma = np.sqrt(s2)
+    rSquared = 1.0 - ssRes / ssTot if ssTot > 1e-15 else 0.0
+    adjRSquared = 1.0 - (ssRes / max(df, 1)) / (ssTot / max(n - 1, 1)) if ssTot > 1e-15 else 0.0
+    XtX = Xa.T @ Xa
+    try:
+        XtXinv = np.linalg.inv(XtX)
+    except np.linalg.LinAlgError:
+        XtXinv = np.linalg.pinv(XtX)
+    covBeta = s2 * XtXinv
+    seRaw = np.maximum(np.diag(covBeta), 0.0)
+    standardErrors = np.sqrt(seRaw)
+    safeSe = np.where(standardErrors > 1e-15, standardErrors, 1e-15)
+    tValues = beta / safeSe
+    pValues = 2.0 * _st.t.sf(np.abs(tValues), max(df, 1))
+    denomStd = sigma * np.sqrt(np.maximum(1.0 - np.sum((Xa @ XtXinv) * Xa, axis=1), 1e-15))
+    standardizedResiduals = residuals / np.where(denomStd > 1e-15, denomStd, 1e-15)
+    ssReg = ssTot - ssRes
+    dfModel = k - 1 if k > 1 else 1
+    fStat = (ssReg / dfModel) / (ssRes / max(df, 1)) if ssRes > 1e-15 and df > 0 else 0.0
+    fPValue = float(_st.f.sf(fStat, dfModel, max(df, 1))) if fStat > 0 else 1.0
+    s2ML = ssRes / n if n > 0 else 1e-15
+    logLik = -0.5 * n * (np.log(2.0 * np.pi) + np.log(max(s2ML, 1e-15)) + 1.0)
+    tCrit = _st.t.ppf(0.975, max(df, 1))
+    ciLower = beta - tCrit * standardErrors
+    ciUpper = beta + tCrit * standardErrors
+    if ssRes > 1e-15 and n > 1:
+        dw = float(np.sum(np.diff(residuals) ** 2) / ssRes)
+    else:
+        dw = 0.0
+    olsResult.coefficients = beta
+    olsResult.standardErrors = standardErrors
+    olsResult.tValues = tValues
+    olsResult.pValues = pValues
+    olsResult.confidenceIntervals = np.column_stack([ciLower, ciUpper])
+    olsResult.rSquared = rSquared
+    olsResult.adjustedRSquared = adjRSquared
+    olsResult.fStatistic = fStat
+    olsResult.fPValue = fPValue
+    olsResult.logLikelihood = logLik
+    olsResult.aic = -2.0 * logLik + 2.0 * k
+    olsResult.bic = -2.0 * logLik + k * np.log(n)
+    olsResult.residuals = residuals
+    olsResult.standardizedResiduals = standardizedResiduals
+    olsResult.fittedValues = yHat
+    olsResult.covarianceMatrix = covBeta
+    olsResult.sigma = sigma
+    olsResult.ssRes = ssRes
+    olsResult.ssTot = ssTot
+    olsResult.ssReg = ssReg
+    olsResult.durbinWatson = dw
+    return olsResult
 
 
 def regress(
@@ -1249,6 +1330,7 @@ def regress(
         ridgeModel.fit(XArr, yArr)
         olsEngine = OLSInference(fitIntercept=True)
         regressionResult = olsEngine.fit(XArr, yArr, featureNames=featureNames)
+        regressionResult = _injectCoefficients(regressionResult, ridgeModel, XArr, yArr, 'Ridge')
 
     elif methodLower == 'lasso':
         lassoAlpha = alpha if alpha is not None else 0.1
@@ -1256,18 +1338,21 @@ def regress(
         lassoModel.fit(XArr, yArr)
         olsEngine = OLSInference(fitIntercept=True)
         regressionResult = olsEngine.fit(XArr, yArr, featureNames=featureNames)
+        regressionResult = _injectCoefficients(regressionResult, lassoModel, XArr, yArr, 'Lasso')
 
     elif methodLower == 'huber':
         huberModel = HuberRegressor(fitIntercept=True)
         huberModel.fit(XArr, yArr)
         olsEngine = OLSInference(fitIntercept=True)
         regressionResult = olsEngine.fit(XArr, yArr, featureNames=featureNames)
+        regressionResult = _injectCoefficients(regressionResult, huberModel, XArr, yArr, 'Huber')
 
     elif methodLower == 'quantile':
         quantModel = QuantileRegressor(quantile=0.5, fitIntercept=True)
         quantModel.fit(XArr, yArr)
         olsEngine = OLSInference(fitIntercept=True)
         regressionResult = olsEngine.fit(XArr, yArr, featureNames=featureNames)
+        regressionResult = _injectCoefficients(regressionResult, quantModel, XArr, yArr, 'Quantile')
 
     else:
         raise ValueError(
@@ -1329,7 +1414,7 @@ def compare(
     return result.compare()
 
 
-def quick_report(
+def quickReport(
     data: Union[str, pd.DataFrame, np.ndarray, list, tuple, pd.Series, dict],
     date: str = None,
     value: str = None,
@@ -1363,9 +1448,9 @@ def quick_report(
 
     Examples
     --------
-    >>> report = quick_report(df, date="date", value="sales")
+    >>> report = quickReport(df, date="date", value="sales")
     >>> print(report['summary'])
-    >>> report['forecast'].to_dataframe()
+    >>> report['forecast'].toDataframe()
     """
     analysisResult = analyze(data, date=date, value=value)
 
@@ -1419,12 +1504,15 @@ def quick_report(
     }
 
 
+quick_report = quickReport
+
 
 __all__ = [
     'forecast',
     'analyze',
     'regress',
     'compare',
+    'quickReport',
     'quick_report',
     'EasyForecastResult',
     'EasyAnalysisResult',

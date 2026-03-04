@@ -37,6 +37,7 @@ from .easy import (
     compare,
     forecast,
     quick_report,
+    quickReport,
     regress,
 )
 from .engine.baselines import MeanModel, NaiveModel, RandomWalkDrift, SeasonalNaiveModel, WindowAverage
@@ -118,6 +119,7 @@ __all__ = [
     "analyze",
     "regress",
     "compare",
+    "quickReport",
     "quick_report",
     "EasyForecastResult",
     "EasyAnalysisResult",

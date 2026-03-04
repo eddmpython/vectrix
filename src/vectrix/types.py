@@ -203,26 +203,12 @@ MODEL_INFO = {
         'bestFor': ['strong seasonality', 'high flat risk'],
         'minData': 14
     },
-    'snaive_drift': {
-        'name': 'Seasonal Naive + Drift',
-        'description': 'Seasonal pattern repetition with trend adjustment.',
-        'flatResistance': 0.90,
-        'bestFor': ['seasonality + trend', 'high flat risk'],
-        'minData': 14
-    },
     'mstl': {
         'name': 'MSTL',
         'description': 'Multiple seasonal decomposition (LOESS) + ARIMA.',
         'flatResistance': 0.85,
         'bestFor': ['multiple seasonality', 'complex patterns'],
         'minData': 50
-    },
-    'holt_winters': {
-        'name': 'Holt-Winters',
-        'description': 'Triple exponential smoothing (level + trend + season).',
-        'flatResistance': 0.80,
-        'bestFor': ['seasonal data', 'medium-term forecasting'],
-        'minData': 24
     },
     'theta': {
         'name': 'Theta',
@@ -244,13 +230,6 @@ MODEL_INFO = {
         'flatResistance': 0.55,
         'bestFor': ['stable patterns', 'short-term forecasting'],
         'minData': 20
-    },
-    'ensemble': {
-        'name': 'Variability-Preserving Ensemble',
-        'description': 'Variability-preserving ensemble of top models.',
-        'flatResistance': 0.85,
-        'bestFor': ['uncertain patterns', 'stable forecasting'],
-        'minData': 30
     },
     'naive': {
         'name': 'Naive',

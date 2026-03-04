@@ -20,7 +20,7 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 
-warnings.filterwarnings('ignore')
+warnings.filterwarnings('ignore', module='vectrix')
 
 from .analyzer import AutoAnalyzer
 
@@ -51,7 +51,6 @@ from .engine.ets import AutoETS
 from .engine.fourTheta import AdaptiveThetaEnsemble
 from .engine.theta import OptimizedTheta
 from .flat_defense import FlatPredictionCorrector, FlatPredictionDetector, FlatRiskDiagnostic
-from .models import AdaptiveModelSelector
 from .models.ensemble import VariabilityPreservingEnsemble
 from .types import DataCharacteristics, FlatRiskAssessment, ForecastResult, ModelResult, RiskLevel
 
@@ -199,13 +198,13 @@ class Vectrix:
         self.flatDiagnostic = FlatRiskDiagnostic()
         self.flatDetector = FlatPredictionDetector()
         self.flatCorrector = FlatPredictionCorrector()
-        self.modelSelector = AdaptiveModelSelector()
         self.ensemble = VariabilityPreservingEnsemble()
 
         # State
         self.characteristics: Optional[DataCharacteristics] = None
         self.flatRisk: Optional[FlatRiskAssessment] = None
         self.modelResults: Dict[str, ModelResult] = {}
+        self._fittedModels: Dict[str, Any] = {}
         self.dropDetector: Optional[PeriodicDropDetector] = None
 
         # Callbacks
