@@ -56,7 +56,7 @@ Think of it like the Olympics. Everyone runs the same distance, on the same trac
 
 ## The M Competitions — Forecasting's Olympics
 
-The most influential benchmarks in forecasting are the **M Competitions**, organized by Professor Spyros Makridakis starting in 1982.
+The most influential benchmarks in forecasting are the **[M Competitions](https://en.wikipedia.org/wiki/Makridakis_Competitions)**, organized by Professor Spyros Makridakis starting in 1982. The "M" stands for Makridakis — the researcher who had the audacity to ask, "Do complex models actually work better?"
 
 ![The M Competition timeline](/vectrix/blog/m-competition-timeline.svg)
 
@@ -66,46 +66,56 @@ The most influential benchmarks in forecasting are the **M Competitions**, organ
 
 This humbled the academic community and established a principle that holds to this day — **complexity does not guarantee accuracy.**
 
+> Original paper: [Makridakis, S. et al. (1982). "The accuracy of extrapolation (time series) methods"](https://doi.org/10.1002/for.3980010202), *Journal of Forecasting*
+
 ### M2 (1986) — Adding Judgment
 
-**29 time series** with the twist that participants could use judgment and external information. The results reinforced M1's findings — simple methods remained competitive even when experts had access to additional context.
+**29 time series** with the twist that participants could use judgment and external information alongside their models. The results reinforced M1's findings — simple methods remained competitive even when experts had access to additional context.
 
 ### M3 (2000) — Scaling Up
 
-**3,003 time series** across Yearly, Quarterly, Monthly, and Other categories. The Theta method (Assimakopoulos & Nikolopoulos) stunned the community by winning with an elegantly simple approach — decomposing data into two "theta lines" and combining their forecasts.
+**3,003 time series** across Yearly, Quarterly, Monthly, and Other categories. The [Theta method](https://doi.org/10.1016/S0169-2070(00)00066-2) (Assimakopoulos & Nikolopoulos) stunned the community by winning with an elegantly simple approach — decomposing data into two "theta lines" and combining their forecasts.
 
 Key takeaway: **combination and simplicity still won.** No single complex model dominated across all categories.
 
+> Original paper: [Makridakis & Hibon (2000). "The M3-Competition"](https://doi.org/10.1016/S0169-2070(00)00057-1), *International Journal of Forecasting*
+
 ### M4 (2018) — The Game Changer
 
-**100,000 time series** across 6 frequencies (Yearly, Quarterly, Monthly, Weekly, Daily, Hourly). This was the big one — 50x larger than M3, representing the most comprehensive forecasting benchmark ever created.
+**[100,000 time series](https://github.com/Mcompetitions/M4-methods)** across 6 frequencies (Yearly, Quarterly, Monthly, Weekly, Daily, Hourly). This was the big one — 50x larger than M3, representing the most comprehensive forecasting benchmark ever created.
 
-The results reshaped the field
+The M4 was run as an open competition on the [M4 Competition website](https://mofc.unic.ac.cy/m4/), where 49 teams from around the world submitted their methods. The results reshaped the field
 
 | Rank | Method | Type | OWA |
 |:----:|--------|------|:---:|
 | 1 | ES-RNN (Smyl) | Hybrid (LSTM + ETS) | 0.821 |
-| 2 | FFORMA | Meta-learning ensemble | 0.838 |
+| 2 | FFORMA (Montero-Manso) | Meta-learning ensemble | 0.838 |
 | 3 | Theta (Fiorucci) | Statistical | 0.854 |
 | 18 | Original Theta | Statistical | 0.897 |
 
 **Three revolutionary findings**
 
-1. **A hybrid method won for the first time.** ES-RNN combined deep learning (LSTM) with classical exponential smoothing — proving that the future lies in combining statistical rigor with machine learning flexibility.
+1. **A hybrid method won for the first time.** ES-RNN combined deep learning (LSTM networks — a type of neural network that remembers long-term patterns) with classical exponential smoothing (ETS — a statistical method that weights recent observations more heavily). This proved that the future lies in combining statistical rigor with machine learning flexibility.
 
-2. **Pure machine learning methods performed poorly.** Standalone neural networks and ML models without statistical components couldn't compete with well-tuned statistical methods. The data wasn't enough — you needed structural assumptions too.
+2. **Pure machine learning methods performed poorly.** Standalone neural networks and ML models without statistical components couldn't compete with well-tuned statistical methods. Having lots of data wasn't enough — you needed structural assumptions about how time series behave (like trend and seasonality) too.
 
-3. **Combination is king.** The top methods all combined multiple approaches. No single model, no matter how sophisticated, could dominate across all frequencies.
+3. **Combination is king.** The top methods all combined multiple approaches. No single model, no matter how sophisticated, could dominate across all 6 frequencies. This echoed every previous M Competition.
+
+> Original paper: [Makridakis, Spiliotis & Assimakopoulos (2020). "The M4 Competition"](https://doi.org/10.1016/j.ijforecast.2019.04.014), *International Journal of Forecasting*
 
 ### M5 (2020) — Real Retail Data
 
-**42,840 products from Walmart.** Unlike previous M Competitions that used anonymized data, M5 used real retail sales data from Walmart. This added real-world messiness — zero sales, promotions, holidays, and hierarchical product structures.
+**[42,840 products from Walmart](https://mofc.unic.ac.cy/m5/).** Unlike previous M Competitions that used anonymized data, M5 used real retail sales data from Walmart stores. This added real-world messiness — zero sales days, promotional effects, holiday spikes, and hierarchical product structures (item → department → store → state).
 
-The winners were almost exclusively **gradient boosting** methods (LightGBM, XGBoost) — a stark contrast to M4 where statistical methods dominated. This revealed an important truth — **the best method depends on the data structure.**
+The winners were almost exclusively **gradient boosting** methods (LightGBM, XGBoost) — a stark contrast to M4 where statistical methods dominated. Why? Because M5 included **external features** (prices, promotions, calendar events) that tree-based ML models can exploit directly, while traditional time series models only look at the history of the series itself. This revealed an important truth — **the best method depends on the data structure.**
+
+> Original paper: [Makridakis, Spiliotis & Assimakopoulos (2022). "M5 accuracy competition"](https://doi.org/10.1016/j.ijforecast.2021.11.013), *International Journal of Forecasting*
 
 ### M6 (2022) — Uncertainty and Investment
 
-Focused on **financial forecasting and uncertainty estimation.** It evaluated not just point forecasts but the quality of prediction intervals and investment decisions based on those forecasts.
+The [M6 Competition](https://mofc.unic.ac.cy/m6/) focused on **financial forecasting and uncertainty estimation.** Unlike previous competitions that measured point forecast accuracy, M6 evaluated how well participants could estimate the *probability distribution* of future outcomes — and whether their predictions were good enough to make profitable investment decisions.
+
+This was a fundamentally different challenge. In financial markets, being "approximately right" isn't enough — you need to know *how confident* you are in your prediction, because that determines how much to bet.
 
 ---
 
@@ -133,7 +143,7 @@ Every M Competition has produced breakthroughs. M1 proved simplicity matters. M3
 
 ## The Metrics — How Accuracy Is Measured
 
-Benchmarks need metrics. Here are the ones that matter most
+Benchmarks need metrics — standardized formulas that turn "how wrong was this forecast?" into a single comparable number. Each metric answers a slightly different question, which is why competitions use multiple metrics together.
 
 ### MAE — Mean Absolute Error
 
@@ -143,67 +153,130 @@ The simplest accuracy measure. How far off are you, on average?
 MAE = average(|actual - forecast|)
 ```
 
-If your MAE is 50, your predictions are off by 50 units on average. Simple, intuitive, but **scale-dependent** — an MAE of 50 means very different things for a product selling 100 units versus 10,000 units.
+**Example.** You predicted 100, 200, 300 units for three months. Actual sales were 110, 180, 320. Your errors are 10, 20, 20. MAE = (10 + 20 + 20) / 3 = **16.7 units**.
+
+Simple and intuitive, but **scale-dependent** — an MAE of 50 means very different things for a product selling 100 units versus 10,000 units. You can't use MAE to compare forecasts across different products or datasets.
 
 ### MAPE — Mean Absolute Percentage Error
 
-Makes errors scale-independent by expressing them as percentages.
+Solves MAE's scale problem by expressing errors as percentages of the actual values.
 
 ```
 MAPE = average(|actual - forecast| / actual) × 100%
 ```
 
-A MAPE of 10% means you're off by 10% on average. Easy to communicate to stakeholders. But it has a fatal flaw — **it explodes when actual values are near zero** and penalizes over-forecasting more than under-forecasting.
+**Example.** Same numbers. Errors as percentages: 10/110 = 9.1%, 20/180 = 11.1%, 20/320 = 6.3%. MAPE = **8.8%**. Now you can compare across products — "Product A has 8.8% MAPE, Product B has 15% MAPE."
+
+Easy to communicate to stakeholders ("we're off by about 9%"). But MAPE has two fatal flaws
+
+- **It explodes when actual values are near zero.** If actual sales = 1 unit and you predicted 2, MAPE = 100%. If actual = 0, MAPE is undefined (division by zero). This makes MAPE useless for intermittent demand (products that sell 0 on many days).
+- **It's asymmetric.** Predicting 150 when actual is 100 gives MAPE = 50%. But predicting 50 when actual is 100 also gives MAPE = 50%. Seems fair? Not quite — the formula punishes under-forecasting more than over-forecasting due to the smaller denominator.
 
 ### sMAPE — Symmetric MAPE
 
-Fixes MAPE's asymmetry by using the average of actual and forecast in the denominator.
+Fixes MAPE's asymmetry by using the average of actual and forecast in the denominator instead of just the actual.
 
 ```
-sMAPE = average(|actual - forecast| / ((|actual| + |forecast|) / 2)) × 100%
+sMAPE = average(2 × |actual - forecast| / (|actual| + |forecast|)) × 100%
 ```
 
-Used in the M3 and M4 Competitions. Bounded between 0% and 200%. More balanced than MAPE, but still has quirks with near-zero values.
+**Why "symmetric"?** Because predicting 150 when actual is 100 now gives the same error as predicting 100 when actual is 150 — the denominator is the same in both cases ((100+150)/2 = 125). This removes the bias that MAPE has.
+
+Used as the primary metric in the M3 and M4 Competitions. Bounded between 0% and 200%. More balanced than MAPE, but still has quirks with near-zero values.
 
 ### MASE — Mean Absolute Scaled Error
 
-The gold standard for comparing across different series. It scales errors against a **naive seasonal forecast** — the simplest possible reasonable method.
+This is where it gets interesting. MASE asks a fundamentally different question: **"How much better is your model than the simplest possible approach?"**
+
+Instead of measuring absolute error or percentage error, MASE compares your model's errors to the errors of a **naive seasonal forecast** — a method that simply repeats what happened one season ago.
 
 ```
 MASE = MAE of your model / MAE of naive seasonal forecast
 ```
 
-- MASE below 1.0 → Your model beats the naive method
-- MASE equal to 1.0 → Your model equals the naive method
-- MASE above 1.0 → Your model is worse than just repeating last year
+**Example.** Your model has MAE = 16.7 units. The naive method (just repeating last year's values) has MAE = 25 units. MASE = 16.7 / 25 = **0.67**. Your model is 33% better than doing nothing.
 
-This is the metric that keeps forecasters honest. If you can't beat "repeat what happened last year," your model isn't adding value.
+The interpretation is intuitive
+
+- MASE below 1.0 → Your model beats the naive method (good)
+- MASE equal to 1.0 → Your model is no better than naive (bad — why bother?)
+- MASE above 1.0 → Your model is worse than naive (very bad — you'd be better off using the simplest possible approach)
+
+MASE was [proposed by Rob Hyndman](https://doi.org/10.1016/j.ijforecast.2006.03.001) in 2006 and has become the gold standard for comparing forecasts across different series. Because it's scaled relative to naive, a MASE of 0.7 means the same thing whether you're forecasting daily retail sales or yearly GDP.
 
 ### OWA — Overall Weighted Average
 
-The M4 Competition's headline metric. Combines sMAPE and MASE relative to a Naive2 baseline
+The M4 Competition needed a single number to rank all 49 submissions. OWA was designed for exactly this — it combines sMAPE and MASE into one headline metric, both measured relative to the **Naive2** baseline (explained in the next section)
 
 ```
 OWA = 0.5 × (your sMAPE / Naive2 sMAPE) + 0.5 × (your MASE / Naive2 MASE)
 ```
 
-OWA below 1.0 means you beat Naive2. The lower, the better. This single number captures both percentage accuracy and scaled accuracy in one comparable metric.
+**Why two metrics?** Because sMAPE measures *percentage accuracy* (are you close in relative terms?) while MASE measures *scaled accuracy* (are you better than naive?). A model could game one metric but not both. By combining them with equal weight, OWA gives a balanced picture.
+
+**Example.** Your model's sMAPE = 11.5%, Naive2's sMAPE = 13.0%. Your MASE = 0.85, Naive2's MASE = 1.0. OWA = 0.5 × (11.5/13.0) + 0.5 × (0.85/1.0) = 0.5 × 0.885 + 0.5 × 0.85 = **0.867**.
+
+OWA below 1.0 means you beat Naive2. The lower, the better. In the M4 Competition, the winning method (ES-RNN) achieved OWA 0.821, meaning it was about 18% better than Naive2 across all 100,000 series.
 
 ---
 
-## The Naive Baseline — Your Minimum Bar
+## The Naive Baselines — Your Minimum Bar
 
-Every benchmark revolves around a **baseline** — the simplest reasonable prediction. In forecasting, this is usually the **Naive method**
+Every benchmark revolves around a **baseline** — the simplest reasonable prediction. If your fancy model can't beat the baseline, it's not adding value. In forecasting, several naive methods serve as baselines, each capturing a different aspect of "doing the obvious thing."
 
-- **Naive1** — Repeat the last observed value. "Tomorrow will be like today."
-- **Naive2** — Repeat last year's value, adjusted for trend. "Next January will be like last January, plus growth."
-- **Seasonal Naive** — Repeat the value from the same season last year. "This December will be like last December."
+### Naive1 (Random Walk)
+
+The simplest possible forecast. Whatever the last value was, predict that it continues forever.
+
+```
+Forecast for any future period = last observed value
+```
+
+**Example.** Sales last month were 1,000 units. Naive1 predicts 1,000 for next month, the month after, and every month after that. No trend, no seasonality — just "things stay as they are."
+
+This sounds useless, but for highly volatile data like stock prices or exchange rates, Naive1 is surprisingly hard to beat. That's why the "random walk hypothesis" in finance says stock prices already contain all available information — the best prediction of tomorrow's price is today's price.
+
+### Seasonal Naive
+
+Repeat the value from the same season last year. This captures seasonality but ignores trend.
+
+```
+Forecast for month M = actual value from month M last year
+```
+
+**Example.** Sales in December 2024 were 3,000 units. Seasonal Naive predicts December 2025 will also be 3,000. January 2025 forecast = January 2024 actual. And so on.
+
+This is the baseline that MASE uses for its denominator. If your model can't beat "just repeat last year's pattern," it has no value.
+
+### Naive2 — The M4 Benchmark Baseline
+
+This is the critical one. **Naive2 is the official baseline of the M4 Competition**, and it's more sophisticated than it sounds.
+
+Naive2 works in two steps
+
+**Step 1 — Deseasonalize.** If the data has seasonality, Naive2 first removes it using classical seasonal decomposition. This separates the data into a trend+remainder component and a seasonal component.
+
+**Step 2 — Apply Naive1 to the deseasonalized data.** Predict the deseasonalized series using the last observed value (random walk), then add the seasonal pattern back.
+
+```
+Naive2 = Naive1 applied to deseasonalized data, then reseasonalized
+```
+
+**Why not just Seasonal Naive?** Because Naive2 adapts to the most recent level of the data. If your sales have been trending upward, Seasonal Naive would predict last year's (lower) values. Naive2 captures last year's seasonal *shape* but at this year's *level* — a surprisingly good prediction for many series.
+
+**For non-seasonal data** (no repeating pattern), Naive2 reduces to plain Naive1 — just repeat the last value.
+
+This is why OWA uses Naive2 as the denominator. It's a strong baseline that already handles both level changes and seasonality. Beating it requires your model to capture patterns that go beyond these two basic features — like complex trend dynamics, multiple seasonal cycles, or non-linear relationships.
+
+### Why Baselines Matter So Much
 
 These sound absurdly simple, and they are. But here's the uncomfortable truth — **a surprising number of sophisticated models can't consistently beat them.**
 
 The M4 Competition showed that across 100,000 series, the average submission barely outperformed Naive2. Many individual models, including some using deep learning, scored OWA above 1.0 — meaning they were **worse than doing nothing sophisticated at all.**
 
-This is why benchmarking against naive methods isn't optional — it's the **minimum bar for credibility.**
+Think about what that means. Teams spent weeks or months developing complex algorithms, training deep neural networks, tuning hundreds of hyperparameters — and the result was worse than a method you could implement in 10 lines of code.
+
+This is why benchmarking against naive methods isn't optional — it's the **minimum bar for credibility.** If someone tells you their model "achieves 95% accuracy" but doesn't mention what the naive baseline achieves, the number is meaningless. Maybe naive achieves 96%.
 
 ---
 
