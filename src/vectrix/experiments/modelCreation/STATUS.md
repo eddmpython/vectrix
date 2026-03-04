@@ -241,7 +241,7 @@
 - **결론**: 앙상블 자체가 DOT-only보다 나쁨 (DOT가 이미 최적화)
 
 ### E031-E040 종합 결론
-1. **DOT-Hybrid (0.885)는 순수 통계 모델의 실질적 한계**
+1. **DOT-Hybrid (0.877, holdout 적용 후)는 순수 통계 모델의 실질적 한계**
 2. **메타러닝 최고 = 0.873** (scikit-learn 필요, 현재 미반영)
 3. **앙상블은 DOT-only보다 나쁨** — DOT가 이미 충분히 최적화
 4. **M4 #1 (0.821) 달성에는 DL 하이브리드 필수**
@@ -299,8 +299,71 @@
 - **정직한 위치**: M4 공식 기준 약 14~15위 (Theta 0.897보다는 우수)
 - 주의: 11K 샘플 기준, 100K 전체에서는 Monthly(48K) 비중 증가로 약간 달라질 수 있음
 
+## 043~046: DOT Holdout Validation 실험 (2026-03-04)
+
+### 043 DOT Auto Period Detection + Holdout Validation
+
+| 변형 | Yearly | Quarterly | Monthly | Weekly | Daily | Hourly | **AVG** |
+|------|--------|-----------|---------|--------|-------|--------|---------|
+| baseline | 0.7971 | 0.9053 | 0.9200 | 0.9587 | 0.9949 | 0.7223 | **0.8831** |
+| auto_period | 0.8019 | 0.9053 | 0.9200 | 0.9952 | 1.0220 | 0.7223 | **0.8944** |
+| **holdout_val** | 0.8064 | **0.8940** | **0.8965** | **0.9457** | 0.9918 | 0.7223 | **0.8761** |
+| combined | 0.8084 | 0.8940 | 0.8965 | 0.9831 | 1.0187 | 0.7223 | **0.8872** |
+
+- **auto_period: 기각** — ACF가 노이즈에서 가짜 단주기(2,3) 감지, Daily +2.7%, Weekly +3.8% 악화
+- **holdout_val: 조건부 채택** — Quarterly -1.25%, Monthly -2.55% 개선, Yearly +1.2% 회귀(데이터 축소)
+- **combined: 기각** — auto_period가 holdout 이점을 상쇄
+
+### 044 Daily/Weekly Specialist
+
+- **Weekly classic_only: 채택** (-2.18%) — period=1에서 classic DOT가 Hybrid보다 우수
+- **Daily classic_only: 기각** (+0.98%)
+- **Core3 앙상블 Daily/Weekly: 기각** (+21%/+8%) — CES/4Theta가 period=1에서 해로움
+
+### 045 Integrated Improvement (holdout + Weekly classic)
+
+- **AVG 0.8831→0.8748 (-0.94%)** — 전반적 개선
+- **Yearly +1.16% 회귀** — holdout으로 인한 짧은 시리즈 데이터 축소 문제
+
+### 046 Final Integration (period별 분리)
+
+- **period<=1 classic + period>1 holdout: 기각** — Yearly +11.26% 치명적 회귀!
+- **핵심 발견**: Yearly(period=1)는 Hybrid 8-way가 trend 탐색에 유리, classic 적용 불가
+- **최종 규칙**: period>1에서만 holdout validation 적용 (Quarterly/Monthly만 개선)
+
+### E043-E046 종합 결론
+1. **holdout validation은 period>1 계절성 데이터에서만 유효** (Quarterly -1.25%, Monthly -2.55%)
+2. **ACF auto period detection은 해로움** — 노이즈에서 가짜 주기 감지
+3. **period=1 데이터는 건드리지 않는 것이 안전** — Yearly/Daily/Weekly 모두 기존 방식 유지
+4. **Core3 앙상블은 period=1에서 해로움** — CES/4Theta가 비계절성 데이터에서 약함
+
+### dot.py 반영 사항 (v0.0.12)
+- `_fitHybrid()`: `period > 1 and n >= period * 4`일 때만 holdout validation
+- `_predictVariantSteps()` 헬퍼 메서드 추가
+- holdout 후 전체 데이터로 refit
+- **DOT-Hybrid AVG OWA: 0.885 → 0.877** (period>1만 개선, 나머지 unchanged)
+- 테스트: 573 passed, 5 skipped
+
+## 완료된 단계
+- [x] 3개 모델 engine/ 모듈화 (fit/predict/residuals 인터페이스)
+- [x] types.py에 모델 정보 등록
+- [x] vectrix.py _selectNativeModels에 새 모델 반영
+- [x] 기존 테스트 573개 통과 확인
+- [x] 012 M4 100K 벤치마크 완료
+- [x] 013~015 세상에 없던 새 앙상블/예측 원리 3개 실험 (전부 기각)
+- [x] 016~018 DOT 강화 + SCUM 실험 완료
+- [x] DOT-Hybrid를 engine/dot.py에 통합 (period<24: DOT++, period>=24: classic)
+- [x] Rust dot_hybrid_objective 추가 (26번째 함수)
+- [x] 019 통합 엔진 M4 100K 검증 완료 (OWA 0.885)
+- [x] 031~040 FFORMA 메타러닝 + 모델 선택 최적화 10개 실험 완료
+- [x] auto_arima 기본 풀 제거 반영
+- [x] 041 조건부 앙상블 검증 → core3 우선 앙상블 엔진 반영 (AVG 0.885→0.879)
+- [x] 042 M4 공식 OWA 검증 → 벤치마크 방법론 문제 발견
+- [x] 043~046 DOT holdout validation 실험 → period>1 holdout 엔진 반영 (AVG 0.885→0.877)
+
 ## 다음 단계
 - [ ] DL 하이브리드 (NeuralForecast/TimesFM) 탐색 → M4 #1 (0.821) 도전
+- [ ] Daily OWA 0.996 개선 (period=1 비계절성 데이터 전략)
 - [ ] 4Theta seasonality 처리 개선 (Quarterly/Monthly/Weekly/Daily 약세)
 - [ ] DTSF 단기 시리즈 성능 개선 (n<100에서 약세)
 - [ ] ESN reservoir 크기 자동 조정 (긴 시리즈에서 느림)

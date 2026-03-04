@@ -61,7 +61,7 @@ Vectrix는 **M3 4개 카테고리 전부**에서 Naive2를 능가하며, M3 Mont
 | 항목 | 버전 / 사양 |
 |------|-------------|
 | Python | 3.10+ |
-| Vectrix | 0.0.10 |
+| Vectrix | 0.0.12 |
 | OS | Windows 11 / Ubuntu 22.04 / macOS 14+ |
 | CPU | x86_64 또는 ARM64 |
 | RAM | 8 GB 이상 |
@@ -72,6 +72,38 @@ Vectrix는 **M3 4개 카테고리 전부**에서 Naive2를 능가하며, M3 Mont
 pip install vectrix
 ```
 
-M4 벤치마크 실험 스크립트: `src/vectrix/experiments/modelCreation/019_dotHybridEngine.py`
+### 실험 코드
+
+모든 실험은 완전히 재현 가능한 Python 스크립트이며, 결과는 docstring에 기록되어 있습니다.
+
+| 실험 | 설명 | 소스 |
+|:-----|:-----|:-----|
+| E019 | DOT-Hybrid 엔진 M4 100K 검증 | [019_dotHybridEngine.py](https://github.com/eddmpython/vectrix/blob/master/src/vectrix/experiments/modelCreation/019_dotHybridEngine.py) |
+| E042 | M4 공식 OWA 검증 | [042_m4OfficialOwa.py](https://github.com/eddmpython/vectrix/blob/master/src/vectrix/experiments/modelCreation/042_m4OfficialOwa.py) |
+| E043 | Holdout validation + auto period detection | [043_dotAutoPeriodHoldout.py](https://github.com/eddmpython/vectrix/blob/master/src/vectrix/experiments/modelCreation/043_dotAutoPeriodHoldout.py) |
+| E044 | Daily/Weekly 전문화 전략 | [044_dailyWeeklySpecialist.py](https://github.com/eddmpython/vectrix/blob/master/src/vectrix/experiments/modelCreation/044_dailyWeeklySpecialist.py) |
+| E045 | 통합 개선 검증 | [045_integratedImprovement.py](https://github.com/eddmpython/vectrix/blob/master/src/vectrix/experiments/modelCreation/045_integratedImprovement.py) |
+| E046 | 최종 통합 규칙 검증 | [046_finalIntegration.py](https://github.com/eddmpython/vectrix/blob/master/src/vectrix/experiments/modelCreation/046_finalIntegration.py) |
+
+전체 실험 현황 및 연구 노트: [STATUS.md](https://github.com/eddmpython/vectrix/blob/master/src/vectrix/experiments/modelCreation/STATUS.md)
+
+### 테스트
+
+573개 테스트, 5개 skip — 모든 엔진, 모델, 파이프라인 컴포넌트 커버.
+
+```bash
+pip install vectrix
+pytest tests/ -x -q
+```
+
+| 테스트 모듈 | 개수 | 범위 |
+|:------------|:----:|:-----|
+| [test_all_models.py](https://github.com/eddmpython/vectrix/blob/master/tests/test_all_models.py) | 112 | 30+ 예측 모델 전체 |
+| [test_new_models.py](https://github.com/eddmpython/vectrix/blob/master/tests/test_new_models.py) | 45 | DTSF, ESN, 4Theta 엔진 |
+| [test_engine_utils.py](https://github.com/eddmpython/vectrix/blob/master/tests/test_engine_utils.py) | 55 | ARIMAX, CV, 분해 |
+| [test_easy.py](https://github.com/eddmpython/vectrix/blob/master/tests/test_easy.py) | 33 | Easy API (forecast, analyze, regress) |
+| [test_business.py](https://github.com/eddmpython/vectrix/blob/master/tests/test_business.py) | 45 | 이상치, 백테스트, 메트릭, 시나리오 |
+| [test_adaptive.py](https://github.com/eddmpython/vectrix/blob/master/tests/test_adaptive.py) | 20 | 레짐, DNA, 자가치유, 제약 |
+| [test_regression.py](https://github.com/eddmpython/vectrix/blob/master/tests/test_regression.py) | 22 | OLS, Ridge, Lasso, 진단 |
 
 M4 데이터 파일은 [M4 Competition 저장소](https://github.com/Mcompetitions/M4-methods)에서 다운로드할 수 있습니다.

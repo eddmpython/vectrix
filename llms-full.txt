@@ -2,7 +2,7 @@
 
 > Zero-config time series forecasting library for Python. 30+ statistical models with automatic selection, built-in Rust engine (25 accelerated functions), adaptive intelligence, full regression suite, and business analytics.
 
-- Version: 0.0.8
+- Version: 0.0.12
 - Python: >=3.10
 - Core deps: numpy>=1.24, pandas>=2.0, scipy>=1.10
 - Install: `pip install vectrix`
@@ -188,7 +188,7 @@ from vectrix.engine.baseline import NaiveModel, SeasonalNaiveModel, MeanModel, R
 | AutoETS | AutoETS | General purpose, trend+seasonal |
 | AutoARIMA | AutoARIMA | Stationary with complex autocorrelation |
 | Theta | OptimizedTheta | Simple trend extrapolation |
-| DOT | DynamicOptimizedTheta | General purpose (M4 OWA 0.905) |
+| DOT | DynamicOptimizedTheta | General purpose (M4 OWA 0.877) |
 | AutoCES | AutoCES | General purpose (M4 OWA 0.927) |
 | AutoMSTL | AutoMSTL | Multiple seasonality (daily, weekly, yearly) |
 | AutoTBATS | AutoTBATS | Complex multi-seasonal |
@@ -524,7 +524,7 @@ print(TURBO_AVAILABLE)  # True if Rust engine loaded (default for all pip instal
 ```
 
 ### Performance benchmarks (M4 Competition)
-- DOT: OWA 0.905 (general purpose best)
+- DOT: OWA 0.877 (general purpose best)
 - AutoCES: OWA 0.927
 - 4Theta Yearly: OWA 0.879 (= M4 official #11)
 - VX-Ensemble Hourly: OWA 0.696 (winner-level)

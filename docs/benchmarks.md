@@ -60,6 +60,38 @@ Vectrix consistently outperforms Naive2 across all M3 categories, with the stron
 pip install vectrix
 ```
 
-M4 benchmark experiment: `src/vectrix/experiments/modelCreation/019_dotHybridEngine.py`
+### Experiment Code
+
+All experiments are fully reproducible Python scripts with results recorded in docstrings.
+
+| Experiment | Description | Source |
+|:-----------|:------------|:-------|
+| E019 | DOT-Hybrid engine M4 100K verification | [019_dotHybridEngine.py](https://github.com/eddmpython/vectrix/blob/master/src/vectrix/experiments/modelCreation/019_dotHybridEngine.py) |
+| E042 | M4 official OWA verification | [042_m4OfficialOwa.py](https://github.com/eddmpython/vectrix/blob/master/src/vectrix/experiments/modelCreation/042_m4OfficialOwa.py) |
+| E043 | Holdout validation + auto period detection | [043_dotAutoPeriodHoldout.py](https://github.com/eddmpython/vectrix/blob/master/src/vectrix/experiments/modelCreation/043_dotAutoPeriodHoldout.py) |
+| E044 | Daily/Weekly specialist strategies | [044_dailyWeeklySpecialist.py](https://github.com/eddmpython/vectrix/blob/master/src/vectrix/experiments/modelCreation/044_dailyWeeklySpecialist.py) |
+| E045 | Integrated improvement verification | [045_integratedImprovement.py](https://github.com/eddmpython/vectrix/blob/master/src/vectrix/experiments/modelCreation/045_integratedImprovement.py) |
+| E046 | Final integration rule validation | [046_finalIntegration.py](https://github.com/eddmpython/vectrix/blob/master/src/vectrix/experiments/modelCreation/046_finalIntegration.py) |
+
+Full experiment status and research notes: [STATUS.md](https://github.com/eddmpython/vectrix/blob/master/src/vectrix/experiments/modelCreation/STATUS.md)
+
+### Test Suite
+
+573 tests, 5 skipped — covering all engines, models, and pipeline components.
+
+```bash
+pip install vectrix
+pytest tests/ -x -q
+```
+
+| Test Module | Count | Coverage |
+|:------------|:-----:|:---------|
+| [test_all_models.py](https://github.com/eddmpython/vectrix/blob/master/tests/test_all_models.py) | 112 | All 30+ forecasting models |
+| [test_new_models.py](https://github.com/eddmpython/vectrix/blob/master/tests/test_new_models.py) | 45 | DTSF, ESN, 4Theta engines |
+| [test_engine_utils.py](https://github.com/eddmpython/vectrix/blob/master/tests/test_engine_utils.py) | 55 | ARIMAX, CV, decomposition |
+| [test_easy.py](https://github.com/eddmpython/vectrix/blob/master/tests/test_easy.py) | 33 | Easy API (forecast, analyze, regress) |
+| [test_business.py](https://github.com/eddmpython/vectrix/blob/master/tests/test_business.py) | 45 | Anomaly, backtesting, metrics, scenarios |
+| [test_adaptive.py](https://github.com/eddmpython/vectrix/blob/master/tests/test_adaptive.py) | 20 | Regime, DNA, self-healing, constraints |
+| [test_regression.py](https://github.com/eddmpython/vectrix/blob/master/tests/test_regression.py) | 22 | OLS, Ridge, Lasso, diagnostics |
 
 > **Tip:** For faster M4 data loading, download the CSV files directly from the [M4 Competition repository](https://github.com/Mcompetitions/M4-methods) rather than using `M4.load()`, which can be slow due to wide-to-long data transformation.

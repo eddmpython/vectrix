@@ -69,7 +69,7 @@ class Vectrix:
     Dependencies: numpy, pandas, scipy (required), numba (optional)
     """
 
-    VERSION = "0.0.11"
+    VERSION = "0.0.12"
 
     NATIVE_MODELS = {
         'auto_ets': {

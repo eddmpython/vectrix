@@ -4,8 +4,8 @@
 
 	const rows = [
 		{ comp: 'M3', yearly: '0.848', quarterly: '0.825', monthly: '0.758', weekly: '—', daily: '—', hourly: '0.819' },
-		{ comp: 'M4', yearly: '0.974', quarterly: '0.797', monthly: '0.987', weekly: '0.737', daily: '1.207', hourly: '1.006' },
-		{ comp: 'M4 Ensemble', yearly: '0.879', quarterly: '0.797', monthly: '0.927', weekly: '0.737', daily: '1.105', hourly: '0.696' }
+		{ comp: 'M4 DOT-Hybrid', yearly: '0.797', quarterly: '0.894', monthly: '0.897', weekly: '0.959', daily: '0.996', hourly: '0.722' },
+		{ comp: 'M4 VX-Ensemble', yearly: '0.879', quarterly: '0.907', monthly: '0.919', weekly: '0.954', daily: '0.996', hourly: '0.696' }
 	];
 
 	function cellClass(val: string): string {
@@ -50,7 +50,7 @@
 		</div>
 
 		<p class="mt-3 text-xs text-vx-text-dim">
-			M4 Ensemble uses VX-Ensemble with DOT + AutoCES + 4Theta + DTSF + ESN. Hourly 0.696 OWA = competition winner level.
+			DOT-Hybrid: single model, AVG OWA 0.877. VX-Ensemble: DOT + AutoCES + 4Theta. Hourly 0.696 OWA = competition winner level.
 		</p>
 		<Button variant="secondary" size="sm" href="{base}/docs/benchmarks" class="mt-6">
 			View full benchmark results →

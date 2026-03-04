@@ -2,7 +2,7 @@
 
 > Zero-config time series forecasting library for Python. 30+ statistical models, automatic selection, built-in Rust engine. NumPy/SciPy/Pandas with adaptive intelligence, regression, and business analytics.
 
-- Version: 0.0.8
+- Version: 0.0.12
 - Python: 3.10+
 - Dependencies: numpy, pandas, scipy (core only)
 - Install: `pip install vectrix`
@@ -35,10 +35,26 @@ print(reg.summary())
 - [Installation](https://eddmpython.github.io/vectrix/docs/getting-started/installation/): Setup guide (Rust engine built-in)
 - [Quickstart](https://eddmpython.github.io/vectrix/docs/getting-started/quickstart/): 5-minute tutorial
 
+## Benchmarks
+
+M4 Competition 100,000 time series (DOT-Hybrid single model):
+
+| Frequency | OWA |
+|-----------|-----|
+| Yearly | 0.797 |
+| Quarterly | 0.894 |
+| Monthly | 0.897 |
+| Weekly | 0.959 |
+| Daily | 0.996 |
+| Hourly | 0.722 |
+| **AVG** | **0.877** |
+
+Beats M4 #18 Theta (0.897). Full results: [benchmarks](https://eddmpython.github.io/vectrix/docs/benchmarks/)
+
 ## API Reference
 
 - [Forecasting Guide](https://eddmpython.github.io/vectrix/docs/guide/forecasting/): Detailed forecasting workflows
-- [Model Catalog](https://eddmpython.github.io/vectrix/docs/guide/models/): All 30+ models with parameters
+- [Analysis & DNA](https://eddmpython.github.io/vectrix/docs/guide/analysis/): Time series profiling, 65+ features
 - [Regression Guide](https://eddmpython.github.io/vectrix/docs/guide/regression/): OLS, Ridge, Lasso, Huber, Quantile
 - [Adaptive Intelligence](https://eddmpython.github.io/vectrix/docs/guide/adaptive/): Regime detection, self-healing, DNA
 - [Business Analytics](https://eddmpython.github.io/vectrix/docs/guide/business/): Anomaly, scenarios, backtesting
