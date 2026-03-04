@@ -21,6 +21,43 @@
 	let canonicalUrl = $derived(`${SITE_URL}/blog/${data.slug}`);
 	let categoryInfo = $derived(post ? categories[post.category] : null);
 
+	interface TocItem { id: string; text: string; level: number; }
+	let tocItems: TocItem[] = $state([]);
+	let activeId = $state('');
+	let articleEl: HTMLElement | undefined = $state();
+	let tocCleanup: (() => void) | undefined;
+	let mounted = false;
+
+	function extractToc() {
+		if (!articleEl) return;
+		const headings = articleEl.querySelectorAll('h2, h3');
+		const items: TocItem[] = [];
+		headings.forEach((h) => {
+			if (!h.id) {
+				h.id = h.textContent?.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') ?? '';
+			}
+			items.push({ id: h.id, text: h.textContent?.trim() ?? '', level: h.tagName === 'H2' ? 2 : 3 });
+		});
+		tocItems = items;
+	}
+
+	function observeHeadings() {
+		if (!articleEl) return;
+		const headings = articleEl.querySelectorAll('h2, h3');
+		if (headings.length === 0) return;
+		const observer = new IntersectionObserver((entries) => {
+			for (const entry of entries) {
+				if (entry.isIntersecting) { activeId = entry.target.id; break; }
+			}
+		}, { rootMargin: '-80px 0px -70% 0px', threshold: 0 });
+		headings.forEach(h => observer.observe(h));
+		return () => observer.disconnect();
+	}
+
+	function scrollToHeading(id: string) {
+		document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+	}
+
 	function addCopyButtons() {
 		document.querySelectorAll('.blog-article pre').forEach((pre) => {
 			if (pre.querySelector('.copy-btn')) return;
@@ -45,8 +82,34 @@
 	}
 
 	onMount(() => {
-		addCopyButtons();
+		mounted = true;
+		return () => {
+			mounted = false;
+			tocCleanup?.();
+		};
+	});
 
+	$effect(() => {
+		if (!mounted) return;
+		Component;
+		data;
+		tick().then(() => {
+			if (!mounted) return;
+			addCopyButtons();
+			extractToc();
+			tocCleanup?.();
+			tocCleanup = observeHeadings();
+			if (tocItems.length === 0 && articleEl) {
+				setTimeout(() => {
+					extractToc();
+					tocCleanup?.();
+					tocCleanup = observeHeadings();
+				}, 200);
+			}
+		});
+	});
+
+	onMount(() => {
 		if (sentinel) {
 			const observer = new IntersectionObserver((entries) => {
 				if (entries[0].isIntersecting && hasMore) {
@@ -56,11 +119,6 @@
 			observer.observe(sentinel);
 			return () => observer.disconnect();
 		}
-	});
-
-	$effect(() => {
-		Component;
-		tick().then(addCopyButtons);
 	});
 </script>
 
@@ -116,33 +174,34 @@
 		<a href="{base}/blog">Back to Blog</a>
 	</div>
 {:else}
-	<div class="blog-post-page">
-		<a href="{base}/blog" class="blog-back">
-			<ArrowLeft size={14} />
-			All Posts
-		</a>
-
-		{#if post}
-			<div class="blog-post-meta">
-				<span class="blog-post-category" style="color: {categoryInfo?.color}">{categoryInfo?.label}</span>
-				<span class="blog-post-date">{post.date}</span>
-				<span class="blog-post-reading">
-					<Clock size={12} />
-					{post.readingTime}
-				</span>
-			</div>
-		{/if}
-
-		<article class="blog-article">
-			<Component />
-		</article>
-
-		<div class="blog-post-footer">
-			<a href="{base}/blog" class="blog-back-bottom">
+	<div class="blog-post-layout">
+		<div class="blog-post-page">
+			<a href="{base}/blog" class="blog-back">
 				<ArrowLeft size={14} />
-				Back to all posts
+				All Posts
 			</a>
-		</div>
+
+			{#if post}
+				<div class="blog-post-meta">
+					<span class="blog-post-category" style="color: {categoryInfo?.color}">{categoryInfo?.label}</span>
+					<span class="blog-post-date">{post.date}</span>
+					<span class="blog-post-reading">
+						<Clock size={12} />
+						{post.readingTime}
+					</span>
+				</div>
+			{/if}
+
+			<article class="blog-article" bind:this={articleEl}>
+				<Component />
+			</article>
+
+			<div class="blog-post-footer">
+				<a href="{base}/blog" class="blog-back-bottom">
+					<ArrowLeft size={14} />
+					Back to all posts
+				</a>
+			</div>
 
 		{#if otherPosts.length > 0}
 			<section class="more-posts">
@@ -172,6 +231,27 @@
 				{/if}
 			</section>
 		{/if}
+		</div>
+
+		{#if tocItems.length > 0}
+			<aside class="blog-toc">
+				<div class="blog-toc-inner">
+					<span class="blog-toc-heading">On this page</span>
+					<nav class="blog-toc-list">
+						{#each tocItems as item}
+							<button
+								class="blog-toc-item"
+								class:h3={item.level === 3}
+								class:active={activeId === item.id}
+								onclick={() => scrollToHeading(item.id)}
+							>
+								{item.text}
+							</button>
+						{/each}
+					</nav>
+				</div>
+			</aside>
+		{/if}
 	</div>
 {/if}
 
@@ -190,9 +270,16 @@
 	.not-found p { color: #94a3b8; margin: 1rem 0; }
 	.not-found a { color: #06b6d4; text-decoration: none; }
 
-	.blog-post-page {
-		max-width: 720px;
+	.blog-post-layout {
+		display: grid;
+		grid-template-columns: 1fr 200px;
+		gap: 2rem;
+		max-width: 960px;
 		margin: 0 auto;
+	}
+
+	.blog-post-page {
+		min-width: 0;
 	}
 
 	.blog-back {
@@ -247,8 +334,8 @@
 	.blog-article :global(h2) {
 		font-size: 1.5rem;
 		font-weight: 700;
-		margin-top: 2.5rem;
-		margin-bottom: 0.75rem;
+		margin-top: 3.5rem;
+		margin-bottom: 1rem;
 		padding-bottom: 0.5rem;
 		border-bottom: 1px solid rgba(148, 163, 184, 0.1);
 		color: #f8fafc;
@@ -257,8 +344,8 @@
 	.blog-article :global(h3) {
 		font-size: 1.2rem;
 		font-weight: 600;
-		margin-top: 2rem;
-		margin-bottom: 0.5rem;
+		margin-top: 2.5rem;
+		margin-bottom: 0.75rem;
 		color: #e2e8f0;
 	}
 
@@ -359,7 +446,10 @@
 
 	.blog-article :global(img) {
 		max-width: 100%;
+		width: 100%;
+		height: auto;
 		border-radius: 8px;
+		margin: 1.5rem 0;
 	}
 
 	:global(.copy-btn) {
@@ -505,6 +595,74 @@
 
 	@keyframes spin {
 		to { transform: rotate(360deg); }
+	}
+
+	/* Blog TOC */
+	.blog-toc {
+		position: sticky;
+		top: 72px;
+		height: fit-content;
+		max-height: calc(100vh - 90px);
+		overflow-y: auto;
+		scrollbar-width: thin;
+		scrollbar-color: rgba(148, 163, 184, 0.15) transparent;
+	}
+
+	.blog-toc-inner {
+		padding-top: 0.5rem;
+	}
+
+	.blog-toc-heading {
+		display: block;
+		font-size: 0.7rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.06em;
+		color: #475569;
+		margin-bottom: 0.6rem;
+	}
+
+	.blog-toc-list {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.blog-toc-item {
+		display: block;
+		width: 100%;
+		text-align: left;
+		padding: 0.2rem 0 0.2rem 0.6rem;
+		font-size: 0.75rem;
+		color: #64748b;
+		background: none;
+		border: none;
+		border-left: 2px solid transparent;
+		cursor: pointer;
+		transition: all 0.12s;
+		line-height: 1.4;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.blog-toc-item:hover { color: #cbd5e1; }
+
+	.blog-toc-item.active {
+		color: #06b6d4;
+		border-left-color: #06b6d4;
+	}
+
+	.blog-toc-item.h3 {
+		padding-left: 1.1rem;
+		font-size: 0.72rem;
+	}
+
+	@media (max-width: 1100px) {
+		.blog-post-layout {
+			grid-template-columns: 1fr;
+			max-width: 720px;
+		}
+		.blog-toc { display: none; }
 	}
 
 	@media (max-width: 480px) {

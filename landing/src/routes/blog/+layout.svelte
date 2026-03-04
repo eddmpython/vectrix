@@ -159,7 +159,7 @@
 
 	.vx-blog-main {
 		flex: 1;
-		max-width: 860px;
+		max-width: 1000px;
 		width: 100%;
 		margin: 0 auto;
 		padding: 2rem 1.5rem 4rem;

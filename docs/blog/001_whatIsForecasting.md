@@ -4,11 +4,15 @@ title: "What Is Forecasting?"
 
 # What Is Forecasting?
 
+![Forecasting — using historical data to predict the future](/vectrix/blog/forecasting-hero.svg)
+
 Every decision you make is a forecast. When you grab an umbrella before leaving home, you're forecasting rain. When a company orders extra inventory before the holidays, it's forecasting demand. When a government adjusts interest rates, it's forecasting inflation.
 
 **Forecasting is the art and science of making informed predictions about the future using available information.**
 
 That's it. No complex formulas needed to understand the concept. But beneath this simple definition lies a discipline that powers trillion-dollar decisions every day.
+
+---
 
 ## Why Forecasting Matters
 
@@ -25,9 +29,13 @@ Forecasting isn't an academic exercise. It's the invisible engine behind modern 
 
 Bohr was right — but we don't need perfect predictions. We need predictions that are **good enough** to make better decisions than guessing.
 
+---
+
 ## The Two Camps: Qualitative vs. Quantitative
 
 Broadly, forecasting approaches fall into two camps.
+
+![Qualitative vs. Quantitative forecasting approaches](/vectrix/blog/qualitative-vs-quantitative.svg)
 
 ### Qualitative Forecasting
 
@@ -52,6 +60,8 @@ This uses mathematical models applied to historical data. This is where tools li
 Quantitative methods shine when **historical data exists and the future somewhat resembles the past**.
 
 In practice, the best forecasters combine both. Numbers inform judgment; judgment corrects numbers.
+
+---
 
 ## The Three Patterns Every Forecaster Must Know
 
@@ -89,9 +99,13 @@ The goal of forecasting is to capture the **signal** (trend + seasonality) and a
 
 That's the fundamental equation. Every forecasting model, from the simplest to the most complex, is trying to separate signal from noise.
 
+---
+
 ## How Forecasting Actually Works (The 10,000-Foot View)
 
 Here's the process, stripped to its essence:
+
+![The 6-step forecasting process](/vectrix/blog/forecasting-process.svg)
 
 **Step 1: Collect historical data.**
 You need past observations. Monthly sales for the last 3 years. Daily temperatures for the last decade. Hourly website traffic for the last quarter. More data usually means better forecasts — but not always.
@@ -114,18 +128,20 @@ Every forecast is uncertain. Good forecasters don't just give a number — they 
 **Step 7: Evaluate and iterate.**
 Compare your forecasts against what actually happened. Learn from errors. Adjust. Repeat.
 
+---
+
 ## The Honest Truth About Forecasting
 
 Let's be upfront about what forecasting can and cannot do.
 
-**Forecasting CAN:**
+**Forecasting CAN**
 - Identify likely ranges for future values
 - Detect and extrapolate existing patterns
 - Quantify the uncertainty in predictions
 - Provide a disciplined framework for decision-making
 - Improve consistently with better data and methods
 
-**Forecasting CANNOT:**
+**Forecasting CANNOT**
 - Predict black swan events (pandemics, wars, market crashes)
 - Guarantee accuracy — all forecasts are wrong, some are useful
 - Replace domain expertise and human judgment
@@ -137,6 +153,8 @@ The legendary statistician George Box said it best:
 > "All models are wrong, but some are useful."
 
 The goal isn't perfection. The goal is to be **less wrong** than the alternative — which is often gut feeling, wishful thinking, or no plan at all.
+
+---
 
 ## What's Next?
 
