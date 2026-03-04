@@ -17,13 +17,21 @@ export const categories = {
 
 export const blogPosts: BlogPost[] = [
 	{
+		slug: 'how-we-know-forecasts-work',
+		title: 'How Do We Know If a Forecast Is Any Good?',
+		description: 'Benchmarks, metrics, and the M Competitions — the scientific method behind measuring forecast accuracy. From MAE to OWA, learn what separates real accuracy from marketing.',
+		category: 'benchmarks',
+		date: '2026-03-04',
+		readingTime: '12 min',
+		featured: true
+	},
+	{
 		slug: 'what-is-forecasting',
 		title: 'What Is Forecasting?',
 		description: 'The one concept behind every business decision. Learn what forecasting really means, why it matters, and how it works — no math required.',
 		category: 'fundamentals',
 		date: '2026-03-04',
-		readingTime: '8 min',
-		featured: true
+		readingTime: '8 min'
 	}
 ];
 

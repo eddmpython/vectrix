@@ -31,6 +31,7 @@ export const pageDescriptions: Record<string, string> = {
 	'/docs/tutorials/business': 'Tutorial: business intelligence with anomaly detection, scenario analysis, and backtesting.',
 	'/blog': 'Learn forecasting from zero. Concepts, tutorials, benchmarks, and best practices for prediction with Python.',
 	'/blog/what-is-forecasting': 'What is forecasting? The one concept behind every business decision. Learn what it means, why it matters, and how it works.',
+	'/blog/how-we-know-forecasts-work': 'How do we know if a forecast is any good? Benchmarks, metrics, and the M Competitions explained. MAE, MAPE, MASE, OWA — and why they matter.',
 	'/docs/benchmarks': 'M3 & M4 Competition benchmark results. Vectrix OWA scores vs Naive2 baseline across all frequencies.',
 	'/docs/changelog': 'Vectrix changelog — version history, new features, bug fixes, and breaking changes.'
 };

@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 320" width="800" height="320" fill="none">
+  <defs>
+    <linearGradient id="bhbg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="bhcyan" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#22d3ee"/>
+    </linearGradient>
+    <linearGradient id="bhgreen" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+    <linearGradient id="bhamber" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#fbbf24"/>
+    </linearGradient>
+    <linearGradient id="bhred" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ef4444"/>
+      <stop offset="100%" stop-color="#f87171"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="320" rx="12" fill="url(#bhbg)"/>
+  <rect x="0.5" y="0.5" width="799" height="319" rx="12" stroke="#334155" stroke-width="1" fill="none"/>
+
+  <!-- Title -->
+  <text x="400" y="36" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600" fill="#64748b" letter-spacing="0.05em">BENCHMARK LEADERBOARD</text>
+
+  <!-- Column headers -->
+  <text x="90" y="64" font-family="Inter, system-ui, sans-serif" font-size="9" font-weight="600" fill="#475569">METHOD</text>
+  <text x="340" y="64" font-family="Inter, system-ui, sans-serif" font-size="9" font-weight="600" fill="#475569">OWA SCORE</text>
+  <text x="680" y="64" font-family="Inter, system-ui, sans-serif" font-size="9" font-weight="600" fill="#475569">RANK</text>
+  <line x1="60" y1="72" x2="740" y2="72" stroke="#1e293b" stroke-width="1"/>
+
+  <!-- Row 1 — Gold -->
+  <rect x="60" y="80" width="680" height="36" rx="6" fill="rgba(245,158,11,0.06)"/>
+  <circle cx="78" cy="98" r="8" fill="rgba(245,158,11,0.15)"/>
+  <text x="78" y="102" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9" font-weight="700" fill="#f59e0b">1</text>
+  <text x="96" y="102" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="600" fill="#fbbf24">ES-RNN (Hybrid)</text>
+  <rect x="340" y="89" width="220" height="18" rx="9" fill="rgba(245,158,11,0.08)"/>
+  <rect x="340" y="89" width="220" height="18" rx="9" fill="url(#bhamber)" opacity="0.25"/>
+  <text x="450" y="102" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#fbbf24">0.821</text>
+
+  <!-- Row 2 — Silver -->
+  <rect x="60" y="122" width="680" height="36" rx="6" fill="rgba(148,163,184,0.04)"/>
+  <circle cx="78" cy="140" r="8" fill="rgba(148,163,184,0.12)"/>
+  <text x="78" y="144" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9" font-weight="700" fill="#94a3b8">2</text>
+  <text x="96" y="144" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="600" fill="#cbd5e1">FFORMA (Meta-learning)</text>
+  <rect x="340" y="131" width="204" height="18" rx="9" fill="rgba(148,163,184,0.06)"/>
+  <rect x="340" y="131" width="204" height="18" rx="9" fill="rgba(148,163,184,0.12)"/>
+  <text x="442" y="144" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#cbd5e1">0.838</text>
+
+  <!-- Row 3 — Bronze -->
+  <rect x="60" y="164" width="680" height="36" rx="6" fill="rgba(148,163,184,0.03)"/>
+  <circle cx="78" cy="182" r="8" fill="rgba(180,130,80,0.15)"/>
+  <text x="78" y="186" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9" font-weight="700" fill="#c4956a">3</text>
+  <text x="96" y="186" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="600" fill="#94a3b8">Theta (Statistical)</text>
+  <rect x="340" y="173" width="192" height="18" rx="9" fill="rgba(148,163,184,0.05)"/>
+  <rect x="340" y="173" width="192" height="18" rx="9" fill="rgba(148,163,184,0.08)"/>
+  <text x="436" y="186" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#94a3b8">0.854</text>
+
+  <!-- Row highlight — Vectrix -->
+  <rect x="60" y="210" width="680" height="40" rx="6" fill="rgba(6,182,212,0.08)" stroke="rgba(6,182,212,0.3)" stroke-width="1"/>
+  <circle cx="78" cy="230" r="8" fill="rgba(6,182,212,0.2)"/>
+  <text x="78" y="234" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="7" font-weight="700" fill="#06b6d4">&#9654;</text>
+  <text x="96" y="234" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="700" fill="#22d3ee">Vectrix DOT-Hybrid</text>
+  <rect x="340" y="221" width="208" height="18" rx="9" fill="rgba(6,182,212,0.1)"/>
+  <rect x="340" y="221" width="208" height="18" rx="9" fill="url(#bhcyan)" opacity="0.2"/>
+  <text x="444" y="234" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#22d3ee">0.885</text>
+
+  <!-- Row 5 — Original Theta -->
+  <rect x="60" y="258" width="680" height="36" rx="6" fill="rgba(148,163,184,0.02)"/>
+  <circle cx="78" cy="276" r="8" fill="rgba(148,163,184,0.08)"/>
+  <text x="78" y="280" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="8" font-weight="600" fill="#475569">18</text>
+  <text x="96" y="280" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="500" fill="#64748b">Original Theta</text>
+  <rect x="340" y="267" width="180" height="18" rx="9" fill="rgba(148,163,184,0.04)"/>
+  <text x="430" y="280" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" font-weight="500" fill="#64748b">0.897</text>
+
+  <!-- Baseline marker -->
+  <line x1="618" y1="80" x2="618" y2="296" stroke="#ef4444" stroke-width="1" stroke-dasharray="4,3" opacity="0.4"/>
+  <text x="618" y="306" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="8" fill="#ef4444" opacity="0.6">Naive2 (OWA = 1.0)</text>
+</svg>

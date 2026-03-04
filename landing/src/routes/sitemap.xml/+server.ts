@@ -31,6 +31,7 @@ const pages = [
 	'/docs/tutorials/business',
 	'/blog',
 	'/blog/what-is-forecasting',
+	'/blog/how-we-know-forecasts-work',
 	'/docs/benchmarks',
 	'/docs/changelog'
 ];
