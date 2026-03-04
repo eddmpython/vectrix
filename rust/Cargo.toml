@@ -1,6 +1,6 @@
 [package]
 name = "vectrix-core"
-version = "0.2.0"
+version = "0.0.14"
 edition = "2021"
 
 [lib]

@@ -105,7 +105,7 @@ Bottom-up, top-down, and MinTrace reconciliation for hierarchical time series.
 
 ### Built-in Rust Engine
 
-Every `pip install vectrix` includes a pre-built Rust extension — like Polars, no compiler needed. 25 core hot loops are Rust-accelerated across all forecasting engines.
+Every `pip install vectrix` includes a pre-built Rust extension — like Polars, no compiler needed. 26 core hot loops are Rust-accelerated across all forecasting engines.
 
 | Component | Python Only | With Rust | Speedup |
 |:----------|:-----------|:----------|:--------|
@@ -451,7 +451,7 @@ vectrix/
 ├── global_model/          Cross-series forecasting
 └── datasets.py            7 built-in sample datasets
 
-rust/                         Built-in Rust engine (25 accelerated functions)
+rust/                         Built-in Rust engine (26 accelerated functions)
 └── src/lib.rs             ETS, ARIMA, DOT, CES, GARCH, DTSF, ESN, 4Theta (PyO3)
 ```
 

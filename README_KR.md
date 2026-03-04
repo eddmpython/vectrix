@@ -448,7 +448,7 @@ vectrix/
 ├── global_model/          크로스시리즈 예측
 └── datasets.py            7개 내장 샘플 데이터셋
 
-rust/                         내장 Rust 엔진 (25개 가속 함수)
+rust/                         내장 Rust 엔진 (26개 가속 함수)
 └── src/lib.rs             ETS, ARIMA, Theta, DOT, CES, GARCH 등 (PyO3)
 ```
 

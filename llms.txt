@@ -2,7 +2,7 @@
 
 > Zero-config time series forecasting library for Python. 30+ statistical models, automatic selection, built-in Rust engine. NumPy/SciPy/Pandas with adaptive intelligence, regression, and business analytics.
 
-- Version: 0.0.12
+- Version: 0.0.14
 - Python: 3.10+
 - Dependencies: numpy, pandas, scipy (core only)
 - Install: `pip install vectrix`

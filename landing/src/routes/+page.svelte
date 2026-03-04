@@ -41,7 +41,7 @@
 		"description": "Zero-config time series forecasting for Python. 30+ models, one line of code, built-in Rust engine.",
 		"url": "https://eddmpython.github.io/vectrix/",
 		"downloadUrl": "https://pypi.org/project/vectrix/",
-		"softwareVersion": "0.0.8",
+		"softwareVersion": "0.0.14",
 		"author": { "@type": "Person", "name": "eddmpython", "url": "https://github.com/eddmpython" },
 		"offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
 		"license": "https://opensource.org/licenses/MIT",

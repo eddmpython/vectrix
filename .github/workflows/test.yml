@@ -31,6 +31,9 @@ jobs:
         env:
           MATURIN_PEP517_ARGS: "--skip-auditwheel"
 
+      - name: Check constants sync
+        run: python scripts/syncConstants.py --check
+
       - name: Lint with ruff
         run: ruff check src/vectrix
 

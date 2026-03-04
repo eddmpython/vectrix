@@ -1,8 +1,8 @@
 # Vectrix — Complete API Reference for LLMs
 
-> Zero-config time series forecasting library for Python. 30+ statistical models with automatic selection, built-in Rust engine (25 accelerated functions), adaptive intelligence, full regression suite, and business analytics.
+> Zero-config time series forecasting library for Python. 30+ statistical models with automatic selection, built-in Rust engine (26 accelerated functions), adaptive intelligence, full regression suite, and business analytics.
 
-- Version: 0.0.12
+- Version: 0.0.14
 - Python: >=3.10
 - Core deps: numpy>=1.24, pandas>=2.0, scipy>=1.10
 - Install: `pip install vectrix`
@@ -509,7 +509,7 @@ from vectrix.adaptive.regime import RegimeDetector
 ```python
 from vectrix import TURBO_AVAILABLE
 print(TURBO_AVAILABLE)  # True if Rust engine loaded (default for all pip installs)
-# 25 accelerated functions across all engines:
+# 26 accelerated functions across all engines:
 # ETS: ets_filter, ets_loglik, batch_ets_filter
 # ARIMA: arima_css, css_objective, seasonal_css_objective
 # Theta/DOT: theta_decompose, dot_objective, dot_residuals, ses_sse, ses_filter

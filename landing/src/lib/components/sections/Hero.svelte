@@ -15,7 +15,7 @@
 	<div class="relative z-10 max-w-4xl mx-auto">
 		<Badge class="mb-6">
 			<Zap class="w-3.5 h-3.5" />
-			v0.0.8 — Built-in Rust Engine
+			v0.0.14 — Built-in Rust Engine
 		</Badge>
 
 		<h1 class="text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.1] mb-4">

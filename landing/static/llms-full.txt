@@ -4,7 +4,7 @@
 
 Vectrix is a Python library for time series forecasting. It evaluates 30+ statistical models (ETS, ARIMA, Theta, CES, DOT, MSTL, TBATS, GARCH, and more), validates each on a holdout set, and returns the best one with 95% confidence intervals — in a single function call.
 
-- Version: 0.0.8
+- Version: 0.0.14
 - License: MIT
 - Python: 3.10+
 - Dependencies: NumPy, pandas, SciPy (only 3)
@@ -40,7 +40,7 @@ print(result.rmse)         # Validation RMSE
 - **30+ models**: Exponential smoothing, ARIMA, Theta, decomposition, intermittent demand, volatility, neural reservoir, pattern matching.
 - **Adaptive intelligence**: Regime detection, self-healing forecasts, constraint enforcement, DNA-based meta-learning.
 - **Business intelligence**: Anomaly detection, what-if scenarios, backtesting, business-specific accuracy metrics.
-- **Built-in Rust engine**: 25 core hot loops Rust-accelerated (5-67x). Compiled into every wheel — like Polars.
+- **Built-in Rust engine**: 26 core hot loops Rust-accelerated (5-67x). Compiled into every wheel — like Polars.
 - **Lightweight**: Only 3 dependencies (NumPy, pandas, SciPy).
 
 ## Model Catalog (30+ models)
@@ -306,7 +306,7 @@ result = tsr.fit(df, formula="y ~ x1 + x2", dateCol="date")
 
 ## Built-in Rust Engine
 
-25 accelerated functions compiled into every wheel (5-67x speedup):
+26 accelerated functions compiled into every wheel (5-67x speedup):
 - ets_filter, ets_loglik, batch_ets_filter — ETS core loops
 - arima_css, css_objective, seasonal_css_objective — ARIMA optimization
 - theta_decompose — Theta decomposition

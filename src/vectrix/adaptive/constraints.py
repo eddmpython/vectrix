@@ -431,9 +431,9 @@ class ConstraintAwareForecaster:
                 l[windowSlice] = fillVal * 0.8
                 h[windowSlice] = fillVal * 1.2
 
-        # lo <= hi consistency
-        l, h = np.minimum(l, h), np.maximum(l, h)
-        return p, l, h
+        lower = np.minimum(l, h)
+        upper = np.maximum(l, h)
+        return p, lower, upper
 
     def _applyYoYChange(
         self,

@@ -8,7 +8,7 @@
 		{ icon: Shield, color: 'text-vx-success bg-vx-success/10', title: 'Flat Defense System', desc: 'Unique 4-level system prevents constant predictions — the most common forecasting failure mode in production.' },
 		{ icon: Wrench, color: 'text-vx-warning bg-vx-warning/10', title: 'Forecast DNA', desc: '65+ feature fingerprinting. Know your data\'s difficulty, optimal model, seasonality, and similarity to other series.' },
 		{ icon: BookOpen, color: 'text-vx-primary bg-vx-primary/10', title: 'Adaptive Intelligence', desc: 'Regime detection (HMM), self-healing forecasts (CUSUM + EWMA), and 8 business constraint types.' },
-		{ icon: Briefcase, color: 'text-vx-accent bg-vx-accent/10', title: 'Built-in Rust Engine', desc: 'Pre-compiled Rust engine included in every wheel — like Polars. 25 accelerated hot loops, up to 67x faster.' },
+		{ icon: Briefcase, color: 'text-vx-accent bg-vx-accent/10', title: 'Built-in Rust Engine', desc: 'Pre-compiled Rust engine included in every wheel — like Polars. 26 accelerated hot loops, up to 67x faster.' },
 		{ icon: CheckCircle, color: 'text-vx-success bg-vx-success/10', title: 'Probabilistic Forecasting', desc: 'Parametric distributions (Gaussian, Student-t, Log-Normal), quantile forecasts, conformal prediction intervals, CRPS.' },
 		{ icon: BarChart3, color: 'text-vx-warning bg-vx-warning/10', title: 'R-Style Regression', desc: 'Formula interface: regress(df, "sales ~ ads + price"). OLS, Ridge, Lasso, Huber, Quantile with full diagnostics.' },
 		{ icon: Activity, color: 'text-vx-primary bg-vx-primary/10', title: 'Business Intelligence', desc: 'Anomaly detection, what-if scenarios, backtesting framework, and production metrics (WAPE, MASE, bias).' }
