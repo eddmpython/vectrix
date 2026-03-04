@@ -76,6 +76,9 @@ landing/.svelte-kit/
 landing/build/
 landing/static/_backup/
 
+# Claude Code
+CLAUDE.md
+
 # Marimo skills (auto-generated, not vectrix skills)
 .agent/
 .agents/

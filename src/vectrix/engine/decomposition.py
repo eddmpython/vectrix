@@ -363,19 +363,42 @@ class MSTLDecomposition:
             'observed': y
         }
 
-    def predict(self, y: np.ndarray, steps: int) -> np.ndarray:
+    def fit(self, y: np.ndarray) -> 'MSTLDecomposition':
+        """Store data for standard fit/predict interface."""
+        self._y = np.asarray(y, dtype=np.float64).copy()
+        self._fitted = True
+        return self
+
+    def predict(self, yOrSteps=None, steps: int = None):
         """
-        Forecast based on multiple seasonal decomposition
+        Forecast based on multiple seasonal decomposition.
+
+        Two call signatures:
+        - predict(steps)       — standard interface (after fit), returns 3-tuple
+        - predict(y, steps)    — legacy interface (stateless), returns ndarray
         """
+        legacy = False
+        if isinstance(yOrSteps, (int, np.integer)) and steps is None:
+            if not getattr(self, '_fitted', False):
+                raise ValueError("Model not fitted.")
+            y = self._y
+            nSteps = int(yOrSteps)
+        elif yOrSteps is not None and steps is not None:
+            y = np.asarray(yOrSteps, dtype=np.float64)
+            nSteps = int(steps)
+            legacy = True
+        else:
+            raise ValueError("Usage: predict(steps) after fit(), or predict(y, steps)")
+
         decomposition = self.decompose(y)
         n = len(y)
 
         x = np.arange(n, dtype=np.float64)
         slope, intercept = TurboCore.linearRegression(x, decomposition['trend'])
 
-        predictions = np.zeros(steps)
+        predictions = np.zeros(nSteps)
 
-        for h in range(steps):
+        for h in range(nSteps):
             t = n + h
 
             pred = intercept + slope * t
@@ -390,4 +413,10 @@ class MSTLDecomposition:
 
             predictions[h] = pred
 
-        return predictions
+        if legacy:
+            return predictions
+
+        sigma = np.std(y[-min(30, n):])
+        margin = 1.96 * sigma * np.sqrt(np.arange(1, nSteps + 1))
+
+        return predictions, predictions - margin, predictions + margin

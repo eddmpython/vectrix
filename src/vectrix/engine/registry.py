@@ -29,7 +29,7 @@ class ModelSpec:
 def _buildRegistry() -> Dict[str, ModelSpec]:
     """Build the model registry with lazy imports to avoid circular dependencies."""
     from .arima import AutoARIMA
-    from .baselines import MeanModel, NaiveModel, RandomWalkDrift, WindowAverage
+    from .baselines import MeanModel, NaiveModel, RandomWalkDrift, SeasonalNaiveModel, WindowAverage
     from .ces import AutoCES
     from .croston import AutoCroston
     from .decomposition import MSTLDecomposition
@@ -103,12 +103,11 @@ def _buildRegistry() -> Dict[str, ModelSpec]:
             modelId='seasonal_naive',
             name='Seasonal Naive (Native)',
             description='Seasonal naive baseline.',
-            factory=None,
+            factory=lambda period: SeasonalNaiveModel(period=period),
             needsPeriod=True,
             minData=14,
             flatResistance=0.95,
             bestFor=('strong seasonality', 'high flat risk'),
-            refitStrategy='seasonal_naive',
         ),
         ModelSpec(
             modelId='mstl',

@@ -355,17 +355,6 @@ class Vectrix:
         period: int
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, Any]:
         """Fit and predict using the model registry."""
-        if modelId == 'seasonal_naive':
-            pred, lo, hi = self._seasonalNaive(trainData, steps, period)
-            return pred, lo, hi, None
-
-        if modelId == 'mstl':
-            model = createModel(modelId, period)
-            predictions = model.predict(trainData, steps)
-            sigma = np.std(trainData[-30:])
-            margin = 1.96 * sigma * np.sqrt(np.arange(1, steps + 1))
-            return predictions, predictions - margin, predictions + margin, model
-
         model = createModel(modelId, period)
         if model is None:
             pred, lo, hi = self._seasonalNaive(trainData, steps, period)
