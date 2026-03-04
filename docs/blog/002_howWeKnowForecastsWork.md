@@ -129,7 +129,7 @@ It's easy to build a model, test it on your own data, and convince yourself it w
 
 ### 2. They guide tool selection
 
-When choosing a forecasting library, you want evidence. "Our library uses advanced algorithms" is marketing. "Our library achieves OWA 0.885 on the M4 Competition dataset" is a measurable claim you can verify.
+When choosing a forecasting library, you want evidence. "Our library uses advanced algorithms" is marketing. "Our library achieves OWA 0.877 on the M4 Competition dataset" is a measurable claim you can verify.
 
 ### 3. They reveal method strengths and weaknesses
 
@@ -308,12 +308,12 @@ Transparency matters. Here's how Vectrix performs on the M4 benchmark, using 2,0
 | Frequency | Vectrix OWA | Context |
 |-----------|:-----------:|---------|
 | Yearly | **0.797** | Near M4 winner level |
-| Quarterly | **0.905** | Competitive with top methods |
-| Monthly | **0.933** | Solid mid-table |
+| Quarterly | **0.894** | Competitive with top methods |
+| Monthly | **0.897** | Competitive with top methods |
 | Weekly | **0.959** | Beats Naive2 |
 | Daily | **0.996** | Near parity with Naive2 |
 | Hourly | **0.722** | World-class |
-| **Average** | **0.885** | **Outperforms M4 #18 Theta (0.897)** |
+| **Average** | **0.877** | **Outperforms M4 #18 Theta (0.897)** |
 
 These numbers aren't cherry-picked or inflated. They represent honest performance — strong in some frequencies, room for improvement in others. We publish our benchmark code so you can [reproduce every number](https://eddmpython.github.io/vectrix/docs/benchmarks/).
 

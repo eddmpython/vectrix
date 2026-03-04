@@ -343,13 +343,13 @@ result = caf.apply(predictions, lower95, upper95, constraints=[
 
 **M4 Competition 100,000 시계열** 벤치마크 (빈도별 2,000 샘플, seed=42). OWA < 1.0이면 Naive2보다 우수.
 
-**DOT-Hybrid** (단일 모델, OWA 0.885 — M4 #18 Theta 0.897 초과):
+**DOT-Hybrid** (단일 모델, OWA 0.877 — M4 #18 Theta 0.897 초과):
 
 | 빈도 | OWA | vs Naive2 |
 |:-----|:---:|:---------:|
 | Yearly | **0.797** | -20.3% |
-| Quarterly | **0.905** | -9.5% |
-| Monthly | **0.933** | -6.7% |
+| Quarterly | **0.894** | -10.6% |
+| Monthly | **0.897** | -10.3% |
 | Weekly | **0.959** | -4.1% |
 | Daily | **0.996** | -0.4% |
 | Hourly | **0.722** | -27.8% |
@@ -361,7 +361,7 @@ result = caf.apply(predictions, lower95, upper95, constraints=[
 | #1 | ES-RNN (Smyl) | 0.821 |
 | #2 | FFORMA | 0.838 |
 | #11 | 4Theta | 0.874 |
-| — | **Vectrix DOT-Hybrid** | **0.885** |
+| — | **Vectrix DOT-Hybrid** | **0.877** |
 | #18 | Theta | 0.897 |
 
 sMAPE/MASE 상세 결과: [벤치마크 상세](https://eddmpython.github.io/vectrix/docs/benchmarks/)
@@ -520,7 +520,7 @@ Level 2의 모든 파라미터에는 Level 1 동작을 재현하는 합리적인
 
 | 우선순위 | 영역 | 현재 | 목표 | 상태 |
 |:---------|:-----|:-----|:-----|:-----|
-| **P0** | M4 정확도 | OWA 0.885 | OWA < 0.850 | 진행 중 |
+| **P0** | M4 정확도 | OWA 0.877 | OWA < 0.850 | 진행 중 |
 | **P1** | Easy API Progressive Disclosure | Level 1만 | Level 1-3 | 진행 중 |
 | **P2** | 파이프라인 속도 | 48ms forecast() | < 10ms | 계획 |
 | **P3** | Foundation Model 깊이 | 기본 래퍼 | 완전 통합 | 계획 |

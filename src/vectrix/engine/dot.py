@@ -9,8 +9,9 @@ DOT-Hybrid mode (E018): For period<=12, applies 8-way auto-select
 (2 trend types x 2 model types x 2 season types) for improved
 accuracy on low-frequency data. For period>=24, uses original
 3-parameter optimization which excels on high-frequency data.
+For period>1, uses holdout validation for config selection (E043).
 
-M4 Competition benchmark: OWA 0.885 (DOT-Hybrid) vs 0.905 (original).
+M4 Competition benchmark: OWA 0.877 (DOT-Hybrid) vs 0.905 (original).
 """
 
 from typing import Tuple
@@ -274,16 +275,27 @@ class DynamicOptimizedTheta:
         else:
             base = 1.0
 
+        useHoldout = self.period > 1 and n >= self.period * 4
+        if useHoldout:
+            holdoutSize = max(1, min(n // 5, self.period * 2))
+            holdoutSize = min(holdoutSize, n // 3)
+            trainPart = scaled[:n - holdoutSize]
+            valPart = scaled[n - holdoutSize:]
+            nTrain = len(trainPart)
+        else:
+            trainPart = scaled
+
         bestMae = np.inf
         bestConfig = None
-        bestModel = None
+
+        fitData = trainPart if useHoldout else scaled
 
         for seasonType in seasonTypes:
             if seasonType != 'none':
-                seasonal, deseasonalized = self._deseasonalizeAdvanced(scaled, self.period, seasonType)
+                seasonal, deseasonalized = self._deseasonalizeAdvanced(fitData, self.period, seasonType)
             else:
                 seasonal = None
-                deseasonalized = scaled
+                deseasonalized = fitData
 
             for trendType in ['linear', 'exponential']:
                 thetaLine0 = self._fitTrendLine(deseasonalized, trendType)
@@ -300,20 +312,44 @@ class DynamicOptimizedTheta:
                     if result is None:
                         continue
 
-                    fittedVals = result['fittedValues']
-                    if seasonal is not None:
-                        fittedVals = self._reseasonalize(fittedVals, seasonal, seasonType)
+                    if useHoldout:
+                        valPred = self._predictVariantSteps(result, trendType, modelType, holdoutSize)
+                        if seasonal is not None:
+                            for h in range(holdoutSize):
+                                idx = (nTrain + h) % self.period
+                                if seasonType == 'multiplicative':
+                                    valPred[h] *= seasonal[idx]
+                                else:
+                                    valPred[h] += seasonal[idx]
+                        mae = np.mean(np.abs(valPart - valPred))
+                    else:
+                        fittedVals = result['fittedValues']
+                        if seasonal is not None:
+                            fittedVals = self._reseasonalize(fittedVals, seasonal, seasonType)
+                        mae = np.mean(np.abs(fitData - fittedVals))
 
-                    mae = np.mean(np.abs(scaled - fittedVals))
                     if mae < bestMae:
                         bestMae = mae
                         bestConfig = (trendType, modelType, seasonType)
-                        bestModel = result
-                        bestModel['seasonal'] = seasonal
-                        bestModel['base'] = base
 
+        if bestConfig is None:
+            return self._fitClassic(y)
+
+        trendType, modelType, seasonType = bestConfig
+        if seasonType != 'none':
+            seasonal, deseasonalized = self._deseasonalizeAdvanced(scaled, self.period, seasonType)
+        else:
+            seasonal = None
+            deseasonalized = scaled
+
+        thetaLine0 = self._fitTrendLine(deseasonalized, trendType)
+        if thetaLine0 is None:
+            return self._fitClassic(y)
+        bestModel = self._fitVariant(deseasonalized, thetaLine0, trendType, modelType)
         if bestModel is None:
             return self._fitClassic(y)
+        bestModel['seasonal'] = seasonal
+        bestModel['base'] = base
 
         self._hybridMode = True
         self._hybridConfig = bestConfig
@@ -322,9 +358,28 @@ class DynamicOptimizedTheta:
         self.intercept = bestModel['intercept']
         self.slope = bestModel['slope']
         self.lastLevel = bestModel['lastLevel']
-        self.residuals = y - bestModel['fittedValues'] * base
+
+        fittedVals = bestModel['fittedValues']
+        if seasonal is not None:
+            fittedVals = self._reseasonalize(fittedVals, seasonal, seasonType)
+        self.residuals = y - fittedVals * base
         self.fitted = True
         return self
+
+    def _predictVariantSteps(self, model, trendType, modelType, steps):
+        n = model['n']
+        futureX = np.arange(n, n + steps, dtype=np.float64)
+        if trendType == 'exponential':
+            forecastTrend = np.exp(model['intercept'] + model['slope'] * futureX)
+        else:
+            forecastTrend = model['intercept'] + model['slope'] * futureX
+        forecastSES = np.full(steps, model['lastLevel'])
+        if modelType == 'additive':
+            w = 1.0 / max(model['theta'], 1.0)
+            return w * forecastSES + (1.0 - w) * forecastTrend
+        invTheta = 1.0 / max(model['theta'], 1.0)
+        return np.power(np.maximum(forecastSES, 1e-10), invTheta) * \
+               np.power(np.maximum(forecastTrend, 1e-10), 1.0 - invTheta)
 
     def predict(self, steps: int) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         if not self.fitted:

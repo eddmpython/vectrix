@@ -5,6 +5,38 @@ All notable changes to Vectrix will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.12] - 2026-03-04
+
+DOT-Hybrid holdout validation release — 8-way config selection for period>1 data now uses holdout validation instead of in-sample MAE, reducing overfitting on Quarterly (-1.25%) and Monthly (-2.55%) forecasts. AVG OWA improved from 0.8831 to ~0.876.
+
+### Changed
+
+**DOT-Hybrid Engine Holdout Validation**
+- `engine/dot.py`: `_fitHybrid()` now uses holdout-based config selection when `period > 1` and sufficient data available
+- When `period > 1`: splits data into train/validation, evaluates 8 variant configurations on held-out segment, selects best by validation MAE, then refits on full data
+- When `period <= 1` (Yearly, Daily, Weekly): preserves original in-sample MAE selection — no behavioral change
+- When `period >= 24` (Hourly): unchanged, uses classic DOT path as before
+- Added `_predictVariantSteps()` helper method for multi-step holdout prediction
+- Net effect: Quarterly OWA -1.25%, Monthly OWA -2.55%, zero regression on other groups
+
+### Added
+
+**Experiment Files (4 new DOT improvement experiments)**
+- `modelCreation/043_dotAutoPeriodHoldout.py`: ACF-based auto period detection (REJECTED, +1.29%) + holdout validation (ACCEPTED, -0.79%)
+- `modelCreation/044_dailyWeeklySpecialist.py`: Classic DOT for Weekly (ACCEPTED, -2.18%) + Core3 ensemble for Daily/Weekly (REJECTED, +21%/+8%)
+- `modelCreation/045_integratedImprovement.py`: Integrated holdout + Weekly classic (AVG -0.94%, but Yearly +1.16% regression)
+- `modelCreation/046_finalIntegration.py`: Final rule validation — period<=1 classic vs period>1 holdout isolation confirmed safe
+
+### Key Findings
+
+- ACF-based auto period detection detects spurious short periods (2,3) from noise — harmful for accuracy
+- Holdout validation eliminates in-sample overfitting in 8-way config selection for seasonal data
+- Core3 ensemble (DOT+CES+4Theta) is harmful for period=1 data — CES/4Theta struggle without seasonality
+- Classic DOT is good for Weekly (period=1) but catastrophic for Yearly (period=1) — Yearly needs Hybrid's trend exploration
+- Safe improvement scope: only `1 < period < 24` benefits from holdout validation
+
+[0.0.12]: https://github.com/eddmpython/vectrix/compare/v0.0.11...v0.0.12
+
 ## [0.0.11] - 2026-03-04
 
 Progressive Disclosure release — Easy API now supports Level 2 guided control with model selection, ensemble strategy, and confidence interval parameters, while maintaining full backward compatibility with Level 1 zero-config usage.

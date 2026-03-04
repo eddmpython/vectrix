@@ -13,12 +13,12 @@ The [M4 Competition](https://www.sciencedirect.com/science/article/pii/S01692070
 | Frequency | DOT-Hybrid OWA | M4 Context |
 |-----------|:--------------:|------------|
 | Yearly | **0.797** | Near M4 #1 ES-RNN (0.821) |
-| Quarterly | **0.905** | Competitive with M4 top methods |
-| Monthly | **0.933** | Solid mid-table performance |
+| Quarterly | **0.894** | Competitive with M4 top methods |
+| Monthly | **0.897** | Competitive with M4 top methods |
 | Weekly | **0.959** | Beats Naive2 |
 | Daily | **0.996** | Near parity with Naive2 |
 | Hourly | **0.722** | World-class, near M4 winner level |
-| **AVG** | **0.885** | **Beats M4 #18 Theta (0.897)** |
+| **AVG** | **0.877** | **Beats M4 #18 Theta (0.897)** |
 
 ### M4 Competition Leaderboard Context
 
@@ -29,7 +29,7 @@ The [M4 Competition](https://www.sciencedirect.com/science/article/pii/S01692070
 | 3 | Theta (Fiorucci) | 0.854 |
 | 11 | 4Theta (Petropoulos) | 0.874 |
 | 18 | Theta (Assimakopoulos) | 0.897 |
-| -- | **Vectrix DOT-Hybrid** | **0.885** |
+| -- | **Vectrix DOT-Hybrid** | **0.877** |
 
 Vectrix DOT-Hybrid outperforms **all pure statistical methods** in the M4 Competition. Only hybrid methods (ES-RNN = LSTM + ETS, FFORMA = meta-learning ensemble) rank higher.
 

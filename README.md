@@ -346,13 +346,13 @@ result = caf.apply(predictions, lower95, upper95, constraints=[
 
 Evaluated on **M4 Competition 100,000 time series** (2,000 sample per frequency, seed=42). OWA < 1.0 means better than Naive2.
 
-**DOT-Hybrid** (single model, OWA 0.885 — beats M4 #18 Theta 0.897):
+**DOT-Hybrid** (single model, OWA 0.877 — beats M4 #18 Theta 0.897):
 
 | Frequency | OWA | vs Naive2 |
 |:----------|:---:|:---------:|
 | Yearly | **0.797** | -20.3% |
-| Quarterly | **0.905** | -9.5% |
-| Monthly | **0.933** | -6.7% |
+| Quarterly | **0.894** | -10.6% |
+| Monthly | **0.897** | -10.3% |
 | Weekly | **0.959** | -4.1% |
 | Daily | **0.996** | -0.4% |
 | Hourly | **0.722** | -27.8% |
@@ -364,7 +364,7 @@ Evaluated on **M4 Competition 100,000 time series** (2,000 sample per frequency,
 | #1 | ES-RNN (Smyl) | 0.821 |
 | #2 | FFORMA | 0.838 |
 | #11 | 4Theta | 0.874 |
-| — | **Vectrix DOT-Hybrid** | **0.885** |
+| — | **Vectrix DOT-Hybrid** | **0.877** |
 | #18 | Theta | 0.897 |
 
 Full results with sMAPE/MASE breakdown: [benchmarks](https://eddmpython.github.io/vectrix/docs/benchmarks/)
@@ -523,7 +523,7 @@ Every parameter at Level 2 has a sensible default that reproduces Level 1 behavi
 
 | Priority | Area | Current | Target | Status |
 |:---------|:-----|:--------|:-------|:-------|
-| **P0** | M4 Accuracy | OWA 0.885 | OWA < 0.850 | In progress |
+| **P0** | M4 Accuracy | OWA 0.877 | OWA < 0.850 | In progress |
 | **P1** | Easy API Progressive Disclosure | Level 1 only | Levels 1-3 | In progress |
 | **P2** | Pipeline Speed | 48ms forecast() | < 10ms | Planned |
 | **P3** | Foundation Model Depth | Basic wrappers | Full integration | Planned |
