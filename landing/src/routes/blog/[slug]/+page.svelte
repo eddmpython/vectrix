@@ -4,6 +4,7 @@
 	import { SITE_URL, SITE_NAME, OG_IMAGE } from '$lib/docs/seo';
 	import { Clock, ArrowLeft, ArrowRight } from 'lucide-svelte';
 	import { onMount, tick } from 'svelte';
+	import Giscus from '$lib/components/ui/Giscus.svelte';
 
 	let { data } = $props();
 
@@ -202,6 +203,8 @@
 					Back to all posts
 				</a>
 			</div>
+
+			<Giscus />
 
 		{#if otherPosts.length > 0}
 			<section class="more-posts">
