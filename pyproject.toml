@@ -1,6 +1,6 @@
 [project]
 name = "vectrix"
-version = "0.0.10"
+version = "0.0.11"
 description = "Zero-config time series forecasting & analysis library. 30+ models with built-in Rust engine for blazing-fast performance."
 readme = "README.md"
 license = {file = "LICENSE"}

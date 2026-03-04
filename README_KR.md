@@ -270,7 +270,15 @@ pip install "vectrix[all]"           # 전체
 ```python
 from vectrix import forecast, analyze, regress, compare
 
+# Level 1 — 제로 설정
 result = forecast([100, 120, 115, 130, 125, 140], steps=5)
+
+# Level 2 — 가이드 제어
+result = forecast(df, date="date", value="sales", steps=12,
+                  models=["dot", "auto_ets", "auto_ces"],
+                  ensemble="mean",
+                  confidence=0.90)
+
 print(result.compare())          # 전체 모델 순위
 print(result.all_forecasts())    # 모든 모델의 예측값
 
@@ -366,11 +374,13 @@ sMAPE/MASE 상세 결과: [벤치마크 상세](https://eddmpython.github.io/vec
 
 | 함수 | 설명 |
 |:-----|:-----|
-| `forecast(data, steps=30)` | 자동 모델 선택 예측 |
-| `analyze(data)` | DNA 프로파일링, 변환점, 이상치 |
+| `forecast(data, steps, models, ensemble, confidence)` | 자동 또는 가이드 예측 |
+| `analyze(data, period, features)` | DNA 프로파일링, 변환점, 이상치 |
 | `regress(y, X)` / `regress(data=df, formula="y ~ x")` | 진단 포함 회귀분석 |
-| `compare(data, steps=30)` | 전체 모델 비교 (DataFrame) |
-| `quick_report(data, steps=30)` | 분석 + 예측 통합 |
+| `compare(data, steps, models)` | 모델 비교 (DataFrame) |
+| `quick_report(data, steps)` | 분석 + 예측 통합 |
+
+`data` 이외의 모든 파라미터는 합리적인 기본값을 가진 선택 사항입니다. [Progressive Disclosure](#api-레이어) 설계를 참조하세요.
 
 ### Classic API
 
@@ -482,6 +492,47 @@ Claude Code 사용자를 위한 3개 전문 스킬:
 | `vectrix-regress` | `/vectrix-regress` | R-스타일 회귀분석 + 진단 |
 
 Vectrix 프로젝트 디렉토리에서 작업할 때 자동으로 로드됩니다.
+
+<br>
+
+## ◈ 철학 & 로드맵
+
+### 정체성
+
+Vectrix는 **내장 Rust 가속을 갖춘 제로 설정 예측 엔진**입니다. 설계 철학:
+
+- **Python 문법, Rust 속도** — Polars처럼 Rust 엔진은 투명합니다. 사용자는 Python을 작성하고, 핫 루프는 자동으로 Rust에서 실행됩니다.
+- **점진적 공개(Progressive Disclosure)** — 초보자는 `forecast(data, steps=12)`를 설정 없이 호출합니다. 전문가는 `models=`, `ensemble=`, `confidence=`를 전달하여 모든 측면을 제어합니다. 엔진 직접 접근(`AutoETS`, `AutoARIMA`)은 항상 가능합니다.
+- **의존성 3개, 컴파일러 불필요** — NumPy, SciPy, Pandas. 시스템 패키지, Numba JIT 워밍업, CmdStan 없음. `pip install vectrix`로 끝.
+- **기능보다 정확성** — 모든 빈도에서 Naive2를 이기는 15개 모델이, Daily/Hourly에서 실패하는 50개 모델보다 낫습니다.
+
+### API 레이어
+
+| 레이어 | 대상 | 예시 |
+|:-------|:-----|:-----|
+| **Level 1 — 제로 설정** | 초보자, 빠른 프로토타입 | `forecast(data, steps=12)` |
+| **Level 2 — 가이드 제어** | 데이터 과학자, 프로덕션 | `forecast(data, steps=12, models=["dot", "auto_ets"], ensemble="mean", confidence=0.90)` |
+| **Level 3 — 엔진 직접** | 연구자, 커스텀 파이프라인 | `AutoETS(period=7).fit(data).predict(30)` |
+
+Level 2의 모든 파라미터에는 Level 1 동작을 재현하는 합리적인 기본값이 있습니다. 필수 파라미터는 없습니다.
+
+### 로드맵
+
+| 우선순위 | 영역 | 현재 | 목표 | 상태 |
+|:---------|:-----|:-----|:-----|:-----|
+| **P0** | M4 정확도 | OWA 0.885 | OWA < 0.850 | 진행 중 |
+| **P1** | Easy API Progressive Disclosure | Level 1만 | Level 1-3 | 진행 중 |
+| **P2** | 파이프라인 속도 | 48ms forecast() | < 10ms | 계획 |
+| **P3** | Foundation Model 깊이 | 기본 래퍼 | 완전 통합 | 계획 |
+| **P4** | 커뮤니티 성장 | 초기 단계 | 블로그, Reddit, Kaggle | 진행 중 |
+
+### 확장 원칙
+
+1. **정확도 우선, 속도 그다음** — 빠르게 전달된 잘못된 답은 여전히 잘못됩니다. M4 OWA 개선이 지연 시간 최적화보다 먼저.
+2. **제로 설정을 절대 깨지 않는다** — 모든 새 파라미터에는 기본값이 있어야 합니다. `forecast(data, steps=12)`는 항상 작동해야 합니다.
+3. **하나의 정체성** — "Python 문법, Rust 속도, 제로 설정." 모든 기능, 문서, 마케팅 메시지가 이에 부합합니다.
+4. **벤치마크 기반** — 모든 엔진 변경은 M4 100K 시리즈로 검증합니다. "더 좋아 보인다"가 아닌 OWA로 보여주기.
+5. **최소 의존성** — 의존성 추가에는 강력한 근거가 필요합니다. numpy/scipy로 구현 가능하면 그렇게 해야 합니다.
 
 <br>
 

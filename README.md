@@ -273,7 +273,15 @@ pip install "vectrix[all]"         # Everything
 ```python
 from vectrix import forecast, analyze, regress, compare
 
+# Level 1 — Zero Config
 result = forecast([100, 120, 115, 130, 125, 140], steps=5)
+
+# Level 2 — Guided Control
+result = forecast(df, date="date", value="sales", steps=12,
+                  models=["dot", "auto_ets", "auto_ces"],
+                  ensemble="mean",
+                  confidence=0.90)
+
 print(result.compare())          # All model rankings
 print(result.all_forecasts())    # Every model's predictions
 
@@ -369,11 +377,13 @@ Full results with sMAPE/MASE breakdown: [benchmarks](https://eddmpython.github.i
 
 | Function | Description |
 |:---------|:------------|
-| `forecast(data, steps=30)` | Auto model selection forecasting |
-| `analyze(data)` | DNA profiling, changepoints, anomalies |
+| `forecast(data, steps, models, ensemble, confidence)` | Auto or guided forecasting |
+| `analyze(data, period, features)` | DNA profiling, changepoints, anomalies |
 | `regress(y, X)` / `regress(data=df, formula="y ~ x")` | Regression with diagnostics |
-| `compare(data, steps=30)` | All model comparison (DataFrame) |
-| `quick_report(data, steps=30)` | Combined analysis + forecast |
+| `compare(data, steps, models)` | Model comparison (DataFrame) |
+| `quick_report(data, steps)` | Combined analysis + forecast |
+
+All parameters beyond `data` are optional with sensible defaults. See [Progressive Disclosure](#api-layers) for the Level 1 → 2 → 3 design.
 
 ### Classic API
 
@@ -485,6 +495,47 @@ Three specialized skills for Claude Code users:
 | `vectrix-regress` | `/vectrix-regress` | R-style regression with diagnostics |
 
 Skills are auto-loaded when working in the Vectrix project directory.
+
+<br>
+
+## ◈ Philosophy & Roadmap
+
+### Identity
+
+Vectrix is a **zero-config forecasting engine with built-in Rust acceleration**. The design philosophy:
+
+- **Python syntax, Rust speed** — Like Polars, the Rust engine is invisible. Users write Python; hot loops run in Rust automatically.
+- **Progressive disclosure** — Beginners call `forecast(data, steps=12)` with zero configuration. Experts pass `models=`, `ensemble=`, `confidence=` to control every aspect. Engine-level access (`AutoETS`, `AutoARIMA`) is always available for full control.
+- **3 dependencies, no compiler** — NumPy, SciPy, Pandas. No system packages, no Numba JIT warmup, no CmdStan. `pip install vectrix` and you're done.
+- **Correctness over features** — We'd rather have 15 models that beat Naive2 on every frequency than 50 models that fail on Daily and Hourly.
+
+### API Layers
+
+| Layer | Target | Example |
+|:------|:-------|:--------|
+| **Level 1 — Zero Config** | Beginners, quick prototypes | `forecast(data, steps=12)` |
+| **Level 2 — Guided Control** | Data scientists, production | `forecast(data, steps=12, models=["dot", "auto_ets"], ensemble="mean", confidence=0.90)` |
+| **Level 3 — Engine Direct** | Researchers, custom pipelines | `AutoETS(period=7).fit(data).predict(30)` |
+
+Every parameter at Level 2 has a sensible default that reproduces Level 1 behavior. No parameter is ever required.
+
+### Roadmap
+
+| Priority | Area | Current | Target | Status |
+|:---------|:-----|:--------|:-------|:-------|
+| **P0** | M4 Accuracy | OWA 0.885 | OWA < 0.850 | In progress |
+| **P1** | Easy API Progressive Disclosure | Level 1 only | Levels 1-3 | In progress |
+| **P2** | Pipeline Speed | 48ms forecast() | < 10ms | Planned |
+| **P3** | Foundation Model Depth | Basic wrappers | Full integration | Planned |
+| **P4** | Community Growth | Early stage | Blog, Reddit, Kaggle | In progress |
+
+### Expansion Principles
+
+1. **Accuracy first, speed second** — A wrong answer delivered fast is still wrong. Improve M4 OWA before optimizing latency.
+2. **Never break zero-config** — Every new parameter must have a default. `forecast(data, steps=12)` must always work.
+3. **One identity** — "Python syntax, Rust speed, zero config." Every feature, doc, and marketing message aligns with this.
+4. **Benchmark-driven** — Every engine change is validated against M4 100K series. No "it seems better" — show the OWA.
+5. **Minimal dependencies** — Adding a dependency requires strong justification. If it can be implemented in numpy/scipy, it should be.
 
 <br>
 

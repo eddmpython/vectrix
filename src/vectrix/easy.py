@@ -906,10 +906,16 @@ def forecast(
     value: str = None,
     steps: int = 30,
     frequency: str = 'auto',
-    verbose: bool = False
+    verbose: bool = False,
+    models: Optional[List[str]] = None,
+    ensemble: Optional[str] = None,
+    confidence: float = 0.95
 ) -> EasyForecastResult:
     """
-    One-line forecasting.
+    One-line forecasting with progressive disclosure.
+
+    Level 1 (zero-config): Just pass data and steps.
+    Level 2 (guided control): Specify models, ensemble strategy, and confidence level.
 
     Parameters
     ----------
@@ -927,6 +933,21 @@ def forecast(
         'auto', 'D', 'W', 'M', 'H', etc. (currently unused, auto-detected).
     verbose : bool
         Print progress messages.
+    models : list of str, optional
+        Model IDs to evaluate. None = auto-select based on data characteristics.
+        Available: 'dot', 'auto_ets', 'auto_arima', 'auto_ces', 'four_theta',
+        'auto_mstl', 'tbats', 'theta', 'dtsf', 'esn', 'garch', 'croston',
+        'ets_aan', 'ets_aaa', 'naive', 'mean', 'rwd', 'window_avg',
+        'egarch', 'gjr_garch', 'seasonal_naive', 'mstl'.
+    ensemble : str, optional
+        Ensemble strategy. None = auto (variability-preserving).
+        'mean' = simple average of top models.
+        'weighted' = inverse-MAPE weighted average.
+        'median' = median of top models.
+        'best' = no ensemble, use single best model only.
+    confidence : float
+        Confidence interval level (default: 0.95 for 95% CI).
+        Common values: 0.80, 0.90, 0.95, 0.99.
 
     Returns
     -------
@@ -943,8 +964,22 @@ def forecast(
     >>> result = forecast([100, 120, 130, 115, 140, 160, 150, 170, 180, 165], steps=5)
     >>> result = forecast("data.csv", steps=30)
     >>> result = forecast(df, date="date", value="sales", steps=14)
+    >>> result = forecast(df, date="date", value="sales", steps=12,
+    ...                   models=["dot", "auto_ets"], ensemble="mean", confidence=0.90)
     """
     from .vectrix import Vectrix
+
+    if confidence <= 0 or confidence >= 1:
+        raise ValueError(
+            f"confidence must be between 0 and 1 (exclusive), got {confidence}.\n"
+            "Common values: 0.80, 0.90, 0.95, 0.99."
+        )
+
+    if ensemble is not None and ensemble not in ('mean', 'weighted', 'median', 'best'):
+        raise ValueError(
+            f"Unknown ensemble method: '{ensemble}'.\n"
+            "Supported: 'mean', 'weighted', 'median', 'best', or None (auto)."
+        )
 
     df, dateCol, valueCol = _prepareData(data, date, value)
 
@@ -956,7 +991,10 @@ def forecast(
         )
 
     fx = Vectrix(verbose=verbose)
-    rawResult = fx.forecast(df, dateCol=dateCol, valueCol=valueCol, steps=steps)
+    rawResult = fx.forecast(
+        df, dateCol=dateCol, valueCol=valueCol, steps=steps,
+        models=models, ensembleMethod=ensemble, confidenceLevel=confidence
+    )
 
     if not rawResult.success:
         errorMsg = rawResult.error or "Unknown error"
@@ -974,10 +1012,17 @@ def analyze(
     data: Union[str, pd.DataFrame, np.ndarray, list, tuple, pd.Series, dict],
     date: str = None,
     value: str = None,
-    period: int = None
+    period: int = None,
+    features: bool = True,
+    changepoints: bool = True,
+    anomalies: bool = True,
+    anomaly_threshold: float = 3.0
 ) -> EasyAnalysisResult:
     """
     One-line time series analysis (DNA + changepoints + anomalies + features).
+
+    Level 1 (zero-config): Just pass data.
+    Level 2 (guided control): Toggle analysis components, set thresholds.
 
     Parameters
     ----------
@@ -989,6 +1034,15 @@ def analyze(
         Value column name.
     period : int, optional
         Seasonal period. Auto-detected if None.
+    features : bool
+        Extract statistical features (default: True).
+    changepoints : bool
+        Detect structural changepoints (default: True).
+    anomalies : bool
+        Detect anomalies (default: True).
+    anomaly_threshold : float
+        Z-score threshold for anomaly detection (default: 3.0).
+        Lower = more sensitive. Common values: 2.0, 2.5, 3.0, 4.0.
 
     Returns
     -------
@@ -1001,6 +1055,7 @@ def analyze(
     >>> print(report.dna.difficulty)    # 'medium'
     >>> print(report.changepoints)      # [45, 120, 200]
     >>> print(report.summary())
+    >>> report = analyze(df, date="date", value="sales", anomaly_threshold=2.0)
     """
     from .adaptive.dna import ForecastDNA
     from .engine.changepoint import ChangePointDetector
@@ -1031,31 +1086,33 @@ def analyze(
     dnaProfile = dna.analyze(values, period=detectedPeriod)
 
     changepointIndices = np.array([])
-    try:
-        cpDetector = ChangePointDetector()
-        cpResult = cpDetector.detect(values, method='auto')
-        changepointIndices = cpResult.indices
-    except Exception:
-        pass
+    if changepoints:
+        try:
+            cpDetector = ChangePointDetector()
+            cpResult = cpDetector.detect(values, method='auto')
+            changepointIndices = cpResult.indices
+        except Exception:
+            pass
 
     anomalyIndices = np.array([])
-    try:
-        if len(values) > 3:
-            valMean = np.mean(values)
-            valStd = np.std(values, ddof=1)
-            if valStd > 1e-10:
-                zScores = np.abs((values - valMean) / valStd)
-                anomalyIndices = np.where(zScores > 3.0)[0]
-    except Exception:
-        pass
+    if anomalies:
+        try:
+            if len(values) > 3:
+                valMean = np.mean(values)
+                valStd = np.std(values, ddof=1)
+                if valStd > 1e-10:
+                    zScores = np.abs((values - valMean) / valStd)
+                    anomalyIndices = np.where(zScores > anomaly_threshold)[0]
+        except Exception:
+            pass
 
-    features = dnaProfile.features if dnaProfile else {}
+    extractedFeatures = (dnaProfile.features if dnaProfile else {}) if features else {}
 
     return EasyAnalysisResult(
         dna=dnaProfile,
         changepoints=changepointIndices,
         anomalies=anomalyIndices,
-        features=features,
+        features=extractedFeatures,
         characteristics=characteristics
     )
 
@@ -1067,10 +1124,15 @@ def regress(
     data: pd.DataFrame = None,
     formula: str = None,
     method: str = 'ols',
-    summary: bool = True
+    summary: bool = True,
+    alpha: float = None,
+    diagnostics: bool = False
 ) -> EasyRegressionResult:
     """
     One-line regression analysis (statsmodels-level).
+
+    Level 1 (zero-config): regress(data=df, formula="y ~ x1 + x2")
+    Level 2 (guided control): Specify method, regularization alpha, auto-diagnostics.
 
     Two usage modes:
 
@@ -1091,6 +1153,11 @@ def regress(
         'ols', 'ridge', 'lasso', 'huber', 'quantile'.
     summary : bool
         If True, auto-print summary.
+    alpha : float, optional
+        Regularization strength for ridge/lasso (default: 1.0 for ridge, 0.1 for lasso).
+        Ignored for ols/huber/quantile.
+    diagnostics : bool
+        If True, auto-run diagnostics and print results (default: False).
 
     Returns
     -------
@@ -1106,6 +1173,7 @@ def regress(
     --------
     >>> result = regress(y, X)
     >>> result = regress(data=df, formula="sales ~ ads + price + season")
+    >>> result = regress(data=df, formula="y ~ x", method="ridge", alpha=0.5)
     >>> result.diagnose()   # VIF, homoscedasticity, normality all at once
     """
     from .regression import (
@@ -1176,13 +1244,15 @@ def regress(
         regressionResult = olsEngine.fit(XArr, yArr, featureNames=featureNames)
 
     elif methodLower == 'ridge':
-        ridgeModel = RidgeRegressor(alpha=1.0, fitIntercept=True)
+        ridgeAlpha = alpha if alpha is not None else 1.0
+        ridgeModel = RidgeRegressor(alpha=ridgeAlpha, fitIntercept=True)
         ridgeModel.fit(XArr, yArr)
         olsEngine = OLSInference(fitIntercept=True)
         regressionResult = olsEngine.fit(XArr, yArr, featureNames=featureNames)
 
     elif methodLower == 'lasso':
-        lassoModel = LassoRegressor(alpha=0.1, fitIntercept=True)
+        lassoAlpha = alpha if alpha is not None else 0.1
+        lassoModel = LassoRegressor(alpha=lassoAlpha, fitIntercept=True)
         lassoModel.fit(XArr, yArr)
         olsEngine = OLSInference(fitIntercept=True)
         regressionResult = olsEngine.fit(XArr, yArr, featureNames=featureNames)
@@ -1211,6 +1281,9 @@ def regress(
     if summary:
         print(easyResult.summary())
 
+    if diagnostics:
+        print(easyResult.diagnose())
+
     return easyResult
 
 
@@ -1220,10 +1293,11 @@ def compare(
     date: str = None,
     value: str = None,
     steps: int = 30,
-    verbose: bool = False
+    verbose: bool = False,
+    models: Optional[List[str]] = None
 ) -> pd.DataFrame:
     """
-    Compare all models on the given data and return a ranked DataFrame.
+    Compare models on the given data and return a ranked DataFrame.
 
     Parameters
     ----------
@@ -1237,6 +1311,8 @@ def compare(
         Forecast horizon (default: 30).
     verbose : bool
         Print progress messages.
+    models : list of str, optional
+        Model IDs to compare. None = auto-select.
 
     Returns
     -------
@@ -1247,9 +1323,9 @@ def compare(
     --------
     >>> from vectrix import compare
     >>> df = compare([120, 135, 148, 155, 167, 178, 190, 195, 210, 225], steps=5)
-    >>> print(df)
+    >>> df = compare(data, models=["dot", "auto_ets", "theta", "auto_ces"])
     """
-    result = forecast(data, date=date, value=value, steps=steps, verbose=verbose)
+    result = forecast(data, date=date, value=value, steps=steps, verbose=verbose, models=models)
     return result.compare()
 
 

@@ -69,7 +69,7 @@ class Vectrix:
     Dependencies: numpy, pandas, scipy (required), numba (optional)
     """
 
-    VERSION = "0.0.10"
+    VERSION = "0.0.11"
 
     NATIVE_MODELS = {
         'auto_ets': {
@@ -225,11 +225,40 @@ class Vectrix:
         dateCol: str,
         valueCol: str,
         steps: int = 30,
-        trainRatio: float = 0.8
+        trainRatio: float = 0.8,
+        models: Optional[List[str]] = None,
+        ensembleMethod: Optional[str] = None,
+        confidenceLevel: float = 0.95
     ) -> ForecastResult:
         """
         Time series forecasting (fully self-implemented).
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            Input DataFrame.
+        dateCol : str
+            Date column name.
+        valueCol : str
+            Value column name.
+        steps : int
+            Forecast horizon (default: 30).
+        trainRatio : float
+            Train/test split ratio (default: 0.8).
+        models : list of str, optional
+            Model IDs to evaluate. None = auto-select based on data characteristics.
+            Available: 'dot', 'auto_ets', 'auto_arima', 'auto_ces', 'four_theta',
+            'auto_mstl', 'tbats', 'theta', 'dtsf', 'esn', 'garch', 'croston', etc.
+        ensembleMethod : str, optional
+            Ensemble strategy. None = auto (variability-preserving).
+            'mean' = simple average, 'weighted' = MAPE-weighted (default behavior),
+            'median' = median ensemble, 'best' = no ensemble (single best model).
+        confidenceLevel : float
+            Confidence interval level (default: 0.95). E.g., 0.90 for 90% CI.
         """
+        self._confidenceLevel = confidenceLevel
+        self._ensembleMethod = ensembleMethod
+
         try:
             self._progress('Preparing data...')
             workDf = self._prepareData(df, dateCol, valueCol)
@@ -263,7 +292,18 @@ class Vectrix:
                 self._printRiskAssessment()
 
             self._progress('Selecting models...')
-            selectedModels = self._selectNativeModels()
+            if models is not None:
+                validModelIds = set(self.NATIVE_MODELS.keys())
+                invalidModels = [m for m in models if m not in validModelIds]
+                if invalidModels:
+                    return ForecastResult(
+                        success=False,
+                        error=f'Unknown model IDs: {invalidModels}. '
+                              f'Available: {sorted(validModelIds)}'
+                    )
+                selectedModels = list(models)
+            else:
+                selectedModels = self._selectNativeModels()
 
             if self.verbose:
                 print(f"Selected models: {selectedModels}")
@@ -693,6 +733,10 @@ class Vectrix:
         originalLength: int = 0
     ) -> ForecastResult:
         """Generate final prediction — fast refit on full data using cached model parameters."""
+        from scipy.stats import norm
+        confidenceLevel = getattr(self, '_confidenceLevel', 0.95)
+        zScore = norm.ppf(1 - (1 - confidenceLevel) / 2)
+
         warnings = list(self.flatRisk.warnings) if self.flatRisk else []
 
         if applyDropPattern and self.dropDetector and self.dropDetector.hasPeriodicDrop():
@@ -742,7 +786,10 @@ class Vectrix:
             except Exception:
                 pass
 
-        if len(validModels) >= 2:
+        ensembleMethod = getattr(self, '_ensembleMethod', None)
+        if ensembleMethod == 'best':
+            pass
+        elif len(validModels) >= 2:
             try:
                 coreModels = [m for m in ['dot', 'auto_ces', 'four_theta'] if m in validModels]
                 ensemblePool = coreModels + [m for m in validModels if m not in coreModels]
@@ -750,31 +797,47 @@ class Vectrix:
                 for mid in ensemblePool[:3]:
                     modelPredictions[mid] = self.modelResults[mid].predictions
 
-                weights = []
-                for mid in modelPredictions.keys():
-                    mape = self.modelResults[mid].mape
-                    weights.append(1.0 / (mape + 1e-6))
-                weights = np.array(weights)
-                weights = weights / weights.sum()
+                if ensembleMethod == 'mean':
+                    ensemblePred = np.mean(
+                        [pred for pred in modelPredictions.values()], axis=0
+                    )
+                    useEnsemble = True
+                elif ensembleMethod == 'median':
+                    ensemblePred = np.median(
+                        [pred for pred in modelPredictions.values()], axis=0
+                    )
+                    useEnsemble = True
+                else:
+                    weights = []
+                    for mid in modelPredictions.keys():
+                        mape = self.modelResults[mid].mape
+                        weights.append(1.0 / (mape + 1e-6))
+                    weights = np.array(weights)
+                    weights = weights / weights.sum()
 
-                ensemblePred = np.zeros(steps)
-                for i, (mid, pred) in enumerate(modelPredictions.items()):
-                    ensemblePred += weights[i] * pred
+                    ensemblePred = np.zeros(steps)
+                    for i, (mid, pred) in enumerate(modelPredictions.items()):
+                        ensemblePred += weights[i] * pred
 
-                origStd = np.std(allValues[-min(30, len(allValues)):])
-                ensembleStd = np.std(ensemblePred)
-                singleStd = np.std(predictions)
+                    origStd = np.std(allValues[-min(30, len(allValues)):])
+                    ensembleStd = np.std(ensemblePred)
+                    singleStd = np.std(predictions)
+                    useEnsemble = (
+                        ensembleMethod == 'weighted' or
+                        abs(ensembleStd - origStd) < abs(singleStd - origStd)
+                    )
 
-                if abs(ensembleStd - origStd) < abs(singleStd - origStd):
+                if useEnsemble:
                     predictions = ensemblePred
                     bestModelId = 'ensemble'
-                    bestModelName = 'Variability-Preserving Ensemble (Native)'
+                    ensembleLabel = (ensembleMethod or 'auto').capitalize()
+                    bestModelName = f'{ensembleLabel} Ensemble (Native)'
 
                     if applyDropPattern and self.dropDetector and self.dropDetector.hasPeriodicDrop():
                         predictions = self.dropDetector.applyDropPatternSmart(predictions, originalLength)
 
-                    sigma = origStd
-                    margin = 1.96 * sigma * np.sqrt(np.arange(1, steps + 1))
+                    sigma = np.std(allValues[-min(30, len(allValues)):])
+                    margin = zScore * sigma * np.sqrt(np.arange(1, steps + 1))
                     lower95 = predictions - margin
                     upper95 = predictions + margin
 
@@ -797,7 +860,12 @@ class Vectrix:
             )
             warnings.append(flatInfo.message)
 
-        # Generate future dates
+        if abs(confidenceLevel - 0.95) > 1e-6:
+            halfWidth = (upper95 - lower95) / 2.0
+            scaledWidth = halfWidth * (zScore / 1.96)
+            lower95 = predictions - scaledWidth
+            upper95 = predictions + scaledWidth
+
         lastDate = pd.to_datetime(df[dateCol].iloc[-1])
         freq = self.characteristics.frequency.value if self.characteristics else 'D'
         _FREQ_MAP = {'M': 'ME', 'Q': 'QE', 'Y': 'YE', 'H': 'h'}

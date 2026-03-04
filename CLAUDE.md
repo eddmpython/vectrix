@@ -347,6 +347,35 @@ src/vectrix/
 - 구현: numpy + scipy.optimize, 난이도 중
 - 기대: "가장 놀랍지 않은" 예측 = 과적합 방지
 
+## 확장/유지보수 원칙 (2026-03-04 확정)
+
+### API 설계 원칙
+1. **Progressive Disclosure**: Level 1(제로설정) → Level 2(가이드 제어) → Level 3(엔진 직접)
+2. **새 파라미터 추가 시 반드시 기본값 제공** — `forecast(data, steps=12)`는 영원히 동작해야 함
+3. **Easy API 파라미터는 Vectrix 클래스의 기능을 투과** — easy.py가 vectrix.py를 래핑, 중복 구현 금지
+4. **파라미터 네이밍**: Easy API는 snake_case 허용 (models, ensemble, confidence), 내부는 camelCase
+
+### 엔진 확장 원칙
+1. **새 모델 추가 시**: engine/ 아래 독립 파일, `fit(data)` + `predict(steps)` 인터페이스 준수
+2. **M4 100K 벤치마크 통과 필수** — OWA < 1.0 (Naive2 대비) 확인 후 통합
+3. **NATIVE_MODELS dict에 등록** + `__init__.py` export + 테스트 추가
+4. **잔차 다양성 우선** — 기존 모델과 잔차 상관 < 0.5인 모델이 앙상블에 가치 있음
+
+### 속도 확장 원칙
+1. **핫 루프 식별 → Rust 이전** — profiling으로 병목 확인 후 rust/src/lib.rs에 추가
+2. **Python 오버헤드 최소화** — 모델 선택/CV 로직의 불필요한 복사/변환 제거
+3. **벤치마크 측정 필수** — 변경 전후 `forecast()` 전체 latency 비교
+
+### 정확도 확장 원칙
+1. **앙상블 전략이 단일 모델보다 중요** — DNA 기반 가중치, 잔차 다양성 활용
+2. **빈도별 전략 분리** — Yearly/Quarterly는 Theta계열, Hourly/Daily는 다중 계절성 특화
+3. **실험 → 검증 → 통합 파이프라인** — experiments/에서 실험, M4로 검증, engine/으로 통합
+
+### 문서/마케팅 원칙
+1. **모든 주장에 벤치마크 수치 첨부** — "빠르다"가 아닌 "5.6x faster (295ms → 52ms)"
+2. **블로그는 교육 중심** — 기초부터 설명, Vectrix 홍보는 자연스럽게 녹여냄
+3. **비교 표는 공정하게** — 경쟁사의 장점도 인정, 우리가 약한 부분도 투명하게 공개
+
 ## 약점 및 개선 필요사항 (2026-03-03 업데이트)
 
 ### [긴급] 정확도 — 가장 큰 문제
@@ -389,12 +418,14 @@ src/vectrix/
 - AI 에이전트 통합 (llms.txt, MCP, Skills) — 업계 최선두
 - M4 Hourly VX-Ensemble OWA 0.696 — 세계급
 
-## 아이덴티티 원칙 (2026-03-03 확정)
+## 아이덴티티 원칙 (2026-03-04 확정)
 
 - **"Pure Python" 표현 사용 금지** — Rust 엔진이 내장된 패키지
 - **30+ 모델은 기본 능력** — 차별점으로 내세우지 않음
 - **Rust는 투명** — Polars처럼 사용자가 의식하지 않아도 빠름
 - **Python 문법, Rust 속도** — 이것이 정체성
+- **Progressive Disclosure** — 초보자는 제로설정, 전문가는 완전 제어. 같은 함수, 같은 패키지
+- **벤치마크 기반 정직성** — 약한 부분(Daily/Hourly)도 투명하게 공개. 수치로 증명
 
 ## 개선 로드맵 (2026-03-03~)
 

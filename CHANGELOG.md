@@ -5,6 +5,36 @@ All notable changes to Vectrix will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.11] - 2026-03-04
+
+Progressive Disclosure release — Easy API now supports Level 2 guided control with model selection, ensemble strategy, and confidence interval parameters, while maintaining full backward compatibility with Level 1 zero-config usage.
+
+### Added
+
+**Easy API Progressive Disclosure (Level 2 Parameters)**
+- `forecast()`: `models=` (select specific model IDs), `ensemble=` ('mean', 'weighted', 'median', 'best'), `confidence=` (0.80~0.99 CI level)
+- `analyze()`: `features=` (toggle feature extraction), `changepoints=` (toggle detection), `anomalies=` (toggle detection), `anomaly_threshold=` (z-score sensitivity)
+- `regress()`: `alpha=` (regularization strength for ridge/lasso), `diagnostics=` (auto-run diagnostics)
+- `compare()`: `models=` (compare specific model subset)
+
+**Vectrix Class Level 2 Parameters**
+- `Vectrix.forecast()`: `models=`, `ensembleMethod=`, `confidenceLevel=` parameters with full validation
+- Ensemble methods: 'mean' (simple average), 'weighted' (inverse-MAPE), 'median', 'best' (single model)
+- Confidence interval rescaling from 0.95 default to any level using scipy.stats.norm
+
+**Documentation**
+- README.md / README_KR.md: "Philosophy & Roadmap" section with identity, API layers (Level 1-3), roadmap, expansion principles
+- CLAUDE.md: Expansion/maintenance principles (API design, engine, speed, accuracy, docs/marketing)
+- Updated Easy API examples showing Level 1 and Level 2 usage side by side
+
+### Changed
+
+- `easy.py`: All functions now accept Level 2 parameters with sensible defaults preserving Level 1 behavior
+- `vectrix.py`: `forecast()` accepts `models`, `ensembleMethod`, `confidenceLevel` with validation and error messages
+- Identity principles updated: added Progressive Disclosure and benchmark-based honesty
+
+[0.0.11]: https://github.com/eddmpython/vectrix/compare/v0.0.10...v0.0.11
+
 ## [0.0.10] - 2026-03-04
 
 Research & stability release — 16 DOT improvement experiments (E020~E030, E013~E015), DOT-Hybrid engine OWA 0.885 re-verified, CES combination approach tested and rolled back.
