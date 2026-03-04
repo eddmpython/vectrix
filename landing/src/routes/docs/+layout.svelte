@@ -3,7 +3,7 @@
 	import { base } from '$app/paths';
 	import { navigation, type NavItem } from '$lib/docs/navigation';
 	import { locale, type Locale } from '$lib/docs/i18n';
-	import { Globe, Github, ArrowLeft, ChevronRight, Menu, X } from 'lucide-svelte';
+	import { Globe, Github, Menu, X, ChevronRight, ChevronDown } from 'lucide-svelte';
 
 	let { children } = $props();
 	let mobileNavOpen = $state(false);
@@ -39,136 +39,143 @@
 		return undefined;
 	});
 
-	let breadcrumbs = $derived.by(() => {
-		const crumbs: { title: string; href: string }[] = [];
-		if (!currentSection) return crumbs;
-
-		crumbs.push({ title: getTitle(currentSection), href: currentSection.href });
-
-		if (currentSection.items) {
-			const current = currentSection.items.find(
-				i => currentPath === i.href || currentPath === i.href + '/'
-			);
-			if (current) {
-				crumbs.push({ title: getTitle(current), href: current.href });
-			}
-		}
-		return crumbs;
-	});
-
 	let isIndex = $derived(
 		currentPath === '/docs' || currentPath === '/docs/'
 	);
 
-	const topSections = navigation.filter(s => s.items && s.items.length > 0);
+	const sidebarSections = navigation.filter(s => s.items && s.items.length > 0);
+	const standaloneItems = navigation.filter(s => !s.items || s.items.length === 0);
+
+	let expandedSections = $state<Set<string>>(new Set());
+
+	$effect(() => {
+		if (currentSection) {
+			expandedSections = new Set([currentSection.href]);
+		}
+	});
+
+	function toggleSection(href: string) {
+		const next = new Set(expandedSections);
+		if (next.has(href)) {
+			next.delete(href);
+		} else {
+			next.add(href);
+		}
+		expandedSections = next;
+	}
 </script>
 
-<div class="vx-blog">
-	<header class="vx-blog-header">
-		<div class="vx-blog-header-inner">
-			<div class="vx-blog-header-left">
-				<a href="{base}/" class="vx-blog-logo">
-					<img src="{base}/icon-final.png" alt="Vectrix" width="24" height="24" class="vx-blog-logo-img" />
-					<span class="vx-blog-logo-text">Vectrix</span>
+<div class="vx-docs">
+	<header class="vx-docs-header">
+		<div class="vx-docs-header-inner">
+			<div class="vx-docs-header-left">
+				<a href="{base}/" class="vx-docs-logo">
+					<img src="{base}/icon-final.png" alt="Vectrix" width="24" height="24" class="vx-docs-logo-img" />
+					<span class="vx-docs-logo-text">Vectrix</span>
 				</a>
-				<span class="vx-blog-logo-divider">/</span>
-				<a href="{base}/docs" class="vx-blog-docs-link">Docs</a>
+				<span class="vx-docs-divider">/</span>
+				<a href="{base}/docs" class="vx-docs-link">Docs</a>
 			</div>
 
-			<nav class="vx-blog-tabs">
-				{#each topSections as section}
-					<a
-						href="{base}{section.items?.[0]?.href ?? section.href}"
-						class="vx-blog-tab"
-						class:active={currentSection === section}
-					>
-						{getTitle(section)}
-					</a>
-				{/each}
-				{#each navigation.filter(s => !s.items) as single}
-					<a
-						href="{base}{single.href}"
-						class="vx-blog-tab"
-						class:active={currentPath === single.href || currentPath === single.href + '/'}
-					>
-						{getTitle(single)}
-					</a>
-				{/each}
-			</nav>
-
-			<div class="vx-blog-header-right">
-				<button class="vx-blog-lang-btn" onclick={toggleLang}>
+			<div class="vx-docs-header-right">
+				<button class="vx-docs-lang-btn" onclick={toggleLang}>
 					<Globe size={14} />
 					{currentLang === 'en' ? 'EN' : 'KO'}
 				</button>
-				<a href="https://github.com/eddmpython/vectrix" target="_blank" rel="noopener" class="vx-blog-icon-link">
+				<a href="https://github.com/eddmpython/vectrix" target="_blank" rel="noopener" class="vx-docs-icon-link">
 					<Github size={18} />
 				</a>
-				<button class="vx-blog-mobile-btn" onclick={() => mobileNavOpen = !mobileNavOpen}>
+				<button class="vx-docs-mobile-btn" onclick={() => mobileNavOpen = !mobileNavOpen}>
 					{#if mobileNavOpen}<X size={20} />{:else}<Menu size={20} />{/if}
 				</button>
 			</div>
 		</div>
 
 		{#if mobileNavOpen}
-			<nav class="vx-blog-mobile-nav">
-				{#each topSections as section}
-					<a
-						href="{base}{section.items?.[0]?.href ?? section.href}"
-						class="vx-blog-mobile-link"
-						class:active={currentSection === section}
-						onclick={() => mobileNavOpen = false}
-					>
-						{getTitle(section)}
-					</a>
+			<nav class="vx-docs-mobile-nav">
+				{#each sidebarSections as section}
+					<div class="vx-docs-mobile-section">
+						<span class="vx-docs-mobile-section-title">{getTitle(section)}</span>
+						{#each section.items ?? [] as item}
+							<a
+								href="{base}{item.href}"
+								class="vx-docs-mobile-link"
+								class:active={currentPath === item.href || currentPath === item.href + '/'}
+								onclick={() => mobileNavOpen = false}
+							>
+								{getTitle(item)}
+							</a>
+						{/each}
+					</div>
 				{/each}
-				{#each navigation.filter(s => !s.items) as single}
-					<a
-						href="{base}{single.href}"
-						class="vx-blog-mobile-link"
-						class:active={currentPath === single.href}
-						onclick={() => mobileNavOpen = false}
-					>
-						{getTitle(single)}
-					</a>
-				{/each}
-			</nav>
-		{/if}
-	</header>
-
-	<main class="vx-blog-main">
-		{#if !isIndex && breadcrumbs.length > 0}
-			<div class="vx-blog-breadcrumb">
-				<a href="{base}/docs">{currentLang === 'ko' ? '문서' : 'Docs'}</a>
-				{#each breadcrumbs as crumb, i}
-					<ChevronRight size={12} />
-					{#if i < breadcrumbs.length - 1}
-						<a href="{base}{crumb.href}">{crumb.title}</a>
-					{:else}
-						<span>{crumb.title}</span>
-					{/if}
-				{/each}
-			</div>
-		{/if}
-
-		{#if !isIndex && currentSection?.items}
-			<nav class="vx-blog-subnav">
-				{#each currentSection.items as item}
+				{#each standaloneItems as item}
 					<a
 						href="{base}{item.href}"
-						class="vx-blog-subnav-link"
-						class:active={currentPath === item.href || currentPath === item.href + '/'}
+						class="vx-docs-mobile-link"
+						class:active={currentPath === item.href}
+						onclick={() => mobileNavOpen = false}
 					>
 						{getTitle(item)}
 					</a>
 				{/each}
 			</nav>
 		{/if}
+	</header>
 
-		<div class="vx-blog-content">
-			{@render children()}
-		</div>
-	</main>
+	<div class="vx-docs-body" class:is-index={isIndex}>
+		{#if !isIndex}
+			<aside class="vx-docs-sidebar">
+				<nav class="vx-docs-sidebar-nav">
+					{#each sidebarSections as section}
+						<div class="vx-sidebar-section">
+							<button
+								class="vx-sidebar-section-btn"
+								class:active={currentSection === section}
+								onclick={() => toggleSection(section.href)}
+							>
+								<span>{getTitle(section)}</span>
+								{#if expandedSections.has(section.href)}
+									<ChevronDown size={14} />
+								{:else}
+									<ChevronRight size={14} />
+								{/if}
+							</button>
+							{#if expandedSections.has(section.href) && section.items}
+								<div class="vx-sidebar-items">
+									{#each section.items as item}
+										<a
+											href="{base}{item.href}"
+											class="vx-sidebar-item"
+											class:active={currentPath === item.href || currentPath === item.href + '/'}
+										>
+											{getTitle(item)}
+										</a>
+									{/each}
+								</div>
+							{/if}
+						</div>
+					{/each}
+					<div class="vx-sidebar-standalone">
+						{#each standaloneItems as item}
+							<a
+								href="{base}{item.href}"
+								class="vx-sidebar-item"
+								class:active={currentPath === item.href || currentPath === item.href + '/'}
+							>
+								{getTitle(item)}
+							</a>
+						{/each}
+					</div>
+				</nav>
+			</aside>
+		{/if}
+
+		<main class="vx-docs-main">
+			<div class="vx-docs-content">
+				{@render children()}
+			</div>
+		</main>
+	</div>
 </div>
 
 <style>
@@ -178,12 +185,12 @@
 		color: #f8fafc;
 	}
 
-	.vx-blog {
+	.vx-docs {
 		min-height: 100vh;
 	}
 
 	/* Header */
-	.vx-blog-header {
+	.vx-docs-header {
 		position: sticky;
 		top: 0;
 		z-index: 50;
@@ -192,8 +199,8 @@
 		border-bottom: 1px solid rgba(148, 163, 184, 0.08);
 	}
 
-	.vx-blog-header-inner {
-		max-width: 1100px;
+	.vx-docs-header-inner {
+		max-width: 1280px;
 		margin: 0 auto;
 		display: flex;
 		align-items: center;
@@ -202,13 +209,13 @@
 		height: 56px;
 	}
 
-	.vx-blog-header-left {
+	.vx-docs-header-left {
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
 	}
 
-	.vx-blog-logo {
+	.vx-docs-logo {
 		display: flex;
 		align-items: center;
 		gap: 0.35rem;
@@ -218,58 +225,30 @@
 		font-size: 1.05rem;
 	}
 
-	.vx-blog-logo-img {
-		border-radius: 4px;
-	}
+	.vx-docs-logo-img { border-radius: 4px; }
 
-	.vx-blog-logo-divider {
+	.vx-docs-divider {
 		color: #334155;
 		font-size: 1.2rem;
 		font-weight: 300;
 		margin: 0 0.15rem;
 	}
 
-	.vx-blog-docs-link {
+	.vx-docs-link {
 		color: #94a3b8;
 		text-decoration: none;
 		font-size: 0.9rem;
 		font-weight: 500;
 	}
-	.vx-blog-docs-link:hover { color: #f8fafc; }
+	.vx-docs-link:hover { color: #f8fafc; }
 
-	/* Tabs */
-	.vx-blog-tabs {
-		display: flex;
-		gap: 0;
-	}
-
-	.vx-blog-tab {
-		padding: 0 0.75rem;
-		height: 56px;
-		display: flex;
-		align-items: center;
-		font-size: 0.82rem;
-		font-weight: 500;
-		color: #64748b;
-		text-decoration: none;
-		border-bottom: 2px solid transparent;
-		transition: all 0.15s;
-		white-space: nowrap;
-	}
-
-	.vx-blog-tab:hover { color: #cbd5e1; }
-	.vx-blog-tab.active {
-		color: #06b6d4;
-		border-bottom-color: #06b6d4;
-	}
-
-	.vx-blog-header-right {
+	.vx-docs-header-right {
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
 	}
 
-	.vx-blog-lang-btn {
+	.vx-docs-lang-btn {
 		display: flex;
 		align-items: center;
 		gap: 0.25rem;
@@ -282,17 +261,17 @@
 		cursor: pointer;
 		transition: all 0.15s;
 	}
-	.vx-blog-lang-btn:hover { border-color: #06b6d4; color: #06b6d4; }
+	.vx-docs-lang-btn:hover { border-color: #06b6d4; color: #06b6d4; }
 
-	.vx-blog-icon-link {
+	.vx-docs-icon-link {
 		color: #64748b;
 		display: flex;
 		padding: 0.25rem;
 		transition: color 0.15s;
 	}
-	.vx-blog-icon-link:hover { color: #f8fafc; }
+	.vx-docs-icon-link:hover { color: #f8fafc; }
 
-	.vx-blog-mobile-btn {
+	.vx-docs-mobile-btn {
 		display: none;
 		padding: 0.25rem;
 		border: none;
@@ -301,59 +280,99 @@
 		cursor: pointer;
 	}
 
-	/* Main */
-	.vx-blog-main {
-		max-width: 860px;
+	/* Body 3-column */
+	.vx-docs-body {
+		max-width: 1280px;
 		margin: 0 auto;
-		padding: 1.5rem 1.5rem 4rem;
+		display: grid;
+		grid-template-columns: 220px 1fr;
+		gap: 0;
+		min-height: calc(100vh - 56px);
 	}
 
-	/* Breadcrumb */
-	.vx-blog-breadcrumb {
+	.vx-docs-body.is-index {
+		grid-template-columns: 1fr;
+	}
+
+	/* Sidebar */
+	.vx-docs-sidebar {
+		position: sticky;
+		top: 56px;
+		height: calc(100vh - 56px);
+		overflow-y: auto;
+		padding: 1.25rem 0 2rem 1rem;
+		border-right: 1px solid rgba(148, 163, 184, 0.06);
+		scrollbar-width: thin;
+		scrollbar-color: rgba(148, 163, 184, 0.15) transparent;
+	}
+
+	.vx-sidebar-section {
+		margin-bottom: 0.25rem;
+	}
+
+	.vx-sidebar-section-btn {
 		display: flex;
 		align-items: center;
-		gap: 0.4rem;
+		justify-content: space-between;
+		width: 100%;
+		padding: 0.4rem 0.6rem;
+		border: none;
+		background: none;
+		color: #94a3b8;
 		font-size: 0.78rem;
-		color: #475569;
-		margin-bottom: 0.75rem;
-	}
-
-	.vx-blog-breadcrumb a {
-		color: #64748b;
-		text-decoration: none;
-	}
-	.vx-blog-breadcrumb a:hover { color: #06b6d4; }
-	.vx-blog-breadcrumb span { color: #94a3b8; }
-
-	/* Sub-navigation (section pages) */
-	.vx-blog-subnav {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 0.25rem;
-		margin-bottom: 2rem;
-		padding-bottom: 1rem;
-		border-bottom: 1px solid rgba(148, 163, 184, 0.08);
-	}
-
-	.vx-blog-subnav-link {
-		padding: 0.35rem 0.75rem;
-		font-size: 0.8rem;
-		color: #64748b;
-		text-decoration: none;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		cursor: pointer;
 		border-radius: 6px;
 		transition: all 0.15s;
 	}
-	.vx-blog-subnav-link:hover {
+	.vx-sidebar-section-btn:hover {
 		color: #cbd5e1;
-		background: rgba(148, 163, 184, 0.06);
+		background: rgba(148, 163, 184, 0.05);
 	}
-	.vx-blog-subnav-link.active {
+	.vx-sidebar-section-btn.active {
 		color: #06b6d4;
-		background: rgba(6, 182, 212, 0.08);
 	}
 
-	/* Content (markdown) */
-	.vx-blog-content :global(h1) {
+	.vx-sidebar-items {
+		padding: 0.15rem 0 0.5rem 0.5rem;
+	}
+
+	.vx-sidebar-item {
+		display: block;
+		padding: 0.3rem 0.6rem;
+		font-size: 0.8rem;
+		color: #64748b;
+		text-decoration: none;
+		border-radius: 5px;
+		transition: all 0.12s;
+		border-left: 2px solid transparent;
+	}
+	.vx-sidebar-item:hover {
+		color: #cbd5e1;
+		background: rgba(148, 163, 184, 0.05);
+	}
+	.vx-sidebar-item.active {
+		color: #06b6d4;
+		background: rgba(6, 182, 212, 0.06);
+		border-left-color: #06b6d4;
+	}
+
+	.vx-sidebar-standalone {
+		margin-top: 0.75rem;
+		padding-top: 0.75rem;
+		border-top: 1px solid rgba(148, 163, 184, 0.06);
+	}
+
+	/* Main content */
+	.vx-docs-main {
+		padding: 1.5rem 2rem 4rem;
+		min-width: 0;
+	}
+
+	/* Content styles */
+	.vx-docs-content :global(h1) {
 		font-size: 2rem;
 		font-weight: 800;
 		margin-bottom: 0.5rem;
@@ -362,7 +381,7 @@
 		-webkit-text-fill-color: transparent;
 	}
 
-	.vx-blog-content :global(h2) {
+	.vx-docs-content :global(h2) {
 		font-size: 1.5rem;
 		font-weight: 700;
 		margin-top: 2.5rem;
@@ -372,7 +391,7 @@
 		color: #f8fafc;
 	}
 
-	.vx-blog-content :global(h3) {
+	.vx-docs-content :global(h3) {
 		font-size: 1.2rem;
 		font-weight: 600;
 		margin-top: 2rem;
@@ -380,7 +399,7 @@
 		color: #e2e8f0;
 	}
 
-	.vx-blog-content :global(h4) {
+	.vx-docs-content :global(h4) {
 		font-size: 1rem;
 		font-weight: 600;
 		margin-top: 1.5rem;
@@ -388,19 +407,18 @@
 		color: #cbd5e1;
 	}
 
-	.vx-blog-content :global(p) {
+	.vx-docs-content :global(p) {
 		line-height: 1.75;
 		color: #94a3b8;
 		margin-bottom: 1rem;
 	}
 
-	.vx-blog-content :global(a) {
-		color: #06b6d4;
-		text-decoration: none;
-	}
-	.vx-blog-content :global(a:hover) { text-decoration: underline; }
+	.vx-docs-content :global(a) { color: #06b6d4; text-decoration: none; }
+	.vx-docs-content :global(a:hover) { text-decoration: underline; }
 
-	.vx-blog-content :global(code:not(pre code)) {
+	.vx-docs-content :global(strong) { color: #e2e8f0; }
+
+	.vx-docs-content :global(code:not(pre code)) {
 		background: rgba(148, 163, 184, 0.1);
 		padding: 0.15rem 0.4rem;
 		border-radius: 4px;
@@ -409,7 +427,7 @@
 		color: #e2e8f0;
 	}
 
-	.vx-blog-content :global(pre) {
+	.vx-docs-content :global(pre) {
 		background: #0d1117 !important;
 		border: 1px solid rgba(148, 163, 184, 0.1);
 		border-radius: 8px;
@@ -419,31 +437,31 @@
 		font-size: 0.85rem;
 	}
 
-	.vx-blog-content :global(pre code) {
+	.vx-docs-content :global(pre code) {
 		background: none !important;
 		padding: 0;
 		font-family: 'JetBrains Mono', monospace;
 	}
 
-	.vx-blog-content :global(ul), .vx-blog-content :global(ol) {
+	.vx-docs-content :global(ul), .vx-docs-content :global(ol) {
 		padding-left: 1.5rem;
 		margin-bottom: 1rem;
 		color: #94a3b8;
 	}
 
-	.vx-blog-content :global(li) {
+	.vx-docs-content :global(li) {
 		line-height: 1.75;
 		margin-bottom: 0.25rem;
 	}
 
-	.vx-blog-content :global(table) {
+	.vx-docs-content :global(table) {
 		width: 100%;
 		border-collapse: collapse;
 		margin: 1.5rem 0;
 		font-size: 0.875rem;
 	}
 
-	.vx-blog-content :global(th) {
+	.vx-docs-content :global(th) {
 		text-align: left;
 		padding: 0.75rem 1rem;
 		border-bottom: 2px solid rgba(148, 163, 184, 0.2);
@@ -454,17 +472,17 @@
 		letter-spacing: 0.05em;
 	}
 
-	.vx-blog-content :global(td) {
+	.vx-docs-content :global(td) {
 		padding: 0.6rem 1rem;
 		border-bottom: 1px solid rgba(148, 163, 184, 0.08);
 		color: #94a3b8;
 	}
 
-	.vx-blog-content :global(tr:hover td) {
+	.vx-docs-content :global(tr:hover td) {
 		background: rgba(148, 163, 184, 0.03);
 	}
 
-	.vx-blog-content :global(blockquote) {
+	.vx-docs-content :global(blockquote) {
 		border-left: 3px solid #06b6d4;
 		padding: 0.5rem 1rem;
 		margin: 1rem 0;
@@ -472,57 +490,68 @@
 		border-radius: 0 6px 6px 0;
 	}
 
-	.vx-blog-content :global(blockquote p) {
-		color: #cbd5e1;
-		margin: 0;
-	}
+	.vx-docs-content :global(blockquote p) { color: #cbd5e1; margin: 0; }
 
-	.vx-blog-content :global(hr) {
+	.vx-docs-content :global(hr) {
 		border: none;
 		border-top: 1px solid rgba(148, 163, 184, 0.1);
 		margin: 2rem 0;
 	}
 
-	.vx-blog-content :global(img) {
-		max-width: 100%;
-		border-radius: 8px;
-	}
+	.vx-docs-content :global(img) { max-width: 100%; border-radius: 8px; }
 
 	/* Mobile nav */
-	.vx-blog-mobile-nav {
+	.vx-docs-mobile-nav {
 		display: none;
 		flex-direction: column;
 		padding: 0.5rem 1rem 1rem;
 		border-top: 1px solid rgba(148, 163, 184, 0.08);
+		max-height: 60vh;
+		overflow-y: auto;
 	}
 
-	.vx-blog-mobile-link {
-		padding: 0.6rem 0.5rem;
+	.vx-docs-mobile-section {
+		margin-bottom: 0.5rem;
+	}
+
+	.vx-docs-mobile-section-title {
+		display: block;
+		font-size: 0.7rem;
+		font-weight: 600;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: #475569;
+		padding: 0.4rem 0.5rem 0.15rem;
+	}
+
+	.vx-docs-mobile-link {
+		display: block;
+		padding: 0.5rem 0.5rem 0.5rem 1rem;
 		font-size: 0.85rem;
 		color: #94a3b8;
 		text-decoration: none;
 		border-bottom: 1px solid rgba(148, 163, 184, 0.05);
 	}
-	.vx-blog-mobile-link:hover { color: #f8fafc; }
-	.vx-blog-mobile-link.active { color: #06b6d4; }
+	.vx-docs-mobile-link:hover { color: #f8fafc; }
+	.vx-docs-mobile-link.active { color: #06b6d4; }
 
-	@media (max-width: 768px) {
-		.vx-blog-tabs { display: none; }
-		.vx-blog-mobile-btn { display: block; }
-		.vx-blog-mobile-nav { display: flex; }
-
-		.vx-blog-main { padding: 1rem 1rem 3rem; }
-
-		.vx-blog-subnav {
-			overflow-x: auto;
-			flex-wrap: nowrap;
-			-webkit-overflow-scrolling: touch;
+	@media (max-width: 1024px) {
+		.vx-docs-body {
+			grid-template-columns: 1fr;
 		}
-		.vx-blog-subnav-link { flex-shrink: 0; }
+
+		.vx-docs-sidebar {
+			display: none;
+		}
+
+		.vx-docs-mobile-btn { display: block; }
+		.vx-docs-mobile-nav { display: flex; }
+
+		.vx-docs-main { padding: 1rem 1rem 3rem; }
 	}
 
 	@media (max-width: 480px) {
-		.vx-blog-logo-text { display: none; }
-		.vx-blog-logo-divider { display: none; }
+		.vx-docs-logo-text { display: none; }
+		.vx-docs-divider { display: none; }
 	}
 </style>
