@@ -55,13 +55,6 @@ extra_css:
 
 plugins:
   - search
-  - i18n:
-      languages:
-        - locale: en
-          name: English
-          default: true
-        - locale: ko
-          name: 한국어
   - mkdocstrings:
       handlers:
         python:
@@ -100,14 +93,6 @@ nav:
     - Multivariate & Distributions: api/multivariate.md
     - Types: api/types.md
   - Benchmarks: benchmarks.md
-  - Tutorials:
-    - tutorials/index.md
-    - Quickstart: tutorials/01_quickstart.md
-    - Analysis & DNA: tutorials/02_analyze.md
-    - Regression: tutorials/03_regression.md
-    - 30+ Models: tutorials/04_models.md
-    - Adaptive Intelligence: tutorials/05_adaptive.md
-    - Business Intelligence: tutorials/06_business.md
   - Changelog: changelog.md
 
 markdown_extensions:

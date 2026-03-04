@@ -29,6 +29,7 @@
 
 <p>
 <a href="https://eddmpython.github.io/vectrix/"><img src="https://img.shields.io/badge/Docs-eddmpython.github.io/vectrix-818cf8?style=for-the-badge&labelColor=0f172a&logo=readthedocs&logoColor=white" alt="Documentation"></a>
+<a href="https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/01_quickstart.ipynb"><img src="https://img.shields.io/badge/Open%20in-Colab-F9AB00?style=for-the-badge&labelColor=0f172a&logo=googlecolab&logoColor=white" alt="Open in Colab"></a>
 </p>
 
 <p>
@@ -39,8 +40,7 @@
 <a href="#-usage">Usage</a> ·
 <a href="#-benchmarks">Benchmarks</a> ·
 <a href="#-api-reference">API Reference</a> ·
-<a href="https://eddmpython.github.io/vectrix/docs/tutorials/">Tutorials</a> ·
-<a href="https://eddmpython.github.io/vectrix/docs/showcase/">Showcase</a> ·
+<a href="#-interactive-notebooks">Notebooks</a> ·
 <a href="README_KR.md">한국어</a>
 </p>
 
@@ -368,6 +368,18 @@ Evaluated on **M4 Competition 100,000 time series** (2,000 sample per frequency,
 | #18 | Theta | 0.897 |
 
 Full results with sMAPE/MASE breakdown: [benchmarks](https://eddmpython.github.io/vectrix/docs/benchmarks/)
+
+<br>
+
+## ◈ Interactive Notebooks
+
+Try Vectrix instantly — no setup needed. Click to open in Google Colab.
+
+| Notebook | Description | Link |
+|:---------|:------------|:----:|
+| **Quick Start** | Forecast, analyze, regress in 5 minutes | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/01_quickstart.ipynb) |
+| **Models & DNA** | Compare 30+ models, DNA profiling deep dive | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/02_models_and_dna.ipynb) |
+| **Try Your Data** | Upload your CSV, get instant analysis | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/03_try_your_data.ipynb) |
 
 <br>
 

@@ -28,6 +28,7 @@
 
 <p>
 <a href="https://eddmpython.github.io/vectrix/"><img src="https://img.shields.io/badge/Docs-eddmpython.github.io/vectrix-818cf8?style=for-the-badge&labelColor=0f172a&logo=readthedocs&logoColor=white" alt="Documentation"></a>
+<a href="https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/01_quickstart.ipynb"><img src="https://img.shields.io/badge/Open%20in-Colab-F9AB00?style=for-the-badge&labelColor=0f172a&logo=googlecolab&logoColor=white" alt="Open in Colab"></a>
 </p>
 
 <p>
@@ -38,8 +39,7 @@
 <a href="#-사용-예시">사용 예시</a> ·
 <a href="#-벤치마크">벤치마크</a> ·
 <a href="#-api-레퍼런스">API</a> ·
-<a href="https://eddmpython.github.io/vectrix/docs/tutorials/">튜토리얼</a> ·
-<a href="https://eddmpython.github.io/vectrix/docs/showcase/">쇼케이스</a> ·
+<a href="#-인터랙티브-노트북">노트북</a> ·
 <a href="README.md">English</a>
 </p>
 
@@ -365,6 +365,18 @@ result = caf.apply(predictions, lower95, upper95, constraints=[
 | #18 | Theta | 0.897 |
 
 sMAPE/MASE 상세 결과: [벤치마크 상세](https://eddmpython.github.io/vectrix/docs/benchmarks/)
+
+<br>
+
+## ◈ 인터랙티브 노트북
+
+설치 없이 바로 체험 — Google Colab에서 클릭 한 번으로 실행.
+
+| 노트북 | 설명 | 링크 |
+|:-------|:-----|:----:|
+| **Quick Start** | 예측, 분석, 회귀를 5분 안에 | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/01_quickstart.ipynb) |
+| **Models & DNA** | 30+ 모델 비교, DNA 프로파일링 심화 | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/02_models_and_dna.ipynb) |
+| **Try Your Data** | CSV 업로드만 하면 즉시 분석 | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/03_try_your_data.ipynb) |
 
 <br>
 
