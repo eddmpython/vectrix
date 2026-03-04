@@ -797,6 +797,7 @@ class EasyRegressionResult:
         self.r_squared = self.rSquared
         self.adj_r_squared = self.adjRSquared
         self.f_stat = self.fStat
+        self.durbin_watson = self.durbinWatson
 
     def summary(self) -> str:
         """
@@ -918,7 +919,6 @@ def forecast(
     date: str = None,
     value: str = None,
     steps: int = 30,
-    frequency: str = 'auto',
     verbose: bool = False,
     models: Optional[List[str]] = None,
     ensemble: Optional[str] = None,
@@ -942,8 +942,6 @@ def forecast(
         Value column name. Auto-detected if None.
     steps : int
         Forecast horizon (default: 30).
-    frequency : str
-        'auto', 'D', 'W', 'M', 'H', etc. (currently unused, auto-detected).
     verbose : bool
         Print progress messages.
     models : list of str, optional
@@ -965,7 +963,7 @@ def forecast(
     Returns
     -------
     EasyForecastResult
-        .predictions, .dates, .lower, .upper, .model, .summary(), .to_dataframe()
+        .predictions, .dates, .lower, .upper, .model, .summary(), .toDataframe()
 
     Raises
     ------

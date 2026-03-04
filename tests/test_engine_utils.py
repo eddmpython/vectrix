@@ -157,15 +157,15 @@ class TestCrossValidation:
         assert 'rmse' in result
         assert 'mae' in result
         assert 'smape' in result
-        assert 'fold_results' in result
-        assert result['n_folds'] >= 1
+        assert 'foldResults' in result
+        assert result['nFolds'] >= 1
 
     def test_evaluateWithInsufficientData(self):
         y = np.arange(5, dtype=np.float64)
         cv = TimeSeriesCrossValidator(n_splits=3, horizon=10, min_train_size=50)
         result = cv.evaluate(y, lambda: None)
         assert result['mape'] == np.inf
-        assert result['n_folds'] == 0
+        assert result['nFolds'] == 0
 
 
 class TestDecomposition:

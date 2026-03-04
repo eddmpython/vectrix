@@ -416,6 +416,7 @@ class Vectrix:
             mape = TurboCore.mape(testData, predictions[:len(testData)])
             rmse = TurboCore.rmse(testData, predictions[:len(testData)])
             mae = TurboCore.mae(testData, predictions[:len(testData)])
+            smape = TurboCore.smape(testData, predictions[:len(testData)])
 
             if flatInfo.isFlat and not flatInfo.correctionApplied:
                 mape *= 1.5
@@ -429,6 +430,7 @@ class Vectrix:
                 mape=mape,
                 rmse=rmse,
                 mae=mae,
+                smape=smape,
                 flatInfo=flatInfo,
                 trainingTime=time.time() - startTime,
                 isValid=True

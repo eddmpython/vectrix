@@ -21,37 +21,51 @@ class TimeSeriesCrossValidator:
     - Sliding window: fixed-size train window slides forward
 
     Usage:
-        >>> cv = TimeSeriesCrossValidator(n_splits=5, horizon=30)
-        >>> results = cv.evaluate(y, model_factory, period=7)
+        >>> cv = TimeSeriesCrossValidator(nSplits=5, horizon=30)
+        >>> results = cv.evaluate(y, modelFactory, period=7)
     """
 
     def __init__(
         self,
-        n_splits: int = 5,
+        nSplits: int = 5,
         horizon: int = 30,
         strategy: str = 'expanding',
-        min_train_size: int = 50,
-        step_size: Optional[int] = None
+        minTrainSize: int = 50,
+        stepSize: Optional[int] = None,
+        n_splits: int = None,
+        min_train_size: int = None,
+        step_size: int = None
     ):
         """
         Parameters
         ----------
-        n_splits : int
+        nSplits : int
             Number of CV folds
         horizon : int
             Forecast horizon per fold
         strategy : str
             'expanding' or 'sliding'
-        min_train_size : int
+        minTrainSize : int
             Minimum training set size
-        step_size : int, optional
+        stepSize : int, optional
             Step between folds. If None, auto-calculated.
         """
-        self.n_splits = n_splits
+        if n_splits is not None:
+            nSplits = n_splits
+        if min_train_size is not None:
+            minTrainSize = min_train_size
+        if step_size is not None:
+            stepSize = step_size
+
+        self.nSplits = nSplits
         self.horizon = horizon
         self.strategy = strategy
-        self.min_train_size = min_train_size
-        self.step_size = step_size
+        self.minTrainSize = minTrainSize
+        self.stepSize = stepSize
+
+        self.n_splits = self.nSplits
+        self.min_train_size = self.minTrainSize
+        self.step_size = self.stepSize
 
     def split(self, y: np.ndarray) -> List[Tuple[np.ndarray, np.ndarray]]:
         """
@@ -65,44 +79,45 @@ class TimeSeriesCrossValidator:
         Returns
         -------
         List[Tuple[np.ndarray, np.ndarray]]
-            List of (train_indices, test_indices) pairs
+            List of (trainIndices, testIndices) pairs
         """
         n = len(y)
-        needed = self.min_train_size + self.horizon
+        needed = self.minTrainSize + self.horizon
         if n < needed:
             return []
 
-        available = n - self.min_train_size - self.horizon
-        if self.step_size is not None:
-            step = self.step_size
+        available = n - self.minTrainSize - self.horizon
+        if self.stepSize is not None:
+            step = self.stepSize
         else:
-            step = max(1, available // max(self.n_splits - 1, 1))
+            step = max(1, available // max(self.nSplits - 1, 1))
 
         splits = []
-        for i in range(self.n_splits):
+        for i in range(self.nSplits):
             if self.strategy == 'sliding':
-                train_end = self.min_train_size + i * step
-                train_start = max(0, train_end - self.min_train_size)
+                trainEnd = self.minTrainSize + i * step
+                trainStart = max(0, trainEnd - self.minTrainSize)
             else:
-                train_end = self.min_train_size + i * step
-                train_start = 0
+                trainEnd = self.minTrainSize + i * step
+                trainStart = 0
 
-            test_end = min(train_end + self.horizon, n)
+            testEnd = min(trainEnd + self.horizon, n)
 
-            if train_end >= n or test_end <= train_end:
+            if trainEnd >= n or testEnd <= trainEnd:
                 break
 
-            train_idx = np.arange(train_start, train_end)
-            test_idx = np.arange(train_end, test_end)
-            splits.append((train_idx, test_idx))
+            trainIdx = np.arange(trainStart, trainEnd)
+            testIdx = np.arange(trainEnd, testEnd)
+            splits.append((trainIdx, testIdx))
 
         return splits
 
     def evaluate(
         self,
         y: np.ndarray,
-        model_factory: Callable,
-        period: int = 1
+        modelFactory: Callable = None,
+        period: int = 1,
+        model_factory: Callable = None
     ) -> Dict[str, Any]:
         """
         Run cross-validation on a model.
@@ -111,7 +126,7 @@ class TimeSeriesCrossValidator:
         ----------
         y : np.ndarray
             Time series data
-        model_factory : Callable
+        modelFactory : Callable
             Function that returns a new model instance.
             The model must have fit(y) and predict(steps) methods.
         period : int
@@ -122,23 +137,26 @@ class TimeSeriesCrossValidator:
         Dict[str, Any]
             {
                 'mape': float, 'rmse': float, 'mae': float, 'smape': float,
-                'fold_results': List[Dict], 'n_folds': int
+                'foldResults': List[Dict], 'nFolds': int
             }
         """
+        if model_factory is not None:
+            modelFactory = model_factory
+
         splits = self.split(y)
         if not splits:
             return {'mape': np.inf, 'rmse': np.inf, 'mae': np.inf, 'smape': np.inf,
-                    'fold_results': [], 'n_folds': 0}
+                    'foldResults': [], 'nFolds': 0}
 
-        fold_results = []
+        foldResults = []
 
-        for fold_idx, (train_idx, test_idx) in enumerate(splits):
-            train = y[train_idx]
-            test = y[test_idx]
+        for foldIdx, (trainIdx, testIdx) in enumerate(splits):
+            train = y[trainIdx]
+            test = y[testIdx]
             steps = len(test)
 
             try:
-                model = model_factory()
+                model = modelFactory()
                 model.fit(train)
                 pred, _, _ = model.predict(steps)
 
@@ -149,43 +167,43 @@ class TimeSeriesCrossValidator:
                 mae = TurboCore.mae(test, pred)
                 smape = TurboCore.smape(test, pred)
 
-                fold_results.append({
-                    'fold': fold_idx,
-                    'train_size': len(train),
-                    'test_size': len(test),
+                foldResults.append({
+                    'fold': foldIdx,
+                    'trainSize': len(train),
+                    'testSize': len(test),
                     'mape': mape,
                     'rmse': rmse,
                     'mae': mae,
                     'smape': smape
                 })
             except Exception:
-                fold_results.append({
-                    'fold': fold_idx,
-                    'train_size': len(train),
-                    'test_size': len(test),
+                foldResults.append({
+                    'fold': foldIdx,
+                    'trainSize': len(train),
+                    'testSize': len(test),
                     'mape': np.inf,
                     'rmse': np.inf,
                     'mae': np.inf,
                     'smape': np.inf
                 })
 
-        valid_folds = [f for f in fold_results if f['mape'] < np.inf]
-        n_valid = len(valid_folds)
+        validFolds = [f for f in foldResults if f['mape'] < np.inf]
+        nValid = len(validFolds)
 
-        if n_valid == 0:
+        if nValid == 0:
             return {'mape': np.inf, 'rmse': np.inf, 'mae': np.inf, 'smape': np.inf,
-                    'fold_results': fold_results, 'n_folds': len(splits)}
+                    'foldResults': foldResults, 'nFolds': len(splits)}
 
-        avg_mape = np.mean([f['mape'] for f in valid_folds])
-        avg_rmse = np.mean([f['rmse'] for f in valid_folds])
-        avg_mae = np.mean([f['mae'] for f in valid_folds])
-        avg_smape = np.mean([f['smape'] for f in valid_folds])
+        avgMape = np.mean([f['mape'] for f in validFolds])
+        avgRmse = np.mean([f['rmse'] for f in validFolds])
+        avgMae = np.mean([f['mae'] for f in validFolds])
+        avgSmape = np.mean([f['smape'] for f in validFolds])
 
         return {
-            'mape': avg_mape,
-            'rmse': avg_rmse,
-            'mae': avg_mae,
-            'smape': avg_smape,
-            'fold_results': fold_results,
-            'n_folds': len(splits)
+            'mape': avgMape,
+            'rmse': avgRmse,
+            'mae': avgMae,
+            'smape': avgSmape,
+            'foldResults': foldResults,
+            'nFolds': len(splits)
         }

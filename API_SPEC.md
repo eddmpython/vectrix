@@ -15,7 +15,6 @@ forecast(
     date=None,               # str — date column name
     value=None,              # str — value column name
     steps=30,                # int — forecast horizon
-    frequency='auto',        # str — 'auto', 'D', 'W', 'M', 'H'
     verbose=False,           # bool
     models=None,             # list[str] | None — model IDs
     ensemble=None,           # str | None — 'mean', 'weighted', 'median', 'best'
@@ -174,7 +173,7 @@ for a in analysis.anomalies:
 | rSquared | r_squared | float | R² |
 | adjRSquared | adj_r_squared | float | Adjusted R² |
 | fStat | f_stat | float | F-statistic |
-| durbinWatson | — | float | Durbin-Watson statistic |
+| durbinWatson | durbin_watson | float | Durbin-Watson statistic |
 
 **Methods:**
 | Method | Returns |
@@ -309,6 +308,20 @@ from vectrix import ForecastDNA
 dna = ForecastDNA()
 profile = dna.analyze(values, period=7)  # -> DNAProfile
 ```
+
+## Utility API (from vectrix import ...)
+
+### TimeSeriesCrossValidator
+
+```python
+from vectrix import TimeSeriesCrossValidator
+
+cv = TimeSeriesCrossValidator(nSplits=5, horizon=30, strategy='expanding', minTrainSize=50, stepSize=None)
+splits = cv.split(y)           # -> List[Tuple[ndarray, ndarray]]
+result = cv.evaluate(y, modelFactory, period=7)  # -> dict
+```
+
+**evaluate() return dict keys:** `'mape'`, `'rmse'`, `'mae'`, `'smape'`, `'foldResults'`, `'nFolds'`
 
 ---
 
