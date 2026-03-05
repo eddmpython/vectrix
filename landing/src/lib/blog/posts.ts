@@ -6,6 +6,7 @@ export interface BlogPost {
 	date: string;
 	readingTime: string;
 	featured?: boolean;
+	keywords?: string[];
 }
 
 export const categories = {
@@ -23,7 +24,8 @@ export const blogPosts: BlogPost[] = [
 		category: 'how-to',
 		date: '2026-03-05',
 		readingTime: '15 min',
-		featured: true
+		featured: true,
+		keywords: ['python forecasting tutorial', 'time series prediction python', 'forecast python', 'vectrix tutorial', 'first forecast']
 	},
 	{
 		slug: 'python-forecasting-libraries',
@@ -32,7 +34,8 @@ export const blogPosts: BlogPost[] = [
 		category: 'how-to',
 		date: '2026-03-05',
 		readingTime: '18 min',
-		featured: true
+		featured: true,
+		keywords: ['python forecasting library', 'statsforecast vs prophet', 'time series python', 'forecasting library comparison', 'darts vs sktime']
 	},
 	{
 		slug: 'how-we-know-forecasts-work',
@@ -41,7 +44,8 @@ export const blogPosts: BlogPost[] = [
 		category: 'benchmarks',
 		date: '2026-03-04',
 		readingTime: '12 min',
-		featured: true
+		featured: true,
+		keywords: ['forecast accuracy', 'M competition', 'MAPE RMSE explained', 'forecast benchmark', 'OWA metric']
 	},
 	{
 		slug: 'what-is-forecasting',
@@ -49,7 +53,8 @@ export const blogPosts: BlogPost[] = [
 		description: 'The one concept behind every business decision. Learn what forecasting really means, why it matters, and how it works — no math required.',
 		category: 'fundamentals',
 		date: '2026-03-04',
-		readingTime: '8 min'
+		readingTime: '8 min',
+		keywords: ['what is forecasting', 'forecasting basics', 'time series explained', 'demand forecasting', 'prediction vs forecasting']
 	}
 ];
 

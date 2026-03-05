@@ -137,6 +137,13 @@
 	{#if post}
 		<meta property="article:published_time" content={post.date} />
 		<meta property="article:section" content={categories[post.category].label} />
+		<meta property="article:author" content="https://github.com/eddmpython" />
+		{#if post.keywords}
+			<meta name="keywords" content={post.keywords.join(', ')} />
+			{#each post.keywords as tag}
+				<meta property="article:tag" content={tag} />
+			{/each}
+		{/if}
 	{/if}
 
 	<meta name="twitter:card" content="summary_large_image" />
@@ -155,7 +162,8 @@
 		"author": { "@type": "Person", "name": "eddmpython", "url": "https://github.com/eddmpython" },
 		"publisher": { "@type": "Organization", "name": "Vectrix", "logo": { "@type": "ImageObject", "url": OG_IMAGE } },
 		"mainEntityOfPage": { "@type": "WebPage", "@id": canonicalUrl },
-		"inLanguage": "en"
+		"inLanguage": "en",
+		...(post?.keywords ? { "keywords": post.keywords.join(', ') } : {})
 	})}</script>`}
 
 	{@html `<script type="application/ld+json">${JSON.stringify({
