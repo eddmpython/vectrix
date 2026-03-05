@@ -189,6 +189,18 @@ def syncReadme(c):
     return p
 
 
+def syncInitPy(c):
+    p = FilePatcher(ROOT / "src" / "vectrix" / "__init__.py")
+    p.replace(r'^__version__ = ".*?"', f'__version__ = "{c["version"]}"', count=1)
+    return p
+
+
+def syncVectrixPy(c):
+    p = FilePatcher(ROOT / "src" / "vectrix" / "vectrix.py")
+    p.replace(r'^    VERSION = ".*?"', f'    VERSION = "{c["version"]}"', count=1)
+    return p
+
+
 ALL_SYNCS = [
     ("pyproject.toml", syncPyprojectToml),
     ("Cargo.toml", syncCargoToml),
@@ -204,6 +216,8 @@ ALL_SYNCS = [
     ("landing Performance.svelte", syncPerformanceSvelte),
     ("docs home.html", syncHomeHtml),
     ("README.md", syncReadme),
+    ("src/vectrix/__init__.py", syncInitPy),
+    ("src/vectrix/vectrix.py", syncVectrixPy),
 ]
 
 
