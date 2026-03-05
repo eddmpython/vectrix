@@ -549,7 +549,7 @@ When evaluating any library, ask for reproducible benchmark numbers. If they can
 You now know the lay of the land — what each library does, where each shines, and where each struggles. In upcoming posts
 
 - **[Your First Forecast in Python](/vectrix/blog/your-first-forecast-in-python)** — From zero to prediction in 15 minutes using real data
-- **Time Series Models Explained** — ETS, ARIMA, Theta, and when to use each
+- **[Forecasting Models Explained](/vectrix/blog/forecasting-models-explained)** — ETS, ARIMA, Theta, DOT, GARCH, Croston — what each one does and when to use it
 - **The Art of Model Selection** — How auto-selection works and why it matters
 
 The library you choose is just the starting point. What matters most is understanding your data, choosing the right approach, and measuring the result honestly.

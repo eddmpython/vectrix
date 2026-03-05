@@ -478,8 +478,8 @@ Options: `'mean'` (simple average), `'weighted'` (accuracy-weighted), `'median'`
 
 In upcoming posts:
 
-- **[Time Series Models Explained](/vectrix/blog/time-series-models-explained)** — ETS, ARIMA, Theta — what each one does, how they differ, and when to use which
-- **[The Art of Model Selection](/vectrix/blog/the-art-of-model-selection)** — How automatic model selection works under the hood, and why it usually beats manual picking
+- **[Forecasting Models Explained](/vectrix/blog/forecasting-models-explained)** — ETS, ARIMA, Theta, DOT, GARCH, Croston — what each one does, when it shines, and why diversity matters
+- **The Art of Model Selection** — How automatic model selection works under the hood, and why it usually beats manual picking
 
 *Ready to try it yourself? Install Vectrix in 10 seconds and run the code above:*
 

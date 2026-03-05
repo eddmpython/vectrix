@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 350">
+  <defs>
+    <linearGradient id="bg6" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="350" fill="url(#bg6)" rx="12"/>
+
+  <!-- Title -->
+  <text x="400" y="30" text-anchor="middle" fill="#f1f5f9" font-family="Inter,sans-serif" font-size="14" font-weight="600">ETS Decomposition: Error + Trend + Seasonal</text>
+
+  <!-- Original series -->
+  <text x="50" y="65" fill="#94a3b8" font-family="Inter,sans-serif" font-size="11">Original</text>
+  <polyline points="120,80 160,65 200,70 240,55 280,60 320,45 360,50 400,38 440,42 480,30 520,35 560,22 600,28 640,15 680,20" fill="none" stroke="#6366f1" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- = sign -->
+  <text x="45" y="115" fill="#f59e0b" font-family="Inter,sans-serif" font-size="18" font-weight="700">=</text>
+
+  <!-- Level component -->
+  <text x="50" y="140" fill="#22c55e" font-family="Inter,sans-serif" font-size="11" font-weight="600">Level (ℓ)</text>
+  <line x1="120" y1="145" x2="680" y2="145" stroke="#22c55e" stroke-width="2" stroke-dasharray="6,3" opacity="0.7"/>
+
+  <!-- + -->
+  <text x="45" y="180" fill="#f59e0b" font-family="Inter,sans-serif" font-size="18" font-weight="700">+</text>
+
+  <!-- Trend component -->
+  <text x="50" y="200" fill="#a855f7" font-family="Inter,sans-serif" font-size="11" font-weight="600">Trend (b)</text>
+  <line x1="120" y1="210" x2="680" y2="185" stroke="#a855f7" stroke-width="2" opacity="0.7"/>
+
+  <!-- + -->
+  <text x="45" y="240" fill="#f59e0b" font-family="Inter,sans-serif" font-size="18" font-weight="700">+</text>
+
+  <!-- Seasonal component -->
+  <text x="50" y="265" fill="#38bdf8" font-family="Inter,sans-serif" font-size="11" font-weight="600">Season (s)</text>
+  <path d="M120,270 Q145,255 170,270 Q195,285 220,270 Q245,255 270,270 Q295,285 320,270 Q345,255 370,270 Q395,285 420,270 Q445,255 470,270 Q495,285 520,270 Q545,255 570,270 Q595,285 620,270 Q645,255 670,270" fill="none" stroke="#38bdf8" stroke-width="2" opacity="0.7"/>
+
+  <!-- + -->
+  <text x="45" y="305" fill="#f59e0b" font-family="Inter,sans-serif" font-size="18" font-weight="700">+</text>
+
+  <!-- Error component -->
+  <text x="50" y="325" fill="#ef4444" font-family="Inter,sans-serif" font-size="11" font-weight="600">Error (ε)</text>
+  <polyline points="120,320 140,315 160,325 180,318 200,322 220,316 240,324 260,319 280,321 300,317 320,323 340,318 360,322 380,316 400,324 420,319 440,321 460,317 480,323 500,318 520,322 540,316 560,324 580,319 600,321 620,317 640,323 660,318 680,322" fill="none" stroke="#ef4444" stroke-width="1.5" opacity="0.6"/>
+
+  <!-- Right side labels -->
+  <rect x="700" y="55" width="85" height="25" rx="4" fill="#6366f1" opacity="0.2"/>
+  <text x="742" y="72" text-anchor="middle" fill="#6366f1" font-family="Inter,sans-serif" font-size="10">y_t</text>
+
+  <rect x="700" y="135" width="85" height="25" rx="4" fill="#22c55e" opacity="0.2"/>
+  <text x="742" y="152" text-anchor="middle" fill="#22c55e" font-family="Inter,sans-serif" font-size="10">smoothed</text>
+
+  <rect x="700" y="190" width="85" height="25" rx="4" fill="#a855f7" opacity="0.2"/>
+  <text x="742" y="207" text-anchor="middle" fill="#a855f7" font-family="Inter,sans-serif" font-size="10">slope</text>
+
+  <rect x="700" y="260" width="85" height="25" rx="4" fill="#38bdf8" opacity="0.2"/>
+  <text x="742" y="277" text-anchor="middle" fill="#38bdf8" font-family="Inter,sans-serif" font-size="10">repeating</text>
+
+  <rect x="700" y="312" width="85" height="25" rx="4" fill="#ef4444" opacity="0.2"/>
+  <text x="742" y="329" text-anchor="middle" fill="#ef4444" font-family="Inter,sans-serif" font-size="10">noise</text>
+</svg>

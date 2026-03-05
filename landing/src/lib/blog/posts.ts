@@ -18,6 +18,16 @@ export const categories = {
 
 export const blogPosts: BlogPost[] = [
 	{
+		slug: 'forecasting-models-explained',
+		title: 'Forecasting Models Explained — What ETS, ARIMA, Theta, and Friends Actually Do',
+		description: 'A deep dive into time series forecasting models. Learn what ETS, ARIMA, Theta, DOT, CES, TBATS, GARCH, and Croston do, when each shines, and why having many models matters.',
+		category: 'deep-dive',
+		date: '2026-03-05',
+		readingTime: '22 min',
+		featured: true,
+		keywords: ['ETS vs ARIMA', 'theta forecasting', 'exponential smoothing explained', 'forecasting models comparison', 'DOT model']
+	},
+	{
 		slug: 'your-first-forecast-in-python',
 		title: 'Your First Forecast in Python — Step by Step',
 		description: 'From zero to prediction in 15 minutes. Load data, analyze patterns, generate forecasts with confidence intervals, compare 30+ models, and export results — all in Python.',
