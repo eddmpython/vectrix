@@ -36,9 +36,8 @@
 <a href="https://eddmpython.github.io/vectrix/">Documentation</a> ·
 <a href="#-quick-start">Quick Start</a> ·
 <a href="#-models">Models</a> ·
-<a href="#-installation">Installation</a> ·
-<a href="#-usage">Usage</a> ·
 <a href="#-benchmarks">Benchmarks</a> ·
+<a href="#-research--understanding-first-forecasting">Research</a> ·
 <a href="#-api-reference">API Reference</a> ·
 <a href="#-interactive-notebooks">Notebooks</a>
 </p>
@@ -49,7 +48,9 @@
 
 ## ◈ What is Vectrix?
 
-Vectrix is a time series forecasting library with a **built-in Rust engine**. Python syntax, Rust speed — 3 dependencies (NumPy, SciPy, Pandas), no compiler needed. `pip install vectrix` and the Rust-accelerated engine is included in the wheel.
+Vectrix is a time series forecasting engine that **understands your data before predicting it**. Every series is profiled into a DNA fingerprint — 65+ statistical features — that drives model selection, ensemble strategy, and anomaly detection automatically. Built-in Rust acceleration, 3 dependencies (NumPy, SciPy, Pandas), no compiler needed. `pip install vectrix` and the Rust engine is included in the wheel.
+
+Under the hood, there is an active research program: [Understanding-first Forecasting](#-research--understanding-first-forecasting) — proving that structural understanding beats pattern memorization, even against foundation models.
 
 ### Forecasting
 
@@ -130,25 +131,49 @@ Available: `airline`, `retail`, `stock`, `temperature`, `energy`, `web`, `interm
 
 ### Interactive Visualization
 
-Publication-quality dark-themed Plotly charts, built into the library as an optional dependency.
+Publication-quality dark-themed Plotly charts and a self-contained HTML dashboard, built into the library as an optional dependency.
 
 ```python
 pip install vectrix[viz]
 ```
 
 ```python
-from vectrix import forecast, analyze, loadSample
-from vectrix.viz import forecastChart, dnaRadar, forecastReport, analysisReport
+from vectrix import forecast, analyze, compare, loadSample
+from vectrix.viz import forecastChart, dnaRadar, dashboard
 
 df = loadSample("airline")
 result = forecast(df, steps=12)
-forecastChart(result, historical=df).show()
+analysis = analyze(df)
+comparison = compare(df, steps=12)
 
-report = analyze(df)
-analysisReport(report).show()
+forecastChart(result, historical=df).show()
+dnaRadar(analysis).show()
 ```
 
-8 chart functions — `forecastChart`, `dnaRadar`, `modelHeatmap`, `scenarioChart`, `backtestChart`, `metricsCard`, `forecastReport`, `analysisReport` — all return standard `go.Figure` objects with a consistent brand theme (dark background, indigo primary).
+9 chart functions — `forecastChart`, `dnaRadar`, `modelHeatmap`, `scenarioChart`, `backtestChart`, `metricsCard`, `forecastReport`, `analysisReport`, `dashboard` — all return standard `go.Figure` objects with a consistent brand theme (dark navy background, cyan-purple gradient). `dashboard()` generates a self-contained HTML report.
+
+### HTML Dashboard
+
+Generate a complete interactive report — data profile, forecast results, model comparison, and charts — in a single self-contained HTML file. No server needed.
+
+```python
+from vectrix import forecast, analyze, compare, loadSample
+from vectrix.viz import dashboard
+
+df = loadSample("airline")
+
+report = dashboard(
+    forecast=forecast(df, steps=12),
+    analysis=analyze(df),
+    comparison=compare(df, steps=12),
+    historical=df,
+    title="Airline Passengers — Monthly Forecast",
+)
+report.save("report.html")   # Self-contained HTML (embedded Plotly + CSS)
+report.show()                 # Opens in browser or displays inline in Jupyter
+```
+
+The report includes: overview KPIs, DNA feature bars with descriptive stats, accuracy metrics with model comparison, and interactive forecast + radar charts. All parameters are optional — pass only what you have.
 
 ### Minimal Dependencies, Maximum Performance
 
@@ -185,6 +210,8 @@ result.plot()
 | **Business constraints** | 8 types | ❌ | ❌ | ❌ |
 | **Built-in regression** | R-style | ❌ | ❌ | ❌ |
 | **Sample datasets** | 7 built-in | ❌ | ❌ | ✅ |
+| **HTML dashboard** | Self-contained | ❌ | ❌ | ❌ |
+| **Interactive viz** | 9 Plotly charts | ❌ | ❌ | ❌ |
 
 > **Comparison notes**: Dependencies counted as direct `pip install` requirements (not transitive). Vectrix's Rust engine is compiled into the wheel (like Polars) — no separate install needed. statsforecast requires Numba JIT compilation; Prophet requires CmdStan (C++ compiler); Darts requires PyTorch. Feature comparison based on statsforecast 2.0+, Prophet 1.1+, Darts 0.31+.
 
@@ -281,6 +308,7 @@ result.plot()
 
 ```bash
 pip install vectrix                # Rust engine included — no extras needed
+pip install "vectrix[viz]"         # + Plotly charts & HTML dashboard
 pip install "vectrix[ml]"          # + LightGBM, XGBoost, scikit-learn
 pip install "vectrix[all]"         # Everything
 ```
@@ -406,6 +434,7 @@ Try Vectrix instantly — no setup needed. Click to open in Google Colab.
 | **04 Models** | Model comparison, direct engine, flat defense | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/tutorials/04_models.ipynb) |
 | **05 Adaptive** | Regime detection, DNA, healing, constraints | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/tutorials/05_adaptive.ipynb) |
 | **06 Business** | Anomalies, scenarios, backtest, metrics | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/tutorials/06_business.ipynb) |
+| **07 Visualization** | Charts, reports, HTML dashboard | [![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/tutorials/07_visualization.ipynb) |
 
 ### Showcase (Plotly)
 
@@ -430,6 +459,22 @@ Try Vectrix instantly — no setup needed. Click to open in Google Colab.
 
 All parameters beyond `data` are optional with sensible defaults. See [Progressive Disclosure](#api-layers) for the Level 1 → 2 → 3 design.
 
+### Visualization API (`pip install vectrix[viz]`)
+
+| Function | Description |
+|:---------|:------------|
+| `forecastChart(result, historical, theme)` | Forecast line chart with confidence intervals |
+| `dnaRadar(analysis, theme)` | 6-axis radar of DNA features |
+| `modelHeatmap(comparison, top, theme)` | Normalized error metric heatmap |
+| `scenarioChart(scenarios, dates, theme)` | What-if scenario comparison |
+| `backtestChart(result, metric, theme)` | Fold-by-fold backtest bars |
+| `metricsCard(metrics, thresholds, theme)` | Business metrics scorecard |
+| `forecastReport(result, historical, theme)` | Forecast + error metrics (2-row composite) |
+| `analysisReport(analysis, theme)` | DNA radar + features + difficulty (2x2 composite) |
+| `dashboard(forecast, analysis, comparison, historical, title)` | Self-contained HTML report |
+
+All chart functions return `go.Figure` (standard Plotly). `dashboard()` returns a `DashboardResult` with `.show()`, `.save(path)`, and `.html` property.
+
 ### Classic API
 
 | Method | Description |
@@ -441,9 +486,10 @@ All parameters beyond `data` are optional with sensible defaults. See [Progressi
 
 | Object | Key Attributes |
 |:-------|:--------------|
-| `EasyForecastResult` | `.predictions` `.dates` `.lower` `.upper` `.model` `.mape` `.rmse` `.models` `.compare()` `.all_forecasts()` `.plot()` `.to_csv()` `.to_json()` |
+| `EasyForecastResult` | `.predictions` `.dates` `.lower` `.upper` `.model` `.mape` `.rmse` `.models` `.compare()` `.all_forecasts()` `.plot()` `.to_csv()` `.to_json()` `.toDataframe()` |
 | `EasyAnalysisResult` | `.dna` `.changepoints` `.anomalies` `.features` `.summary()` |
 | `EasyRegressionResult` | `.coefficients` `.pvalues` `.r_squared` `.f_stat` `.summary()` `.diagnose()` |
+| `DashboardResult` | `.html` `.show()` `.save(path)` |
 
 <br>
 
@@ -451,10 +497,11 @@ All parameters beyond `data` are optional with sensible defaults. See [Progressi
 
 ```
 vectrix/
-├── easy.py               forecast(), analyze(), regress()
-├── vectrix.py             Vectrix class — full pipeline
+├── easy.py               forecast(), analyze(), regress(), compare()
+├── vectrix.py             Vectrix class — full pipeline orchestrator
 ├── types.py               ForecastResult, DataCharacteristics
-├── engine/                Forecasting models
+├── engine/                Forecasting models (21 registered)
+│   ├── registry.py          Model registry — Single Source of Truth
 │   ├── ets.py               AutoETS (30 combinations)
 │   ├── arima.py             AutoARIMA (AICc stepwise)
 │   ├── theta.py             Theta method
@@ -480,6 +527,11 @@ vectrix/
 ├── flat_defense/          4-level flat prediction prevention
 ├── hierarchy/             Bottom-up, top-down, MinTrace
 ├── intervals/             Conformal + bootstrap intervals
+├── viz/                   Interactive visualization (Plotly)
+│   ├── theme.py             Brand colors, layout, applyTheme()
+│   ├── charts.py            6 individual chart functions
+│   ├── report.py            Composite reports (forecastReport, analysisReport)
+│   └── dashboard.py         Self-contained HTML dashboard generator
 ├── ml/                    LightGBM, XGBoost wrappers
 ├── global_model/          Cross-series forecasting
 └── datasets.py            7 built-in sample datasets
@@ -543,7 +595,7 @@ Skills are auto-loaded when working in the Vectrix project directory.
 
 <br>
 
-## ◈ Philosophy & Roadmap
+## ◈ Philosophy
 
 ### Identity
 
@@ -564,22 +616,78 @@ Vectrix is a **zero-config forecasting engine with built-in Rust acceleration**.
 
 Every parameter at Level 2 has a sensible default that reproduces Level 1 behavior. No parameter is ever required.
 
+<br>
+
+## ◈ Research — Understanding-first Forecasting
+
+Vectrix is a production forecasting library today. But beneath the surface, there is an active research program aimed at **breaking the ceiling of statistical forecasting**.
+
+### The Problem
+
+Foundation models (Chronos-2, TimesFM, Moirai) learn to predict by memorizing patterns from billions of data points. They're powerful, but they **don't understand the data** — they match patterns. When the structure shifts, they hallucinate.
+
+Statistical models understand structure (trend, seasonality, error decomposition), but they **can't learn from experience** — each series is forecasted in isolation.
+
+### Our Thesis — Understand First, Then Act
+
+```
+Foundation models:  data → [giant neural net] → prediction     (pattern memorization)
+Vectrix approach:   data → [understand] → [decide] → prediction (structural reasoning)
+```
+
+Vectrix profiles every time series into a **DNA fingerprint** — 65+ statistical features that capture the structural essence of the data. This fingerprint drives every downstream decision: which models to run, how to blend them, where regime shifts occur.
+
+The research question is: **can a system that understands data structure outperform a system that memorizes data patterns?**
+
+### What We've Proven So Far
+
+Experiments on [GIFT-Eval](https://huggingface.co/datasets/Salesforce/gift_eval) (144K+ series, 7 domains, 10 frequencies):
+
+| Finding | Evidence |
+|:--------|:---------|
+| DNA fingerprints contain real structural information | 65 features classify 7 domains at **82.6%** accuracy (vs 14.3% random) |
+| Structure predicts model performance | DNA features explain **27.3%** of MASE variance (linear only) |
+| Learned model selection beats any single model | GBT selector achieves **+5.5%** over best single model, capturing 31.3% of Oracle gap. Domain-optimal routing pushes to **+7.7%** (43.4% of Oracle) |
+| Selection > Blending | Choosing the right model beats mixing all models — bad model contamination is real |
+| Statistical models win on annual/quarterly frequencies | Foundation models dominate high-frequency, but low-frequency is **contested territory** |
+
+### Research Roadmap
+
+| Phase | Goal | Status |
+|:------|:-----|:-------|
+| ~~Phase 0~~ | Baseline — DOT-Hybrid on GIFT-Eval, foundation model comparison | Done |
+| ~~Phase 1~~ | Learned Profiling — DNA feature augmentation, domain classification | Done |
+| ~~Phase 2~~ | Learned Selection — DNA → optimal model mapping via meta-learning | Done |
+| Phase 3 | Learned Surgery — residual correction at regime boundaries | Planned |
+| Phase 4 | Integration — unified pipeline (profile → select → correct → predict) | Planned |
+| Phase 5 | Domain-specific defeat of foundation models | Planned |
+
+### Where This Goes
+
+If DNA representation quality improves — from handcrafted features to learned representations — the same principle scales:
+
+- **Better DNA** → better model selection → better accuracy than brute-force memorization
+- **CPU milliseconds** vs GPU inference — 100x+ speed advantage at comparable accuracy
+- **Explainability** — every decision traces back to structural features, not a black box
+
+The goal is not to build another foundation model. The goal is to prove that **understanding data structure is a more efficient path to accurate forecasting than memorizing data patterns**.
+
 ### Roadmap
 
 | Priority | Area | Current | Target | Status |
 |:---------|:-----|:--------|:-------|:-------|
 | **P0** | M4 Accuracy | OWA 0.848 | OWA < 0.821 | In progress |
-| **P1** | Easy API Progressive Disclosure | Level 1 only | Levels 1-3 | In progress |
+| **P1** | Beat Foundation Models | Phase 2 done, Phase 3 next | Win 3+ GIFT-Eval domains | In progress |
 | **P2** | Pipeline Speed | 48ms forecast() | < 10ms | Planned |
-| **P3** | Foundation Model Depth | Basic wrappers | Full integration | Planned |
-| **P4** | Community Growth | Early stage | Blog, Reddit, Kaggle | In progress |
+| **P3** | Interactive Playground | — | GitHub Pages live demo | Planned |
+| **P4** | Community Growth | Blog (5 posts) | Reddit, Kaggle, HN | In progress |
 
-### Expansion Principles
+### Principles
 
 1. **Accuracy first, speed second** — A wrong answer delivered fast is still wrong. Improve M4 OWA before optimizing latency.
 2. **Never break zero-config** — Every new parameter must have a default. `forecast(data, steps=12)` must always work.
-3. **One identity** — "Python syntax, Rust speed, zero config." Every feature, doc, and marketing message aligns with this.
-4. **Benchmark-driven** — Every engine change is validated against M4 100K series. No "it seems better" — show the OWA.
+3. **Benchmark-driven** — Every engine change is validated against M4 100K series. No "it seems better" — show the OWA.
+4. **Understanding over memorization** — Invest in DNA quality, not model count.
 5. **Minimal dependencies** — Adding a dependency requires strong justification. If it can be implemented in numpy/scipy, it should be.
 
 <br>

@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 320" width="800" height="320" fill="none">
+  <defs>
+    <linearGradient id="lhbg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="320" rx="12" fill="url(#lhbg)"/>
+  <rect x="0.5" y="0.5" width="799" height="319" rx="12" stroke="#334155" stroke-width="1" fill="none"/>
+
+  <!-- Title -->
+  <text x="400" y="36" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600" fill="#64748b" letter-spacing="0.05em">PYTHON FORECASTING ECOSYSTEM</text>
+
+  <!-- Category labels -->
+  <text x="160" y="68" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9" font-weight="600" fill="#06b6d4" letter-spacing="0.05em">STATISTICAL</text>
+  <text x="400" y="68" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9" font-weight="600" fill="#8b5cf6" letter-spacing="0.05em">HYBRID / ALL-IN-ONE</text>
+  <text x="640" y="68" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9" font-weight="600" fill="#f59e0b" letter-spacing="0.05em">DEEP LEARNING</text>
+
+  <!-- Statistical column -->
+  <rect x="52" y="82" width="216" height="52" rx="8" fill="rgba(6,182,212,0.06)" stroke="rgba(6,182,212,0.2)" stroke-width="1"/>
+  <text x="72" y="104" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#22d3ee">statsmodels</text>
+  <text x="72" y="122" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#64748b">Academic standard, ARIMA/ETS</text>
+
+  <rect x="52" y="142" width="216" height="52" rx="8" fill="rgba(6,182,212,0.06)" stroke="rgba(6,182,212,0.2)" stroke-width="1"/>
+  <text x="72" y="164" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#22d3ee">statsforecast</text>
+  <text x="72" y="182" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#64748b">Numba JIT, blazing speed</text>
+
+  <rect x="52" y="202" width="216" height="52" rx="8" fill="rgba(6,182,212,0.06)" stroke="rgba(6,182,212,0.2)" stroke-width="1"/>
+  <text x="72" y="224" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#22d3ee">Prophet</text>
+  <text x="72" y="242" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#64748b">Business-friendly, Meta</text>
+
+  <!-- Hybrid / All-in-one column -->
+  <rect x="292" y="82" width="216" height="52" rx="8" fill="rgba(139,92,246,0.06)" stroke="rgba(139,92,246,0.2)" stroke-width="1"/>
+  <text x="312" y="104" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#a78bfa">Darts</text>
+  <text x="312" y="122" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#64748b">46 models, stat + DL + FM</text>
+
+  <rect x="292" y="142" width="216" height="52" rx="8" fill="rgba(139,92,246,0.06)" stroke="rgba(139,92,246,0.2)" stroke-width="1"/>
+  <text x="312" y="164" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#a78bfa">sktime</text>
+  <text x="312" y="182" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#64748b">sklearn-style, broad scope</text>
+
+  <rect x="292" y="202" width="216" height="52" rx="8" fill="rgba(99,102,241,0.08)" stroke="rgba(99,102,241,0.35)" stroke-width="1.5"/>
+  <text x="312" y="224" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700" fill="#818cf8">Vectrix</text>
+  <text x="312" y="242" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#c4b5fd">Zero-config, Rust engine</text>
+
+  <!-- Deep Learning column -->
+  <rect x="532" y="82" width="216" height="52" rx="8" fill="rgba(245,158,11,0.06)" stroke="rgba(245,158,11,0.2)" stroke-width="1"/>
+  <text x="552" y="104" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#fbbf24">NeuralForecast</text>
+  <text x="552" y="122" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#64748b">30+ DL models, Nixtla</text>
+
+  <rect x="532" y="142" width="216" height="52" rx="8" fill="rgba(245,158,11,0.06)" stroke="rgba(245,158,11,0.2)" stroke-width="1"/>
+  <text x="552" y="164" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#fbbf24">PyTorch Forecasting</text>
+  <text x="552" y="182" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#64748b">TFT, interpretable DL</text>
+
+  <rect x="532" y="202" width="216" height="52" rx="8" fill="rgba(245,158,11,0.06)" stroke="rgba(245,158,11,0.2)" stroke-width="1"/>
+  <text x="552" y="224" font-family="JetBrains Mono, monospace" font-size="11" font-weight="600" fill="#fbbf24">GluonTS</text>
+  <text x="552" y="242" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#64748b">Probabilistic, Amazon</text>
+
+  <!-- Bottom bar -->
+  <rect x="52" y="270" width="696" height="34" rx="6" fill="rgba(148,163,184,0.03)" stroke="rgba(148,163,184,0.08)" stroke-width="1"/>
+  <text x="400" y="292" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#94a3b8">Simple &#8592; &#8192;&#8192;&#8192;&#8192;&#8192;&#8192;&#8192;&#8192;&#8192;&#8192;&#8192;&#8192;&#8192;&#8192;&#8192;&#8192;Complexity&#8192;&#8192;&#8192;&#8192;&#8192;&#8192;&#8192;&#8192;&#8192;&#8192;&#8192;&#8192;&#8192;&#8192;&#8192;&#8192; &#8594; Complex</text>
+</svg>

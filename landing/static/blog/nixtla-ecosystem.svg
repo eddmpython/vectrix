@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 260" width="800" height="260" fill="none">
+  <defs>
+    <linearGradient id="nebg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="260" rx="12" fill="url(#nebg)"/>
+  <rect x="0.5" y="0.5" width="799" height="259" rx="12" stroke="#334155" stroke-width="1" fill="none"/>
+
+  <!-- Title -->
+  <text x="400" y="32" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600" fill="#64748b" letter-spacing="0.05em">THE NIXTLA ECOSYSTEM</text>
+
+  <!-- Central hub -->
+  <circle cx="400" cy="140" r="38" fill="rgba(6,182,212,0.08)" stroke="rgba(6,182,212,0.3)" stroke-width="1.5"/>
+  <text x="400" y="136" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="600" fill="#22d3ee">Unified</text>
+  <text x="400" y="150" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="600" fill="#22d3ee">Interface</text>
+
+  <!-- statsforecast -->
+  <line x1="362" y1="140" x2="170" y2="90" stroke="#334155" stroke-width="1"/>
+  <rect x="60" y="68" width="160" height="44" rx="8" fill="rgba(6,182,212,0.06)" stroke="rgba(6,182,212,0.2)" stroke-width="1"/>
+  <text x="140" y="88" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600" fill="#22d3ee">statsforecast</text>
+  <text x="140" y="104" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#64748b">Statistical models</text>
+
+  <!-- neuralforecast -->
+  <line x1="438" y1="140" x2="630" y2="90" stroke="#334155" stroke-width="1"/>
+  <rect x="580" y="68" width="160" height="44" rx="8" fill="rgba(245,158,11,0.06)" stroke="rgba(245,158,11,0.2)" stroke-width="1"/>
+  <text x="660" y="88" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600" fill="#fbbf24">neuralforecast</text>
+  <text x="660" y="104" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#64748b">Deep learning models</text>
+
+  <!-- mlforecast -->
+  <line x1="362" y1="150" x2="170" y2="190" stroke="#334155" stroke-width="1"/>
+  <rect x="60" y="168" width="160" height="44" rx="8" fill="rgba(139,92,246,0.06)" stroke="rgba(139,92,246,0.2)" stroke-width="1"/>
+  <text x="140" y="188" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600" fill="#a78bfa">mlforecast</text>
+  <text x="140" y="204" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#64748b">ML models (LightGBM, XGB)</text>
+
+  <!-- hierarchicalforecast -->
+  <line x1="438" y1="150" x2="630" y2="190" stroke="#334155" stroke-width="1"/>
+  <rect x="580" y="168" width="160" height="44" rx="8" fill="rgba(16,185,129,0.06)" stroke="rgba(16,185,129,0.2)" stroke-width="1"/>
+  <text x="660" y="188" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="10" font-weight="600" fill="#34d399">hierarchicalforecast</text>
+  <text x="660" y="204" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#64748b">Hierarchical reconciliation</text>
+
+  <!-- Bottom note -->
+  <text x="400" y="245" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#475569">All four packages share the same fit() / predict() interface and DataFrame format (unique_id, ds, y)</text>
+</svg>

@@ -18,6 +18,16 @@ export const categories = {
 
 export const blogPosts: BlogPost[] = [
 	{
+		slug: 'statistical-vs-foundation',
+		title: 'Statistical vs Foundation Models — Is Traditional Forecasting Dead?',
+		description: 'Foundation models dominate benchmarks. Statistical methods are losing. But a third approach is emerging — Understanding-first Forecasting. Real experiments on GIFT-Eval, real numbers, no hype.',
+		category: 'deep-dive',
+		date: '2026-03-05',
+		readingTime: '20 min',
+		featured: true,
+		keywords: ['statistical vs foundation models', 'Chronos-2 vs ETS', 'GIFT-Eval benchmark', 'foundation models forecasting', 'model selection time series', 'understanding-first forecasting']
+	},
+	{
 		slug: 'forecasting-models-explained',
 		title: 'Forecasting Models Explained — From ETS and ARIMA to Foundation Models',
 		description: 'A deep dive into 22 statistical models and the new wave of foundation models. ETS, ARIMA, Theta, GARCH, Croston — then Chronos-2, TimesFM, Moirai, and more. When each shines, when each struggles.',
