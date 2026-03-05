@@ -17,6 +17,15 @@ export const categories = {
 
 export const blogPosts: BlogPost[] = [
 	{
+		slug: 'your-first-forecast-in-python',
+		title: 'Your First Forecast in Python — Step by Step',
+		description: 'From zero to prediction in 15 minutes. Load data, analyze patterns, generate forecasts with confidence intervals, compare 30+ models, and export results — all in Python.',
+		category: 'how-to',
+		date: '2026-03-05',
+		readingTime: '15 min',
+		featured: true
+	},
+	{
 		slug: 'python-forecasting-libraries',
 		title: 'Python Forecasting Libraries Compared — Which One Should You Use?',
 		description: 'statsmodels, statsforecast, Prophet, Darts, sktime, NeuralForecast, and more — an honest comparison of every major Python forecasting library with benchmarks, code examples, and decision guide.',

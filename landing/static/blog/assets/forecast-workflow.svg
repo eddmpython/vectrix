@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 280" width="800" height="280" fill="none">
+  <defs>
+    <linearGradient id="wbg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="280" rx="12" fill="url(#wbg)"/>
+  <rect x="0.5" y="0.5" width="799" height="279" rx="12" stroke="#334155" stroke-width="1" fill="none"/>
+
+  <!-- Step 1: Load Data -->
+  <rect x="30" y="50" width="140" height="80" rx="8" fill="#020617" stroke="#06b6d4" stroke-width="1.5"/>
+  <text x="100" y="42" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9" font-weight="600" fill="#06b6d4">STEP 1</text>
+  <text x="100" y="82" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="600" fill="#e2e8f0">Load Data</text>
+  <text x="100" y="102" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#64748b">loadSample()</text>
+  <text x="100" y="116" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#64748b">pd.read_csv()</text>
+
+  <!-- Arrow 1→2 -->
+  <line x1="170" y1="90" x2="200" y2="90" stroke="#475569" stroke-width="1.5"/>
+  <polyline points="196,85 203,90 196,95" stroke="#475569" stroke-width="1.5" fill="none"/>
+
+  <!-- Step 2: Explore -->
+  <rect x="205" y="50" width="140" height="80" rx="8" fill="#020617" stroke="#22d3ee" stroke-width="1.5"/>
+  <text x="275" y="42" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9" font-weight="600" fill="#22d3ee">STEP 2</text>
+  <text x="275" y="82" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="600" fill="#e2e8f0">Explore</text>
+  <text x="275" y="102" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#64748b">analyze()</text>
+  <text x="275" y="116" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#64748b">DNA profile</text>
+
+  <!-- Arrow 2→3 -->
+  <line x1="345" y1="90" x2="375" y2="90" stroke="#475569" stroke-width="1.5"/>
+  <polyline points="371,85 378,90 371,95" stroke="#475569" stroke-width="1.5" fill="none"/>
+
+  <!-- Step 3: Forecast -->
+  <rect x="380" y="50" width="140" height="80" rx="8" fill="#020617" stroke="#8b5cf6" stroke-width="1.5"/>
+  <text x="450" y="42" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9" font-weight="600" fill="#8b5cf6">STEP 3</text>
+  <text x="450" y="82" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="600" fill="#e2e8f0">Forecast</text>
+  <text x="450" y="102" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#64748b">forecast()</text>
+  <text x="450" y="116" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#64748b">30+ models</text>
+
+  <!-- Arrow 3→4 -->
+  <line x1="520" y1="90" x2="550" y2="90" stroke="#475569" stroke-width="1.5"/>
+  <polyline points="546,85 553,90 546,95" stroke="#475569" stroke-width="1.5" fill="none"/>
+
+  <!-- Step 4: Compare -->
+  <rect x="555" y="50" width="140" height="80" rx="8" fill="#020617" stroke="#a855f7" stroke-width="1.5"/>
+  <text x="625" y="42" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9" font-weight="600" fill="#a855f7">STEP 4</text>
+  <text x="625" y="82" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="600" fill="#e2e8f0">Compare</text>
+  <text x="625" y="102" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#64748b">result.models</text>
+  <text x="625" y="116" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="9" fill="#64748b">ranked by MAPE</text>
+
+  <!-- Bottom row: Under the hood -->
+  <rect x="120" y="170" width="560" height="80" rx="8" fill="#020617" stroke="#334155" stroke-width="1"/>
+  <text x="400" y="164" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9" font-weight="600" fill="#475569">WHAT HAPPENS INSIDE forecast()</text>
+
+  <text x="180" y="200" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#64748b">DNA</text>
+  <text x="180" y="214" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#64748b">Profiling</text>
+  <text x="180" y="234" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#334155">65+ features</text>
+
+  <text x="240" y="210" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#334155">→</text>
+
+  <text x="300" y="200" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#64748b">Model</text>
+  <text x="300" y="214" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#64748b">Selection</text>
+  <text x="300" y="234" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#334155">rank by DNA</text>
+
+  <text x="360" y="210" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#334155">→</text>
+
+  <text x="420" y="200" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#64748b">Cross</text>
+  <text x="420" y="214" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#64748b">Validation</text>
+  <text x="420" y="234" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#334155">hold-out test</text>
+
+  <text x="480" y="210" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#334155">→</text>
+
+  <text x="540" y="200" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#64748b">Ensemble</text>
+  <text x="540" y="214" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#64748b">Blending</text>
+  <text x="540" y="234" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#334155">weighted avg</text>
+
+  <text x="600" y="210" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#334155">→</text>
+
+  <text x="630" y="200" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#10b981">Best</text>
+  <text x="630" y="214" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#10b981">Result</text>
+</svg>

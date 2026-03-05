@@ -326,7 +326,7 @@ That's what benchmarks are for. Not marketing. **Evidence.**
 Now you know what forecasting is (Post 1) and how we measure whether it works (Post 2). In upcoming posts
 
 - **[Python Forecasting Libraries Compared](/vectrix/blog/python-forecasting-libraries)** — Which tool should you use?
-- **Your First Forecast in Python** — From zero to prediction in 5 minutes
+- **[Your First Forecast in Python](/vectrix/blog/your-first-forecast-in-python)** — From zero to prediction in 15 minutes
 - **Time Series Models Explained** — ETS, ARIMA, Theta, and when to use each
 
 Forecasting without measurement is guessing. Measurement without benchmarks is wishful thinking. Now you have the framework to tell the difference.

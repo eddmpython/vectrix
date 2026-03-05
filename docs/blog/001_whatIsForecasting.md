@@ -162,7 +162,7 @@ This post covered the "what" and "why" of forecasting. In upcoming posts, we'll 
 
 - **[How Do We Know If a Forecast Is Any Good?](/vectrix/blog/how-we-know-forecasts-work)** — Benchmarks, metrics, and the M Competitions
 - **[Python Forecasting Libraries Compared](/vectrix/blog/python-forecasting-libraries)** — Which tool should you use?
-- **Your First Forecast in Python** — From data to prediction in 5 minutes
+- **[Your First Forecast in Python](/vectrix/blog/your-first-forecast-in-python)** — From data to prediction in 15 minutes
 - **Time Series Models Explained** — ETS, ARIMA, Theta, and when to use each
 
 Forecasting is a journey from intuition to evidence. Welcome aboard.

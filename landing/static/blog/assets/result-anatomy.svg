@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 340" width="800" height="340" fill="none">
+  <defs>
+    <linearGradient id="rabg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="340" rx="12" fill="url(#rabg)"/>
+  <rect x="0.5" y="0.5" width="799" height="339" rx="12" stroke="#334155" stroke-width="1" fill="none"/>
+
+  <!-- Title -->
+  <text x="400" y="30" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="600" fill="#94a3b8">ANATOMY OF A FORECAST RESULT</text>
+
+  <!-- Central object -->
+  <rect x="280" y="50" width="240" height="36" rx="6" fill="#020617" stroke="#8b5cf6" stroke-width="1.5"/>
+  <text x="400" y="73" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="12" font-weight="600" fill="#a78bfa">EasyForecastResult</text>
+
+  <!-- Left column: Predictions -->
+  <rect x="30" y="110" width="200" height="200" rx="8" fill="#020617" stroke="#06b6d4" stroke-width="1"/>
+  <text x="130" y="132" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600" fill="#06b6d4">Predictions</text>
+
+  <text x="48" y="158" font-family="JetBrains Mono, monospace" font-size="10" fill="#94a3b8">.predictions</text>
+  <text x="170" y="158" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#475569">values</text>
+
+  <text x="48" y="180" font-family="JetBrains Mono, monospace" font-size="10" fill="#94a3b8">.dates</text>
+  <text x="170" y="180" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#475569">timestamps</text>
+
+  <text x="48" y="202" font-family="JetBrains Mono, monospace" font-size="10" fill="#94a3b8">.lower</text>
+  <text x="170" y="202" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#475569">CI lower</text>
+
+  <text x="48" y="224" font-family="JetBrains Mono, monospace" font-size="10" fill="#94a3b8">.upper</text>
+  <text x="170" y="224" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#475569">CI upper</text>
+
+  <text x="48" y="252" font-family="JetBrains Mono, monospace" font-size="10" fill="#94a3b8">.model</text>
+  <text x="170" y="252" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#475569">best model</text>
+
+  <text x="48" y="274" font-family="JetBrains Mono, monospace" font-size="10" fill="#94a3b8">.models</text>
+  <text x="170" y="274" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#475569">all ranked</text>
+
+  <text x="48" y="296" font-family="JetBrains Mono, monospace" font-size="10" fill="#94a3b8">.summary()</text>
+  <text x="170" y="296" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#475569">overview</text>
+
+  <!-- Middle column: Metrics -->
+  <rect x="260" y="110" width="180" height="200" rx="8" fill="#020617" stroke="#8b5cf6" stroke-width="1"/>
+  <text x="350" y="132" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600" fill="#8b5cf6">Accuracy Metrics</text>
+
+  <text x="278" y="162" font-family="JetBrains Mono, monospace" font-size="10" fill="#94a3b8">.mape</text>
+  <text x="380" y="162" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#475569">% error</text>
+
+  <text x="278" y="186" font-family="JetBrains Mono, monospace" font-size="10" fill="#94a3b8">.rmse</text>
+  <text x="380" y="186" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#475569">scale error</text>
+
+  <text x="278" y="210" font-family="JetBrains Mono, monospace" font-size="10" fill="#94a3b8">.mae</text>
+  <text x="380" y="210" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#475569">absolute</text>
+
+  <text x="278" y="234" font-family="JetBrains Mono, monospace" font-size="10" fill="#94a3b8">.smape</text>
+  <text x="380" y="234" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#475569">symmetric</text>
+
+  <!-- Right column: Export -->
+  <rect x="470" y="110" width="300" height="200" rx="8" fill="#020617" stroke="#10b981" stroke-width="1"/>
+  <text x="620" y="132" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600" fill="#10b981">Export &amp; Next Steps</text>
+
+  <text x="488" y="162" font-family="JetBrains Mono, monospace" font-size="10" fill="#94a3b8">.to_dataframe()</text>
+  <text x="660" y="162" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#475569">→ pandas DataFrame</text>
+
+  <text x="488" y="186" font-family="JetBrains Mono, monospace" font-size="10" fill="#94a3b8">.to_csv("out.csv")</text>
+  <text x="680" y="186" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#475569">→ CSV file</text>
+
+  <text x="488" y="210" font-family="JetBrains Mono, monospace" font-size="10" fill="#94a3b8">.to_json()</text>
+  <text x="660" y="210" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#475569">→ JSON string</text>
+
+  <text x="488" y="234" font-family="JetBrains Mono, monospace" font-size="10" fill="#94a3b8">.describe()</text>
+  <text x="660" y="234" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#475569">→ text summary</text>
+
+  <text x="488" y="264" font-family="JetBrains Mono, monospace" font-size="10" fill="#94a3b8">.compare()</text>
+  <text x="660" y="264" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#475569">→ model ranking table</text>
+
+  <!-- Connector lines -->
+  <line x1="330" y1="86" x2="130" y2="110" stroke="#334155" stroke-width="1"/>
+  <line x1="400" y1="86" x2="350" y2="110" stroke="#334155" stroke-width="1"/>
+  <line x1="470" y1="86" x2="620" y2="110" stroke="#334155" stroke-width="1"/>
+</svg>
