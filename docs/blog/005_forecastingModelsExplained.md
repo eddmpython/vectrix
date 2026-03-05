@@ -1,9 +1,9 @@
 ---
-title: "Forecasting Models Explained — What ETS, ARIMA, Theta, and Friends Actually Do"
-description: "A deep dive into all 22 time series forecasting models. Learn what ETS, Holt-Winters, CES, Theta, DOT, FourTheta, ARIMA, TBATS, MSTL, GARCH, Croston, DTSF, and ESN do, when each shines, when each struggles, and why having many diverse models matters."
+title: "Forecasting Models Explained — From ETS and ARIMA to Foundation Models"
+description: "A deep dive into 22 statistical models and the new wave of foundation models. Learn what ETS, ARIMA, Theta, GARCH, Croston, and ESN do — then understand how Chronos-2, TimesFM, Moirai, and other pretrained transformers are changing the game. When each approach shines, when each struggles, and why diversity still wins."
 ---
 
-# Forecasting Models Explained — What ETS, ARIMA, Theta, and Friends Actually Do
+# Forecasting Models Explained — From ETS and ARIMA to Foundation Models
 
 ![Different models see the same data through different lenses](/vectrix/blog/assets/models-hero.svg)
 
@@ -12,6 +12,8 @@ In [Post 3](/vectrix/blog/python-forecasting-libraries), we compared forecasting
 When you call `forecast(data, steps=12)`, Vectrix evaluates 22 models behind the scenes. But what *are* those models? Why are there so many? Do they all do the same thing in slightly different ways?
 
 No. Each model looks at your data through a fundamentally different lens. ETS decomposes your data into building blocks. ARIMA studies how today's value depends on yesterday's. Theta controls how aggressively to project a trend. GARCH tracks volatility itself.
+
+And then there's a new generation — **foundation models** like Chronos-2, TimesFM, and Moirai. Pretrained on billions of data points, they forecast without ever seeing your specific data before. They're changing the game, but they haven't replaced statistical models. Understanding both sides is essential.
 
 This post explains every major model family — not the math (you can read papers for that), but the *intuition*. What does each model see when it looks at your data? When does it shine? When does it fail? And why does having many different perspectives make the final forecast better?
 
@@ -551,6 +553,108 @@ print(ranking[["model", "mape"]].head(10))
 
 ---
 
+## Foundation Models — The New Contenders
+
+Everything above is a *statistical* model. Each one is a carefully designed algorithm that fits parameters to your specific data. They're fast, interpretable, and battle-tested over decades.
+
+But starting in 2023, a completely different approach emerged: **time series foundation models** (TSFMs). These are large neural networks pretrained on billions of time series data points from every domain imaginable — energy, finance, retail, weather, transportation, healthcare. The idea: learn universal patterns of temporal behavior, then forecast *any* new series without retraining.
+
+Think of it like the difference between hiring a specialist consultant (statistical model) versus asking someone who's seen a million businesses (foundation model). The specialist deeply understands *your* situation. The generalist has seen something similar before.
+
+### How Foundation Models Work
+
+Unlike statistical models that fit parameters to your specific data, foundation models work through **zero-shot inference**:
+
+1. **Pretraining** — the model sees millions of diverse time series and learns generic temporal patterns (trends, seasons, regime changes, level shifts)
+2. **Inference** — you feed in your series as context, and the model generates predictions based on patterns it recognizes from pretraining
+3. **No fitting required** — there's no optimization step for your specific data
+
+Most TSFMs use **Transformer architectures** (the same technology behind ChatGPT), adapted for numerical sequences instead of text. The time series is split into "patches" (chunks of consecutive values) that serve as tokens.
+
+### The Major Players
+
+#### Chronos-2 (Amazon, 2025)
+
+Chronos-2 is currently the strongest open-source foundation model. It uses an encoder-only Transformer with a clever architecture: **group attention** handles relationships between different variables, while **time attention** handles temporal patterns. A special REG token between context and future patches enables in-context learning.
+
+What makes Chronos-2 special is its versatility. A single 120M-parameter model handles univariate forecasting, multivariate forecasting, and covariate-informed forecasting — you can pass in external variables (like holidays or promotions) as additional context, and the model figures out how to use them without any retraining.
+
+**Strength**: Best all-around pretrained model on GIFT-Eval benchmark. Handles covariates through in-context learning. Open-source.
+
+**Weakness**: Tends to over-smooth high-frequency spikes. Synthetic data dependency for multivariate tasks.
+
+---
+
+#### TimesFM 2.5 (Google, 2025)
+
+Google's entry takes a decoder-only approach with an extremely long context window — **16,384 time steps**. That's enough to feed in multiple years of daily data as context. It generates 128 future values at once, reducing the compounding errors of step-by-step prediction.
+
+TimesFM 2.5 shrunk from 500M to 200M parameters while maintaining accuracy, through QKV matrix fusion. It's also the most enterprise-accessible TSFM, integrated directly into Google BigQuery and AlloyDB for SQL-based forecasting.
+
+**Strength**: Longest context window (16K). Enterprise integration. Competitive zero-shot accuracy.
+
+**Weakness**: Univariate only — no native multivariate support. Some data leakage concerns on GIFT-Eval.
+
+---
+
+#### Moirai 2.0 (Salesforce, 2025)
+
+Moirai's defining feature is **any-variate** processing. Whether you have 1 variable or 100, the same model handles it natively. Version 2.0 switched from masked-encoder to decoder-only architecture and outputs 9 quantiles directly (instead of a parametric distribution), giving calibrated uncertainty estimates.
+
+The surprise finding: Moirai 2.0 Small (14M parameters) **outperforms** the Base (91M) and Large (311M) versions. Salesforce calls this "Less is More" — smaller models with cleaner data beat bigger models with more noise.
+
+**Strength**: True any-variate support. Tiny model (14M) beats much larger competitors. Open-source.
+
+**Weakness**: Scaling doesn't help — larger models aren't better. Performance ceiling tied to pretraining data quality.
+
+---
+
+#### TimeGPT-2 (Nixtla, 2025)
+
+TimeGPT takes the API-only route — no model weights to download, no GPU to provision. You send your data to Nixtla's API and get predictions back. Version 2.1 added multivariate support and cross-learning across related series.
+
+**Strength**: Zero infrastructure needed. Anomaly detection built in. Claims 60% accuracy improvement over v1.
+
+**Weakness**: Closed-source. Can't inspect, fine-tune, or run offline. Cost per API call. Independent benchmarks limited.
+
+---
+
+#### The Emerging Wave
+
+Several newer models are challenging the established players:
+
+| Model | Parameters | Architecture | What's Different |
+|-------|-----------|-------------|-----------------|
+| **TiRex** (NX-AI) | 35M | xLSTM (not Transformer) | Proves Transformers aren't the only path. LSTM's state-tracking ability gives it an edge on certain patterns |
+| **IBM FlowState** | 9.1M | State Space Model | Smallest competitive model. Time-scale invariant — train on hourly, forecast on daily. Multi-task (forecasting + classification + anomaly detection) |
+| **TabPFN-TS** (Prior Labs) | 11M | Tabular foundation model | Never saw a time series during training. Treats forecasting as tabular regression with engineered features. Topped GIFT-Eval |
+| **Kronos** | — | Financial-specific Transformer | Trained on 12B+ K-line records from 45 exchanges. 93% improvement on price prediction vs general TSFMs |
+
+### Foundation Models vs. Statistical Models — The Real Picture
+
+It's tempting to see this as "old vs. new" and assume foundation models will replace everything. The reality is more nuanced:
+
+**Where foundation models win:**
+
+- **Zero-shot generalization** — no training data from your specific domain needed
+- **Complex pattern recognition** — they've seen regime changes, level shifts, and rare events across millions of series
+- **Covariate handling** — models like Chronos-2 can incorporate external variables without manual feature engineering
+- **Cold start** — when you have very little historical data, pretrained knowledge fills the gap
+
+**Where statistical models still win:**
+
+- **Speed** — ETS fits in milliseconds. Foundation models need GPU inference taking seconds
+- **Interpretability** — ETS tells you "the trend is +3.2/month and the December seasonal factor is 1.15." A foundation model gives you a number
+- **Reliability on clean patterns** — for well-behaved monthly seasonal data, AutoETS or Theta typically match or beat TSFMs with orders-of-magnitude less compute
+- **No infrastructure** — statistical models run on a laptop. Foundation models often need GPUs or API calls
+- **Domain adaptation** — fine-tuning a 200M parameter model for your specific use case is expensive and finicky. Fitting a Theta model takes microseconds
+
+**The honest assessment**: At NeurIPS 2025, researchers concluded that time series foundation models haven't yet achieved their "BERT moment." Carefully designed lightweight supervised baselines still match TSFMs on many benchmarks. Full fine-tuning is often needed for real-world competitiveness, which undermines the zero-shot value proposition.
+
+The future isn't either/or — it's **hybrid**. Statistical models for speed and interpretability on well-understood patterns. Foundation models for complex patterns, cold-start scenarios, and covariate integration. The best production systems will use both.
+
+---
+
 ## How Vectrix Puts It All Together
 
 When you call `forecast()`, here's what actually happens:
@@ -590,6 +694,8 @@ print(f"All models ranked: {result.models[:5]}")
 | Complex nonlinear patterns | CES, ESN, DTSF | Different nonlinear approaches |
 | Repeating historical patterns | DTSF | Non-parametric pattern matching |
 | Unstable trend, need robust forecast | FourTheta | Four perspectives, dampened extremes |
+| Cold start / very little history | Chronos-2, Moirai, TimesFM | Pretrained knowledge compensates for sparse data |
+| Complex patterns + external variables | Chronos-2, TimeGPT-2.1 | Foundation models with covariate support |
 | "I don't know, just give me a forecast" | `forecast(data)` | Vectrix tests everything automatically |
 
 The beauty of automated model selection is that you don't *have to* choose. But understanding what's happening under the hood helps you interpret results, diagnose failures, and communicate findings to stakeholders.
@@ -598,7 +704,7 @@ The beauty of automated model selection is that you don't *have to* choose. But 
 
 ## What's Next?
 
-Now that you know what each model does, the natural question is: **how does Vectrix decide which one to use?** That's the topic of our next post — the art and science of model selection, DNA profiling, and why the best model for monthly data is almost never the best model for daily data.
+Now that you know what each model does — from decades-old exponential smoothing to billion-parameter foundation models — the natural question is: **how do you decide which one to use?** That's the topic of our next post — the art and science of model selection, DNA profiling, and why the best model for monthly data is almost never the best model for daily data.
 
 **Previous posts in this series:**
 
