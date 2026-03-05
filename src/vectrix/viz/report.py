@@ -6,7 +6,7 @@ Each function returns a single Plotly figure with subplots.
 
 import pandas as pd
 
-from .theme import COLORS, PALETTE, applyTheme
+from .theme import COLORS, PALETTE, HEIGHT, applyTheme
 
 try:
     import plotly.graph_objects as go
@@ -18,22 +18,32 @@ except ImportError:
     )
 
 
-def forecastReport(forecastResult, historical=None, title=None):
+def _detectColumns(df):
+    """Detect date and value columns from a DataFrame."""
+    dateCols = [c for c in df.columns if "date" in c.lower() or "time" in c.lower()]
+    dateCol = dateCols[0] if dateCols else df.columns[0]
+    valueCols = [c for c in df.columns if c != dateCol and pd.api.types.is_numeric_dtype(df[c])]
+    valueCol = valueCols[0] if valueCols else df.columns[1]
+    return dateCol, valueCol
+
+
+def forecastReport(forecastResult, historical=None, title=None, theme="dark"):
     """
     Comprehensive forecast report with predictions, confidence bands, and metrics.
 
     Creates a 2-row layout:
-    - Top: forecast line chart with CI and optional historical data
-    - Bottom: key metrics summary bar
+    - Top (75%): forecast line chart with CI and optional historical data
+    - Bottom (25%): key metrics summary bar (MAPE, RMSE, MAE, sMAPE)
 
     Parameters
     ----------
     forecastResult : EasyForecastResult
         Result from forecast().
     historical : pd.DataFrame, optional
-        Historical data with 'date' and value columns.
+        Historical data with date and value columns.
     title : str, optional
-        Report title. Auto-generated if None.
+    theme : str
+        'dark' or 'light'.
 
     Returns
     -------
@@ -50,10 +60,7 @@ def forecastReport(forecastResult, historical=None, title=None):
     fcDates = pd.to_datetime(fcDf["date"])
 
     if historical is not None:
-        dateCols = [c for c in historical.columns if "date" in c.lower()]
-        dateCol = dateCols[0] if dateCols else historical.columns[0]
-        valueCols = [c for c in historical.columns if c != dateCol]
-        valueCol = valueCols[0] if valueCols else historical.columns[1]
+        dateCol, valueCol = _detectColumns(historical)
         histDates = pd.to_datetime(historical[dateCol])
 
         fig.add_trace(go.Scatter(
@@ -81,15 +88,18 @@ def forecastReport(forecastResult, historical=None, title=None):
         hovertemplate="%{x|%Y-%m-%d}<br>%{y:,.1f}<extra></extra>",
     ), row=1, col=1)
 
-    metricNames = ["MAPE", "RMSE", "MAE"]
+    metricNames = ["MAPE", "RMSE", "MAE", "sMAPE"]
     metricValues = [
         getattr(forecastResult, "mape", 0),
         getattr(forecastResult, "rmse", 0),
         getattr(forecastResult, "mae", 0),
+        getattr(forecastResult, "smape", 0),
     ]
     metricColors = []
     for i, v in enumerate(metricValues):
         if i == 0:
+            metricColors.append(COLORS["positive"] if v < 10 else COLORS["warning"] if v < 20 else COLORS["negative"])
+        elif i == 3:
             metricColors.append(COLORS["positive"] if v < 10 else COLORS["warning"] if v < 20 else COLORS["negative"])
         else:
             metricColors.append(COLORS["primary"])
@@ -104,24 +114,25 @@ def forecastReport(forecastResult, historical=None, title=None):
     ), row=2, col=1)
 
     autoTitle = title or f"Forecast Report — {forecastResult.model}"
-    return applyTheme(fig, title=autoTitle, height=600)
+    return applyTheme(fig, title=autoTitle, height=HEIGHT["report"], theme=theme)
 
 
-def analysisReport(analysisResult, title=None):
+def analysisReport(analysisResult, title=None, theme="dark"):
     """
     Comprehensive analysis report with DNA radar, feature bars, and summary.
 
     Creates a 2x2 layout:
-    - Top-left: DNA radar chart
-    - Top-right: feature importance bars
-    - Bottom: summary text indicators
+    - Top-left: DNA radar chart (6 features on polar)
+    - Top-right: feature importance bar chart (8 features)
+    - Bottom: summary indicator (difficulty score + metadata)
 
     Parameters
     ----------
     analysisResult : EasyAnalysisResult
         Result from analyze().
     title : str, optional
-        Report title. Auto-generated if None.
+    theme : str
+        'dark' or 'light'.
 
     Returns
     -------
@@ -129,6 +140,9 @@ def analysisReport(analysisResult, title=None):
     """
     dna = analysisResult.dna
     feat = dna.features
+
+    bgColor = COLORS["card"] if theme == "dark" else "#f1f5f9"
+    gridColor = "rgba(255,255,255,0.1)" if theme == "dark" else "rgba(0,0,0,0.1)"
 
     fig = make_subplots(
         rows=2, cols=2,
@@ -153,7 +167,7 @@ def analysisReport(analysisResult, title=None):
     radarValues = []
     for k in radarKeys:
         v = feat.get(k, 0)
-        radarValues.append(min(float(v) if v is not None else 0, 1.0))
+        radarValues.append(max(0.0, min(float(v) if v is not None else 0, 1.0)))
     radarValues.append(radarValues[0])
     radarLabelsClosed = radarLabels + [radarLabels[0]]
 
@@ -194,14 +208,6 @@ def analysisReport(analysisResult, title=None):
         hovertemplate="%{x}: %{y:.4f}<extra></extra>",
     ), row=1, col=2)
 
-    summaryItems = [
-        ("Category", dna.category),
-        ("Difficulty", f"{dna.difficulty} ({dna.difficultyScore:.0f}/100)"),
-        ("Changepoints", str(len(analysisResult.changepoints))),
-        ("Anomalies", str(len(analysisResult.anomalies))),
-    ]
-    summaryText = "  |  ".join(f"<b>{k}</b>: {v}" for k, v in summaryItems)
-
     fig.add_trace(go.Indicator(
         mode="number",
         value=dna.difficultyScore,
@@ -214,19 +220,19 @@ def analysisReport(analysisResult, title=None):
             text=f"{dna.category} — {dna.difficulty}<br>"
                  f"<span style='font-size:13px'>{len(analysisResult.changepoints)} changepoints, "
                  f"{len(analysisResult.anomalies)} anomalies</span>",
-            font=dict(size=16, color=COLORS["text"]),
+            font=dict(size=16, color=COLORS["text"] if theme == "dark" else "#0f172a"),
         ),
         domain=dict(row=1, column=0),
     ), row=2, col=1)
 
     fig.update_layout(
         polar=dict(
-            bgcolor=COLORS["card"],
-            radialaxis=dict(visible=True, range=[0, 1], gridcolor="rgba(255,255,255,0.1)"),
-            angularaxis=dict(gridcolor="rgba(255,255,255,0.1)"),
+            bgcolor=bgColor,
+            radialaxis=dict(visible=True, range=[0, 1], gridcolor=gridColor),
+            angularaxis=dict(gridcolor=gridColor),
         ),
         grid=dict(rows=2, columns=2, pattern="independent"),
     )
 
     autoTitle = title or f"Analysis Report — {dna.category}"
-    return applyTheme(fig, title=autoTitle, height=650)
+    return applyTheme(fig, title=autoTitle, height=HEIGHT["analysis"], theme=theme)

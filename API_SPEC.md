@@ -637,42 +637,124 @@ result = cv.evaluate(y, modelFactory, period=7)  # -> dict
 
 ## Visualization API (from vectrix.viz import ...)
 
-> **Optional dependency.** Install with: `pip install vectrix[viz]`
+> **Optional dependency.** Install with: `pip install vectrix[viz]` (requires Plotly >= 5.0)
 
 ### Individual Charts
 
 ```python
 from vectrix.viz import forecastChart, dnaRadar, modelHeatmap, scenarioChart, backtestChart, metricsCard
-
-forecastChart(forecastResult, historical=None, title=None)   # -> go.Figure
-dnaRadar(analysisResult, title=None)                         # -> go.Figure
-modelHeatmap(comparisonDf, top=10, title=None)               # -> go.Figure
-scenarioChart(scenarios, title=None)                         # -> go.Figure
-backtestChart(backtestResult, title=None)                    # -> go.Figure
-metricsCard(metricsDict, title=None)                         # -> go.Figure
 ```
+
+#### forecastChart()
+
+```python
+forecastChart(
+    forecastResult,          # EasyForecastResult
+    historical=None,         # pd.DataFrame | None — auto-detects date/value columns
+    title=None,              # str | None — auto: "Forecast — {model} (MAPE {mape}%)"
+    theme="dark"             # str — 'dark' or 'light'
+) -> go.Figure
+```
+
+#### dnaRadar()
+
+```python
+dnaRadar(
+    analysisResult,          # EasyAnalysisResult
+    title=None,              # str | None — auto: "DNA — {category} ({difficulty}, {score}/100)"
+    theme="dark"             # str
+) -> go.Figure               # Polar chart with 6 features: Trend, Seasonality, Memory, Vol.Clustering, Nonlinear, Forecastability
+```
+
+#### modelHeatmap()
+
+```python
+modelHeatmap(
+    comparisonDf,            # pd.DataFrame — from compare()
+    top=10,                  # int — number of top models
+    title=None,              # str | None
+    theme="dark"             # str
+) -> go.Figure               # Heatmap with min-max normalized errors (green=best, red=worst)
+```
+
+#### scenarioChart()
+
+```python
+scenarioChart(
+    scenarios,               # list[ScenarioResult] — from WhatIfAnalyzer.analyze()
+    dates=None,              # list | pd.DatetimeIndex | None — if None, uses numeric steps
+    title=None,              # str | None
+    theme="dark"             # str
+) -> go.Figure               # Baseline=solid, scenarios=dashed
+```
+
+#### backtestChart()
+
+```python
+backtestChart(
+    backtestResult,          # BacktestResult — from Backtester.run()
+    metric="mape",           # str — 'mape' or 'rmse'
+    title=None,              # str | None
+    theme="dark"             # str
+) -> go.Figure               # Bar per fold + average hline, best=green, worst=red
+```
+
+#### metricsCard()
+
+```python
+metricsCard(
+    metricsDict,             # dict — from BusinessMetrics.calculate()
+    title=None,              # str | None
+    thresholds=None,         # dict | None — custom thresholds
+    theme="dark"             # str
+) -> go.Figure               # 4 indicator cards: Accuracy, Bias, WAPE, MASE
+```
+
+**Default thresholds:** `{'accuracy': 95, 'bias': 3, 'wape': 5, 'mase': 1.0}`. Values beyond threshold turn red.
 
 ### Composite Reports
 
 ```python
 from vectrix.viz import forecastReport, analysisReport
 
-forecastReport(forecastResult, historical=None, title=None)  # -> go.Figure (2-row: forecast + metrics)
-analysisReport(analysisResult, title=None)                   # -> go.Figure (2x2: radar + bars + summary)
+forecastReport(
+    forecastResult,          # EasyForecastResult
+    historical=None,         # pd.DataFrame | None
+    title=None,              # str | None
+    theme="dark"             # str
+) -> go.Figure               # 2-row: forecast line chart (75%) + 4 metric bars MAPE/RMSE/MAE/sMAPE (25%)
+
+analysisReport(
+    analysisResult,          # EasyAnalysisResult
+    title=None,              # str | None
+    theme="dark"             # str
+) -> go.Figure               # 2x2: DNA radar (top-left) + feature bars (top-right) + difficulty indicator (bottom)
 ```
 
 ### Theme Utilities
 
 ```python
-from vectrix.viz import COLORS, PALETTE, LAYOUT, applyTheme
+from vectrix.viz import COLORS, LIGHT_COLORS, PALETTE, LAYOUT, HEIGHT, applyTheme
+```
 
-COLORS     # dict — 10 brand colors (primary, accent, positive, negative, warning, muted, bg, card, text, grid)
-PALETTE    # list — 10 cycling colors for multi-series charts
-LAYOUT     # dict — Plotly layout defaults (dark theme, Inter font)
-applyTheme(fig, title=None, height=450)  # -> go.Figure — apply brand theme to any figure
+| Export | Type | Description |
+|--------|------|-------------|
+| `COLORS` | dict | 10 dark theme colors: primary `#6366f1`, accent `#a855f7`, positive `#22c55e`, negative `#ef4444`, warning `#f59e0b`, muted `#94a3b8`, bg `#0f172a`, card `#1e293b`, text `#f1f5f9`, grid `rgba(255,255,255,0.06)` |
+| `LIGHT_COLORS` | dict | 10 light theme colors: same keys, adjusted values (bg `#ffffff`, text `#0f172a`) |
+| `PALETTE` | list | 10 cycling colors for multi-series charts |
+| `LAYOUT` | dict | Plotly layout defaults (dark theme, Inter font, margins) |
+| `HEIGHT` | dict | Standard heights: `chart` 450, `card` 220, `report` 600, `analysis` 650, `small` 350 |
+
+```python
+applyTheme(
+    fig,                     # go.Figure
+    title=None,              # str | None
+    height=450,              # int
+    theme="dark"             # str — 'dark' or 'light'
+) -> go.Figure               # Applies brand theme, legend, grid styling
 ```
 
 ---
 
-*Last updated: 2026-03-04*
+*Last updated: 2026-03-05*
 *When modifying ANY public API, update this file FIRST.*

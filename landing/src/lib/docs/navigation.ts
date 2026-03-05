@@ -50,7 +50,8 @@ export const navigation: NavItem[] = [
 			{ title: '3. Regression', href: '/docs/tutorials/regression' },
 			{ title: '4. Models', href: '/docs/tutorials/models' },
 			{ title: '5. Adaptive', href: '/docs/tutorials/adaptive' },
-			{ title: '6. Business', href: '/docs/tutorials/business' }
+			{ title: '6. Business', href: '/docs/tutorials/business' },
+			{ title: '7. Visualization', href: '/docs/tutorials/visualization' }
 		]
 	},
 	{

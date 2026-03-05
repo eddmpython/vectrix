@@ -84,6 +84,7 @@ nav:
     - 30+ Models: tutorials/04_models.md
     - Adaptive Intelligence: tutorials/05_adaptive.md
     - Business Intelligence: tutorials/06_business.md
+    - Visualization: tutorials/07_visualization.md
   - User Guide:
     - Forecasting: guide/forecasting.md
     - Analysis & DNA: guide/analysis.md

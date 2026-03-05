@@ -23,7 +23,7 @@ from .charts import (
     scenarioChart,
 )
 from .report import analysisReport, forecastReport
-from .theme import COLORS, LAYOUT, PALETTE, applyTheme
+from .theme import COLORS, HEIGHT, LAYOUT, LIGHT_COLORS, PALETTE, applyTheme
 
 __all__ = [
     "forecastChart",
@@ -35,7 +35,9 @@ __all__ = [
     "forecastReport",
     "analysisReport",
     "COLORS",
+    "LIGHT_COLORS",
     "PALETTE",
     "LAYOUT",
+    "HEIGHT",
     "applyTheme",
 ]
