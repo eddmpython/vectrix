@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 520" width="800" height="520" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="cyan" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#22d3ee"/>
+    </linearGradient>
+    <linearGradient id="purple" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
+    </linearGradient>
+    <linearGradient id="amber" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#fbbf24"/>
+    </linearGradient>
+    <linearGradient id="green" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="520" rx="12" fill="url(#bg)"/>
+  <rect x="0.5" y="0.5" width="799" height="519" rx="12" stroke="#334155" stroke-width="1" fill="none"/>
+
+  <!-- Title -->
+  <text x="400" y="36" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="700" fill="#f8fafc">Time Series Decomposition</text>
+
+  <!-- Row 1: Original Data -->
+  <text x="60" y="72" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600" fill="#94a3b8">DATA</text>
+  <rect x="50" y="80" width="700" height="90" rx="8" fill="rgba(148,163,184,0.04)" stroke="rgba(148,163,184,0.1)" stroke-width="1"/>
+  <polyline points="70,145 100,140 130,130 160,135 190,120 220,115 250,125 280,110 310,105 340,115 370,100 400,95 430,108 460,90 490,88 520,98 550,82 580,80 610,92 640,75 670,72 700,85 730,68" stroke="url(#cyan)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+  <!-- = sign -->
+  <text x="400" y="188" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="18" font-weight="700" fill="#475569">=</text>
+
+  <!-- Row 2: Trend -->
+  <text x="60" y="212" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600" fill="#8b5cf6">TREND</text>
+  <rect x="50" y="220" width="210" height="90" rx="8" fill="rgba(139,92,246,0.04)" stroke="rgba(139,92,246,0.15)" stroke-width="1"/>
+  <line x1="70" y1="290" x2="240" y2="240" stroke="url(#purple)" stroke-width="2.5" stroke-linecap="round"/>
+  <text x="155" y="280" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#64748b">Upward direction</text>
+
+  <!-- + sign -->
+  <text x="295" y="272" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="18" font-weight="700" fill="#475569">+</text>
+
+  <!-- Row 2: Seasonality -->
+  <text x="340" y="212" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600" fill="#f59e0b">SEASONALITY</text>
+  <rect x="330" y="220" width="210" height="90" rx="8" fill="rgba(245,158,11,0.04)" stroke="rgba(245,158,11,0.15)" stroke-width="1"/>
+  <path d="M350,265 C365,240 380,240 395,265 C410,290 425,290 440,265 C455,240 470,240 485,265 C500,290 515,290 520,275" stroke="url(#amber)" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <text x="435" y="280" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#64748b">Repeating cycles</text>
+
+  <!-- + sign -->
+  <text x="575" y="272" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="18" font-weight="700" fill="#475569">+</text>
+
+  <!-- Row 2: Noise -->
+  <text x="620" y="212" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600" fill="#10b981">NOISE</text>
+  <rect x="610" y="220" width="140" height="90" rx="8" fill="rgba(16,185,129,0.04)" stroke="rgba(16,185,129,0.15)" stroke-width="1"/>
+  <polyline points="625,265 635,258 645,272 655,260 665,268 675,255 685,270 695,262 705,275 715,258 725,265 735,260" stroke="url(#green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <text x="680" y="280" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#64748b">Random</text>
+
+  <!-- Equation box -->
+  <rect x="180" y="340" width="440" height="50" rx="10" fill="rgba(6,182,212,0.06)" stroke="rgba(6,182,212,0.2)" stroke-width="1"/>
+  <text x="400" y="370" text-anchor="middle" font-family="'JetBrains Mono', monospace" font-size="15" font-weight="600" fill="#e2e8f0">Data  =  Trend  +  Seasonality  +  Noise</text>
+
+  <!-- Bottom labels -->
+  <text x="400" y="420" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#64748b">Every forecasting model tries to separate</text>
+  <text x="400" y="438" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="11" fill="#64748b">
+    <tspan fill="#06b6d4" font-weight="600">signal</tspan>
+    <tspan fill="#64748b"> (trend + seasonality) from </tspan>
+    <tspan fill="#10b981" font-weight="600">noise</tspan>
+    <tspan fill="#64748b"> (irreducible uncertainty)</tspan>
+  </text>
+
+  <!-- Vectrix watermark -->
+  <text x="400" y="500" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#334155">vectrix.dev</text>
+</svg>

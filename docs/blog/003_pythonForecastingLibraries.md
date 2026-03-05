@@ -4,7 +4,7 @@ title: "Python Forecasting Libraries Compared — Which One Should You Use?"
 
 # Python Forecasting Libraries Compared — Which One Should You Use?
 
-![Python forecasting ecosystem — statistical, hybrid, and deep learning libraries](/vectrix/docs/blog/assets/libraries-hero.svg)
+![Python forecasting ecosystem — statistical, hybrid, and deep learning libraries](/vectrix/blog/assets/libraries-hero.svg)
 
 In [Post 1](/vectrix/blog/what-is-forecasting), we learned what forecasting is. In [Post 2](/vectrix/blog/how-we-know-forecasts-work), we learned how to tell if a forecast is any good. Now the natural next question — **what tool should I actually use?**
 
@@ -20,7 +20,7 @@ No single library is best for everything. The goal is to match the tool to the p
 
 The Python forecasting ecosystem roughly divides into three camps.
 
-![Library strengths at a glance — ease, speed, accuracy, models, install, community](/vectrix/docs/blog/assets/library-comparison-radar.svg)
+![Library strengths at a glance — ease, speed, accuracy, models, install, community](/vectrix/blog/assets/library-comparison-radar.svg)
 
 **Statistical libraries** implement classical methods (ETS, ARIMA, Theta) that have dominated forecasting for decades. They're interpretable, fast to fit, and work well on small to medium datasets. Think of them as the reliable workhorses.
 
@@ -114,7 +114,7 @@ forecasts = sf.forecast(df=data, h=12)
 
 **The Nixtla ecosystem**
 
-![The Nixtla ecosystem — four packages sharing one interface](/vectrix/docs/blog/assets/nixtla-ecosystem.svg)
+![The Nixtla ecosystem — four packages sharing one interface](/vectrix/blog/assets/nixtla-ecosystem.svg)
 
 statsforecast doesn't exist in isolation. Nixtla has built four complementary packages that share the same `fit()`/`predict()` interface and DataFrame format (`unique_id`, `ds`, `y`)
 
@@ -474,7 +474,7 @@ A few patterns emerge
 
 ## How to Choose
 
-![Decision tree — which library should I use?](/vectrix/docs/blog/assets/library-decision-tree.svg)
+![Decision tree — which library should I use?](/vectrix/blog/assets/library-decision-tree.svg)
 
 Rather than prescribing one answer, here are decision paths based on your situation.
 

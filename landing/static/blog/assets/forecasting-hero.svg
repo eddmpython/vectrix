@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 320" width="800" height="320" fill="none">
+  <defs>
+    <linearGradient id="hbg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="hcyan" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#22d3ee"/>
+    </linearGradient>
+    <linearGradient id="hpurple" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="320" rx="12" fill="url(#hbg)"/>
+  <rect x="0.5" y="0.5" width="799" height="319" rx="12" stroke="#334155" stroke-width="1" fill="none"/>
+
+  <!-- Grid lines -->
+  <line x1="60" y1="260" x2="740" y2="260" stroke="#1e293b" stroke-width="1"/>
+  <line x1="60" y1="210" x2="740" y2="210" stroke="#1e293b" stroke-width="1"/>
+  <line x1="60" y1="160" x2="740" y2="160" stroke="#1e293b" stroke-width="1"/>
+  <line x1="60" y1="110" x2="740" y2="110" stroke="#1e293b" stroke-width="1"/>
+  <line x1="60" y1="60" x2="740" y2="60" stroke="#1e293b" stroke-width="1"/>
+
+  <!-- Historical data -->
+  <polyline points="60,230 90,225 120,218 150,222 180,210 210,205 240,215 270,200 300,195 330,205 360,190 390,185 420,195 450,180 480,178 510,185" stroke="url(#hcyan)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+
+  <!-- Forecast zone background -->
+  <rect x="510" y="50" width="230" height="220" rx="0" fill="rgba(139,92,246,0.04)"/>
+  <line x1="510" y1="50" x2="510" y2="270" stroke="#8b5cf6" stroke-width="1" stroke-dasharray="4,4" opacity="0.5"/>
+
+  <!-- Forecast line -->
+  <polyline points="510,185 540,175 570,168 600,160 630,155 660,148 690,140 720,135" stroke="url(#hpurple)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="8,4" fill="none"/>
+
+  <!-- Confidence interval -->
+  <path d="M510,185 L540,170 L570,158 L600,145 L630,138 L660,128 L690,118 L720,110 L720,160 L690,162 L660,168 L630,172 L600,175 L570,178 L540,180 L510,185 Z" fill="rgba(139,92,246,0.08)" stroke="none"/>
+
+  <!-- Labels -->
+  <text x="280" y="38" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600" fill="#06b6d4">HISTORICAL DATA</text>
+  <text x="615" y="38" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="11" font-weight="600" fill="#8b5cf6">FORECAST</text>
+  <text x="615" y="98" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#64748b">confidence interval</text>
+
+  <!-- Now marker -->
+  <text x="510" y="288" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="600" fill="#475569">NOW</text>
+
+  <!-- Y axis label -->
+  <text x="30" y="160" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#334155" transform="rotate(-90, 30, 160)">VALUE</text>
+
+  <!-- X axis label -->
+  <text x="400" y="305" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#334155">TIME</text>
+</svg>

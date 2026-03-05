@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 280" width="800" height="280" fill="none">
+  <defs>
+    <linearGradient id="qbg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="280" rx="12" fill="url(#qbg)"/>
+  <rect x="0.5" y="0.5" width="799" height="279" rx="12" stroke="#334155" stroke-width="1" fill="none"/>
+
+  <!-- Title -->
+  <text x="400" y="32" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="14" font-weight="700" fill="#f8fafc">Two Approaches to Forecasting</text>
+
+  <!-- Left: Qualitative -->
+  <rect x="30" y="52" width="360" height="200" rx="10" fill="rgba(245,158,11,0.04)" stroke="rgba(245,158,11,0.15)" stroke-width="1"/>
+  <text x="210" y="78" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="700" fill="#f59e0b">Qualitative</text>
+  <text x="210" y="96" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#64748b">Human judgment &amp; expertise</text>
+
+  <circle cx="65" cy="125" r="4" fill="#f59e0b" opacity="0.6"/>
+  <text x="78" y="129" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#94a3b8">Expert opinion</text>
+  <circle cx="65" cy="150" r="4" fill="#f59e0b" opacity="0.6"/>
+  <text x="78" y="154" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#94a3b8">Delphi method</text>
+  <circle cx="65" cy="175" r="4" fill="#f59e0b" opacity="0.6"/>
+  <text x="78" y="179" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#94a3b8">Market research</text>
+  <circle cx="65" cy="200" r="4" fill="#f59e0b" opacity="0.6"/>
+  <text x="78" y="204" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#94a3b8">Scenario planning</text>
+
+  <rect x="55" y="222" width="310" height="20" rx="4" fill="rgba(245,158,11,0.06)"/>
+  <text x="210" y="236" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9" font-weight="500" fill="#f59e0b">Best when data is scarce or nonexistent</text>
+
+  <!-- VS -->
+  <text x="400" y="160" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="700" fill="#334155">VS</text>
+
+  <!-- Right: Quantitative -->
+  <rect x="410" y="52" width="360" height="200" rx="10" fill="rgba(6,182,212,0.04)" stroke="rgba(6,182,212,0.15)" stroke-width="1"/>
+  <text x="590" y="78" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="13" font-weight="700" fill="#06b6d4">Quantitative</text>
+  <text x="590" y="96" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9" fill="#64748b">Mathematical models &amp; data</text>
+
+  <circle cx="445" cy="125" r="4" fill="#06b6d4" opacity="0.6"/>
+  <text x="458" y="129" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#94a3b8">Time series (ETS, ARIMA, Theta)</text>
+  <circle cx="445" cy="150" r="4" fill="#06b6d4" opacity="0.6"/>
+  <text x="458" y="154" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#94a3b8">Regression models</text>
+  <circle cx="445" cy="175" r="4" fill="#06b6d4" opacity="0.6"/>
+  <text x="458" y="179" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#94a3b8">Machine learning</text>
+  <circle cx="445" cy="200" r="4" fill="#06b6d4" opacity="0.6"/>
+  <text x="458" y="204" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#94a3b8">Foundation models</text>
+
+  <rect x="435" y="222" width="310" height="20" rx="4" fill="rgba(6,182,212,0.06)"/>
+  <text x="590" y="236" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="9" font-weight="500" fill="#06b6d4">Best when historical data exists</text>
+</svg>
