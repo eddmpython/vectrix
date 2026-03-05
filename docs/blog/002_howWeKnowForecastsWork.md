@@ -4,7 +4,7 @@ title: "How Do We Know If a Forecast Is Any Good?"
 
 # How Do We Know If a Forecast Is Any Good?
 
-![Benchmarking — measuring what matters in forecasting](/vectrix/blog/benchmark-hero.svg)
+![Benchmarking — measuring what matters in forecasting](/vectrix/docs/blog/assets/benchmark-hero.svg)
 
 In the [last post](/vectrix/blog/what-is-forecasting), we established that forecasting is about making informed predictions using historical data. We talked about trend, seasonality, and noise. We outlined the process from data collection to uncertainty quantification.
 
@@ -34,7 +34,7 @@ Without a **systematic way to measure accuracy**, you can't answer any of these 
 
 A **benchmark** is a standardized test that lets you objectively compare forecasting methods against each other and against simple baselines.
 
-![What makes a good benchmark](/vectrix/blog/benchmark-anatomy.svg)
+![What makes a good benchmark](/vectrix/docs/blog/assets/benchmark-anatomy.svg)
 
 A good benchmark has four components
 
@@ -58,7 +58,7 @@ Think of it like the Olympics. Everyone runs the same distance, on the same trac
 
 The most influential benchmarks in forecasting are the **[M Competitions](https://en.wikipedia.org/wiki/Makridakis_Competitions)**, organized by Professor Spyros Makridakis starting in 1982. The "M" stands for Makridakis — the researcher who had the audacity to ask, "Do complex models actually work better?"
 
-![The M Competition timeline](/vectrix/blog/m-competition-timeline.svg)
+![The M Competition timeline](/vectrix/docs/blog/assets/m-competition-timeline.svg)
 
 ### M1 (1982) — The Wake-Up Call
 
@@ -325,7 +325,7 @@ That's what benchmarks are for. Not marketing. **Evidence.**
 
 Now you know what forecasting is (Post 1) and how we measure whether it works (Post 2). In upcoming posts
 
-- **[Python Forecasting Libraries Compared](/vectrix/blog/003_pythonForecastingLibraries/)** — Which tool should you use?
+- **[Python Forecasting Libraries Compared](/vectrix/blog/python-forecasting-libraries)** — Which tool should you use?
 - **Your First Forecast in Python** — From zero to prediction in 5 minutes
 - **Time Series Models Explained** — ETS, ARIMA, Theta, and when to use each
 

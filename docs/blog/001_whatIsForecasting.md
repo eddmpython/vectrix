@@ -4,7 +4,7 @@ title: "What Is Forecasting?"
 
 # What Is Forecasting?
 
-![Forecasting — using historical data to predict the future](/vectrix/blog/forecasting-hero.svg)
+![Forecasting — using historical data to predict the future](/vectrix/docs/blog/assets/forecasting-hero.svg)
 
 Every decision you make is a forecast. When you grab an umbrella before leaving home, you're forecasting rain. When a company orders extra inventory before the holidays, it's forecasting demand. When a government adjusts interest rates, it's forecasting inflation.
 
@@ -35,7 +35,7 @@ Bohr was right — but we don't need perfect predictions. We need predictions th
 
 Broadly, forecasting approaches fall into two camps.
 
-![Qualitative vs. Quantitative forecasting approaches](/vectrix/blog/qualitative-vs-quantitative.svg)
+![Qualitative vs. Quantitative forecasting approaches](/vectrix/docs/blog/assets/qualitative-vs-quantitative.svg)
 
 ### Qualitative Forecasting
 
@@ -95,7 +95,7 @@ A sudden spike in website traffic because a celebrity mentioned your product. An
 
 The goal of forecasting is to capture the **signal** (trend + seasonality) and accept the **noise** as irreducible uncertainty.
 
-![Time Series Decomposition — Data = Trend + Seasonality + Noise](/vectrix/blog/time-series-decomposition.svg)
+![Time Series Decomposition — Data = Trend + Seasonality + Noise](/vectrix/docs/blog/assets/time-series-decomposition.svg)
 
 That's the fundamental equation. Every forecasting model, from the simplest to the most complex, is trying to separate signal from noise.
 
@@ -105,7 +105,7 @@ That's the fundamental equation. Every forecasting model, from the simplest to t
 
 Here's the process, stripped to its essence
 
-![The 6-step forecasting process](/vectrix/blog/forecasting-process.svg)
+![The 6-step forecasting process](/vectrix/docs/blog/assets/forecasting-process.svg)
 
 **Step 1: Collect historical data.**
 You need past observations. Monthly sales for the last 3 years. Daily temperatures for the last decade. Hourly website traffic for the last quarter. More data usually means better forecasts — but not always.
@@ -160,8 +160,8 @@ The goal isn't perfection. The goal is to be **less wrong** than the alternative
 
 This post covered the "what" and "why" of forecasting. In upcoming posts, we'll dive deeper
 
-- **[How Do We Know If a Forecast Is Any Good?](/vectrix/blog/002_howWeKnowForecastsWork/)** — Benchmarks, metrics, and the M Competitions
-- **[Python Forecasting Libraries Compared](/vectrix/blog/003_pythonForecastingLibraries/)** — Which tool should you use?
+- **[How Do We Know If a Forecast Is Any Good?](/vectrix/blog/how-we-know-forecasts-work)** — Benchmarks, metrics, and the M Competitions
+- **[Python Forecasting Libraries Compared](/vectrix/blog/python-forecasting-libraries)** — Which tool should you use?
 - **Your First Forecast in Python** — From data to prediction in 5 minutes
 - **Time Series Models Explained** — ETS, ARIMA, Theta, and when to use each
 

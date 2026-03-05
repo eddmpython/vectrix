@@ -4,9 +4,9 @@ title: "Python Forecasting Libraries Compared — Which One Should You Use?"
 
 # Python Forecasting Libraries Compared — Which One Should You Use?
 
-![Python forecasting ecosystem — statistical, hybrid, and deep learning libraries](/vectrix/blog/assets/libraries-hero.svg)
+![Python forecasting ecosystem — statistical, hybrid, and deep learning libraries](/vectrix/docs/blog/assets/libraries-hero.svg)
 
-In [Post 1](/vectrix/blog/001_whatIsForecasting/), we learned what forecasting is. In [Post 2](/vectrix/blog/002_howWeKnowForecastsWork/), we learned how to tell if a forecast is any good. Now the natural next question — **what tool should I actually use?**
+In [Post 1](/vectrix/blog/what-is-forecasting), we learned what forecasting is. In [Post 2](/vectrix/blog/how-we-know-forecasts-work), we learned how to tell if a forecast is any good. Now the natural next question — **what tool should I actually use?**
 
 If you search "Python forecasting library" today, you'll find dozens of options. Some have been around for a decade. Some launched last year. Some have 20,000 GitHub stars. Some have 200. Some focus on speed. Some focus on deep learning. Some try to do everything.
 
@@ -20,7 +20,7 @@ No single library is best for everything. The goal is to match the tool to the p
 
 The Python forecasting ecosystem roughly divides into three camps.
 
-![Library strengths at a glance — ease, speed, accuracy, models, install, community](/vectrix/blog/assets/library-comparison-radar.svg)
+![Library strengths at a glance — ease, speed, accuracy, models, install, community](/vectrix/docs/blog/assets/library-comparison-radar.svg)
 
 **Statistical libraries** implement classical methods (ETS, ARIMA, Theta) that have dominated forecasting for decades. They're interpretable, fast to fit, and work well on small to medium datasets. Think of them as the reliable workhorses.
 
@@ -114,7 +114,7 @@ forecasts = sf.forecast(df=data, h=12)
 
 **The Nixtla ecosystem**
 
-![The Nixtla ecosystem — four packages sharing one interface](/vectrix/blog/assets/nixtla-ecosystem.svg)
+![The Nixtla ecosystem — four packages sharing one interface](/vectrix/docs/blog/assets/nixtla-ecosystem.svg)
 
 statsforecast doesn't exist in isolation. Nixtla has built four complementary packages that share the same `fit()`/`predict()` interface and DataFrame format (`unique_id`, `ds`, `y`)
 
@@ -335,7 +335,7 @@ print(vx.dna)
 | Hourly | **0.722** | World-class |
 | **Average** | **0.848** | **Outperforms M4 #2 FFORMA (0.838)** |
 
-We publish these numbers, including the weak ones (Daily), because we believe transparency is more valuable than marketing. As discussed in [Post 2](/vectrix/blog/002_howWeKnowForecastsWork/), benchmarks exist for evidence, not ego.
+We publish these numbers, including the weak ones (Daily), because we believe transparency is more valuable than marketing. As discussed in [Post 2](/vectrix/blog/how-we-know-forecasts-work), benchmarks exist for evidence, not ego.
 
 **The tradeoffs**
 
@@ -474,7 +474,7 @@ A few patterns emerge
 
 ## How to Choose
 
-![Decision tree — which library should I use?](/vectrix/blog/assets/library-decision-tree.svg)
+![Decision tree — which library should I use?](/vectrix/docs/blog/assets/library-decision-tree.svg)
 
 Rather than prescribing one answer, here are decision paths based on your situation.
 
@@ -538,7 +538,7 @@ Three dependencies (NumPy, pandas, SciPy) means fewer things that can break. The
 
 **4. Benchmarks keep you honest.**
 
-We [publish our M4 results](/vectrix/blog/002_howWeKnowForecastsWork/) — including the honest numbers for every frequency group. We could cherry-pick our best results. We don't, because transparency builds more trust than marketing.
+We [publish our M4 results](/vectrix/blog/how-we-know-forecasts-work) — including the honest numbers for every frequency group. We could cherry-pick our best results. We don't, because transparency builds more trust than marketing.
 
 When evaluating any library, ask for reproducible benchmark numbers. If they can't provide them, that tells you something.
 

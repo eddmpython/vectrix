@@ -45,12 +45,12 @@ export const navigation: NavItem[] = [
 		title: 'Tutorials',
 		href: '/docs/tutorials',
 		items: [
-			{ title: '1. Quickstart', href: '/docs/tutorials/01_quickstart/' },
-			{ title: '2. Analysis', href: '/docs/tutorials/02_analyze/' },
-			{ title: '3. Regression', href: '/docs/tutorials/03_regression/' },
-			{ title: '4. Models', href: '/docs/tutorials/04_models/' },
-			{ title: '5. Adaptive', href: '/docs/tutorials/05_adaptive/' },
-			{ title: '6. Business', href: '/docs/tutorials/06_business/' }
+			{ title: '1. Quickstart', href: '/docs/tutorials/quickstart' },
+			{ title: '2. Analysis', href: '/docs/tutorials/analyze' },
+			{ title: '3. Regression', href: '/docs/tutorials/regression' },
+			{ title: '4. Models', href: '/docs/tutorials/models' },
+			{ title: '5. Adaptive', href: '/docs/tutorials/adaptive' },
+			{ title: '6. Business', href: '/docs/tutorials/business' }
 		]
 	},
 	{
