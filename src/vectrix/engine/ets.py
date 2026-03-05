@@ -375,8 +375,13 @@ class ETSModel:
         """
         Compute Sum of Squared Errors
 
-        Scales residuals by data standard deviation for numerical stability
+        Scales residuals by data standard deviation for numerical stability.
+        Saves/restores state to prevent side-effects during optimization.
         """
+        savedLevel = self.level
+        savedTrend = self.trend
+        savedSeasonal = self.seasonal.copy() if self.seasonal is not None else None
+
         self._setParams(params)
 
         try:
@@ -386,8 +391,12 @@ class ETSModel:
                 yStd = 1.0
             scaledResiduals = residuals / yStd
             return np.sum(scaledResiduals ** 2) * (yStd ** 2)
-        except Exception:
+        except (ValueError, RuntimeError, np.linalg.LinAlgError, FloatingPointError):
             return np.inf
+        finally:
+            self.level = savedLevel
+            self.trend = savedTrend
+            self.seasonal = savedSeasonal
 
     def _setParams(self, params: np.ndarray):
         """Set parameters"""

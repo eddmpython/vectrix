@@ -1,7 +1,7 @@
 {
   "version": "0.0.15",
   "rustFunctions": 29,
-  "testCount": 573,
+  "testCount": 603,
   "modelCount": "30+",
   "dependencies": 3,
   "maxSpeedup": "67x",

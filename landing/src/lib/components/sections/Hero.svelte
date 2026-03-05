@@ -38,7 +38,7 @@
 				{ value: '0.848', label: 'M4 OWA' },
 				{ value: '3', label: 'Dependencies' },
 				{ value: '67x', label: 'Rust Engine' },
-				{ value: '573', label: 'Tests' }
+				{ value: '603', label: 'Tests' }
 			] as stat}
 				<div class="text-center">
 					<span class="block text-3xl font-bold bg-gradient-to-r from-vx-primary to-vx-accent bg-clip-text text-transparent">

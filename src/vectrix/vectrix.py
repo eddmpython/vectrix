@@ -24,7 +24,7 @@ warnings.filterwarnings('ignore', module='vectrix')
 
 from .analyzer import AutoAnalyzer
 from .engine import PeriodicDropDetector, TurboCore
-from .engine.registry import createModel, getModelSpec, listModelIds
+from .engine.registry import createModel, getCoreModelIds, getModelSpec, listModelIds, selectModels
 from .flat_defense import FlatPredictionCorrector, FlatPredictionDetector, FlatRiskDiagnostic
 from .models.ensemble import VariabilityPreservingEnsemble
 from .types import DataCharacteristics, FlatRiskAssessment, ForecastResult, ModelResult, RiskLevel
@@ -213,39 +213,36 @@ class Vectrix:
             self._progress('Done!')
             return result
 
-        except Exception as e:
-            import traceback
+        except (ValueError, TypeError, KeyError, IndexError) as e:
             if self.verbose:
+                import traceback
                 traceback.print_exc()
             return ForecastResult(success=False, error=str(e))
+        except np.linalg.LinAlgError as e:
+            return ForecastResult(success=False, error=f'Numerical instability: {e}')
 
     def _selectNativeModels(self) -> List[str]:
-        """Select native models based on data characteristics and M4-validated pools."""
+        """Select native models dynamically from registry based on data characteristics."""
         riskLevel = self.flatRisk.riskLevel if self.flatRisk else RiskLevel.LOW
         n = self.characteristics.length if self.characteristics else 100
         period = self.characteristics.period if self.characteristics else 7
         hasMultiSeason = self.characteristics.hasMultipleSeasonality if self.characteristics else False
         seasonalStrength = self.characteristics.seasonalStrength if self.characteristics else 0.0
         freq = self.characteristics.frequency.value if self.characteristics else 'D'
+        highFlatRisk = riskLevel in [RiskLevel.CRITICAL, RiskLevel.HIGH]
 
-        if freq == 'H' and n >= 100:
-            models = ['dot', 'auto_ces', 'four_theta', 'auto_ets', 'dtsf']
-        elif (hasMultiSeason or seasonalStrength > 0.4) and n >= 60:
-            models = ['dot', 'auto_ces', 'four_theta', 'auto_mstl', 'auto_ets']
-        elif riskLevel in [RiskLevel.CRITICAL, RiskLevel.HIGH]:
-            models = ['dot', 'four_theta', 'auto_ces', 'auto_ets']
-        else:
-            models = ['dot', 'auto_ces', 'four_theta', 'auto_ets']
+        models = selectModels(
+            n=n, period=period, freq=freq,
+            seasonalStrength=seasonalStrength,
+            hasMultiSeason=hasMultiSeason,
+            highFlatRisk=highFlatRisk,
+            maxModels=5,
+        )
 
-        if n < 30:
-            models = [m for m in models if m not in ['dtsf']]
         if n < period * 2:
             models = [m for m in models if m not in ['ets_aaa', 'mstl', 'auto_mstl']]
 
-        if not models:
-            models = ['dot', 'auto_ces']
-
-        return models
+        return models if models else ['dot', 'auto_ces']
 
     def _evaluateNativeModels(
         self,
@@ -318,7 +315,7 @@ class Vectrix:
                     if self.verbose:
                         flatMark = "⚠️" if result.flatInfo and result.flatInfo.isFlat else "✓"
                         print(f"  {flatMark} {modelId}: MAPE={result.mape:.2f}%")
-                except Exception as e:
+                except (ValueError, RuntimeError, np.linalg.LinAlgError) as e:
                     if self.verbose:
                         print(f"  ✗ {modelId} error: {str(e)[:50]}")
         else:
@@ -340,7 +337,7 @@ class Vectrix:
                         if self.verbose:
                             flatMark = "⚠️" if result.flatInfo and result.flatInfo.isFlat else "✓"
                             print(f"  {flatMark} {modelId}: MAPE={result.mape:.2f}%")
-                    except Exception as e:
+                    except (ValueError, RuntimeError, np.linalg.LinAlgError) as e:
                         if self.verbose:
                             print(f"  ✗ {modelId} error: {str(e)[:50]}")
 
@@ -420,7 +417,7 @@ class Vectrix:
                 cachedModel.refit(allValues)
                 return cachedModel.predict(steps)
             return self._fitAndPredictNative(modelId, allValues, steps, period)
-        except Exception:
+        except (ValueError, RuntimeError, np.linalg.LinAlgError):
             return self._fitAndPredictNative(modelId, allValues, steps, period)
 
     def _generateFinalPrediction(
@@ -484,7 +481,7 @@ class Vectrix:
                 self.modelResults[mid].predictions = fPred
                 self.modelResults[mid].lower95 = fLo
                 self.modelResults[mid].upper95 = fHi
-            except Exception:
+            except (ValueError, RuntimeError, np.linalg.LinAlgError):
                 pass
 
         ensembleMethod = getattr(self, '_ensembleMethod', None)
@@ -492,7 +489,7 @@ class Vectrix:
             pass
         elif len(validModels) >= 2:
             try:
-                coreModels = [m for m in ['dot', 'auto_ces', 'four_theta'] if m in validModels]
+                coreModels = [m for m in getCoreModelIds() if m in validModels]
                 ensemblePool = coreModels + [m for m in validModels if m not in coreModels]
                 modelPredictions = {}
                 for mid in ensemblePool[:3]:
@@ -545,7 +542,7 @@ class Vectrix:
                     if applyDropPattern and self.dropDetector and self.dropDetector.hasPeriodicDrop():
                         lower95 = self.dropDetector.applyDropPatternSmart(lower95, originalLength)
                         upper95 = self.dropDetector.applyDropPatternSmart(upper95, originalLength)
-            except Exception:
+            except (ValueError, RuntimeError, np.linalg.LinAlgError):
                 pass
 
         # Flat prediction detection and correction
