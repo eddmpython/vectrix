@@ -5,6 +5,42 @@ All notable changes to Vectrix will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.16] - 2026-03-05
+
+Code quality and architecture cleanup release — eliminates MODEL_INFO indirection layer, enforces registry as single source of truth for all model metadata, fixes ETSModel refit bug, and adds refit contract tests.
+
+### Fixed
+
+**ETSModel refit() State Corruption**
+- `engine/ets.py`: `_computeSSE()` called `_filter()` which mutated `self.level/trend/seasonal` as a side-effect during optimization
+- This caused refit() on the same data to produce 175%+ divergence from original fit()
+- Added state save/restore in `_computeSSE` using try/finally pattern
+- All 6 refit-capable models now pass same-data similarity test (<5% divergence)
+
+### Changed
+
+**Registry as Single Source of Truth (SSoT)**
+- `engine/registry.py`: Added `tier`, `seasonal`, `hourly` fields to `ModelSpec`
+- Added `selectModels()` for data-characteristic-based model selection
+- Added `getCoreModelIds()` for dynamic ensemble core pool
+- `vectrix.py`: Replaced hardcoded model lists with `selectModels()` and `getCoreModelIds()`
+- `flat_defense/diagnostic.py`: Replaced `MODEL_INFO` import with `getModelInfo()` direct call
+- `models/selector.py`: Same — `MODEL_INFO` → `getModelInfo()` direct call
+- `types.py`: Removed `_LazyModelInfo` class and `MODEL_INFO` variable entirely (48 lines deleted)
+
+**Exception Handling**
+- `vectrix.py`: Replaced 6 bare `except Exception:` with specific types (`ValueError`, `RuntimeError`, `np.linalg.LinAlgError`, etc.)
+
+**Code Deduplication**
+- `vectrix.py`: Unified sequential/parallel model evaluation result handling into `storeResult()` helper
+
+### Added
+
+**Refit Contract Tests**
+- `tests/test_refit_contract.py`: 30 tests covering 6 refit-capable models
+- Tests: returns_self, output_shape, output_finite, ci_ordering, same_data_similar_output
+- Total tests: 573 → 603
+
 ## [0.0.15] - 2026-03-05
 
 Accuracy & engine improvement release — FFT period detection bug fix eliminates spurious seasonal periods that degraded M4 Daily OWA from 0.820 to 0.996. Three new Rust DNA functions added. PeriodicDropDetector seasonal false positive fix. Visualization module (plotly). Overall M4 AVG OWA improved from 0.877 to 0.848.

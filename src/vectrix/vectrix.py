@@ -43,7 +43,7 @@ class Vectrix:
     Dependencies: numpy, pandas, scipy (required), numba (optional)
     """
 
-    VERSION = "0.0.14"
+    VERSION = "0.0.16"
 
     def __init__(
         self,
@@ -301,6 +301,15 @@ class Vectrix:
             )
             return modelId, result, fittedModel
 
+        def storeResult(mid, result, fittedModel, idx):
+            results[mid] = result
+            if fittedModel is not None:
+                self._fittedModels[mid] = fittedModel
+            self._progress(f'{result.modelName} done ({idx}/{totalModels})')
+            if self.verbose:
+                flatMark = "⚠️" if result.flatInfo and result.flatInfo.isFlat else "✓"
+                print(f"  {flatMark} {mid}: MAPE={result.mape:.2f}%")
+
         nWorkers = min(totalModels, 4) if self.nJobs != 1 else 1
 
         if nWorkers <= 1:
@@ -308,13 +317,7 @@ class Vectrix:
                 try:
                     self._progress(f'Training {self._getModelName(modelId)}...')
                     mid, result, fittedModel = evaluateSingle(modelId)
-                    results[mid] = result
-                    if fittedModel is not None:
-                        self._fittedModels[mid] = fittedModel
-                    self._progress(f'{result.modelName} done ({i+1}/{totalModels})')
-                    if self.verbose:
-                        flatMark = "⚠️" if result.flatInfo and result.flatInfo.isFlat else "✓"
-                        print(f"  {flatMark} {modelId}: MAPE={result.mape:.2f}%")
+                    storeResult(mid, result, fittedModel, i + 1)
                 except (ValueError, RuntimeError, np.linalg.LinAlgError) as e:
                     if self.verbose:
                         print(f"  ✗ {modelId} error: {str(e)[:50]}")
@@ -330,13 +333,7 @@ class Vectrix:
                     completed += 1
                     try:
                         mid, result, fittedModel = future.result()
-                        results[mid] = result
-                        if fittedModel is not None:
-                            self._fittedModels[mid] = fittedModel
-                        self._progress(f'{result.modelName} done ({completed}/{totalModels})')
-                        if self.verbose:
-                            flatMark = "⚠️" if result.flatInfo and result.flatInfo.isFlat else "✓"
-                            print(f"  {flatMark} {modelId}: MAPE={result.mape:.2f}%")
+                        storeResult(mid, result, fittedModel, completed)
                     except (ValueError, RuntimeError, np.linalg.LinAlgError) as e:
                         if self.verbose:
                             print(f"  ✗ {modelId} error: {str(e)[:50]}")

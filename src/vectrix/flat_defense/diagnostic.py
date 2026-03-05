@@ -8,7 +8,8 @@ from typing import Dict, List, Optional
 
 import numpy as np
 
-from ..types import MODEL_INFO, DataCharacteristics, FlatRiskAssessment, RiskLevel
+from ..engine.registry import getModelInfo
+from ..types import DataCharacteristics, FlatRiskAssessment, RiskLevel
 
 
 class FlatRiskDiagnostic:
@@ -237,9 +238,10 @@ class FlatRiskDiagnostic:
             strategy = "standard"
             models = ['auto_arima', 'auto_ets', 'theta', 'mstl']
 
+        modelInfo = getModelInfo()
         models = [
             m for m in models
-            if dataLength >= MODEL_INFO.get(m, {}).get('minData', 10)
+            if dataLength >= modelInfo.get(m, {}).get('minData', 10)
         ]
 
         if not models:

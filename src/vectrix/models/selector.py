@@ -6,8 +6,8 @@ Selects optimal models based on flat prediction risk and data characteristics.
 
 from typing import Any, Dict, List, Optional
 
-from ..engine.registry import getRegistry
-from ..types import MODEL_INFO, DataCharacteristics, FlatRiskAssessment, RiskLevel
+from ..engine.registry import getModelInfo, getRegistry
+from ..types import DataCharacteristics, FlatRiskAssessment, RiskLevel
 
 
 def _buildFromRegistry(field: str, fallback: Dict[str, Any]) -> Dict[str, Any]:
@@ -132,7 +132,7 @@ class AdaptiveModelSelector:
 
     def getModelInfo(self, modelId: str) -> Dict[str, Any]:
         """Return model information"""
-        return MODEL_INFO.get(modelId, {
+        return getModelInfo().get(modelId, {
             'name': modelId,
             'description': '',
             'flatResistance': 0.5,

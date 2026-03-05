@@ -4,7 +4,7 @@
 
 Vectrix is a Python library for time series forecasting. It evaluates 30+ statistical models (ETS, ARIMA, Theta, CES, DOT, MSTL, TBATS, GARCH, and more), validates each on a holdout set, and returns the best one with 95% confidence intervals — in a single function call.
 
-- Version: 0.0.15
+- Version: 0.0.16
 - License: MIT
 - Python: 3.10+
 - Dependencies: NumPy, pandas, SciPy (only 3)
