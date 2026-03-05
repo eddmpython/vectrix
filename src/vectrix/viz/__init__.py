@@ -2,6 +2,7 @@
 Vectrix Visualization Module.
 
 Interactive Plotly charts for time series analysis and forecasting.
+Design tokens unified with the landing page (Cyan→Purple gradient).
 
 Requires: pip install vectrix[viz]
 """
@@ -23,7 +24,15 @@ from .charts import (
     scenarioChart,
 )
 from .report import analysisReport, forecastReport
-from .theme import COLORS, HEIGHT, LAYOUT, LIGHT_COLORS, PALETTE, applyTheme
+from .theme import (
+    COLORS,
+    GRADIENT_COLORSCALE,
+    HEATMAP_COLORSCALE,
+    HEIGHT,
+    LIGHT_COLORS,
+    PALETTE,
+    applyTheme,
+)
 
 __all__ = [
     "forecastChart",
@@ -37,7 +46,8 @@ __all__ = [
     "COLORS",
     "LIGHT_COLORS",
     "PALETTE",
-    "LAYOUT",
+    "GRADIENT_COLORSCALE",
+    "HEATMAP_COLORSCALE",
     "HEIGHT",
     "applyTheme",
 ]

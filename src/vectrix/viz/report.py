@@ -2,11 +2,12 @@
 Composite report generators that combine multiple charts.
 
 Each function returns a single Plotly figure with subplots.
+Design language: Cyan→Purple gradient, dark navy, Inter typography.
 """
 
 import pandas as pd
 
-from .theme import COLORS, HEIGHT, PALETTE, applyTheme
+from .theme import COLORS, HEIGHT, PALETTE, _colors, applyTheme
 
 try:
     import plotly.graph_objects as go
@@ -49,11 +50,17 @@ def forecastReport(forecastResult, historical=None, title=None, theme="dark"):
     -------
     go.Figure
     """
+    c = _colors(theme)
+
     fig = make_subplots(
         rows=2, cols=1,
-        row_heights=[0.75, 0.25],
-        vertical_spacing=0.12,
-        subplot_titles=["Forecast", "Error Metrics"],
+        row_heights=[0.72, 0.28],
+        vertical_spacing=0.10,
+        subplot_titles=[
+            f"<b>Forecast</b>  <span style='font-size:11px;color:{c['textMuted']}'>"
+            f"{forecastResult.model}  ·  {len(forecastResult.predictions)} steps</span>",
+            f"<b>Error Metrics</b>",
+        ],
     )
 
     fcDf = forecastResult.toDataframe()
@@ -66,8 +73,17 @@ def forecastReport(forecastResult, historical=None, title=None, theme="dark"):
         fig.add_trace(go.Scatter(
             x=histDates, y=historical[valueCol],
             name="Historical",
-            line=dict(color=COLORS["muted"], width=1.5),
+            line=dict(color=c["muted"], width=1.5),
             hovertemplate="%{x|%Y-%m-%d}<br>%{y:,.1f}<extra></extra>",
+        ), row=1, col=1)
+
+        lastHistDate = histDates.iloc[-1]
+        lastHistVal = historical[valueCol].iloc[-1]
+        fig.add_trace(go.Scatter(
+            x=[lastHistDate, fcDates.iloc[0]],
+            y=[lastHistVal, forecastResult.predictions[0]],
+            line=dict(color=c["muted"], width=1.5, dash="dot"),
+            showlegend=False, hoverinfo="skip",
         ), row=1, col=1)
 
     fig.add_trace(go.Scatter(
@@ -77,14 +93,14 @@ def forecastReport(forecastResult, historical=None, title=None, theme="dark"):
     fig.add_trace(go.Scatter(
         x=fcDates, y=forecastResult.lower,
         fill="tonexty", name="95% CI",
-        fillcolor="rgba(99,102,241,0.12)",
+        fillcolor="rgba(6,182,212,0.10)",
         line=dict(width=0), hoverinfo="skip",
     ), row=1, col=1)
 
     fig.add_trace(go.Scatter(
         x=fcDates, y=forecastResult.predictions,
         name=f"Forecast ({forecastResult.model})",
-        line=dict(color=COLORS["primary"], width=2.5),
+        line=dict(color=c["primary"], width=2.5),
         hovertemplate="%{x|%Y-%m-%d}<br>%{y:,.1f}<extra></extra>",
     ), row=1, col=1)
 
@@ -95,20 +111,20 @@ def forecastReport(forecastResult, historical=None, title=None, theme="dark"):
         getattr(forecastResult, "mae", 0),
         getattr(forecastResult, "smape", 0),
     ]
+
     metricColors = []
     for i, v in enumerate(metricValues):
-        if i == 0:
-            metricColors.append(COLORS["positive"] if v < 10 else COLORS["warning"] if v < 20 else COLORS["negative"])
-        elif i == 3:
-            metricColors.append(COLORS["positive"] if v < 10 else COLORS["warning"] if v < 20 else COLORS["negative"])
+        if i in (0, 3):
+            metricColors.append(c["positive"] if v < 10 else c["warning"] if v < 20 else c["negative"])
         else:
-            metricColors.append(COLORS["primary"])
+            metricColors.append(c["primary"])
 
     fig.add_trace(go.Bar(
         x=metricNames, y=metricValues,
-        marker_color=metricColors,
+        marker=dict(color=metricColors, line=dict(width=0)),
         text=[f"{v:.2f}" for v in metricValues],
         textposition="auto",
+        textfont=dict(size=12, color=c["text"]),
         showlegend=False,
         hovertemplate="%{x}: %{y:.2f}<extra></extra>",
     ), row=2, col=1)
@@ -138,11 +154,9 @@ def analysisReport(analysisResult, title=None, theme="dark"):
     -------
     go.Figure
     """
+    c = _colors(theme)
     dna = analysisResult.dna
     feat = dna.features
-
-    bgColor = COLORS["card"] if theme == "dark" else "#f1f5f9"
-    gridColor = "rgba(255,255,255,0.1)" if theme == "dark" else "rgba(0,0,0,0.1)"
 
     fig = make_subplots(
         rows=2, cols=2,
@@ -151,9 +165,13 @@ def analysisReport(analysisResult, title=None, theme="dark"):
             [{"type": "domain", "colspan": 2}, None],
         ],
         row_heights=[0.65, 0.35],
-        vertical_spacing=0.12,
-        horizontal_spacing=0.1,
-        subplot_titles=["DNA Profile", "Key Features", ""],
+        vertical_spacing=0.10,
+        horizontal_spacing=0.08,
+        subplot_titles=[
+            f"<b>DNA Profile</b>",
+            f"<b>Key Features</b>",
+            "",
+        ],
     )
 
     radarKeys = [
@@ -174,9 +192,11 @@ def analysisReport(analysisResult, title=None, theme="dark"):
     fig.add_trace(go.Scatterpolar(
         r=radarValues, theta=radarLabelsClosed,
         fill="toself",
-        fillcolor="rgba(99,102,241,0.2)",
-        line=dict(color=COLORS["primary"], width=2),
+        fillcolor="rgba(6,182,212,0.12)",
+        line=dict(color=c["primary"], width=2.5),
+        marker=dict(size=5, color=c["primary"]),
         name="DNA",
+        hovertemplate="%{theta}: %{r:.3f}<extra></extra>",
     ), row=1, col=1)
 
     barKeys = [
@@ -201,35 +221,50 @@ def analysisReport(analysisResult, title=None, theme="dark"):
 
     fig.add_trace(go.Bar(
         x=validLabels, y=barValues,
-        marker_color=barColors,
+        marker=dict(color=barColors, line=dict(width=0)),
         text=[f"{v:.3f}" for v in barValues],
         textposition="auto",
+        textfont=dict(size=11, color=c["text"]),
         showlegend=False,
         hovertemplate="%{x}: %{y:.4f}<extra></extra>",
     ), row=1, col=2)
+
+    scoreColor = c["positive"] if dna.difficultyScore < 40 else c["warning"] if dna.difficultyScore < 70 else c["negative"]
 
     fig.add_trace(go.Indicator(
         mode="number",
         value=dna.difficultyScore,
         number=dict(
-            font=dict(size=48, color=COLORS["primary"]),
+            font=dict(size=44, color=scoreColor),
             valueformat=".0f",
             suffix="/100",
         ),
         title=dict(
-            text=f"{dna.category} — {dna.difficulty}<br>"
-                 f"<span style='font-size:13px'>{len(analysisResult.changepoints)} changepoints, "
-                 f"{len(analysisResult.anomalies)} anomalies</span>",
-            font=dict(size=16, color=COLORS["text"] if theme == "dark" else "#0f172a"),
+            text=(
+                f"<b>{dna.category}</b> — {dna.difficulty}<br>"
+                f"<span style='font-size:12px;color:{c['textMuted']}'>"
+                f"{len(analysisResult.changepoints)} changepoints  ·  "
+                f"{len(analysisResult.anomalies)} anomalies</span>"
+            ),
+            font=dict(size=15, color=c["text"]),
         ),
         domain=dict(row=1, column=0),
     ), row=2, col=1)
 
     fig.update_layout(
         polar=dict(
-            bgcolor=bgColor,
-            radialaxis=dict(visible=True, range=[0, 1], gridcolor=gridColor),
-            angularaxis=dict(gridcolor=gridColor),
+            bgcolor=c["bg"],
+            radialaxis=dict(
+                visible=True,
+                range=[0, 1],
+                gridcolor=c["grid"],
+                tickfont=dict(size=10, color=c["dim"]),
+                tickvals=[0.25, 0.5, 0.75, 1.0],
+            ),
+            angularaxis=dict(
+                gridcolor=c["grid"],
+                tickfont=dict(size=11, color=c["textMuted"]),
+            ),
         ),
         grid=dict(rows=2, columns=2, pattern="independent"),
     )

@@ -2,11 +2,19 @@
 Individual chart functions for Vectrix visualization.
 
 Each function takes a Vectrix result object and returns a Plotly figure.
+Design language: Cyan→Purple gradient, dark navy, Inter typography.
 """
 
 import pandas as pd
 
-from .theme import COLORS, HEIGHT, PALETTE, applyTheme
+from .theme import (
+    COLORS,
+    HEATMAP_COLORSCALE,
+    HEIGHT,
+    PALETTE,
+    _colors,
+    applyTheme,
+)
 
 try:
     import plotly.graph_objects as go
@@ -45,6 +53,7 @@ def forecastChart(forecastResult, historical=None, title=None, theme="dark"):
     -------
     go.Figure
     """
+    c = _colors(theme)
     fig = go.Figure()
 
     fcDf = forecastResult.toDataframe()
@@ -57,8 +66,17 @@ def forecastChart(forecastResult, historical=None, title=None, theme="dark"):
         fig.add_trace(go.Scatter(
             x=histDates, y=historical[valueCol],
             name="Historical",
-            line=dict(color=COLORS["muted"], width=1.5),
+            line=dict(color=c["muted"], width=1.5),
             hovertemplate="%{x|%Y-%m-%d}<br>%{y:,.1f}<extra></extra>",
+        ))
+
+        lastHistDate = histDates.iloc[-1]
+        lastHistVal = historical[valueCol].iloc[-1]
+        fig.add_trace(go.Scatter(
+            x=[lastHistDate, fcDates.iloc[0]],
+            y=[lastHistVal, forecastResult.predictions[0]],
+            line=dict(color=c["muted"], width=1.5, dash="dot"),
+            showlegend=False, hoverinfo="skip",
         ))
 
     fig.add_trace(go.Scatter(
@@ -68,19 +86,20 @@ def forecastChart(forecastResult, historical=None, title=None, theme="dark"):
     fig.add_trace(go.Scatter(
         x=fcDates, y=forecastResult.lower,
         fill="tonexty", name="95% CI",
-        fillcolor="rgba(99,102,241,0.12)",
+        fillcolor="rgba(6,182,212,0.10)",
         line=dict(width=0), hoverinfo="skip",
     ))
 
     fig.add_trace(go.Scatter(
         x=fcDates, y=forecastResult.predictions,
         name=f"Forecast ({forecastResult.model})",
-        line=dict(color=COLORS["primary"], width=2.5),
+        line=dict(color=c["primary"], width=2.5),
         hovertemplate="%{x|%Y-%m-%d}<br>%{y:,.1f}<extra></extra>",
     ))
 
-    autoTitle = title or f"Forecast — {forecastResult.model} (MAPE {forecastResult.mape:.1f}%)"
-    return applyTheme(fig, title=autoTitle, height=HEIGHT["chart"], theme=theme)
+    autoTitle = title or f"Forecast — {forecastResult.model}"
+    subtitle = f"MAPE {forecastResult.mape:.1f}%  ·  {len(forecastResult.predictions)} steps ahead"
+    return applyTheme(fig, title=autoTitle, subtitle=subtitle, height=HEIGHT["chart"], theme=theme)
 
 
 def dnaRadar(analysisResult, title=None, theme="dark"):
@@ -103,6 +122,7 @@ def dnaRadar(analysisResult, title=None, theme="dark"):
     -------
     go.Figure
     """
+    c = _colors(theme)
     dna = analysisResult.dna
     feat = dna.features
 
@@ -122,27 +142,38 @@ def dnaRadar(analysisResult, title=None, theme="dark"):
     values.append(values[0])
     labelsClosed = labels + [labels[0]]
 
-    bgColor = COLORS["card"] if theme == "dark" else "#f1f5f9"
-    gridColor = "rgba(255,255,255,0.1)" if theme == "dark" else "rgba(0,0,0,0.1)"
-
     fig = go.Figure()
+
     fig.add_trace(go.Scatterpolar(
         r=values, theta=labelsClosed,
         fill="toself",
-        fillcolor="rgba(99,102,241,0.2)",
-        line=dict(color=COLORS["primary"], width=2),
+        fillcolor="rgba(6,182,212,0.12)",
+        line=dict(color=c["primary"], width=2.5),
+        marker=dict(size=6, color=c["primary"]),
         name="DNA Profile",
+        hovertemplate="%{theta}: %{r:.3f}<extra></extra>",
     ))
 
-    autoTitle = title or f"DNA — {dna.category} ({dna.difficulty}, {dna.difficultyScore:.0f}/100)"
     fig.update_layout(
         polar=dict(
-            bgcolor=bgColor,
-            radialaxis=dict(visible=True, range=[0, 1], gridcolor=gridColor),
-            angularaxis=dict(gridcolor=gridColor),
+            bgcolor=c["bg"],
+            radialaxis=dict(
+                visible=True,
+                range=[0, 1],
+                gridcolor=c["grid"],
+                tickfont=dict(size=10, color=c["dim"]),
+                tickvals=[0.25, 0.5, 0.75, 1.0],
+            ),
+            angularaxis=dict(
+                gridcolor=c["grid"],
+                tickfont=dict(size=12, color=c["textMuted"]),
+            ),
         ),
     )
-    return applyTheme(fig, title=autoTitle, height=HEIGHT["chart"], theme=theme)
+
+    autoTitle = title or f"DNA — {dna.category}"
+    subtitle = f"{dna.difficulty}  ·  Score {dna.difficultyScore:.0f}/100"
+    return applyTheme(fig, title=autoTitle, subtitle=subtitle, height=HEIGHT["chart"], theme=theme)
 
 
 def modelHeatmap(comparisonDf, top=10, title=None, theme="dark"):
@@ -165,9 +196,10 @@ def modelHeatmap(comparisonDf, top=10, title=None, theme="dark"):
     -------
     go.Figure
     """
+    c = _colors(theme)
     topDf = comparisonDf.head(top).copy()
     metricCols = ["mape", "rmse", "mae", "smape"]
-    available = [c for c in metricCols if c in topDf.columns]
+    available = [col for col in metricCols if col in topDf.columns]
 
     normalized = topDf[available].copy()
     for col in available:
@@ -179,23 +211,22 @@ def modelHeatmap(comparisonDf, top=10, title=None, theme="dark"):
 
     fig = go.Figure(data=go.Heatmap(
         z=normalized[available].values,
-        x=[c.upper() for c in available],
+        x=[col.upper() for col in available],
         y=topDf["model"].values,
-        colorscale=[
-            [0, COLORS["positive"]],
-            [0.5, COLORS["warning"]],
-            [1, COLORS["negative"]],
-        ],
+        colorscale=HEATMAP_COLORSCALE,
         text=topDf[available].round(2).values,
         texttemplate="%{text}",
-        textfont=dict(size=12),
+        textfont=dict(size=12, color=c["text"]),
         showscale=False,
         hovertemplate="%{y}<br>%{x}: %{text}<extra></extra>",
+        xgap=3,
+        ygap=3,
     ))
 
     fig.update_layout(yaxis=dict(autorange="reversed"))
-    autoTitle = title or f"Top {top} Models — Error Heatmap"
-    return applyTheme(fig, title=autoTitle, height=max(250, top * 35), theme=theme)
+    autoTitle = title or f"Top {top} Models"
+    subtitle = "Normalized error metrics  ·  Green = best, Red = worst"
+    return applyTheme(fig, title=autoTitle, subtitle=subtitle, height=max(280, top * 38), theme=theme)
 
 
 def scenarioChart(scenarios, dates=None, title=None, theme="dark"):
@@ -225,20 +256,22 @@ def scenarioChart(scenarios, dates=None, title=None, theme="dark"):
             xVals = list(range(1, len(s.predictions) + 1))
             hoverFmt = f"{s.name}<br>Step %{{x}}<br>%{{y:,.1f}}<extra></extra>"
 
+        isBaseline = (i == 0)
         fig.add_trace(go.Scatter(
             x=xVals,
             y=s.predictions,
             name=f"{s.name} ({s.impact:+.1f}%)",
             line=dict(
                 color=PALETTE[i % len(PALETTE)],
-                width=2,
-                dash="solid" if i == 0 else "dash",
+                width=2.5 if isBaseline else 2,
+                dash="solid" if isBaseline else "dash",
             ),
             hovertemplate=hoverFmt,
         ))
 
-    autoTitle = title or "What-If Scenario Analysis"
-    return applyTheme(fig, title=autoTitle, height=HEIGHT["chart"], theme=theme)
+    autoTitle = title or "What-If Scenarios"
+    subtitle = f"{len(scenarios)} scenarios  ·  Solid = baseline, Dashed = alternatives"
+    return applyTheme(fig, title=autoTitle, subtitle=subtitle, height=HEIGHT["chart"], theme=theme)
 
 
 def backtestChart(backtestResult, metric="mape", title=None, theme="dark"):
@@ -259,6 +292,8 @@ def backtestChart(backtestResult, metric="mape", title=None, theme="dark"):
     -------
     go.Figure
     """
+    c = _colors(theme)
+
     if metric == "rmse":
         foldValues = [getattr(f, "rmse", 0) for f in backtestResult.folds]
         avgValue = getattr(backtestResult, "avgRMSE", 0)
@@ -271,32 +306,42 @@ def backtestChart(backtestResult, metric="mape", title=None, theme="dark"):
         fmt = ".1f"
 
     foldNums = [f"Fold {f.fold}" for f in backtestResult.folds]
+    minVal = min(foldValues)
+    maxVal = max(foldValues)
 
-    barColors = [
-        COLORS["positive"] if m == min(foldValues) else
-        COLORS["negative"] if m == max(foldValues) else
-        COLORS["primary"]
-        for m in foldValues
-    ]
+    barColors = []
+    for m in foldValues:
+        if m == minVal:
+            barColors.append(c["positive"])
+        elif m == maxVal:
+            barColors.append(c["negative"])
+        else:
+            barColors.append(c["primary"])
 
     suffix = "%" if metric == "mape" else ""
 
     fig = go.Figure()
     fig.add_trace(go.Bar(
         x=foldNums, y=foldValues,
-        marker_color=barColors,
+        marker=dict(
+            color=barColors,
+            line=dict(width=0),
+        ),
         text=[f"{m:{fmt}}{suffix}" for m in foldValues],
         textposition="auto",
-        hovertemplate=f"Fold %{{x}}<br>{metricLabel}: %{{y:{fmt}}}{suffix}<extra></extra>",
+        textfont=dict(size=12, color=c["text"]),
+        hovertemplate=f"%{{x}}<br>{metricLabel}: %{{y:{fmt}}}{suffix}<extra></extra>",
     ))
     fig.add_hline(
         y=avgValue, line_dash="dash",
-        line_color=COLORS["warning"],
+        line_color=c["warning"], line_width=1.5,
         annotation_text=f"Avg {avgValue:{fmt}}{suffix}",
+        annotation_font=dict(size=12, color=c["warning"]),
     )
 
-    autoTitle = title or f"Backtest — {avgValue:{fmt}}{suffix} Average {metricLabel}"
-    return applyTheme(fig, title=autoTitle, height=HEIGHT["chart"], theme=theme)
+    autoTitle = title or f"Backtest — {metricLabel}"
+    subtitle = f"Average {avgValue:{fmt}}{suffix}  ·  {len(foldValues)} folds"
+    return applyTheme(fig, title=autoTitle, subtitle=subtitle, height=HEIGHT["chart"], theme=theme)
 
 
 def metricsCard(metricsDict, title=None, thresholds=None, theme="dark"):
@@ -318,7 +363,7 @@ def metricsCard(metricsDict, title=None, thresholds=None, theme="dark"):
     -------
     go.Figure
     """
-    colors = COLORS if theme == "dark" else {**COLORS, "text": "#0f172a"}
+    c = _colors(theme)
 
     t = thresholds or {}
     accThresh = t.get("accuracy", 95)
@@ -336,21 +381,24 @@ def metricsCard(metricsDict, title=None, thresholds=None, theme="dark"):
     fig = go.Figure()
     for i, (name, val, fmt, suffix, thresh, higherBetter) in enumerate(items):
         if name == "Bias":
-            color = colors["positive"] if abs(val) < thresh else colors["warning"] if abs(val) < thresh * 1.67 else colors["negative"]
+            color = c["positive"] if abs(val) < thresh else c["warning"] if abs(val) < thresh * 1.67 else c["negative"]
         elif higherBetter:
-            color = colors["positive"] if val >= thresh else colors["negative"]
+            color = c["positive"] if val >= thresh else c["negative"]
         else:
-            color = colors["positive"] if val < thresh else colors["negative"]
+            color = c["positive"] if val < thresh else c["negative"]
 
         fig.add_trace(go.Indicator(
             mode="number",
             value=val,
             number=dict(
-                font=dict(size=40, color=color),
+                font=dict(size=36, color=color, family="Inter, system-ui, sans-serif"),
                 valueformat=fmt,
                 suffix=suffix,
             ),
-            title=dict(text=name, font=dict(size=16, color=colors["text"])),
+            title=dict(
+                text=f"<b>{name}</b>",
+                font=dict(size=13, color=c["textMuted"]),
+            ),
             domain=dict(row=0, column=i),
         ))
 

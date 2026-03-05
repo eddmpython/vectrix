@@ -4,6 +4,8 @@ title: "Tutorial 07 — Visualization"
 
 # Tutorial 07 — Visualization
 
+[![Open in Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/eddmpython/vectrix/blob/master/notebooks/tutorials/07_visualization.ipynb)
+
 **Numbers tell the story, but charts sell it.** Vectrix's visualization module (`vectrix.viz`) provides publication-quality interactive charts built on Plotly — designed to work seamlessly with every Vectrix result object.
 
 All charts follow a consistent pattern: pass a Vectrix result, get back a Plotly `go.Figure` you can display inline, save to HTML, or embed in dashboards.
@@ -266,7 +268,7 @@ All chart functions accept `theme="dark"` (default) or `theme="light"`.
 
 ### Dark Theme (Default)
 
-Deep navy background (`#0f172a`), light text (`#f1f5f9`). Best for Jupyter notebooks and dark-mode dashboards.
+Deep navy background (`#0f172a`), light text (`#f8fafc`). Best for Jupyter notebooks and dark-mode dashboards.
 
 ### Light Theme
 
@@ -294,16 +296,19 @@ fig.show()
 
 | Key | Dark | Light | Usage |
 |-----|------|-------|-------|
-| `primary` | `#6366f1` | `#6366f1` | Main brand color (indigo) |
-| `accent` | `#a855f7` | `#a855f7` | Secondary highlight (purple) |
-| `positive` | `#22c55e` | `#16a34a` | Good values, below threshold |
+| `primary` | `#06b6d4` | `#06b6d4` | Main brand color (cyan) |
+| `accent` | `#8b5cf6` | `#8b5cf6` | Secondary highlight (purple) |
+| `positive` | `#10b981` | `#059669` | Good values, below threshold |
 | `negative` | `#ef4444` | `#dc2626` | Bad values, above threshold |
 | `warning` | `#f59e0b` | `#d97706` | Caution, averages |
 | `muted` | `#94a3b8` | `#64748b` | Historical data, secondary |
-| `bg` | `#0f172a` | `#ffffff` | Background |
-| `card` | `#1e293b` | `#f8fafc` | Card/panel background |
-| `text` | `#f1f5f9` | `#0f172a` | Primary text |
-| `grid` | `rgba(255,255,255,0.06)` | `rgba(0,0,0,0.06)` | Grid lines |
+| `bg` | `#0f172a` | `#ffffff` | Plot background |
+| `bgDarker` | `#020617` | `#f8fafc` | Paper background |
+| `card` | `#1e293b` | `#f1f5f9` | Card/panel background |
+| `text` | `#f8fafc` | `#0f172a` | Primary text |
+| `textMuted` | `#94a3b8` | `#64748b` | Secondary text |
+| `border` | `#334155` | `#e2e8f0` | Borders, dividers |
+| `grid` | `rgba(255,255,255,0.05)` | `rgba(0,0,0,0.05)` | Grid lines |
 
 ### Height Constants
 
@@ -312,11 +317,11 @@ Standard heights for consistent layouts:
 ```python
 from vectrix.viz import HEIGHT
 
-HEIGHT["chart"]     # 450 — individual charts
-HEIGHT["card"]      # 220 — metrics cards
-HEIGHT["report"]    # 600 — forecast report
-HEIGHT["analysis"]  # 650 — analysis report
-HEIGHT["small"]     # 350 — compact charts
+HEIGHT["chart"]     # 480 — individual charts
+HEIGHT["card"]      # 240 — metrics cards
+HEIGHT["report"]    # 640 — forecast report
+HEIGHT["analysis"]  # 680 — analysis report
+HEIGHT["small"]     # 360 — compact charts
 ```
 
 ## Saving Charts
