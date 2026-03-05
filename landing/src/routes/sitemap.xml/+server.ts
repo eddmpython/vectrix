@@ -29,9 +29,15 @@ const pages = [
 	'/docs/tutorials/04_models/',
 	'/docs/tutorials/05_adaptive/',
 	'/docs/tutorials/06_business/',
+	'/docs/tutorials/07_visualization/',
+	'/playground',
 	'/blog',
 	'/blog/what-is-forecasting',
 	'/blog/how-we-know-forecasts-work',
+	'/blog/python-forecasting-libraries',
+	'/blog/your-first-forecast-in-python',
+	'/blog/forecasting-models-explained',
+	'/blog/statistical-vs-foundation',
 	'/docs/benchmarks',
 	'/docs/changelog'
 ];
@@ -46,8 +52,8 @@ export const GET: RequestHandler = () => {
 			(p) => `  <url>
     <loc>${SITE}${p}</loc>
     <lastmod>${lastmod}</lastmod>
-    <changefreq>${p === '/' || p.startsWith('/blog') ? 'weekly' : 'monthly'}</changefreq>
-    <priority>${p === '/' ? '1.0' : p.startsWith('/docs/getting-started') ? '0.9' : p.startsWith('/blog') ? '0.8' : '0.7'}</priority>
+    <changefreq>${p === '/' || p.startsWith('/blog') || p === '/playground' ? 'weekly' : 'monthly'}</changefreq>
+    <priority>${p === '/' ? '1.0' : p === '/playground' ? '0.9' : p.startsWith('/docs/getting-started') ? '0.9' : p.startsWith('/blog') ? '0.8' : '0.7'}</priority>
   </url>`
 		)
 		.join('\n');

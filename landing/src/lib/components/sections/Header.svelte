@@ -40,6 +40,10 @@
 				class="px-3 py-2 text-sm text-vx-text-muted hover:text-vx-text transition-colors no-underline rounded-lg hover:bg-white/5">
 				Blog
 			</a>
+			<a href="{base}/playground"
+				class="px-3 py-2 text-sm text-vx-text-muted hover:text-vx-text transition-colors no-underline rounded-lg hover:bg-white/5">
+				Playground
+			</a>
 		</div>
 
 		<div class="flex items-center gap-2">

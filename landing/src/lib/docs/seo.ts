@@ -30,6 +30,7 @@ export const pageDescriptions: Record<string, string> = {
 	'/docs/tutorials/05_adaptive': 'Tutorial: adaptive forecasting with regime detection, self-healing data, and constraint enforcement.',
 	'/docs/tutorials/06_business': 'Tutorial: business intelligence with anomaly detection, scenario analysis, and backtesting.',
 	'/docs/tutorials/07_visualization': 'Tutorial: interactive visualization with Plotly. Forecast charts, DNA radar, model heatmaps, scenario plots, and dashboards.',
+	'/playground': 'Try Vectrix forecasting in your browser. Explore 6 real-world datasets with DNA profiling, automatic model selection, and interactive forecast visualization.',
 	'/blog': 'Learn forecasting from zero. Concepts, tutorials, benchmarks, and best practices for prediction with Python.',
 	'/blog/what-is-forecasting': 'What is forecasting? The one concept behind every business decision. Learn what it means, why it matters, and how it works.',
 	'/blog/how-we-know-forecasts-work': 'How do we know if a forecast is any good? Benchmarks, metrics, and the M Competitions explained. MAE, MAPE, MASE, OWA — and why they matter.',

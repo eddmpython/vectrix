@@ -33,7 +33,7 @@ const config = {
 			strict: false
 		}),
 		prerender: {
-			entries: ['*', '/sitemap.xml'],
+			entries: ['*', '/sitemap.xml', '/playground'],
 			handleUnseenRoutes: 'warn',
 			handleHttpError: ({ path, message }) => {
 				if (path.startsWith('/vectrix/blog/') && !path.endsWith('.html')) return;

@@ -8,7 +8,7 @@
 			{ label: 'Quickstart', href: `${base}/docs/getting-started/quickstart` },
 			{ label: 'API Reference', href: `${base}/docs/api/easy` },
 			{ label: 'User Guide', href: `${base}/docs/guide/forecasting` },
-			{ label: 'Tutorials', href: `${base}/docs/tutorials/01_quickstart/` }
+			{ label: 'Playground', href: `${base}/playground` }
 		],
 		Project: [
 			{ label: 'GitHub', href: 'https://github.com/eddmpython/vectrix' },
