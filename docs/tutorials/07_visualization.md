@@ -210,7 +210,7 @@ fig.show()
 
 ### Custom Thresholds
 
-Default thresholds: Accuracy >= 95%, |Bias| < 3%, WAPE < 5%, MASE < 1.0. Override any of them:
+Default thresholds: Accuracy &gt;= 95%, |Bias| &lt; 3%, WAPE &lt; 5%, MASE &lt; 1.0. Override any of them:
 
 ```python
 fig = metricsCard(result, thresholds={
