@@ -6,7 +6,7 @@ Each function returns a single Plotly figure with subplots.
 
 import pandas as pd
 
-from .theme import COLORS, PALETTE, HEIGHT, applyTheme
+from .theme import COLORS, HEIGHT, PALETTE, applyTheme
 
 try:
     import plotly.graph_objects as go
