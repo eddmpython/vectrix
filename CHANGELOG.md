@@ -5,6 +5,35 @@ All notable changes to Vectrix will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.0.17] - 2026-03-05
+
+HTML dashboard generator and visualization module polish.
+
+### Added
+
+**HTML Dashboard (`vectrix.viz.dashboard`)**
+- `dashboard()` function generates self-contained HTML reports with embedded Plotly charts
+- shadcn/ui dark theme design tokens — 3-layer brightness, transparency borders, monochrome palette
+- Report narrative flow: Overview → Data Profile → Forecast Results → Visualizations
+- Vectrix brand icon (base64 embedded) and gradient wordmark in header
+- Custom title support via `title` parameter
+- `DashboardResult` class with `.show()` (Jupyter inline / browser), `.save(path)`, `.html`
+- Terminal progress feedback via stderr during dashboard generation
+- Data Profile section with DNA feature bars, descriptive statistics, key insights, recommended models
+- Forecast Results section with accuracy KPIs and integrated model comparison table
+- Partial report support — any combination of forecast/analysis/comparison/historical
+
+### Changed
+
+- `theme.py`: HEATMAP_COLORSCALE updated to 5-step monochrome (dark green → teal → cyan → violet → dark purple)
+- Removed unused imports across viz module (COLORS in charts.py, report.py, dashboard.py)
+- Fixed extraneous f-string prefixes in report.py
+
+### Documentation
+
+- `07_visualization.md`: Added HTML Dashboard section with basic usage, custom title, save, partial reports, terminal progress
+- `API_SPEC.md`: Added `dashboard()` function signature, `DashboardResult` methods, report structure
+
 ## [0.0.16] - 2026-03-05
 
 Code quality and architecture cleanup release — eliminates MODEL_INFO indirection layer, enforces registry as single source of truth for all model metadata, fixes ETSModel refit bug, and adds refit contract tests.

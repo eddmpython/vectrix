@@ -340,9 +340,92 @@ fig.write_json("forecast.json")
 
 **Note:** `write_image()` requires the `kaleido` package: `pip install kaleido`.
 
-## Complete Dashboard Example
+## HTML Dashboard
 
-Build a full analysis dashboard by combining multiple charts:
+The `dashboard()` function generates a self-contained HTML report that combines all analysis into a single page — data profile, forecast results, model comparison, and interactive charts. No Plotly CDN dependency required in the output.
+
+### Basic Usage
+
+```python
+from vectrix import forecast, analyze, compare, loadSample
+from vectrix.viz import dashboard
+
+df = loadSample("airline")
+
+result = forecast(df, steps=12)
+analysis = analyze(df)
+comparison = compare(df, steps=12)
+
+report = dashboard(
+    forecast=result,
+    analysis=analysis,
+    comparison=comparison,
+    historical=df,
+)
+report.show()  # Opens in browser (terminal) or displays inline (Jupyter)
+```
+
+### Custom Title
+
+```python
+report = dashboard(
+    forecast=result,
+    analysis=analysis,
+    comparison=comparison,
+    historical=df,
+    title="Airline Passengers — Monthly Forecast",
+)
+report.show()
+```
+
+### Save to File
+
+```python
+report.save("forecast_report.html")
+```
+
+The HTML file is fully self-contained (embedded Plotly JS + inline CSS). Share it by email, upload to a web server, or open locally in any browser.
+
+### Report Sections
+
+The dashboard follows a narrative flow:
+
+1. **Overview** — observation count, frequency, difficulty score, forecast horizon
+2. **Data Profile** — DNA feature bars, descriptive statistics, key insights, recommended models
+3. **Forecast Results** — accuracy KPIs (MAPE, RMSE, MAE, sMAPE), forecast details, model comparison table
+4. **Visualizations** — interactive forecast chart with confidence intervals, DNA radar chart
+
+### Partial Reports
+
+Every parameter is optional. Generate a profile-only report (no forecast):
+
+```python
+report = dashboard(analysis=analysis, historical=df, title="Data Profile Report")
+report.save("profile.html")
+```
+
+Or a forecast-only report (no DNA analysis):
+
+```python
+report = dashboard(forecast=result, historical=df, title="Forecast Report")
+report.save("forecast.html")
+```
+
+### Terminal Progress
+
+When running from a terminal (not Jupyter), the dashboard builder prints progress to stderr:
+
+```
+[vectrix] Building header... (0.0s)
+[vectrix] Analyzing data profile... (0.0s)
+[vectrix] Computing performance metrics... (0.0s)
+[vectrix] Rendering charts... (0.2s)
+[vectrix] Dashboard ready (0.3s, 48,244 bytes)
+```
+
+## Combining Individual Charts
+
+For maximum flexibility, build your own dashboards by combining individual chart functions. Each returns a standard Plotly `go.Figure`:
 
 ```python
 from vectrix import forecast, analyze, compare, loadSample

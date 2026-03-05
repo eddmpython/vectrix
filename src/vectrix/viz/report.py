@@ -7,7 +7,7 @@ Design language: Cyan→Purple gradient, dark navy, Inter typography.
 
 import pandas as pd
 
-from .theme import COLORS, HEIGHT, PALETTE, _colors, applyTheme
+from .theme import HEIGHT, PALETTE, _colors, applyTheme
 
 try:
     import plotly.graph_objects as go
@@ -59,7 +59,7 @@ def forecastReport(forecastResult, historical=None, title=None, theme="dark"):
         subplot_titles=[
             f"<b>Forecast</b>  <span style='font-size:11px;color:{c['textMuted']}'>"
             f"{forecastResult.model}  ·  {len(forecastResult.predictions)} steps</span>",
-            f"<b>Error Metrics</b>",
+            "<b>Error Metrics</b>",
         ],
     )
 
@@ -168,8 +168,8 @@ def analysisReport(analysisResult, title=None, theme="dark"):
         vertical_spacing=0.10,
         horizontal_spacing=0.08,
         subplot_titles=[
-            f"<b>DNA Profile</b>",
-            f"<b>Key Features</b>",
+            "<b>DNA Profile</b>",
+            "<b>Key Features</b>",
             "",
         ],
     )

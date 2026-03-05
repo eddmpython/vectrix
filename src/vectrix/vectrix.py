@@ -43,7 +43,7 @@ class Vectrix:
     Dependencies: numpy, pandas, scipy (required), numba (optional)
     """
 
-    VERSION = "0.0.16"
+    VERSION = "0.0.17"
 
     def __init__(
         self,

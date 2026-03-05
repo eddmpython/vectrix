@@ -23,6 +23,7 @@ from .charts import (
     modelHeatmap,
     scenarioChart,
 )
+from .dashboard import dashboard
 from .report import analysisReport, forecastReport
 from .theme import (
     COLORS,
@@ -43,6 +44,7 @@ __all__ = [
     "metricsCard",
     "forecastReport",
     "analysisReport",
+    "dashboard",
     "COLORS",
     "LIGHT_COLORS",
     "PALETTE",

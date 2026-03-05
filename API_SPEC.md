@@ -731,6 +731,28 @@ analysisReport(
 ) -> go.Figure               # 2x2: DNA radar (top-left) + feature bars (top-right) + difficulty indicator (bottom)
 ```
 
+### HTML Dashboard
+
+```python
+from vectrix.viz import dashboard
+
+dashboard(
+    forecast=None,           # EasyForecastResult | None
+    analysis=None,           # EasyAnalysisResult | None
+    comparison=None,         # pd.DataFrame | None — from compare()
+    historical=None,         # pd.DataFrame | None
+    title="Vectrix Report",  # str — custom report title
+    theme="dark"             # str — 'dark' or 'light'
+) -> DashboardResult         # Self-contained HTML report
+```
+
+**DashboardResult methods:**
+- `.show()` — display inline (Jupyter) or open browser (terminal)
+- `.save(path)` — save to HTML file
+- `.html` — raw HTML string
+
+**Report sections:** Overview KPIs → Data Profile (DNA) → Forecast Results (metrics + model comparison) → Visualizations (forecast chart + DNA radar)
+
 ### Theme Utilities
 
 ```python

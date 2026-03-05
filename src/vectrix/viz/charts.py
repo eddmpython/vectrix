@@ -8,7 +8,6 @@ Design language: Cyan→Purple gradient, dark navy, Inter typography.
 import pandas as pd
 
 from .theme import (
-    COLORS,
     HEATMAP_COLORSCALE,
     HEIGHT,
     PALETTE,
